@@ -1,0 +1,22 @@
+.form {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  grid-template-rows: repeat(3, 1fr) 3fr;
+  grid-column-gap: 16px;
+  grid-row-gap: 32px;
+  width: 600px;
+}
+
+.form__label {
+  grid-column: 1;
+}
+
+.form__input,
+.form__textarea {
+  grid-column: 2;
+}
+
+.form__fieldset {
+  grid-column-start: 1;
+  grid-column-end: 3;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Manjari&display=swap"
+      rel="stylesheet"
+    />
+    <title>Daniël Terwiel - Frontend developer</title>
+    <meta
+      description="Daniël Terwiel is an accomplished Frontend-end developer with a sharp eye "
+    />
+    <link rel="stylesheet" type="text/css" href="./scss/style.scss" />
+  </head>
+  <body>
+    <main itemscope itemtype="http://schema.org/Person">
+      <h1 itemprop="jobTitle">Frontend developer</h1>
+      <h2 itemprop="name">Daniël Terwiel</h2>
+      <div itemprop="description">
+        <h3>Stack</h3>
+        <ul>
+          <li></abbr>JS</abbr></li>
+          <li>CSS</li>
+          <li>HTML</li>
+          <li>React</li>
+          <li>Vue</li>
+        </ul>
+        <h3>
+          Focus
+        </h3>
+        <ul>
+          <li>Communication</li>
+          <li>Architecture</li>
+          <li>Performance</li>
+          <li>Accessibility</li>
+        </ul>
+      </div>
+      <address
+        itemprop="address"
+        itemscope
+        itemtype="http://schema.org/PostalAddress"
+      >
+        <span itemprop="addressLocality">Amsterdam</span>
+        <br />
+        <span itemprop="addressCountry">The Netherlands</span>
+      </address>
+    </main>
+    <aside>
+      <h3>Contact</h3>
+      <p>
+        <a
+          href="https://www.linkedin.com/in/terwiel/"
+          title="LinkedIN Daniël Terwiel"
+          >LinkedIN</a
+        >
+      </p>
+      <form
+        class="form"
+        data-netlify="true"
+        id="contact"
+        method="POST"
+        name="contact"
+        onsubmit="return validateForm();"
+      >
+        <label for="name" class="form__label">
+          <strong>Name</strong>
+        </label>
+        <input id="name" class="form__input" type="text" name="name" />
+        <label for="email" class="form__label">
+          <strong> Email</strong>
+        </label>
+        <input id="email" class="form__input" type="email" name="email" />
+        <fieldset class="form__fieldset">
+          <legend class="form__label">
+            <strong>
+              Your Role
+            </strong>
+          </legend>
+          <div>
+            <input
+              class="form__input"
+              type="radio"
+              name="role"
+              value="recruiter"
+              id="recruiter"
+              checked
+            />
+            <label for="recruiter" class="form__label">Recruiter</label>
+          </div>
+          <div>
+            <input
+              class="form__input"
+              type="radio"
+              name="role"
+              value="corporate-recruiter"
+              id="corporate-recruiter"
+            />
+            <label for="corporate-recruiter" class="form__label"
+              >Corporate recruiter</label
+            >
+          </div>
+        </fieldset>
+        <label for="message" class="form__label"
+          ><strong>Message</strong></label
+        >
+        <textarea id="message" class="form__textarea" name="message"></textarea>
+        <div class="form__submit">
+          <button type="submit">Send</button>
+        </div>
+      </form>
+    </aside>
+  </body>
+  <script src="./script.js"></script>
+</html>

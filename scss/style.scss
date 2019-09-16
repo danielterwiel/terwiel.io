@@ -1,0 +1,12 @@
+// @import "_normalize";
+@import "normalize/import-now";
+@import 'variables';
+@import 'form';
+@import 'input';
+
+body {
+  background-color: $color-primary;
+  color: #071a32;
+  font-family: "Manjari, Helvetica, Arial", sans-serif;
+  font-size: 16px;
+}
