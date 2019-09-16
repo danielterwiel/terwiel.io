@@ -1,0 +1,10 @@
+{
+  "name": "terwiel.io",
+  "description": "Personal website of Daniël Terwiel",
+  "scripts": {
+    "start": "npx parcel -p 1337 watch index.html"
+  },
+  "devDependencies": {
+    "sass": "^1.22.12"
+  }
+}
