@@ -2,9 +2,11 @@
   "name": "terwiel.io",
   "description": "Personal website of Daniël Terwiel",
   "scripts": {
-    "start": "npx parcel -p 1337 watch index.html"
+    "start": "npx parcel -p 1337 watch index.html",
+    "build": "npx parcel build index.html"
   },
   "devDependencies": {
+    "cssnano": "^4.1.10",
     "sass": "^1.22.12"
   }
 }
