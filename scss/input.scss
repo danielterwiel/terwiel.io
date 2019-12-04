@@ -1,7 +1,6 @@
 input[type=text],
 input[type=email] {
   background-color: white;
-  border: 0;
 }
 
 input:focus,
@@ -10,5 +9,5 @@ select:focus,
 select:active,
 textarea:focus,
 textarea:active {
-  outline: red dotted;
+  outline: yellowgreen dotted;
 }

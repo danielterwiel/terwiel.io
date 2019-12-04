@@ -5,8 +5,33 @@
 @import 'input';
 
 body {
-  background-color: $color-primary;
+  align-items: center;
+  background-color: $color-background;
   color: #071a32;
-  font-family: "Manjari, Helvetica, Arial", sans-serif;
-  font-size: 16px;
+  display: flex;
+  flex-direction: column;
+  font-family: "Helvetica, Arial", sans-serif;
+  font-size: $font-size-default;
+  justify-content: center;
+
+  @media only screen and (min-width: 40rem) {
+    align-items: unset;
+    flex-direction: row;
+  }
+}
+
+.main,
+.aside {
+  max-width: 20em;
+  margin: 1rem;
+}
+
+@media only screen and (min-width: 40rem) {
+  aside {
+    padding-top: 4rem;
+  }
+}
+
+a:-webkit-any-link {
+  color: $color-primary;
 }

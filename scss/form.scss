@@ -1,22 +1,65 @@
+@import 'variables';
+
 .form {
   display: grid;
   grid-template-columns: 1fr 3fr;
   grid-template-rows: repeat(3, 1fr) 3fr;
-  grid-column-gap: 16px;
-  grid-row-gap: 32px;
-  width: 600px;
+  grid-column-gap: 1rem;
+  grid-row-gap: 2rem;
+  width: 20rem;
 }
 
 .form__label {
   grid-column: 1;
+  align-self: center;
 }
 
+.form__fieldset,
 .form__input,
-.form__textarea {
+.form__textarea,
+.form__submit,
+.form__submit-button {
+  border-radius: $border-radius;
   grid-column: 2;
+  border-color: $color-border;
+  border-width: 2px;
 }
 
-.form__fieldset {
-  grid-column-start: 1;
-  grid-column-end: 3;
+.form__submit-button {
+  border-radius: $border-radius;
+  padding: 1rem;
+  width: 100%;
+  border-color: $color-border;
+}
+
+.form__submit-button--fade-out {
+  animation: 1s fadeOut;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.form__submit-button--fade-in {
+  animation: 1s fadeIn;
+  animation-fill-mode: forwards;
+  opacity: 1;
+  pointer-events: unset;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
