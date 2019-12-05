@@ -26,6 +26,11 @@
   border-width: 2px;
 }
 
+.form__input,
+.form__textarea {
+  padding: 0.5rem;
+}
+
 .form__submit-button {
   border-radius: $border-radius;
   padding: 1rem;
