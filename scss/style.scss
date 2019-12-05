@@ -13,6 +13,7 @@ body {
   font-family: "Helvetica, Arial", sans-serif;
   font-size: $font-size-default;
   justify-content: center;
+  padding: 1rem;
 
   @media only screen and (min-width: 40rem) {
     align-items: unset;
@@ -22,8 +23,7 @@ body {
 
 .main,
 .aside {
-  max-width: 20em;
-  margin: 1rem;
+  min-width: 20em;
 }
 
 @media only screen and (min-width: 40rem) {
