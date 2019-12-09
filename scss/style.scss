@@ -2,12 +2,11 @@
 @import "normalize/import-now";
 @import 'variables';
 @import 'form';
-@import 'input';
 
 body {
   align-items: center;
   background-color: $color-background;
-  color: #071a32;
+  color: $color-primary;
   display: flex;
   flex-direction: column;
   font-family: "Helvetica, Arial", sans-serif;
@@ -19,7 +18,13 @@ body {
     align-items: unset;
     flex-direction: row;
   }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: $color-primary;
+    color: $color-background;
+  }
 }
+
 
 .main,
 .aside {
@@ -34,4 +39,8 @@ body {
 
 a:-webkit-any-link {
   color: $color-primary;
+  
+  @media (prefers-color-scheme: dark) {
+    color: $color-background;
+  }
 }

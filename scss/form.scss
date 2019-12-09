@@ -1,4 +1,6 @@
 @import 'variables';
+@import 'input';
+@import 'radio';
 
 .form {
   display: grid;
@@ -22,7 +24,6 @@
 .form__submit-button {
   border-radius: $border-radius;
   grid-column: 2;
-  border-color: $color-border;
   border-width: 2px;
 }
 

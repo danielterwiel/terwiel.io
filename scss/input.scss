@@ -4,11 +4,18 @@ input[type=email] {
   padding: .5rem;
 }
 
+// set outline
 input:focus,
 input:active,
 select:focus,
 select:active,
 textarea:focus,
-textarea:active {
-  outline: yellowgreen;
+textarea:active,
+a:focus,
+a:active,
+button:focus,
+button:active,
+/*Adding focus styles on the outer-box of the fake radio*/
+input[type="radio"]:focus + label::before {
+  outline: rgb(59, 153, 252) auto 5px;
 }
