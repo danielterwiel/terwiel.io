@@ -14,7 +14,7 @@ body {
   justify-content: center;
   padding: 1rem;
 
-  @media only screen and (min-width: 40rem) {
+  @media only screen and (min-width: 60rem) {
     align-items: unset;
     flex-direction: row;
   }
@@ -25,10 +25,19 @@ body {
   }
 }
 
-
+header,
 .main,
 .aside {
   min-width: 20em;
+}
+
+header {
+  padding-top: 12rem;
+  padding-bottom: 4em;
+
+  @media only screen and (min-width: 40rem) {
+    padding-top: 4rem;
+  }
 }
 
 @media only screen and (min-width: 40rem) {
@@ -43,4 +52,9 @@ a:-webkit-any-link {
   @media (prefers-color-scheme: dark) {
     color: $color-background;
   }
+}
+
+.aside__linkedin-logo {
+  height: 1rem;
+  width: 1rem;
 }
