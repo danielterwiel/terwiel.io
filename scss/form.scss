@@ -27,9 +27,11 @@
   border-width: 2px;
 }
 
+.form__fieldset,
 .form__input,
 .form__textarea {
   padding: 0.5rem;
+  border-color: $color-border;
 }
 
 .form__submit-button {
@@ -49,6 +51,13 @@
   animation-fill-mode: forwards;
   opacity: 0;
   pointer-events: none;
+}
+
+.form__submit-button:hover {
+  background-color: $color-secondary;
+  color: $color-background;
+  cursor: pointer;
+  border-color: $color-primary;
 }
 
 @keyframes fadeOut {

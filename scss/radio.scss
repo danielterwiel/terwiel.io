@@ -1,3 +1,5 @@
+@import 'variables';
+
 .form__fieldset input[type="radio"] {
   opacity: 0;
   width: 0;
@@ -39,11 +41,15 @@
   border-width: 2px;
 }
 
+.form__fieldset label:hover {
+  cursor: pointer;
+}
+
 /*bullet of the fake radio*/
 .form__fieldset label::after {
-  height: 5px;
+  height: 3px;
   width: 9px;
-  border-left: 2px solid;
+  border-left: 2px solid ;
   border-bottom: 2px solid;
   
   transform: rotate(-45deg);
