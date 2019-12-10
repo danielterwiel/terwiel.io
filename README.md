@@ -3,11 +3,17 @@
 ## Installation
 
 ```sh
-npm i
+npm install
 ```
 
-## Usage
+## Develop
 
 ```sh
-npx parcel -p 1337 watch index.html
+npm start
+```
+
+## Build
+
+```sh
+npm run build
 ```
