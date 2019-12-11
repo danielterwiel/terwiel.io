@@ -54,7 +54,9 @@ a:-webkit-any-link {
   }
 }
 
-.aside__linkedin-logo {
-  height: 1rem;
-  width: 1rem;
+.logo__path,
+.linkedin-logo__path {
+  @media (prefers-color-scheme: dark) {
+    fill: $color-background;
+  }
 }
