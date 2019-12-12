@@ -48,15 +48,12 @@ header {
 }
 
 a:-webkit-any-link {
-  color: $color-primary;
-  
-  @media (prefers-color-scheme: dark) {
-    color: $color-background;
-  }
+  text-decoration: none;
 }
 
 .logo__path,
-.linkedin-logo__path {
+.linkedin-logo__path,
+.twitter-logo__path {
   @media (prefers-color-scheme: dark) {
     fill: $color-background;
   }
