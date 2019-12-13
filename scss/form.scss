@@ -67,6 +67,11 @@
   border-color: $color-primary;
 }
 
+.form__contact-links {
+  display: flex;
+  justify-content: space-around;
+}
+
 @keyframes fadeOut {
   0% {
     opacity: 1;
