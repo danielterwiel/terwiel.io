@@ -15,7 +15,7 @@ body {
   justify-content: center;
   padding: 1rem;
 
-  @media only screen and (min-width: 60rem) {
+  @media only screen and (min-width: 70rem) {
     align-items: unset;
     flex-direction: row;
   }
