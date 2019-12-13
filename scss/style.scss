@@ -29,7 +29,7 @@ body {
 header,
 .main,
 .aside {
-  min-width: 20em;
+  width: 20em;
 }
 
 header {
@@ -49,6 +49,11 @@ header {
 
 a:-webkit-any-link {
   text-decoration: none;
+}
+
+.logo {
+  max-height: 100vh;
+  max-width: 16rem;
 }
 
 .logo__path,
