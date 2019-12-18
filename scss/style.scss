@@ -27,8 +27,8 @@ body {
 }
 
 main {
-  background-color: $color-background;
-  color: $color-primary;
+  background-color: $color-secondary;
+  color: $color-background;
   @media (prefers-color-scheme: dark) {
     background-color: $color-background;
     color: $color-primary;
