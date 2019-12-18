@@ -1,6 +1,8 @@
 // @import "_normalize";
 @import "normalize/import-now";
 @import 'variables';
+@import 'grid';
+@import 'animations';
 @import 'form';
 @import 'a11y';
 
@@ -8,17 +10,8 @@ body {
   align-items: center;
   background-color: $color-background;
   color: $color-primary;
-  display: flex;
-  flex-direction: column;
   font-family: "Helvetica, Arial", sans-serif;
   font-size: $font-size-default;
-  justify-content: center;
-  padding: 1rem;
-
-  @media only screen and (min-width: 70rem) {
-    align-items: unset;
-    flex-direction: row;
-  }
 
   @media (prefers-color-scheme: dark) {
     background-color: $color-secondary;
@@ -26,27 +19,19 @@ body {
   }
 }
 
-header,
-.main,
-.aside {
-  width: 20em;
-}
-
-header {
+.header {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  display: grid;
-  justify-items: center;
-  padding-bottom: 4em;
-  padding-top: 12rem;
-
-  @media only screen and (min-width: 40rem) {
-    padding-top: 4rem;
-  }
+  flex-direction: column;
 }
 
-@media only screen and (min-width: 40rem) {
-  aside {
-    padding-top: 4rem;
+main {
+  background-color: $color-background;
+  color: $color-primary;
+  @media (prefers-color-scheme: dark) {
+    background-color: $color-background;
+    color: $color-primary;
   }
 }
 
