@@ -35,6 +35,20 @@ main {
   }
 }
 
+.divider__start {
+  height: 100%;
+  width: 100%;
+  background: #357675; /* Old browsers */
+  background: linear-gradient(93deg, #357675 0%,#357675 50%,#ffeadb 51%,#ffeadb 51%,#ffeadb 100%);
+}
+
+.divider__end {
+  height: 100%;
+  width: 100%;
+  background: #357675; /* Old browsers */
+  background: linear-gradient(93deg, #ffeadb 0%,#ffeadb 50%,#ffeadb 51%,#357675 51%,#357675 100%);
+}
+
 a:-webkit-any-link {
   text-decoration: none;
 }
