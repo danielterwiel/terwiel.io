@@ -8,7 +8,9 @@ body {
 }
 
 main,
-aside {
+aside,
+.divider__start,
+.divider__end {
   align-self: start;
   height: 100%;
 }
