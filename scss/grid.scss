@@ -7,6 +7,14 @@ body {
   }
 }
 
+.main,
+.aside {
+  @media only screen and (min-width: 64.01rem) {
+    display: flex;
+    align-items: center;
+  }
+}
+
 main,
 aside,
 .divider__start,
@@ -21,8 +29,4 @@ aside,
   @media only screen and (min-width: 42rem) {
     padding: 3rem;
   }
-}
-
-.wrapper--rotate {
-  transform: rotate(-3deg);
 }
