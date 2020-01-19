@@ -6,9 +6,11 @@ roleRadios.forEach(roleRadio => {
     if (id === 'recruiter') {
       submitButton.classList.add('form__submit-button--fade-out')
       submitButton.classList.remove('form__submit-button--fade-in')
+      submitButton.tabIndex = "-1"
     } else {
       submitButton.classList.add('form__submit-button--fade-in')
       submitButton.classList.remove('form__submit-button--fade-out')
+      submitButton.tabIndex = "0"
     }
   })
 })
