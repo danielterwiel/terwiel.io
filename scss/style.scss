@@ -38,21 +38,21 @@ main {
 
 .divider__start {
   background: $color-secondary;
-  background: linear-gradient(93deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
+  background: linear-gradient(87deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
   
   @media (prefers-color-scheme: dark) {
     background: $color-secondary;
-    background: linear-gradient(93deg, $color-secondary 0%, $color-secondary 50%, $color-background 51%, $color-background 51%, $color-background 100%);
+    background: linear-gradient(87deg, $color-secondary 0%, $color-secondary 50%, $color-background 51%, $color-background 51%, $color-background 100%);
   }
 }
 
 .divider__end {
   background: $color-background;
-  background: linear-gradient(93deg, $color-secondary 0%, $color-secondary 50%, $color-secondary 51%, $color-background 51%, $color-background 100%);
+  background: linear-gradient(87deg, $color-secondary 0%, $color-secondary 50%, $color-secondary 51%, $color-background 51%, $color-background 100%);
 
   @media (prefers-color-scheme: dark) {
     background: $color-secondary;
-    background: linear-gradient(93deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
+    background: linear-gradient(87deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
   }
 }
 
