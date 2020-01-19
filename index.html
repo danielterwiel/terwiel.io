@@ -50,7 +50,7 @@
         </svg>
       </div>
     </header>
-    <div class="divider__start"></div>
+    <div class="divider__start" role="presentation"></div>
     <main class="main" itemscope itemtype="http://schema.org/Person">
       <div class="wrapper">
 
@@ -101,12 +101,15 @@
         </address>
       </div>
     </main>
-    <div class="divider__end"></div>
+    <div class="divider__end" role="presentation"></div>
     <aside class="aside">
       <div class="wrapper">
         <h3>Contact</h3>
         <form data-netlify="true" id="contact" method="POST" name="contact">
           <div class="form">
+            <label class="form__column-left form__label">
+              <b>Socials</b>
+            </label>
             <div class="form__column-right form__contact-links">
               <a
                 href="https://www.linkedin.com/in/terwiel/"
@@ -133,9 +136,9 @@
             </div>
             <fieldset class="form__column-right form__fieldset">
               <legend class="form__label">
-                <strong>
+                <b>
                   Your Role
-                </strong>
+                </b>
               </legend>
               <div class="form__radio-wrapper">
                 <input
@@ -174,15 +177,15 @@
               </div>
             </fieldset>
             <label for="name" class="form__column-left form__label">
-              <strong>Name</strong>
+              <b>Name</b>
             </label>
             <input id="name" class="form__column-right form__input" type="text" name="name" />
             <label for="email" class="form__column-left form__label">
-              <strong> Email</strong>
+              <b> Email</b>
             </label>
             <input id="email" class="form__column-right form__input" type="email" name="email" />
             <label for="message" class="form__column-left form__label"
-              ><strong>Message</strong></label
+              ><b>Message</b></label
             >
             <textarea
               id="message"
