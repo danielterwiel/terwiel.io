@@ -12,6 +12,8 @@ body {
   @media only screen and (min-width: 64.01rem) {
     display: flex;
     align-items: center;
+    justify-content: center;
+    min-height: 100vh;
   }
 }
 
