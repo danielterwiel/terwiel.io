@@ -8,6 +8,6 @@
   "devDependencies": {
     "cssnano": "^4.1.10",
     "parcel-plugin-robot": "^1.0.0",
-    "sass": "^1.22.12"
+    "sass": "^1.26.5"
   }
 }
