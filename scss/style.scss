@@ -8,15 +8,10 @@
 
 body {
   align-items: center;
-  background-color: $color-background;
+  background-color: $color-secondary;
   color: $color-primary;
   font-family: "Helvetica, Arial", sans-serif;
   font-size: $font-size-default;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: $color-secondary;
-    color: $color-background;
-  }
 }
 
 .header {
@@ -24,55 +19,21 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  padding: 3rem;
 }
 
 main {
+  background-color: $color-primary;
+  color: $color-text;
+}
+
+aside {
   background-color: $color-secondary;
-  color: $color-background;
-  
-  @media (prefers-color-scheme: dark) {
-    background-color: $color-background;
-    color: $color-primary;
-  }
-}
-
-.divider__start {
-  background: $color-secondary;
-  background: linear-gradient(87deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
-  
-  @media (prefers-color-scheme: dark) {
-    background: $color-secondary;
-    background: linear-gradient(87deg, $color-secondary 0%, $color-secondary 50%, $color-background 51%, $color-background 51%, $color-background 100%);
-  }
-}
-
-.divider__end {
-  background: $color-background;
-  background: linear-gradient(87deg, $color-secondary 0%, $color-secondary 50%, $color-secondary 51%, $color-background 51%, $color-background 100%);
-
-  @media (prefers-color-scheme: dark) {
-    background: $color-secondary;
-    background: linear-gradient(87deg, $color-background 0%, $color-background 50%, $color-background 51%, $color-secondary 51%, $color-secondary 100%);
-  }
+  color: $color-text;
 }
 
 a:-webkit-any-link {
   text-decoration: none;
-}
-
-.logo {
-  max-height: 100vh;
-  max-width: 16rem;
-}
-
-
-.logo__path,
-.github-logo__path,
-.linkedin-logo__path,
-.twitter-logo__path {
-  @media (prefers-color-scheme: dark) {
-    fill: $color-background;
-  }
 }
 
 .bold-text {

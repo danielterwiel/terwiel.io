@@ -48,8 +48,8 @@
   border-color: $color-border;
 
   &:hover {
-    background-color: $color-primary;
-    color: $color-background;
+    background-color: $color-text;
+    color: $color-primary;
   }
 }
 
@@ -62,9 +62,9 @@
 
 .form__submit-button:hover {
   background-color: $color-secondary;
-  color: $color-background;
+  color: $color-primary;
   cursor: pointer;
-  border-color: $color-primary;
+  border-color: $color-text;
 }
 
 .form__contact-links {

@@ -21,9 +21,7 @@ header {
   }
 }
 
-.divider__start,
-main,
-.divider__end {
+main{
   animation: 1s ease-out 0s 1 slideInBottomToTop;
 }
 

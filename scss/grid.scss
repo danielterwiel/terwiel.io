@@ -1,10 +1,10 @@
 body {
-  display: grid;
   min-height: 100vh;
-  
-  @media only screen and (min-width: 64.01rem) {
-    grid-template-columns: 1fr 4rem 1fr 4rem 1fr;
-  }
+}
+
+.wrapper {
+  max-width: 32rem;
+  width: 100%;
 }
 
 .main,
@@ -18,9 +18,7 @@ body {
 }
 
 main,
-aside,
-.divider__start,
-.divider__end {
+aside {
   align-self: start;
   height: 100%;
 }
