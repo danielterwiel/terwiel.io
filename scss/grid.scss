@@ -2,13 +2,17 @@ body {
   min-height: 100vh;
 }
 
-.wrapper {
-  max-width: 32rem;
+.logo {
   width: 100%;
 }
 
+.wrapper {
+  max-width: 32rem;
+}
+
+.header,
 .main,
-.aside {
+.aside {  
   @media only screen and (min-width: 64.01rem) {
     display: flex;
     align-items: center;
