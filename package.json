@@ -7,7 +7,8 @@
   },
   "devDependencies": {
     "cssnano": "^4.1.10",
+    "parcel-bundler": "^1.12.4",
     "parcel-plugin-robot": "^1.0.0",
-    "sass": "^1.26.8"
+    "sass": "^1.26.9"
   }
 }
