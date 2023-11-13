@@ -18,6 +18,13 @@ export default function Header() {
 
       <div className="prose p-4 text-right sm:text-left">
         <h1>Daniël Terwiel</h1>
+        <p>
+          With more than 15 years in web development, I&apos;ve gained extensive
+          knowledge and have succeeded in different settings, including
+          startups, fast-growing companies, and large enterprises. My journey
+          has evolved from a beginner, to a clean code absolutist, to a
+          pragmatic who prioritizes simplicity and clear code over complexity.
+        </p>
       </div>
     </header>
   );

@@ -1,30 +1,68 @@
+import {
+  IconBrandRust,
+  IconBrandHtml5,
+  IconBrandVue,
+  IconBrandReact,
+  IconBrandCss3,
+  IconBrandJavascript,
+  IconBrandTypescript,
+  IconMessageCircleCode,
+  IconGeometry,
+  IconBrandSpeedtest,
+  IconAccessible,
+} from "@tabler/icons-react";
+
+type ListItem = {
+  name: string;
+  icon: React.ElementType;
+};
+
+const IconList = ({ items }: { items: ListItem[] }) => {
+  return (
+    <ul className="-ml-4 list-none">
+      {items.map((item) => (
+        <li key={item.name}>
+          <div className="flex items-center gap-2">
+            <item.icon aria-hidden="true" />
+            {item.name}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+const stack: ListItem[] = [
+  { name: "HTML", icon: IconBrandHtml5 },
+  { name: "CSS", icon: IconBrandCss3 },
+  { name: "JavaScript", icon: IconBrandJavascript },
+  { name: "TypeScript", icon: IconBrandTypescript },
+  { name: "React", icon: IconBrandReact },
+  { name: "Vue", icon: IconBrandVue },
+  { name: "Rust", icon: IconBrandRust },
+];
+
 const Stack = () => {
   return (
     <>
       <h2>Stack</h2>
-      <ul>
-        <li>HTML</li>
-        <li>CSS</li>
-        <li>JavaScript</li>
-        <li>TypeScript</li>
-        <li>React</li>
-        <li>Vue</li>
-        <li>Rust</li>
-      </ul>
+      <IconList items={stack} />
     </>
   );
 };
+
+const focus: ListItem[] = [
+  { name: "Communication", icon: IconMessageCircleCode },
+  { name: "Architecture", icon: IconGeometry },
+  { name: "Performance", icon: IconBrandSpeedtest },
+  { name: "Accessibility", icon: IconAccessible },
+];
 
 const Focus = () => {
   return (
     <>
       <h2>Focus</h2>
-      <ul>
-        <li>Communication</li>
-        <li>Architecture</li>
-        <li>Performance</li>
-        <li>Accessibility</li>
-      </ul>
+      <IconList items={focus} />
     </>
   );
 };
@@ -32,21 +70,8 @@ const Focus = () => {
 export default function About() {
   return (
     <aside>
-      <p className="p-4">
-        As a web developer with over 15 years of experience, I bring a wealth of
-        knowledge and a track record of success in various environments, from
-        startups to hypergrowth scale-ups to enterprise. My expertise extends
-        beyond coding, focusing on creating user-centric web experiences that
-        drive engagement and growth. My career spans the evolving landscape of
-        web technologies, blending technical prowess with strategic insight.
-        Adaptability and problem-solving in diverse settings have honed my
-        skills, making me an asset to teams aiming for impactful digital
-        innovations.
-      </p>
-      <div>
-        <Stack />
-        <Focus />
-      </div>
+      <Stack />
+      <Focus />
     </aside>
   );
 }
