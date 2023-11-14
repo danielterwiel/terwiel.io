@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import Header from "./components/header";
 import About from "./components/about";
 import Experience from "./components/experience";
@@ -11,12 +9,15 @@ export default function HomePage() {
       <div>
         <div className="print:h-[297mm] print:w-[221mm] print:break-after-page">
           <Header />
-          <About />
+
+          <div className="px-4">
+            <About />
+          </div>
         </div>
-        <div className="print:h-[297mm] print:w-[221mm] print:break-after-page">
+        <div className="px-4 print:h-[297mm] print:w-[221mm] print:break-after-page">
           <Experience />
         </div>
-        <div className="print:h-[297mm] print:w-[221mm] print:break-after-page">
+        <div className="px-4 print:h-[297mm] print:w-[221mm] print:break-after-page">
           <Footer />
         </div>
       </div>

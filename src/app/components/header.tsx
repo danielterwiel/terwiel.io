@@ -1,4 +1,7 @@
+import Link from "next/link";
 import Image from "next/image";
+
+import { IconBrandGithub, IconBrandLinkedin } from "@tabler/icons-react";
 
 export default function Header() {
   return (
@@ -17,7 +20,28 @@ export default function Header() {
       />
 
       <div className="prose p-4 text-right sm:text-left">
-        <h1>Daniël Terwiel</h1>
+        <div className="flex flex-col justify-between md:flex-row">
+          <h1>Daniël Terwiel</h1>
+          <div className="absolute left-2 flex flex-col justify-end gap-2 sm:relative sm:flex-row md:pt-1.5">
+            <Link
+              href="https://github.com/danielterwiel"
+              className="sm:order-last"
+            >
+              <IconBrandGithub
+                className="h-8 w-8 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+                aria-hidden="true"
+              />
+              <span className="sr-only">GitHub</span>
+            </Link>
+            <Link href="https://www.linkedin.com/in/terwiel/">
+              <IconBrandLinkedin
+                className="h-8 w-8 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+                aria-hidden="true"
+              />
+              <span className="sr-only">LinkedIn</span>
+            </Link>
+          </div>
+        </div>
         <p>
           With more than 15 years in web development, I&apos;ve gained extensive
           knowledge and have succeeded in different settings, including

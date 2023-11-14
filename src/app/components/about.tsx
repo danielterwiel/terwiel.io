@@ -19,11 +19,11 @@ type ListItem = {
 
 const IconList = ({ items }: { items: ListItem[] }) => {
   return (
-    <ul className="-ml-4 list-none">
+    <ul className="-ml-5 list-none">
       {items.map((item) => (
         <li key={item.name}>
           <div className="flex items-center gap-2">
-            <item.icon aria-hidden="true" />
+            <item.icon className="h-5 w-5 opacity-30" aria-hidden="true" />
             {item.name}
           </div>
         </li>
