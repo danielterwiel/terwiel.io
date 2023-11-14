@@ -40,7 +40,7 @@ type StackItem = {
 };
 
 type Project = {
-  id: number;
+  id: string;
   company: string;
   role: string;
   teamSize: number;
@@ -102,7 +102,7 @@ const IconBrandVitest = () => (
 
 const projects: Project[] = [
   {
-    id: 0,
+    id: "PROJECT_0",
     company: "Departure Labs",
     role: "Full-stack Developer & Designer",
     teamSize: 5,
@@ -126,6 +126,7 @@ const projects: Project[] = [
     icon: IconRocket,
   },
   {
+    id: "PROJECT_1",
     company: "ING",
     role: "Senior Front End Developer",
     teamSize: 200,
@@ -143,6 +144,7 @@ const projects: Project[] = [
     icon: IconBuildingBank,
   },
   {
+    id: "PROJECT_2",
     company: "M&I",
     role: "Senior Front End Developer",
     teamSize: 4,
@@ -166,6 +168,7 @@ const projects: Project[] = [
     icon: IconNews,
   },
   {
+    id: "PROJECT_3",
     company: "Sendcloud",
     role: "Senior Front End Developer",
     teamSize: 40,
@@ -187,6 +190,7 @@ const projects: Project[] = [
     icon: IconPackage,
   },
   {
+    id: "PROJECT_4",
     company: "IPERION",
     role: "Front End Developer",
     teamSize: 4,
@@ -210,6 +214,7 @@ const projects: Project[] = [
     icon: IconHealthRecognition,
   },
   {
+    id: "PROJECT_5",
     company: "Amadeus",
     role: "Front End Developer",
     teamSize: 30,
@@ -227,6 +232,7 @@ const projects: Project[] = [
     icon: IconHotelService,
   },
   {
+    id: "PROJECT_6",
     company: "Dinto",
     role: "Front End Developer",
     teamSize: 6,
@@ -245,6 +251,7 @@ const projects: Project[] = [
     icon: IconBuildingWarehouse,
   },
   {
+    id: "PROJECT_7",
     company: "Finview",
     role: "Developer",
     teamSize: 2,
@@ -282,10 +289,7 @@ const Project = ({
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
   return (
-    <div
-      key={project.company}
-      className="relative break-inside-avoid-page pt-8"
-    >
+    <div key={project.id} className="relative break-inside-avoid-page pt-8">
       {projectIdx !== totalLength - 1 ? (
         <span
           className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
