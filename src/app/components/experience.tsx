@@ -9,6 +9,7 @@ import {
   IconBrandReact,
   IconBrandRedux,
   IconBrandRust,
+  IconBrandSass,
   IconBrandSpeedtest,
   IconBrandTailwind,
   IconBrandTypescript,
@@ -23,8 +24,10 @@ import {
   IconNews,
   IconPackage,
   IconRocket,
-  IconSvg,
   IconSql,
+  IconSvg,
+  IconStackPush,
+  IconStackPop,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
@@ -37,6 +40,7 @@ type StackItem = {
 };
 
 type Project = {
+  id: number;
   company: string;
   role: string;
   teamSize: number;
@@ -56,7 +60,7 @@ type ListItem = {
 
 const IconList = ({ items }: { items: ListItem[] }) => {
   return (
-    <ul className="-ml-5 list-none">
+    <ul className="-ml-5 list-none" role="list">
       {items.map((item) => (
         <li key={item.name}>
           <div className="flex items-center gap-2">
@@ -98,6 +102,7 @@ const IconBrandVitest = () => (
 
 const projects: Project[] = [
   {
+    id: 0,
     company: "Departure Labs",
     role: "Full-stack Developer & Designer",
     teamSize: 5,
@@ -132,6 +137,8 @@ const projects: Project[] = [
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
       { name: "Lit", icon: IconBrandHtml5 },
+      { name: "CSS", icon: IconBrandCss3 },
+      { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconBuildingBank,
   },
@@ -153,6 +160,8 @@ const projects: Project[] = [
       { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Puppeteer", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Tailwind", icon: IconBrandTailwind },
+      { name: "CSS", icon: IconBrandCss3 },
+      { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconNews,
   },
@@ -172,7 +181,7 @@ const projects: Project[] = [
       { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "CSS", icon: IconBrandCss3 },
       { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconPackage,
@@ -195,7 +204,7 @@ const projects: Project[] = [
       { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Material UI", icon: IconBrandGoogle }, // Using React icon as a placeholder
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "SCSS", icon: IconBrandSass }, // Assuming CSS3 icon is a fit
       { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconHealthRecognition,
@@ -212,7 +221,7 @@ const projects: Project[] = [
     stack: [
       { name: "Knockout.js", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "SCSS", icon: IconBrandSass }, // Assuming CSS3 icon is a fit
       { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconHotelService,
@@ -228,7 +237,7 @@ const projects: Project[] = [
       "Working at Dinto, I had the job to create interactive blueprints of warehouses using SVG, SQL and JavaScript.",
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "SCSS", icon: IconBrandSass },
       { name: "HTML", icon: IconBrandHtml5 },
       { name: "SVG", icon: IconSvg }, // Using HTML5 icon as a placeholder
       { name: "SQL", icon: IconSql }, // Using JavaScript icon as a placeholder
@@ -242,14 +251,14 @@ const projects: Project[] = [
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
-    description: "Created websites and a CRM. Here I made my very first steps.",
+    description: "Created websites and a CRM system for financial advisors.",
     stack: [
       { name: "Visual Basic.NET", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "SQL Server", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
+      { name: "PHP", icon: IconBrandPhp },
       { name: "JavaScript", icon: IconBrandJavascript },
       { name: "CSS", icon: IconBrandCss3 },
       { name: "HTML", icon: IconBrandHtml5 },
-      { name: "PHP", icon: IconBrandPhp }, // Using JavaScript icon as a placeholder
     ],
     icon: IconHeartHandshake,
   },
@@ -273,7 +282,10 @@ const Project = ({
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
   return (
-    <div key={project.company} className="relative pb-8">
+    <div
+      key={project.company}
+      className="relative break-inside-avoid-page pt-8"
+    >
       {projectIdx !== totalLength - 1 ? (
         <span
           className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
@@ -292,12 +304,31 @@ const Project = ({
                 <dt className="text-slate-400">Role</dt>
                 <dd>{project.role}</dd>
                 <dt className="text-slate-400">Team size</dt>
-                <dd>~{project.teamSize} developers</dd>
+                <dd>
+                  <span className="text-slate-600/80">~</span>
+                  {project.teamSize}
+                  <span className="text-slate-600/80"> developers</span>
+                </dd>
                 <dt className="text-slate-400">Location</dt>
                 <dd>{project.location}</dd>
               </dl>
               <p>{project.description}</p>
-              <IconList items={project.stack} />
+              <details open className="group">
+                <summary className="cursor-pointer list-none opacity-70 hover:opacity-100  [&::-webkit-details-marker]:hidden">
+                  <div className="flex items-center gap-2">
+                    <IconStackPush
+                      aria-hidden="true"
+                      className="block group-open:hidden"
+                    />
+                    <IconStackPop
+                      aria-hidden="true"
+                      className="hidden group-open:block"
+                    />
+                    <div>Stack</div>
+                  </div>
+                </summary>
+                <IconList items={project.stack} />
+              </details>
             </div>
             <div className="overlapping-item absolute right-0 top-1.5 whitespace-nowrap text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
@@ -317,7 +348,7 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root">
-        <ul role="list" className="-ml-4 list-none">
+        <ul role="list" className="-ml-4 list-none ">
           {projects.map((project, projectIdx) => (
             <Project
               key={project.company}
