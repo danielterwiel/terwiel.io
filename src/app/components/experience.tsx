@@ -1,29 +1,33 @@
 import {
-  IconRocket,
-  IconBuildingBank,
-  IconNews,
-  IconPackage,
-  IconHealthRecognition,
-  IconHotelService,
-  IconBuildingWarehouse,
-  IconHeartHandshake,
-  IconBrandRust,
-  IconBrandHtml5,
-  IconBrandVue,
-  IconBrandReact,
+  IconAssembly,
   IconBrandCss3,
+  IconBrandGoogle,
+  IconBrandGraphql,
+  IconBrandHtml5,
   IconBrandJavascript,
+  IconBrandPhp,
+  IconBrandReact,
+  IconBrandRedux,
+  IconBrandRust,
+  IconBrandSpeedtest,
+  IconBrandTailwind,
   IconBrandTypescript,
   IconBrandVercel,
-  IconBrandTailwind,
   IconBrandVite,
-  IconAssembly,
-  IconBrandGraphql,
-  IconBrandGoogle,
-  IconBrandRedux,
-  IconBrandPhp,
-  IconBrandSpeedtest,
+  IconBrandVue,
+  IconBuildingBank,
+  IconBuildingWarehouse,
+  IconHealthRecognition,
+  IconHeartHandshake,
+  IconHotelService,
+  IconNews,
+  IconPackage,
+  IconRocket,
+  IconSvg,
+  IconSql,
 } from "@tabler/icons-react";
+import Link from "next/link";
+import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 
 import React from "react";
 
@@ -37,10 +41,32 @@ type Project = {
   role: string;
   teamSize: number;
   location: string;
-  duration: string;
+  dateFrom: string;
+  dateTo: string;
   description: string;
   stack: StackItem[];
   icon: React.ElementType;
+};
+
+type ListItem = {
+  name: string;
+  icon: React.ElementType;
+  url?: string;
+};
+
+const IconList = ({ items }: { items: ListItem[] }) => {
+  return (
+    <ul className="-ml-5 list-none">
+      {items.map((item) => (
+        <li key={item.name}>
+          <div className="flex items-center gap-2">
+            <item.icon className="h-5 w-5 opacity-30" aria-hidden="true" />
+            {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
 };
 
 const IconBrandVitest = () => (
@@ -76,9 +102,10 @@ const projects: Project[] = [
     role: "Full-stack Developer & Designer",
     teamSize: 5,
     location: "Boston/Remote",
-    duration: "2021 - present",
+    dateFrom: "2022-02-01",
+    dateTo: "2023-09-30",
     description:
-      "Departure Labs started off as a side-project. When the technical founder whom I met over Twitter told me she raised money to work on it full-time I joined her. After 5 failed blockchain products, we pivoted to creating a WebAssembly enabled Cloud platform. Created OSS: libraries, webapps, Rust tooling packages.",
+      "Departure Labs started off as a side-project. When the technical founder whom I met over Twitter told me she raised money to work on it full-time I joined her in her adventure. After 5 failed blockchain products, we pivoted to creating a WebAssembly enabled Cloud platform.",
     stack: [
       { name: "Rust", icon: IconBrandRust },
       { name: "WebAssembly", icon: IconAssembly },
@@ -98,28 +125,29 @@ const projects: Project[] = [
     role: "Senior Front End Developer",
     teamSize: 200,
     location: "Amsterdam",
-    duration: "2021 - 2021",
+    dateFrom: "2021-06-01",
+    dateTo: "2022-01-31",
     description:
       "Touchpoint at ING is a department that develops a multiple component, plug-able platform, allowing all ING branches to integrate a unified User Experience. Worked on: authentication & utility libraries.",
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "JSDoc", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Web Components", icon: IconBrandHtml5 }, // Assuming HTML5 icon is a fit
-      { name: "Lit", icon: IconBrandHtml5 }, // Using JavaScript icon as a placeholder
+      { name: "Lit", icon: IconBrandHtml5 },
     ],
     icon: IconBuildingBank,
   },
   {
     company: "M&I",
     role: "Senior Front End Developer",
-    teamSize: 3,
+    teamSize: 4,
     location: "Hilversum",
-    duration: "2020 - 2021",
+    dateFrom: "2020-06-01",
+    dateTo: "2021-05-31",
     description:
-      "Here I maintained and updated a 4-year old Newsroom management application used by large media outlets in The Benelux. Notable achievements: created a video & audio editor, implemented a mobile-first redesign.",
+      "Here I maintained and updated a 4-year old Newsroom management application used by large media outlets in The Benelux.",
+
     stack: [
       { name: "React", icon: IconBrandReact },
-      { name: "Redux", icon: IconBrandRedux }, // Using React icon as a placeholder
+      { name: "Redux", icon: IconBrandRedux },
       { name: "TypeScript", icon: IconBrandTypescript },
       { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
@@ -133,19 +161,19 @@ const projects: Project[] = [
     role: "Senior Front End Developer",
     teamSize: 40,
     location: "Eindhoven",
-    duration: "2019 - 2020",
+    dateFrom: "2019-02-01",
+    dateTo: "2020-06-01",
     description:
       "One of the fastest growing startups in The Netherlands. I was responsible for replacing legacy parts of the application with reïmplementations in Vue. Next to building out our design system I’ve done a reïmplementation of the subscription page and co-created the returns portal: a high-traffic consumer-facing web application.",
     stack: [
       { name: "Vue", icon: IconBrandVue },
       { name: "Preact", icon: IconBrandReact }, // Using React icon as a related placeholder
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
-      { name: "HTML", icon: IconBrandHtml5 },
       { name: "GraphQL", icon: IconBrandGraphql }, // Using JavaScript icon as a placeholder
       { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "CI", icon: IconBrandReact }, // Using React icon as a placeholder
+      { name: "JavaScript", icon: IconBrandJavascript },
+      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconPackage,
   },
@@ -154,17 +182,21 @@ const projects: Project[] = [
     role: "Front End Developer",
     teamSize: 4,
     location: "Vlijmen",
-    duration: "2016 - 2019",
+    dateFrom: "2016-06-01",
+    dateTo: "2019-01-31",
     description:
       "At IPERION I worked on GxP Cloud. I got the chance to design and develop a greenfield application.",
     stack: [
       { name: "React", icon: IconBrandReact },
-      { name: "Redux", icon: IconBrandRedux }, // Using React icon as a placeholder
-      { name: "Redux-saga", icon: IconBrandRedux }, // Using React icon as a placeholder
+      { name: "Redux", icon: IconBrandRedux },
+      { name: "Redux-saga", icon: IconBrandRedux },
       { name: "FlowType", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "Material UI", icon: IconBrandGoogle }, // Using React icon as a placeholder
+      { name: "JavaScript", icon: IconBrandJavascript },
+      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconHealthRecognition,
   },
@@ -173,14 +205,15 @@ const projects: Project[] = [
     role: "Front End Developer",
     teamSize: 30,
     location: "Breda",
-    duration: "2015 - 2016",
+    dateFrom: "2015-03-01",
+    dateTo: "2019-01-31",
     description:
       "At Amadeus I worked on ELS, which is an enterprise SPA built with Knockout.js for the Hospitality industry.",
     stack: [
       { name: "Knockout.js", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "HTML", icon: IconBrandHtml5 },
-      { name: "CSS", icon: IconBrandCss3 },
       { name: "JavaScript", icon: IconBrandJavascript },
+      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: IconBrandHtml5 },
     ],
     icon: IconHotelService,
   },
@@ -189,15 +222,16 @@ const projects: Project[] = [
     role: "Front End Developer",
     teamSize: 6,
     location: "Breda",
-    duration: "2013 - 2014",
+    dateFrom: "2013-10-01",
+    dateTo: "2014-10-31",
     description:
       "Working at Dinto, I had the job to create interactive blueprints of warehouses using SVG, SQL and JavaScript.",
     stack: [
-      { name: "HTML", icon: IconBrandHtml5 },
-      { name: "CSS", icon: IconBrandCss3 },
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SVG", icon: IconBrandHtml5 }, // Using HTML5 icon as a placeholder
-      { name: "SQL", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
+      { name: "SCSS", icon: IconBrandCss3 }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "SVG", icon: IconSvg }, // Using HTML5 icon as a placeholder
+      { name: "SQL", icon: IconSql }, // Using JavaScript icon as a placeholder
     ],
     icon: IconBuildingWarehouse,
   },
@@ -206,7 +240,8 @@ const projects: Project[] = [
     role: "Developer",
     teamSize: 2,
     location: "Breda",
-    duration: "2007 – 2013",
+    dateFrom: "2007-01-01",
+    dateTo: "2013-06-30",
     description: "Created websites and a CRM. Here I made my very first steps.",
     stack: [
       { name: "Visual Basic.NET", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
@@ -220,26 +255,6 @@ const projects: Project[] = [
   },
 ];
 
-type ListItem = {
-  name: string;
-  icon: React.ElementType;
-};
-
-const IconList = ({ items }: { items: ListItem[] }) => {
-  return (
-    <ul className="-ml-5 list-none">
-      {items.map((item) => (
-        <li key={item.name}>
-          <div className="flex items-center gap-2">
-            <item.icon className="h-5 w-5 opacity-30" aria-hidden="true" />
-            {item.name}
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-};
-
 const Project = ({
   project,
   projectIdx,
@@ -249,6 +264,14 @@ const Project = ({
   projectIdx: number;
   totalLength: number;
 }) => {
+  const dateFrom = parseISO(project.dateFrom);
+  const dateTo = parseISO(project.dateTo);
+  const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
+  const years = Math.floor(diffInMonths / 12);
+  const months = diffInMonths % 12;
+  const duration = formatDuration({ months, years });
+  const from = format(dateFrom, "MMM yy");
+  const to = format(dateTo, "MMM yy");
   return (
     <div key={project.company} className="relative pb-8">
       {projectIdx !== totalLength - 1 ? (
@@ -265,23 +288,22 @@ const Project = ({
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 pt-1.5">
             <div className="order-2 col-span-1">
               <h3 className="-mt-1 text-lg font-semibold">{project.company}</h3>
-              <div>
-                <span className="pr-1 text-slate-400">Role:</span>
-                <span>{project.role}</span>
-              </div>
-              <div>
-                <span className="pr-1 text-slate-400">Team size:</span>
-                <span>~{project.teamSize} developers</span>
-              </div>
-              <div>
-                <span className="pr-1 text-slate-400">Location:</span>
-                <span>{project.location}</span>
-              </div>
+              <dl>
+                <dt className="text-slate-400">Role</dt>
+                <dd>{project.role}</dd>
+                <dt className="text-slate-400">Team size</dt>
+                <dd>~{project.teamSize} developers</dd>
+                <dt className="text-slate-400">Location</dt>
+                <dd>{project.location}</dd>
+              </dl>
               <p>{project.description}</p>
               <IconList items={project.stack} />
             </div>
-            <div className="overlapping-item absolute right-0 top-0 whitespace-nowrap text-right text-sm text-gray-500">
-              <time dateTime={project.duration}>{project.duration}</time>
+            <div className="overlapping-item absolute right-0 top-1.5 whitespace-nowrap text-right text-sm text-gray-500">
+              <div className="text-xs">{duration}</div>
+              <div className="text-xs opacity-70">
+                {from} - {to}
+              </div>
             </div>
           </div>
         </div>
@@ -311,9 +333,21 @@ const Projects = () => {
 };
 
 const conferences: ListItem[] = [
-  { name: "Performance.now()", icon: IconBrandSpeedtest },
-  { name: "React Amsterdam", icon: IconBrandReact },
-  { name: "Vue Amsterdam", icon: IconBrandVue },
+  {
+    name: "Performance.now()",
+    icon: IconBrandSpeedtest,
+    url: "https://perfnow.nl/",
+  },
+  {
+    name: "React Summit",
+    icon: IconBrandReact,
+    url: "https://reactsummit.com/",
+  },
+  {
+    name: "VueJS Amsterdam",
+    icon: IconBrandVue,
+    url: "https://vuejs.amsterdam/",
+  },
 ];
 
 const Conferences = () => {
