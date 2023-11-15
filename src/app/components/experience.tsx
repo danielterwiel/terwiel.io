@@ -44,6 +44,7 @@ type Project = {
   company: string;
   role: string;
   teamSize: number;
+  industry: string;
   location: string;
   dateFrom: string;
   dateTo: string;
@@ -106,6 +107,7 @@ const projects: Project[] = [
     company: "Departure Labs",
     role: "Full-stack Developer & Designer",
     teamSize: 5,
+    industry: "Developer tools",
     location: "Boston/Remote",
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
@@ -130,6 +132,7 @@ const projects: Project[] = [
     company: "ING",
     role: "Senior Front End Developer",
     teamSize: 200,
+    industry: "Finance",
     location: "Amsterdam",
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
@@ -148,6 +151,7 @@ const projects: Project[] = [
     company: "M&I",
     role: "Senior Front End Developer",
     teamSize: 4,
+    industry: "Media & Publishing",
     location: "Hilversum",
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
@@ -171,6 +175,7 @@ const projects: Project[] = [
     company: "Sendcloud",
     role: "Senior Front End Developer",
     teamSize: 40,
+    industry: "Logistics",
     location: "Eindhoven",
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
@@ -193,6 +198,7 @@ const projects: Project[] = [
     company: "IPERION",
     role: "Front End Developer",
     teamSize: 4,
+    industry: "Life Sciences",
     location: "Vlijmen",
     dateFrom: "2016-06-01",
     dateTo: "2019-01-31",
@@ -217,6 +223,7 @@ const projects: Project[] = [
     company: "Amadeus",
     role: "Front End Developer",
     teamSize: 30,
+    industry: "Hospitality",
     location: "Breda",
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
@@ -235,6 +242,7 @@ const projects: Project[] = [
     company: "Dinto",
     role: "Front End Developer",
     teamSize: 6,
+    industry: "Logistics",
     location: "Breda",
     dateFrom: "2013-10-01",
     dateTo: "2014-10-31",
@@ -254,6 +262,7 @@ const projects: Project[] = [
     company: "Finview",
     role: "Developer",
     teamSize: 2,
+    industry: "Finance",
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
@@ -291,29 +300,33 @@ const Project = ({
     <div key={project.id} className="relative break-inside-avoid-page pt-8">
       {projectIdx !== totalLength - 1 ? (
         <span
-          className="absolute left-4 top-4 -ml-px h-full w-0.5 bg-gray-200"
+          className="absolute left-4 top-4 -ml-px hidden h-full w-0.5 bg-gray-200 sm:block"
           aria-hidden="true"
         />
       ) : null}{" "}
-      <div className="relative flex space-x-3 ">
+      <div className="relative flex space-x-3">
         <div className="relative flex gap-2 space-x-3 md:gap-4">
-          <Ring size={8} animationDuration={8}>
-            <project.icon className="h-5 w-5 " aria-hidden="true" />
-          </Ring>
+          <div className="-mt-2 hidden sm:block">
+            <Ring size={8} animationDuration={8}>
+              <project.icon className="h-5 w-5 " aria-hidden="true" />
+            </Ring>
+          </div>
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 pt-1.5">
             <div className="order-2 col-span-1">
               <h3 className="-mt-1 text-lg font-semibold">{project.company}</h3>
               <dl>
                 <dt className="text-slate-400">Role</dt>
-                <dd>{project.role}</dd>
+                <dd className="pl-4">{project.role}</dd>
                 <dt className="text-slate-400">Team size</dt>
-                <dd>
+                <dd className="pl-4">
                   <span className="text-slate-600/80">~</span>
                   {project.teamSize}
                   <span className="text-slate-600/80"> developers</span>
                 </dd>
+                <dt className="text-slate-400">Industry</dt>
+                <dd className="pl-4">{project.industry}</dd>
                 <dt className="text-slate-400">Location</dt>
-                <dd>{project.location}</dd>
+                <dd className="pl-4">{project.location}</dd>
               </dl>
               <p>{project.description}</p>
               <details open className="group">
@@ -333,7 +346,7 @@ const Project = ({
                 <IconList items={project.stack} />
               </details>
             </div>
-            <div className="overlapping-item absolute right-0 top-1.5 whitespace-nowrap text-right text-sm text-gray-500">
+            <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap pt-1.5 text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
               <div className="text-xs opacity-70">
                 {from} - {to}

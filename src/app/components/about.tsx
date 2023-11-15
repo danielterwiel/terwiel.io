@@ -12,6 +12,7 @@ import {
   IconAccessible,
   IconStack,
   IconFocus,
+  IconBulb,
 } from "@tabler/icons-react";
 
 type ListItem = {
@@ -46,13 +47,13 @@ const stack: ListItem[] = [
 
 const Stack = () => {
   return (
-    <>
+    <div>
       <h2 className="flex gap-4">
         <IconStack className="h-7 w-7" aria-hidden="true" />
         Stack
       </h2>
       <IconList items={stack} />
-    </>
+    </div>
   );
 };
 
@@ -61,23 +62,24 @@ const focus: ListItem[] = [
   { name: "Architecture", icon: IconGeometry },
   { name: "Performance", icon: IconBrandSpeedtest },
   { name: "Accessibility", icon: IconAccessible },
+  { name: "Simplicity", icon: IconBulb },
 ];
 
 const Focus = () => {
   return (
-    <>
+    <div>
       <h2 className="flex gap-4">
         <IconFocus className="h-7 w-7" aria-hidden="true" />
         Focus
       </h2>
       <IconList items={focus} />
-    </>
+    </div>
   );
 };
 
 export default function About() {
   return (
-    <aside className="px-4">
+    <aside className="flex flex-col gap-24 px-4 sm:flex-row">
       <Stack />
       <Focus />
     </aside>

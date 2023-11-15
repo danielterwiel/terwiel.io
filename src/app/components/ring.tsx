@@ -10,26 +10,16 @@ interface RingProps {
   children: React.ReactNode;
 }
 
-export const Ring: React.FC<RingProps> = ({
-  size = 20,
-  animationDuration = 8,
-  children,
-}) => {
+export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
   const ringRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        console.log("entries", entries);
-        entries.forEach((entry) => {
-          setIsVisible(entry.isIntersecting);
-        });
-      },
-      {
-        threshold: 0.5,
-      },
-    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        setIsVisible(entry.isIntersecting);
+      });
+    });
 
     if (ringRef.current) {
       observer.observe(ringRef.current);
@@ -43,10 +33,12 @@ export const Ring: React.FC<RingProps> = ({
   }, []);
 
   // Dynamically generate Tailwind classes
-  const classContainer = `grid place-items-center bg-white`;
+  const classContainer = `bg-white p-2 -ml-1.5 -mt-2`;
   const classSize = `w-${size} h-${size}`;
   const classBorder = `border-4 border-slate-300 rounded-full`;
-  const classAnimation = isVisible ? `ring-animation` : "";
+  const classAnimation = isVisible
+    ? `ring-animation`
+    : "opacity-0 print:opacity-100";
 
   const className = clsx(
     classContainer,
@@ -56,8 +48,10 @@ export const Ring: React.FC<RingProps> = ({
   );
 
   return (
-    <div ref={ringRef} className={className}>
-      {children}
+    <div>
+      <div ref={ringRef} className={className}>
+        {children}
+      </div>
     </div>
   );
 };

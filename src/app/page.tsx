@@ -6,7 +6,7 @@ import Footer from "./components/footer";
 export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col">
-      <div className="break-after-page print:h-[297mm] print:w-[221mm]">
+      <div className="break-after-page print:max-h-[297mm] print:max-w-[210mm]">
         <Header />
         <About />
       </div>
