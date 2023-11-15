@@ -1,18 +1,19 @@
 import {
-  IconBrandRust,
-  IconBrandHtml5,
-  IconBrandVue,
-  IconBrandReact,
-  IconBrandCss3,
-  IconBrandJavascript,
-  IconBrandTypescript,
-  IconMessageCircleCode,
-  IconGeometry,
-  IconBrandSpeedtest,
   IconAccessible,
-  IconStack,
-  IconFocus,
+  IconBrandCss3,
+  IconBrandHtml5,
+  IconBrandJavascript,
+  IconBrandReact,
+  IconBrandRust,
+  IconBrandSpeedtest,
+  IconBrandTypescript,
+  IconBrandVue,
   IconBulb,
+  IconComponents,
+  IconFocus,
+  IconGeometry,
+  IconMessageCircleCode,
+  IconStack,
 } from "@tabler/icons-react";
 
 type ListItem = {
@@ -42,6 +43,7 @@ const stack: ListItem[] = [
   { name: "TypeScript", icon: IconBrandTypescript },
   { name: "React", icon: IconBrandReact },
   { name: "Vue", icon: IconBrandVue },
+  { name: "Lit", icon: IconComponents },
   { name: "Rust", icon: IconBrandRust },
 ];
 

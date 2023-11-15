@@ -26,8 +26,20 @@
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 100;
+  }
+}
+
 @layer utilities {
   .ring-animation {
     animation: ring-animation 1s ease-in-out;
+  }
+  .fade-in-animation {
+    animation: fadeIn 1s ease-out forwards;
   }
 }

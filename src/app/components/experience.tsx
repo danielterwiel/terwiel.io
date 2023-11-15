@@ -18,6 +18,7 @@ import {
   IconBrandVue,
   IconBuildingBank,
   IconBuildingWarehouse,
+  IconComponents,
   IconHealthRecognition,
   IconHeartHandshake,
   IconHotelService,
@@ -25,9 +26,9 @@ import {
   IconPackage,
   IconRocket,
   IconSql,
-  IconSvg,
-  IconStackPush,
   IconStackPop,
+  IconStackPush,
+  IconSvg,
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
@@ -140,7 +141,7 @@ const projects: Project[] = [
       "Touchpoint at ING is a department that develops a multi-component, plug-and-play platform, allowing all ING branches to integrate a unified user experience. I worked on authentication and utility libraries.",
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "Lit", icon: IconBrandHtml5 },
+      { name: "Lit", icon: IconComponents },
       { name: "CSS", icon: IconBrandCss3 },
       { name: "HTML", icon: IconBrandHtml5 },
     ],
@@ -252,8 +253,8 @@ const projects: Project[] = [
       { name: "JavaScript", icon: IconBrandJavascript },
       { name: "SCSS", icon: IconBrandSass },
       { name: "HTML", icon: IconBrandHtml5 },
-      { name: "SVG", icon: IconSvg }, // Using HTML5 icon as a placeholder
-      { name: "SQL", icon: IconSql }, // Using JavaScript icon as a placeholder
+      { name: "SVG", icon: IconSvg },
+      { name: "SQL", icon: IconSql },
     ],
     icon: IconBuildingWarehouse,
   },
@@ -297,7 +298,7 @@ const Project = ({
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
   return (
-    <div key={project.id} className="relative break-inside-avoid-page pt-8">
+    <div key={project.id} className="relative break-after-page pb-8 print:pt-8">
       {projectIdx !== totalLength - 1 ? (
         <span
           className="absolute left-4 top-4 -ml-px hidden h-full w-0.5 bg-gray-200 sm:block"
@@ -306,7 +307,7 @@ const Project = ({
       ) : null}{" "}
       <div className="relative flex space-x-3">
         <div className="relative flex gap-2 space-x-3 md:gap-4">
-          <div className="-mt-2 hidden sm:block">
+          <div className="hidden sm:block">
             <Ring size={8} animationDuration={8}>
               <project.icon className="h-5 w-5 " aria-hidden="true" />
             </Ring>
@@ -364,7 +365,7 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root">
-        <ul role="list" className="-ml-4 list-none ">
+        <ul role="list" className="-mb-8 -ml-4 list-none ">
           {projects.map((project, projectIdx) => (
             <Project
               key={project.company}
