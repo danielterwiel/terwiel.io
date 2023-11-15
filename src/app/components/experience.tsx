@@ -110,7 +110,7 @@ const projects: Project[] = [
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
-      "Departure Labs started off as a side-project. When the technical founder whom I met over Twitter told me she raised money to work on it full-time I joined her in her adventure. After 5 failed blockchain products, we pivoted to creating a WebAssembly enabled Cloud platform.",
+      "Departure Labs started as a side project. When the technical founder, whom I met over Twitter, told me she had raised money to work on it full-time, I joined her in this adventure. After five unsuccessful blockchain products, we pivoted to creating a WebAssembly-enabled cloud platform.",
     stack: [
       { name: "Rust", icon: IconBrandRust },
       { name: "WebAssembly", icon: IconAssembly },
@@ -134,7 +134,7 @@ const projects: Project[] = [
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
-      "Touchpoint at ING is a department that develops a multiple component, plug-able platform, allowing all ING branches to integrate a unified User Experience. Worked on: authentication & utility libraries.",
+      "Touchpoint at ING is a department that develops a multi-component, plug-and-play platform, allowing all ING branches to integrate a unified user experience. I worked on authentication and utility libraries.",
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
       { name: "Lit", icon: IconBrandHtml5 },
@@ -152,8 +152,7 @@ const projects: Project[] = [
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
-      "Here I maintained and updated a 4-year old Newsroom management application used by large media outlets in The Benelux.",
-
+      "Here, I maintained and updated a four-year-old newsroom management application used by large media outlets in the Benelux.",
     stack: [
       { name: "React", icon: IconBrandReact },
       { name: "Redux", icon: IconBrandRedux },
@@ -176,7 +175,7 @@ const projects: Project[] = [
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
-      "One of the fastest growing startups in The Netherlands. I was responsible for replacing legacy parts of the application with reïmplementations in Vue. Next to building out our design system I’ve done a reïmplementation of the subscription page and co-created the returns portal: a high-traffic consumer-facing web application.",
+      "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application.",
     stack: [
       { name: "Vue", icon: IconBrandVue },
       { name: "Preact", icon: IconBrandReact }, // Using React icon as a related placeholder
@@ -198,7 +197,7 @@ const projects: Project[] = [
     dateFrom: "2016-06-01",
     dateTo: "2019-01-31",
     description:
-      "At IPERION I worked on GxP Cloud. I got the chance to design and develop a greenfield application.",
+      "At IPERION, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
     stack: [
       { name: "React", icon: IconBrandReact },
       { name: "Redux", icon: IconBrandRedux },
@@ -222,7 +221,7 @@ const projects: Project[] = [
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
     description:
-      "At Amadeus I worked on ELS, which is an enterprise SPA built with Knockout.js for the Hospitality industry.",
+      "At Amadeus, I worked on ELS, an enterprise single-page application (SPA) built with Knockout.js for the hospitality industry.",
     stack: [
       { name: "Knockout.js", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "JavaScript", icon: IconBrandJavascript },
@@ -240,7 +239,7 @@ const projects: Project[] = [
     dateFrom: "2013-10-01",
     dateTo: "2014-10-31",
     description:
-      "Working at Dinto, I had the job to create interactive blueprints of warehouses using SVG, SQL and JavaScript.",
+      "Working at Dinto, my role was to create interactive blueprints of warehouses using SVG, SQL, and JavaScript.",
     stack: [
       { name: "JavaScript", icon: IconBrandJavascript },
       { name: "SCSS", icon: IconBrandSass },
@@ -258,7 +257,7 @@ const projects: Project[] = [
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
-    description: "Created websites and a CRM system for financial advisors.",
+    description: "I created websites and a CRM system for financial advisors.",
     stack: [
       { name: "Visual Basic.NET", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
       { name: "SQL Server", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
