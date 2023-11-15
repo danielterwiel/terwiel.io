@@ -21,9 +21,9 @@ export default function Header() {
       />
 
       <div className="prose p-4 text-right sm:text-left">
-        <div className="flex flex-col justify-between md:flex-row">
-          <h1>Daniël Terwiel</h1>
-          <div className="absolute left-3 flex flex-col justify-end gap-2 sm:relative sm:flex-row print:sm:flex-col md:pt-2">
+        <div className="flex flex-col justify-between sm:flex-row">
+          <h1 className="mb-5">Daniël Terwiel</h1>
+          <div className="absolute left-3 flex flex-col justify-end gap-2 sm:relative sm:flex-row sm:pt-2 print:sm:flex-col md:pt-2">
             <Link
               href="https://github.com/danielterwiel"
               className="flex sm:order-last"

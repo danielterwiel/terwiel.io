@@ -81,7 +81,7 @@ const Focus = () => {
 
 export default function About() {
   return (
-    <aside className="flex flex-col gap-24 px-4 sm:flex-row">
+    <aside className="flex flex-col px-4 sm:flex-row sm:gap-24">
       <Stack />
       <Focus />
     </aside>
