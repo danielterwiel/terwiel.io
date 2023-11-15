@@ -297,6 +297,10 @@ const Project = ({
   const duration = formatDuration({ months, years });
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
+  const fromApos = from.replace(/\d+/g, "'$&"); // prepend apostrophes
+  const toApos = to.replace(/\d+/g, "'$&"); // prepend apostrophes
+  const timespan = `${fromApos} - ${toApos}`;
+
   return (
     <div key={project.id} className="relative break-after-page pb-8 print:pt-8">
       {projectIdx !== totalLength - 1 ? (
@@ -349,9 +353,7 @@ const Project = ({
             </div>
             <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap pt-1.5 text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
-              <div className="text-xs opacity-70">
-                {from} - {to}
-              </div>
+              <div className="text-xs opacity-70">{timespan}</div>
             </div>
           </div>
         </div>
