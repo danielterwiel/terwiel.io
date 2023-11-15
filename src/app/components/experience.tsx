@@ -32,7 +32,7 @@ import {
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 
-import React from "react";
+import { Ring } from "./ring";
 
 type StackItem = {
   name: string;
@@ -298,9 +298,9 @@ const Project = ({
       ) : null}{" "}
       <div className="relative flex space-x-3 ">
         <div className="relative flex gap-2 space-x-3 md:gap-4">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white ring-8 ring-slate-200">
-            <project.icon className="h-5 w-5" aria-hidden="true" />
-          </span>
+          <Ring size={8} animationDuration={8}>
+            <project.icon className="h-5 w-5 " aria-hidden="true" />
+          </Ring>
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 pt-1.5">
             <div className="order-2 col-span-1">
               <h3 className="-mt-1 text-lg font-semibold">{project.company}</h3>

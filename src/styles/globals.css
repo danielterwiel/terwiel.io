@@ -14,3 +14,20 @@
     padding: 0;
   }
 }
+
+@keyframes ring-animation {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .ring-animation {
+    animation: ring-animation 1s ease-in-out;
+  }
+}
