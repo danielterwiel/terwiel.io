@@ -24,6 +24,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="icon"
+          href="/images/favicon.png?<generated>"
+          type="image/<generated>"
+          sizes="<generated>"
+        />
+      </head>
+
       <body className={`prose font-sans ${inter.variable}`}>{children}</body>
     </html>
   );

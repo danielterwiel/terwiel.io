@@ -33,7 +33,8 @@ import {
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 
-import { Ring } from "./ring";
+import { Ring } from "~/components/ring";
+import * as Collapsible from "~/components/collapsible";
 
 type StackItem = {
   name: string;
@@ -334,8 +335,9 @@ const Project = ({
                 <dd className="pl-4">{project.location}</dd>
               </dl>
               <p>{project.description}</p>
-              <details open className="group">
-                <summary className="cursor-pointer list-none opacity-70 hover:opacity-100  [&::-webkit-details-marker]:hidden">
+
+              <Collapsible.Root>
+                <Collapsible.Trigger>
                   <div className="flex items-center gap-2">
                     <IconStackPush
                       aria-hidden="true"
@@ -347,9 +349,12 @@ const Project = ({
                     />
                     <div>Stack</div>
                   </div>
-                </summary>
-                <IconList items={project.stack} />
-              </details>
+                </Collapsible.Trigger>
+
+                <Collapsible.Content>
+                  <IconList items={project.stack} />
+                </Collapsible.Content>
+              </Collapsible.Root>
             </div>
             <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap pt-1.5 text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
