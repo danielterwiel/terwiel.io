@@ -19,12 +19,14 @@ const Root = ({
 const Trigger = ({
   children,
   className,
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
+  onClick: () => void;
 }) => {
   return (
-    <RadixCollapsible.Trigger className={className}>
+    <RadixCollapsible.Trigger onClick={() => onClick()} className={className}>
       {children}
     </RadixCollapsible.Trigger>
   );
@@ -33,12 +35,14 @@ const Trigger = ({
 const Content = ({
   children,
   className,
+  asChild,
 }: {
   children: React.ReactNode;
   className?: string;
+  asChild?: boolean;
 }) => {
   return (
-    <RadixCollapsible.Content className={className}>
+    <RadixCollapsible.Content asChild={asChild} className={className}>
       {children}
     </RadixCollapsible.Content>
   );

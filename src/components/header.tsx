@@ -1,8 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import { IconBrandGithub, IconBrandLinkedin } from "@tabler/icons-react";
-
 export default function Header() {
   return (
     <header>
@@ -28,24 +26,34 @@ export default function Header() {
               href="https://github.com/danielterwiel"
               className="flex sm:order-last"
             >
-              <IconBrandGithub
-                className="h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+              <Image
+                src="/images/icons/brand-github.svg"
                 aria-hidden="true"
+                className="my-0 h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+                alt=""
+                width={24}
+                height={24}
               />
-
               <span aria-hidden="true" className="hidden print:block">
-                github
+                https://www.
               </span>
+              <span className="hidden print:block">github</span>
               <span aria-hidden="true" className="hidden print:block">
                 .com/danielterwiel/
               </span>
             </Link>
             <Link href="https://www.linkedin.com/in/terwiel/" className="flex">
-              <IconBrandLinkedin
-                className="h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+              <Image
+                src="/images/icons/brand-linkedin.svg"
                 aria-hidden="true"
+                className="my-0 h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
+                alt=""
+                width={24}
+                height={24}
               />
-
+              <span aria-hidden="true" className="hidden print:block">
+                https://www.
+              </span>
               <span className="hidden print:block">linkedin</span>
               <span aria-hidden="true" className="hidden print:block">
                 .com/in/terwiel/

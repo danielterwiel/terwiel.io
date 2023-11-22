@@ -1,24 +1,8 @@
-import {
-  IconAccessible,
-  IconBrandCss3,
-  IconBrandHtml5,
-  IconBrandJavascript,
-  IconBrandReact,
-  IconBrandRust,
-  IconBrandSpeedtest,
-  IconBrandTypescript,
-  IconBrandVue,
-  IconBulb,
-  IconComponents,
-  IconFocus,
-  IconGeometry,
-  IconMessageCircleCode,
-  IconStack,
-} from "@tabler/icons-react";
+import Image from "next/image";
 
 type ListItem = {
   name: string;
-  icon: React.ElementType;
+  icon: string;
 };
 
 const IconList = ({ items }: { items: ListItem[] }) => {
@@ -27,7 +11,14 @@ const IconList = ({ items }: { items: ListItem[] }) => {
       {items.map((item) => (
         <li key={item.name}>
           <div className="flex items-center gap-2">
-            <item.icon className="h-5 w-5" aria-hidden="true" />
+            <Image
+              src={`/images/icons/${item.icon}.svg`}
+              aria-hidden="true"
+              className="my-1"
+              alt=""
+              width={24}
+              height={24}
+            />
             {item.name}
           </div>
         </li>
@@ -37,21 +28,28 @@ const IconList = ({ items }: { items: ListItem[] }) => {
 };
 
 const stack: ListItem[] = [
-  { name: "HTML", icon: IconBrandHtml5 },
-  { name: "CSS", icon: IconBrandCss3 },
-  { name: "JavaScript", icon: IconBrandJavascript },
-  { name: "TypeScript", icon: IconBrandTypescript },
-  { name: "React", icon: IconBrandReact },
-  { name: "Vue", icon: IconBrandVue },
-  { name: "Lit", icon: IconComponents },
-  { name: "Rust", icon: IconBrandRust },
+  { name: "HTML", icon: "brand-html5" },
+  { name: "CSS", icon: "brand-css3" },
+  { name: "JavaScript", icon: "brand-javascript" },
+  { name: "TypeScript", icon: "brand-typescript" },
+  { name: "React", icon: "brand-react" },
+  { name: "Vue", icon: "brand-vue" },
+  { name: "Lit", icon: "components" },
+  { name: "Rust", icon: "brand-rust" },
 ];
 
 const Stack = () => {
   return (
     <div>
       <h2 className="flex gap-4">
-        <IconStack className="h-7 w-7" aria-hidden="true" />
+        <Image
+          src="/images/icons/stack.svg"
+          aria-hidden="true"
+          className="my-0 h-7 w-7"
+          alt=""
+          width={24}
+          height={24}
+        />
         Stack
       </h2>
       <IconList items={stack} />
@@ -60,18 +58,18 @@ const Stack = () => {
 };
 
 const focus: ListItem[] = [
-  { name: "Communication", icon: IconMessageCircleCode },
-  { name: "Architecture", icon: IconGeometry },
-  { name: "Performance", icon: IconBrandSpeedtest },
-  { name: "Accessibility", icon: IconAccessible },
-  { name: "Simplicity", icon: IconBulb },
+  { name: "Communication", icon: "message-circle-code" },
+  { name: "Architecture", icon: "geometry" },
+  { name: "Performance", icon: "brand-speedtest" },
+  { name: "Accessibility", icon: "accessible" },
+  { name: "Simplicity", icon: "bulb" },
 ];
 
 const Focus = () => {
   return (
     <div>
       <h2 className="flex gap-4">
-        <IconFocus className="h-7 w-7" aria-hidden="true" />
+        {/* <IconFocus className="h-7 w-7" aria-hidden="true" /> */}
         Focus
       </h2>
       <IconList items={focus} />

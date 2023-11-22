@@ -1,44 +1,13 @@
-import {
-  IconAssembly,
-  IconBrandCss3,
-  IconBrandGoogle,
-  IconBrandGraphql,
-  IconBrandHtml5,
-  IconBrandJavascript,
-  IconBrandPhp,
-  IconBrandReact,
-  IconBrandRedux,
-  IconBrandRust,
-  IconBrandSass,
-  IconBrandSpeedtest,
-  IconBrandTailwind,
-  IconBrandTypescript,
-  IconBrandVercel,
-  IconBrandVite,
-  IconBrandVue,
-  IconBuildingBank,
-  IconBuildingWarehouse,
-  IconComponents,
-  IconHealthRecognition,
-  IconHeartHandshake,
-  IconHotelService,
-  IconNews,
-  IconPackage,
-  IconRocket,
-  IconSql,
-  IconStackPop,
-  IconStackPush,
-  IconSvg,
-} from "@tabler/icons-react";
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 
 import { Ring } from "~/components/ring";
-import * as Collapsible from "~/components/collapsible";
+import { Stack } from "~/components/stack";
+import Image from "next/image";
 
 type StackItem = {
   name: string;
-  icon: React.ElementType;
+  icon: string;
 };
 
 type Project = {
@@ -52,12 +21,12 @@ type Project = {
   dateTo: string;
   description: string;
   stack: StackItem[];
-  icon: React.ElementType;
+  icon: string;
 };
 
 type ListItem = {
   name: string;
-  icon: React.ElementType;
+  icon: string;
   url?: string;
 };
 
@@ -67,7 +36,14 @@ const IconList = ({ items }: { items: ListItem[] }) => {
       {items.map((item) => (
         <li key={item.name}>
           <div className="flex items-center gap-2">
-            <item.icon className="h-5 w-5 opacity-30" aria-hidden="true" />
+            <Image
+              src={`/images/icons/${item.icon}.svg`}
+              className="mb-0 mt-0 opacity-30"
+              width={24}
+              height={24}
+              alt=""
+              aria-hidden="true"
+            />
             {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
           </div>
         </li>
@@ -75,33 +51,6 @@ const IconList = ({ items }: { items: ListItem[] }) => {
     </ul>
   );
 };
-
-const IconBrandVitest = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    stroke="currentColor"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    strokeWidth={2}
-    className="h-5 w-5 opacity-30"
-    viewBox="0 0 256 256"
-    aria-hidden="true"
-  >
-    <path
-      fill="currentColor"
-      d="M192.115 70.808l-61.2 88.488a5.27 5.27 0 01-2.673 2.002 5.285 5.285 0 01-3.343-.005 5.25 5.25 0 01-2.66-2.01 5.214 5.214 0 01-.903-3.203l2.45-48.854-39.543-8.386a5.256 5.256 0 01-2.292-1.118 5.222 5.222 0 01-1.83-4.581 5.226 5.226 0 01.895-2.383L142.218 2.27a5.279 5.279 0 016.016-1.996 5.243 5.243 0 012.66 2.01c.643.942.96 2.066.903 3.203l-2.45 48.855 39.542 8.386a5.262 5.262 0 012.293 1.117 5.21 5.21 0 011.829 4.582 5.212 5.212 0 01-.896 2.382z"
-    />
-    <path
-      fill="currentColor"
-      d="M128.025 233.537a12.356 12.356 0 01-8.763-3.63l-57.828-57.823a12.389 12.389 0 01.023-17.5 12.394 12.394 0 0117.5-.024l49.068 49.061L234.917 96.733a12.39 12.39 0 0117.523 17.524l-115.655 115.65a12.343 12.343 0 01-8.76 3.63z"
-    />
-    <path
-      fill="currentColor"
-      d="M127.975 233.537a12.356 12.356 0 008.763-3.63l57.828-57.823a12.385 12.385 0 003.605-8.754 12.395 12.395 0 00-12.375-12.376 12.4 12.4 0 00-8.755 3.606l-49.066 49.061L21.082 96.733a12.392 12.392 0 00-17.524 17.524l115.656 115.65a12.347 12.347 0 008.76 3.63z"
-    />
-  </svg>
-);
 
 const projects: Project[] = [
   {
@@ -116,18 +65,18 @@ const projects: Project[] = [
     description:
       "Departure Labs started as a side project. When the technical founder, whom I met over Twitter, told me she had raised money to work on it full-time, I joined her in this adventure. After five unsuccessful blockchain products, we pivoted to creating a WebAssembly-enabled cloud platform.",
     stack: [
-      { name: "Rust", icon: IconBrandRust },
-      { name: "WebAssembly", icon: IconAssembly },
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "TypeScript", icon: IconBrandTypescript },
-      { name: "Vue", icon: IconBrandVue },
-      { name: "React", icon: IconBrandReact },
-      { name: "Next.js", icon: IconBrandVercel },
-      { name: "Tailwind", icon: IconBrandTailwind },
-      { name: "Vite", icon: IconBrandVite },
-      { name: "Vitest", icon: IconBrandVitest },
+      { name: "Rust", icon: "brand-rust" },
+      { name: "WebAssembly", icon: "assembly" },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "TypeScript", icon: "brand-typescript" },
+      { name: "Vue", icon: "brand-vue" },
+      { name: "React", icon: "brand-react" },
+      { name: "Next.js", icon: "brand-vercel" },
+      { name: "Tailwind", icon: "brand-tailwind" },
+      { name: "Vite", icon: "brand-vite" },
+      { name: "Vitest", icon: "brand-vitest" },
     ],
-    icon: IconRocket,
+    icon: "rocket",
   },
   {
     id: "PROJECT_1",
@@ -141,12 +90,12 @@ const projects: Project[] = [
     description:
       "Touchpoint at ING is a department that develops a multi-component, plug-and-play platform, allowing all ING branches to integrate a unified user experience. I worked on authentication and utility libraries.",
     stack: [
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "Lit", icon: IconComponents },
-      { name: "CSS", icon: IconBrandCss3 },
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "Lit", icon: "components" },
+      { name: "CSS", icon: "brand-css3" },
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconBuildingBank,
+    icon: "building-bank",
   },
   {
     id: "PROJECT_2",
@@ -160,17 +109,17 @@ const projects: Project[] = [
     description:
       "Here, I maintained and updated a four-year-old newsroom management application used by large media outlets in the Benelux.",
     stack: [
-      { name: "React", icon: IconBrandReact },
-      { name: "Redux", icon: IconBrandRedux },
-      { name: "TypeScript", icon: IconBrandTypescript },
-      { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Puppeteer", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Tailwind", icon: IconBrandTailwind },
-      { name: "CSS", icon: IconBrandCss3 },
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "React", icon: "brand-react" },
+      { name: "Redux", icon: "brand-redux" },
+      { name: "TypeScript", icon: "brand-typescript" },
+      { name: "Webpack", icon: "brand-javascript" },
+      { name: "Jest", icon: "brand-javascript" },
+      { name: "Puppeteer", icon: "brand-javascript" },
+      { name: "Tailwind", icon: "brand-tailwind" },
+      { name: "CSS", icon: "brand-css3" },
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconNews,
+    icon: "news",
   },
   {
     id: "PROJECT_3",
@@ -184,16 +133,16 @@ const projects: Project[] = [
     description:
       "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application.",
     stack: [
-      { name: "Vue", icon: IconBrandVue },
-      { name: "Preact", icon: IconBrandReact }, // Using React icon as a related placeholder
-      { name: "GraphQL", icon: IconBrandGraphql }, // Using JavaScript icon as a placeholder
-      { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "CSS", icon: IconBrandCss3 },
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "Vue", icon: "brand-vue" },
+      { name: "Preact", icon: "brand-react" },
+      { name: "GraphQL", icon: "brand-graphql" },
+      { name: "Webpack", icon: "brand-javascript" },
+      { name: "Jest", icon: "brand-javascript" },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "CSS", icon: "brand-css3" },
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconPackage,
+    icon: "package",
   },
   {
     id: "PROJECT_4",
@@ -207,18 +156,18 @@ const projects: Project[] = [
     description:
       "At IPERION, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
     stack: [
-      { name: "React", icon: IconBrandReact },
-      { name: "Redux", icon: IconBrandRedux },
-      { name: "Redux-saga", icon: IconBrandRedux },
-      { name: "FlowType", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Jest", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Webpack", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "Material UI", icon: IconBrandGoogle }, // Using React icon as a placeholder
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandSass }, // Assuming CSS3 icon is a fit
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "React", icon: "brand-react" },
+      { name: "Redux", icon: "brand-redux" },
+      { name: "Redux-saga", icon: "brand-redux" },
+      { name: "FlowType", icon: "brand-javascript" },
+      { name: "Jest", icon: "brand-javascript" },
+      { name: "Webpack", icon: "brand-javascript" },
+      { name: "Material UI", icon: "brand-google" },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "SCSS", icon: "brand-sass" }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconHealthRecognition,
+    icon: "health-recognition",
   },
   {
     id: "PROJECT_5",
@@ -232,12 +181,12 @@ const projects: Project[] = [
     description:
       "At Amadeus, I worked on ELS, an enterprise single-page application (SPA) built with Knockout.js for the hospitality industry.",
     stack: [
-      { name: "Knockout.js", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandSass }, // Assuming CSS3 icon is a fit
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "Knockout.js", icon: "brand-javascript" },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "SCSS", icon: "brand-sass" }, // Assuming CSS3 icon is a fit
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconHotelService,
+    icon: "hotel-service",
   },
   {
     id: "PROJECT_6",
@@ -251,13 +200,13 @@ const projects: Project[] = [
     description:
       "Working at Dinto, my role was to create interactive blueprints of warehouses using SVG, SQL, and JavaScript.",
     stack: [
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "SCSS", icon: IconBrandSass },
-      { name: "HTML", icon: IconBrandHtml5 },
-      { name: "SVG", icon: IconSvg },
-      { name: "SQL", icon: IconSql },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "SCSS", icon: "brand-sass" },
+      { name: "HTML", icon: "brand-html5" },
+      { name: "SVG", icon: "svg" },
+      { name: "SQL", icon: "sql" },
     ],
-    icon: IconBuildingWarehouse,
+    icon: "building-warehouse",
   },
   {
     id: "PROJECT_7",
@@ -270,14 +219,14 @@ const projects: Project[] = [
     dateTo: "2013-06-30",
     description: "I created websites and a CRM system for financial advisors.",
     stack: [
-      { name: "Visual Basic.NET", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "SQL Server", icon: IconBrandJavascript }, // Using JavaScript icon as a placeholder
-      { name: "PHP", icon: IconBrandPhp },
-      { name: "JavaScript", icon: IconBrandJavascript },
-      { name: "CSS", icon: IconBrandCss3 },
-      { name: "HTML", icon: IconBrandHtml5 },
+      { name: "Visual Basic.NET", icon: "brand-javascript" },
+      { name: "SQL Server", icon: "brand-javascript" },
+      { name: "PHP", icon: "brand-php" },
+      { name: "JavaScript", icon: "brand-javascript" },
+      { name: "CSS", icon: "brand-css3" },
+      { name: "HTML", icon: "brand-html5" },
     ],
-    icon: IconHeartHandshake,
+    icon: "heart-handshake",
   },
 ];
 
@@ -314,7 +263,14 @@ const Project = ({
         <div className="relative flex gap-2 space-x-3 md:gap-4">
           <div className="hidden sm:block">
             <Ring size={8} animationDuration={8}>
-              <project.icon className="h-5 w-5 " aria-hidden="true" />
+              <Image
+                src={`/images/icons/${project.icon}.svg`}
+                className="mb-0 mt-0"
+                width={24}
+                height={24}
+                alt=""
+                aria-hidden="true"
+              />
             </Ring>
           </div>
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 pt-1.5">
@@ -336,25 +292,7 @@ const Project = ({
               </dl>
               <p>{project.description}</p>
 
-              <Collapsible.Root>
-                <Collapsible.Trigger>
-                  <div className="flex items-center gap-2">
-                    <IconStackPush
-                      aria-hidden="true"
-                      className="block group-open:hidden"
-                    />
-                    <IconStackPop
-                      aria-hidden="true"
-                      className="hidden group-open:block"
-                    />
-                    <div>Stack</div>
-                  </div>
-                </Collapsible.Trigger>
-
-                <Collapsible.Content>
-                  <IconList items={project.stack} />
-                </Collapsible.Content>
-              </Collapsible.Root>
+              <Stack items={project.stack} />
             </div>
             <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap pt-1.5 text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
@@ -390,17 +328,17 @@ const Projects = () => {
 const conferences: ListItem[] = [
   {
     name: "Performance.now()",
-    icon: IconBrandSpeedtest,
+    icon: "brand-speedtest",
     url: "https://perfnow.nl/",
   },
   {
     name: "React Summit",
-    icon: IconBrandReact,
+    icon: "brand-react",
     url: "https://reactsummit.com/",
   },
   {
     name: "VueJS Amsterdam",
-    icon: IconBrandVue,
+    icon: "brand-vue",
     url: "https://vuejs.amsterdam/",
   },
 ];
