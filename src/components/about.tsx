@@ -68,10 +68,7 @@ const focus: ListItem[] = [
 const Focus = () => {
   return (
     <div>
-      <h2 className="flex gap-4">
-        {/* <IconFocus className="h-7 w-7" aria-hidden="true" /> */}
-        Focus
-      </h2>
+      <h2 className="flex gap-4">Focus</h2>
       <IconList items={focus} />
     </div>
   );

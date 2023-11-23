@@ -74,7 +74,6 @@ const projects: Project[] = [
       { name: "Next.js", icon: "brand-vercel" },
       { name: "Tailwind", icon: "brand-tailwind" },
       { name: "Vite", icon: "brand-vite" },
-      { name: "Vitest", icon: "brand-vitest" },
     ],
     icon: "rocket",
   },
@@ -146,7 +145,7 @@ const projects: Project[] = [
   },
   {
     id: "PROJECT_4",
-    company: "IPERION",
+    company: "Iperion",
     role: "Front End Developer",
     teamSize: 4,
     industry: "Life Sciences",
@@ -154,7 +153,7 @@ const projects: Project[] = [
     dateFrom: "2016-06-01",
     dateTo: "2019-01-31",
     description:
-      "At IPERION, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
+      "At Iperion, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
     stack: [
       { name: "React", icon: "brand-react" },
       { name: "Redux", icon: "brand-redux" },
@@ -164,7 +163,7 @@ const projects: Project[] = [
       { name: "Webpack", icon: "brand-javascript" },
       { name: "Material UI", icon: "brand-google" },
       { name: "JavaScript", icon: "brand-javascript" },
-      { name: "SCSS", icon: "brand-sass" }, // Assuming CSS3 icon is a fit
+      { name: "SCSS", icon: "brand-sass" },
       { name: "HTML", icon: "brand-html5" },
     ],
     icon: "health-recognition",
@@ -179,11 +178,11 @@ const projects: Project[] = [
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
     description:
-      "At Amadeus, I worked on ELS, an enterprise single-page application (SPA) built with Knockout.js for the hospitality industry.",
+      "At Amadeus, I worked on ELS, a single-page application built with Knockout.js for the hospitality industry.",
     stack: [
       { name: "Knockout.js", icon: "brand-javascript" },
       { name: "JavaScript", icon: "brand-javascript" },
-      { name: "SCSS", icon: "brand-sass" }, // Assuming CSS3 icon is a fit
+      { name: "CSS", icon: "brand-css3" },
       { name: "HTML", icon: "brand-html5" },
     ],
     icon: "hotel-service",
@@ -247,8 +246,8 @@ const Project = ({
   const duration = formatDuration({ months, years });
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
-  const fromApos = from.replace(/\d+/g, "'$&"); // prepend apostrophes
-  const toApos = to.replace(/\d+/g, "'$&"); // prepend apostrophes
+  const fromApos = from.replace(/\d+/g, "'$&");
+  const toApos = to.replace(/\d+/g, "'$&");
   const timespan = `${fromApos} - ${toApos}`;
 
   return (
@@ -273,28 +272,30 @@ const Project = ({
               />
             </Ring>
           </div>
-          <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 pt-1.5">
+          <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4">
             <div className="order-2 col-span-1">
-              <h3 className="-mt-1 text-lg font-semibold">{project.company}</h3>
-              <dl>
-                <dt className="text-slate-400">Role</dt>
-                <dd className="pl-4">{project.role}</dd>
-                <dt className="text-slate-400">Team size</dt>
-                <dd className="pl-4">
+              <h3 className="my-0 text-lg font-semibold">{project.company}</h3>
+              <dl className="grid grid-flow-row gap-1 md:grid-cols-2 md:grid-rows-2 md:py-16">
+                <dt className="text-slate-400 md:m-0 md:text-right">Role</dt>
+                <dd className="m-0 pl-4">{project.role}</dd>
+                <dt className="m-0 text-slate-400 md:text-right">Team</dt>
+                <dd className="m-0 pl-4">
                   <span className="text-slate-600/80">~</span>
-                  {project.teamSize}
-                  <span className="text-slate-600/80"> developers</span>
+                  <span className="mr-2">{project.teamSize}</span>
+                  developers
                 </dd>
-                <dt className="text-slate-400">Industry</dt>
-                <dd className="pl-4">{project.industry}</dd>
-                <dt className="text-slate-400">Location</dt>
-                <dd className="pl-4">{project.location}</dd>
+                <dt className="m-0 text-slate-400 md:text-right">Industry</dt>
+                <dd className="m-0 pl-4">{project.industry}</dd>
+                <dt className="m-0 text-slate-400 md:text-right">Location</dt>
+                <dd className="m-0 pl-4">{project.location}</dd>
+                <dt className="m-0 text-slate-400 md:text-right">Stack</dt>
+                <dd className="m-0 pl-4 pt-1">
+                  <Stack items={project.stack} />
+                </dd>
               </dl>
               <p>{project.description}</p>
-
-              <Stack items={project.stack} />
             </div>
-            <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap pt-1.5 text-right text-sm text-gray-500">
+            <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap text-right text-sm text-gray-500">
               <div className="text-xs">{duration}</div>
               <div className="text-xs opacity-70">{timespan}</div>
             </div>
@@ -310,7 +311,7 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root">
-        <ul role="list" className="-mb-8 -ml-4 list-none ">
+        <ul role="list" className="-mb-8 -ml-4 list-none">
           {projects.map((project, projectIdx) => (
             <Project
               key={project.company}

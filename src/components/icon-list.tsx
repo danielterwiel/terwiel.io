@@ -9,10 +9,14 @@ export type ListItem = {
   url?: string;
 };
 
-export const IconList = ({ items }: { items: ListItem[] }) => {
+export const IconList = ({ items }: { items: ListItem[]; open: boolean }) => {
+  const icons = items.filter(
+    (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
+  );
+
   return (
     <ul className="-ml-5 list-none" role="list">
-      {items.map((item) => (
+      {icons.map((item) => (
         <li key={item.name}>
           <div className="flex items-center gap-2">
             <Image
