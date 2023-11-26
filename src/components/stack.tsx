@@ -2,8 +2,8 @@
 
 import React from "react";
 import * as Collapsible from "~/components/collapsible";
-import Image from "next/image";
 
+import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 
 export function Stack({ items }: { items: ListItem[] }) {
@@ -18,19 +18,14 @@ export function Stack({ items }: { items: ListItem[] }) {
         <div className="flex items-center gap-2">
           {open
             ? null
-            : icons.map((item) => (
-                <div className="text-slate-200" key={item.name}>
-                  <Image
-                    key={item.name}
-                    src={`/images/icons/${item.icon}.svg`}
-                    aria-hidden="true"
-                    className="my-0"
-                    alt=""
-                    width={24}
-                    height={24}
-                  />
-                </div>
-              ))}
+            : icons.map((item) => {
+                const IconStack = Icon[item.icon];
+                return (
+                  <div className="text-slate-200" key={item.name}>
+                    <IconStack aria-hidden="true" width={24} height={24} />
+                  </div>
+                );
+              })}
         </div>
       </Collapsible.Trigger>
 

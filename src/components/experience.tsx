@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
+
+import React, { useEffect, useState } from "react";
 
 import { Ring } from "~/components/ring";
 import { Stack } from "~/components/stack";
 import Image from "next/image";
+
+import { Icon } from "~/components/icon";
 
 type StackItem = {
   name: string;
@@ -30,24 +36,38 @@ type ListItem = {
   url?: string;
 };
 
+// TODO: this is suboptimal. It should be possible to inline SVGs without fetching them, but I cannot hack it into the app router as of today.
+const InlineIcon = ({ svgUrl }: { svgUrl: string }) => {
+  const [svgContent, setSvgContent] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(svgUrl)
+      .then((response) => response.text())
+      .then((data) => setSvgContent(data))
+      .catch((error) => console.error("Error fetching SVG:", error));
+  }, [svgUrl]);
+
+  if (!svgContent) {
+    return <div>Loading...</div>; // Or any other loading state representation
+  }
+
+  return <div dangerouslySetInnerHTML={{ __html: svgContent }} />;
+};
+
 const IconList = ({ items }: { items: ListItem[] }) => {
   return (
     <ul className="-ml-5 list-none" role="list">
-      {items.map((item) => (
-        <li key={item.name}>
-          <div className="flex items-center gap-2">
-            <Image
-              src={`/images/icons/${item.icon}.svg`}
-              className="mb-0 mt-0 opacity-30"
-              width={24}
-              height={24}
-              alt=""
-              aria-hidden="true"
-            />
-            {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
-          </div>
-        </li>
-      ))}
+      {items.map((item) => {
+        const IconX = Icon[item.icon];
+        return (
+          <li key={item.name}>
+            <div className="flex items-center gap-2">
+              <IconX />
+              {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
+            </div>
+          </li>
+        );
+      })}
     </ul>
   );
 };
@@ -65,17 +85,17 @@ const projects: Project[] = [
     description:
       "Departure Labs started as a side project. When the technical founder, whom I met over Twitter, told me she had raised money to work on it full-time, I joined her in this adventure. After five unsuccessful blockchain products, we pivoted to creating a WebAssembly-enabled cloud platform.",
     stack: [
-      { name: "Rust", icon: "brand-rust" },
-      { name: "WebAssembly", icon: "assembly" },
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "TypeScript", icon: "brand-typescript" },
-      { name: "Vue", icon: "brand-vue" },
-      { name: "React", icon: "brand-react" },
-      { name: "Next.js", icon: "brand-vercel" },
-      { name: "Tailwind", icon: "brand-tailwind" },
-      { name: "Vite", icon: "brand-vite" },
+      { name: "Rust", icon: "BrandRust" },
+      { name: "WebAssembly", icon: "Assembly" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "TypeScript", icon: "BrandTypescript" },
+      { name: "Vue", icon: "BrandVue" },
+      { name: "React", icon: "BrandReact" },
+      { name: "Next.js", icon: "BrandVercel" },
+      { name: "Tailwind", icon: "BrandTailwind" },
+      { name: "Vite", icon: "BrandVite" },
     ],
-    icon: "rocket",
+    icon: "Rocket",
   },
   {
     id: "PROJECT_1",
@@ -89,12 +109,12 @@ const projects: Project[] = [
     description:
       "Touchpoint at ING is a department that develops a multi-component, plug-and-play platform, allowing all ING branches to integrate a unified user experience. I worked on authentication and utility libraries.",
     stack: [
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "Lit", icon: "components" },
-      { name: "CSS", icon: "brand-css3" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "Lit", icon: "Components" },
+      { name: "CSS", icon: "BrandCss3" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "building-bank",
+    icon: "BuildingBank",
   },
   {
     id: "PROJECT_2",
@@ -108,17 +128,17 @@ const projects: Project[] = [
     description:
       "Here, I maintained and updated a four-year-old newsroom management application used by large media outlets in the Benelux.",
     stack: [
-      { name: "React", icon: "brand-react" },
-      { name: "Redux", icon: "brand-redux" },
-      { name: "TypeScript", icon: "brand-typescript" },
-      { name: "Webpack", icon: "brand-javascript" },
-      { name: "Jest", icon: "brand-javascript" },
-      { name: "Puppeteer", icon: "brand-javascript" },
-      { name: "Tailwind", icon: "brand-tailwind" },
-      { name: "CSS", icon: "brand-css3" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "React", icon: "BrandReact" },
+      { name: "Redux", icon: "BrandRedux" },
+      { name: "TypeScript", icon: "BrandTypescript" },
+      { name: "Webpack", icon: "BrandJavascript" },
+      { name: "Jest", icon: "BrandJavascript" },
+      { name: "Puppeteer", icon: "BrandJavascript" },
+      { name: "Tailwind", icon: "BrandTailwind" },
+      { name: "CSS", icon: "BrandCss3" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "news",
+    icon: "News",
   },
   {
     id: "PROJECT_3",
@@ -132,16 +152,16 @@ const projects: Project[] = [
     description:
       "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application.",
     stack: [
-      { name: "Vue", icon: "brand-vue" },
-      { name: "Preact", icon: "brand-react" },
-      { name: "GraphQL", icon: "brand-graphql" },
-      { name: "Webpack", icon: "brand-javascript" },
-      { name: "Jest", icon: "brand-javascript" },
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "CSS", icon: "brand-css3" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "Vue", icon: "BrandVue" },
+      { name: "Preact", icon: "BrandReact" },
+      { name: "GraphQL", icon: "BrandGraphql" },
+      { name: "Webpack", icon: "BrandJavascript" },
+      { name: "Jest", icon: "BrandJavascript" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "CSS", icon: "BrandCss3" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "package",
+    icon: "Package",
   },
   {
     id: "PROJECT_4",
@@ -155,18 +175,18 @@ const projects: Project[] = [
     description:
       "At Iperion, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
     stack: [
-      { name: "React", icon: "brand-react" },
-      { name: "Redux", icon: "brand-redux" },
-      { name: "Redux-saga", icon: "brand-redux" },
-      { name: "FlowType", icon: "brand-javascript" },
-      { name: "Jest", icon: "brand-javascript" },
-      { name: "Webpack", icon: "brand-javascript" },
-      { name: "Material UI", icon: "brand-google" },
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "SCSS", icon: "brand-sass" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "React", icon: "BrandReact" },
+      { name: "Redux", icon: "BrandRedux" },
+      { name: "Redux-saga", icon: "BrandRedux" },
+      { name: "FlowType", icon: "BrandJavascript" },
+      { name: "Jest", icon: "BrandJavascript" },
+      { name: "Webpack", icon: "BrandJavascript" },
+      { name: "Material UI", icon: "BrandGoogle" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "SCSS", icon: "BrandSass" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "health-recognition",
+    icon: "HealthRecognition",
   },
   {
     id: "PROJECT_5",
@@ -180,12 +200,12 @@ const projects: Project[] = [
     description:
       "At Amadeus, I worked on ELS, a single-page application built with Knockout.js for the hospitality industry.",
     stack: [
-      { name: "Knockout.js", icon: "brand-javascript" },
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "CSS", icon: "brand-css3" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "Knockout.js", icon: "BrandJavascript" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "CSS", icon: "BrandCss3" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "hotel-service",
+    icon: "HotelService",
   },
   {
     id: "PROJECT_6",
@@ -199,13 +219,13 @@ const projects: Project[] = [
     description:
       "Working at Dinto, my role was to create interactive blueprints of warehouses using SVG, SQL, and JavaScript.",
     stack: [
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "SCSS", icon: "brand-sass" },
-      { name: "HTML", icon: "brand-html5" },
-      { name: "SVG", icon: "svg" },
-      { name: "SQL", icon: "sql" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "SCSS", icon: "BrandSass" },
+      { name: "HTML", icon: "BrandHtml5" },
+      { name: "SVG", icon: "Svg" },
+      { name: "SQL", icon: "Sql" },
     ],
-    icon: "building-warehouse",
+    icon: "BuildingWarehouse",
   },
   {
     id: "PROJECT_7",
@@ -218,14 +238,14 @@ const projects: Project[] = [
     dateTo: "2013-06-30",
     description: "I created websites and a CRM system for financial advisors.",
     stack: [
-      { name: "Visual Basic.NET", icon: "brand-javascript" },
-      { name: "SQL Server", icon: "brand-javascript" },
-      { name: "PHP", icon: "brand-php" },
-      { name: "JavaScript", icon: "brand-javascript" },
-      { name: "CSS", icon: "brand-css3" },
-      { name: "HTML", icon: "brand-html5" },
+      { name: "Visual Basic.NET", icon: "BrandJavascript" },
+      { name: "SQL Server", icon: "BrandJavascript" },
+      { name: "PHP", icon: "BrandPhp" },
+      { name: "JavaScript", icon: "BrandJavascript" },
+      { name: "CSS", icon: "BrandCss3" },
+      { name: "HTML", icon: "BrandHtml5" },
     ],
-    icon: "heart-handshake",
+    icon: "HeartHandshake",
   },
 ];
 
@@ -250,6 +270,8 @@ const Project = ({
   const toApos = to.replace(/\d+/g, "'$&");
   const timespan = `${fromApos} - ${toApos}`;
 
+  const IconProject = Icon[project.icon];
+
   return (
     <div key={project.id} className="relative break-after-page pb-8 print:pt-8">
       {projectIdx !== totalLength - 1 ? (
@@ -262,33 +284,50 @@ const Project = ({
         <div className="relative flex gap-2 space-x-3 md:gap-4">
           <div className="hidden sm:block">
             <Ring size={8} animationDuration={8}>
-              <Image
-                src={`/images/icons/${project.icon}.svg`}
-                className="mb-0 mt-0"
-                width={24}
-                height={24}
-                alt=""
-                aria-hidden="true"
-              />
+              <IconProject />
             </Ring>
           </div>
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4">
             <div className="order-2 col-span-1">
               <h3 className="my-0 text-lg font-semibold">{project.company}</h3>
               <dl className="grid grid-flow-row gap-1 md:grid-cols-2 md:grid-rows-2 md:py-16">
-                <dt className="text-slate-400 md:m-0 md:text-right">Role</dt>
+                <dt className="flex gap-2 md:m-0 md:justify-end">
+                  <span className="text-slate-400/50">
+                    <Icon.User />
+                  </span>
+                  <span className="text-slate-400">Role</span>
+                </dt>
                 <dd className="m-0 pl-4">{project.role}</dd>
-                <dt className="m-0 text-slate-400 md:text-right">Team</dt>
+                <dt className="flex gap-2 md:m-0 md:justify-end">
+                  <span className=" text-slate-400/50">
+                    <Icon.UsersGroup />
+                  </span>
+                  <span className="text-slate-400">Team</span>
+                </dt>
                 <dd className="m-0 pl-4">
-                  <span className="text-slate-600/80">~</span>
-                  <span className="mr-2">{project.teamSize}</span>
+                  ~<span className="mr-2">{project.teamSize}</span>
                   developers
                 </dd>
-                <dt className="m-0 text-slate-400 md:text-right">Industry</dt>
+                <dt className="flex gap-2 md:m-0 md:justify-end">
+                  <span className="text-slate-400/50">
+                    <Icon.BuildingFactory2 />
+                  </span>
+                  <span className="text-slate-400">Industry</span>
+                </dt>
                 <dd className="m-0 pl-4">{project.industry}</dd>
-                <dt className="m-0 text-slate-400 md:text-right">Location</dt>
+                <dt className="flex gap-2 md:m-0 md:justify-end">
+                  <span className=" text-slate-400/50">
+                    <Icon.MapPin />
+                  </span>
+                  <span className="text-slate-400">Location</span>
+                </dt>
                 <dd className="m-0 pl-4">{project.location}</dd>
-                <dt className="m-0 text-slate-400 md:text-right">Stack</dt>
+                <dt className="flex gap-2 md:m-0 md:justify-end">
+                  <span className=" text-slate-400/50">
+                    <Icon.Stack />
+                  </span>
+                  <span className="text-slate-400">Stack</span>
+                </dt>
                 <dd className="m-0 pl-4 pt-1">
                   <Stack items={project.stack} />
                 </dd>
@@ -329,17 +368,17 @@ const Projects = () => {
 const conferences: ListItem[] = [
   {
     name: "Performance.now()",
-    icon: "brand-speedtest",
+    icon: "BrandSpeedtest",
     url: "https://perfnow.nl/",
   },
   {
     name: "React Summit",
-    icon: "brand-react",
+    icon: "BrandReact",
     url: "https://reactsummit.com/",
   },
   {
     name: "VueJS Amsterdam",
-    icon: "brand-vue",
+    icon: "BrandVue",
     url: "https://vuejs.amsterdam/",
   },
 ];

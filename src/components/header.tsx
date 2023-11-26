@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 
+import { Icon } from "~/components/icon";
+
 export default function Header() {
   return (
     <header>
@@ -26,14 +28,11 @@ export default function Header() {
               href="https://github.com/danielterwiel"
               className="flex sm:order-last"
             >
-              <Image
-                src="/images/icons/brand-github.svg"
+              <Icon.BrandGithub
                 aria-hidden="true"
-                className="my-0 h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
-                alt=""
-                width={24}
-                height={24}
+                className="h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
               />
+
               <span aria-hidden="true" className="hidden print:block">
                 https://www.
               </span>
@@ -43,13 +42,9 @@ export default function Header() {
               </span>
             </Link>
             <Link href="https://www.linkedin.com/in/terwiel/" className="flex">
-              <Image
-                src="/images/icons/brand-linkedin.svg"
+              <Icon.BrandLinkedin
                 aria-hidden="true"
-                className="my-0 h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
-                alt=""
-                width={24}
-                height={24}
+                className="h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
               />
               <span aria-hidden="true" className="hidden print:block">
                 https://www.

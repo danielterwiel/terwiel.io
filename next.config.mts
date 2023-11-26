@@ -1,16 +1,23 @@
+import type { NextConfig } from "next";
+
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially useful
  * for Docker builds.
  */
 await import("./src/env.mjs");
 
-// /** @type {import("next").NextConfig} */
-const config = {
-  webpack(config) {
+const config: NextConfig = {
+  webpack: (config) => {
     // Grab the existing rule that handles SVG imports
-    const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.(".svg"),
+    const fileLoaderRule = config.module?.rules.find(
+      (rule) => (rule.test as RegExp)?.test(".svg"),
     );
+
+    if (!fileLoaderRule || !config.module?.rules) {
+      throw new Error(
+        "Failed to find the required webpack rules in the configuration",
+      );
+    }
 
     config.module.rules.push(
       // Reapply the existing rule, but only for svg imports ending in ?url
@@ -23,13 +30,15 @@ const config = {
       {
         test: /\.svg$/i,
         issuer: fileLoaderRule.issuer,
-        resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
+        resourceQuery: {
+          not: [...(fileLoaderRule.resourceQuery as any).not, /url/],
+        }, // exclude if *.svg?url
         use: ["@svgr/webpack"],
       },
     );
 
     // Modify the file loader rule to ignore *.svg, since we have it handled now.
-    fileLoaderRule.exclude = /\.svg$/i;
+    (fileLoaderRule.exclude as RegExp) = /\.svg$/i;
 
     return config;
   },
