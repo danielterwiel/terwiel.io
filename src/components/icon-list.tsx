@@ -54,7 +54,7 @@ const listItemDuration = {
 
 export const IconList = ({ items }: { items: ListItem[] }) => {
   return (
-    <ul className="ml-0 list-none pl-0" role="list">
+    <ul className="ml-0 mt-0 list-none pl-0" role="list">
       {items.map((item, index) => {
         const IconItem = Icon[item.icon as keyof typeof Icon];
         const color = iconColors[item.icon as keyof typeof iconColors];

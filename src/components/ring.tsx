@@ -40,12 +40,12 @@ export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
     ? `motion-safe:animation-ring`
     : "opacity-0 print:opacity-100";
 
-  const className = clsx(
+  const className = clsx([
     classContainer,
     classSize,
     classBorder,
     classAnimation,
-  );
+  ]);
 
   return (
     <div ref={ringRef} className={className}>

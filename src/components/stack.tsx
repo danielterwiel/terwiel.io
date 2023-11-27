@@ -83,8 +83,8 @@ export function Stack({ items }: { items: ListItem[] }) {
                   const iconClass = clsx([
                     hoverClass,
                     "text-slate-400/50",
-                    "transition-colors",
-                    "duration-200",
+                    "motion-safe:transition-colors",
+                    "motion-safe:duration-200",
                     "pt-1",
                   ]);
                   return (
@@ -97,7 +97,7 @@ export function Stack({ items }: { items: ListItem[] }) {
             </div>
           </Collapsible.Trigger>
 
-          <Collapsible.Content data-state={open ? "open" : "closed"}>
+          <Collapsible.Content>
             <IconList items={items} />
           </Collapsible.Content>
         </Collapsible.Root>
