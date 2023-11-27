@@ -15,7 +15,7 @@
   }
 }
 
-@keyframes ring-animation {
+@keyframes animationRing {
   from {
     transform: scale(0.9);
     opacity: 0;
@@ -26,7 +26,7 @@
   }
 }
 
-@keyframes fadeIn {
+@keyframes animationFadeIn {
   from {
     opacity: 0;
   }
@@ -35,11 +35,25 @@
   }
 }
 
-@layer utilities {
-  .ring-animation {
-    animation: ring-animation 1s ease-in-out;
+@keyframes animation-slide-down {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
   }
-  .fade-in-animation {
-    animation: fadeIn 1s ease-out forwards;
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@layer utilities {
+  .animation-ring {
+    animation: animationRing 1s ease-in-out;
+  }
+  .animation-fade-in {
+    animation: animationFadeIn 1s ease-out forwards;
+  }
+  .animation-slide-down {
+    animation: animationSlideDown 0.5s ease-in-out forwards;
   }
 }

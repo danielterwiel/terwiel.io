@@ -7,7 +7,7 @@ export default function Header() {
   return (
     <header>
       <Image
-        className="not-prose motion-safe:fade-in-animation float-left mb-0 mr-2 aspect-[1/1] h-72
+        className="not-prose motion-safe:animation-fade-in float-left mb-0 mr-2 aspect-[1/1] h-72
           w-64 object-cover object-center shadow-lg
           [clip-path:circle(70%_at_20%_30%)]
           [shape-outside:circle(70%_at_20%_30%)]

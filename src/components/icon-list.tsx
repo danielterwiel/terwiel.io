@@ -39,10 +39,23 @@ export type ListItem = {
   url?: string;
 };
 
+const listItemDuration = {
+  0: "animate-[animation-slide-down_0.3s_ease-in-out]",
+  1: "animate-[animation-slide-down_0.6s_ease-in-out]",
+  2: "animate-[animation-slide-down_0.9s_ease-in-out]",
+  3: "animate-[animation-slide-down_1.2s_ease-in-out]",
+  4: "animate-[animation-slide-down_1.5s_ease-in-out]",
+  5: "animate-[animation-slide-down_1.8s_ease-in-out]",
+  6: "animate-[animation-slide-down_2.1s_ease-in-out]",
+  7: "animate-[animation-slide-down_2.4s_ease-in-out]",
+  8: "animate-[animation-slide-down_2.7s_ease-in-out]",
+  9: "animate-[animation-slide-down_3.0s_ease-in-out]",
+};
+
 export const IconList = ({ items }: { items: ListItem[] }) => {
   return (
     <ul className="ml-0 list-none pl-0" role="list">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const IconItem = Icon[item.icon as keyof typeof Icon];
         const color = iconColors[item.icon as keyof typeof iconColors];
         const hoverClass = color ? color : "group-hover:text-slate-400";
@@ -60,8 +73,11 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
           linkUnderline,
         ]);
 
+        const listClass =
+          listItemDuration[index as keyof typeof listItemDuration];
+
         return (
-          <li key={item.name}>
+          <li key={item.name} className={listClass}>
             <div className="group flex items-center gap-2">
               <IconItem
                 className={iconClass}

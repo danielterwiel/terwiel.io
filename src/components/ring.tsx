@@ -37,7 +37,7 @@ export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
   const classSize = `w-${size} h-${size}`;
   const classBorder = `border-4 border-slate-300 rounded-full`;
   const classAnimation = isVisible
-    ? `motion-safe:ring-animation`
+    ? `motion-safe:animation-ring`
     : "opacity-0 print:opacity-100";
 
   const className = clsx(

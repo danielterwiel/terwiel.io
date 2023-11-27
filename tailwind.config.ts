@@ -8,6 +8,18 @@ export default {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      transitionDelay: {
+        "400": "400ms",
+        "600": "600ms",
+        "800": "800ms",
+        "900": "900ms",
+      },
+      transitionDuration: {
+        "400": "400ms",
+        "600": "600ms",
+        "800": "800ms",
+        "900": "900ms",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography")],
