@@ -1,13 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
+import { IconList, type ListItem } from "./icon-list";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 import { Ring } from "~/components/ring";
 import { Stack } from "~/components/stack";
-import Image from "next/image";
 
 import { Icon } from "~/components/icon";
 
@@ -28,48 +27,6 @@ type Project = {
   description: string;
   stack: StackItem[];
   icon: string;
-};
-
-type ListItem = {
-  name: string;
-  icon: string;
-  url?: string;
-};
-
-// TODO: this is suboptimal. It should be possible to inline SVGs without fetching them, but I cannot hack it into the app router as of today.
-const InlineIcon = ({ svgUrl }: { svgUrl: string }) => {
-  const [svgContent, setSvgContent] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetch(svgUrl)
-      .then((response) => response.text())
-      .then((data) => setSvgContent(data))
-      .catch((error) => console.error("Error fetching SVG:", error));
-  }, [svgUrl]);
-
-  if (!svgContent) {
-    return <div>Loading...</div>; // Or any other loading state representation
-  }
-
-  return <div dangerouslySetInnerHTML={{ __html: svgContent }} />;
-};
-
-const IconList = ({ items }: { items: ListItem[] }) => {
-  return (
-    <ul className="-ml-5 list-none" role="list">
-      {items.map((item) => {
-        const IconX = Icon[item.icon];
-        return (
-          <li key={item.name}>
-            <div className="flex items-center gap-2">
-              <IconX />
-              {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  );
 };
 
 const projects: Project[] = [
@@ -284,7 +241,7 @@ const Project = ({
         <div className="relative flex gap-2 space-x-3 md:gap-4">
           <div className="hidden sm:block">
             <Ring size={8} animationDuration={8}>
-              <IconProject />
+              <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4">

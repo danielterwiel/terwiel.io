@@ -21,7 +21,7 @@ const Stack = () => {
   return (
     <div>
       <h2 className="flex gap-4">
-        <Icon.Stack aria-hidden="true" className="my-0 h-7 w-7" />
+        <Icon.Stack aria-hidden="true" className="h-7 w-7" />
         Stack
       </h2>
       <IconList items={stack} />
@@ -41,7 +41,7 @@ const Focus = () => {
   return (
     <div>
       <h2 className="flex gap-4">
-        <Icon.Focus aria-hidden="true" className="my-0 h-7 w-7" />
+        <Icon.Focus aria-hidden="true" className="h-7 w-7" />
         Focus
       </h2>
       <IconList items={focus} />

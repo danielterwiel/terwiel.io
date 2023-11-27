@@ -21,7 +21,7 @@ export function Stack({ items }: { items: ListItem[] }) {
             : icons.map((item) => {
                 const IconStack = Icon[item.icon];
                 return (
-                  <div className="text-slate-200" key={item.name}>
+                  <div className="text-slate-400/50" key={item.name}>
                     <IconStack aria-hidden="true" width={24} height={24} />
                   </div>
                 );
@@ -30,7 +30,7 @@ export function Stack({ items }: { items: ListItem[] }) {
       </Collapsible.Trigger>
 
       <Collapsible.Content>
-        <IconList open={open} items={items} />
+        <IconList items={items} />
       </Collapsible.Content>
     </Collapsible.Root>
   );

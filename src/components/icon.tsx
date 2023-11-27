@@ -42,48 +42,85 @@ import Svg from "../images/icons/svg.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
 
-export const Icon = {
-  Accessible,
-  Assembly,
-  BrandCss3,
-  BrandGithub,
-  BrandGoogle,
-  BrandGraphql,
-  BrandHtml5,
-  BrandJavascript,
-  BrandLinkedin,
-  BrandPhp,
-  BrandReact,
-  BrandRedux,
-  BrandRust,
-  BrandSass,
-  BrandSpeedtest,
-  BrandTailwind,
-  BrandTypescript,
-  BrandVercel,
-  BrandVite,
-  BrandVitest,
-  BrandVue,
-  BuildingBank,
-  BuildingFactory2,
-  BuildingWarehouse,
-  Bulb,
-  Components,
-  Focus,
-  Geometry,
-  HealthRecognition,
-  HeartHandshake,
-  HotelService,
-  MapPin,
-  MessageCircleCode,
-  News,
-  Package,
-  Rocket,
-  Sql,
-  StackPop,
-  StackPush,
-  Stack,
-  Svg,
-  User,
-  UsersGroup,
+export const Icon: Record<
+  string,
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
+  Accessible: Accessible as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Assembly: Assembly as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandCss3: BrandCss3 as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandGithub: BrandGithub as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandGoogle: BrandGoogle as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandGraphql: BrandGraphql as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandHtml5: BrandHtml5 as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandJavascript: BrandJavascript as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandLinkedin: BrandLinkedin as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandPhp: BrandPhp as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandReact: BrandReact as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandRedux: BrandRedux as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandRust: BrandRust as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandSass: BrandSass as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandSpeedtest: BrandSpeedtest as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandTailwind: BrandTailwind as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandTypescript: BrandTypescript as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandVercel: BrandVercel as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandVite: BrandVite as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BrandVitest: BrandVitest as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BrandVue: BrandVue as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  BuildingBank: BuildingBank as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BuildingFactory2: BuildingFactory2 as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  BuildingWarehouse: BuildingWarehouse as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  Bulb: Bulb as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Components: Components as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Focus: Focus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Geometry: Geometry as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  HealthRecognition: HealthRecognition as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  HeartHandshake: HeartHandshake as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  HotelService: HotelService as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  MapPin: MapPin as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  MessageCircleCode: MessageCircleCode as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
+  News: News as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Package: Package as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  StackPop: StackPop as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  StackPush: StackPush as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Svg: Svg as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  User: User as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  UsersGroup: UsersGroup as React.ComponentType<React.SVGProps<SVGSVGElement>>,
 };

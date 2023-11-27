@@ -9,7 +9,7 @@ export type ListItem = {
   url?: string;
 };
 
-export const IconList = ({ items }: { items: ListItem[]; open: boolean }) => {
+export const IconList = ({ items }: { items: ListItem[] }) => {
   const icons = items.filter(
     (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
   );
