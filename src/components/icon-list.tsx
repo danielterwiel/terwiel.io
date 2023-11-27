@@ -5,7 +5,7 @@ import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
 
-const brandColors = {
+const iconColors = {
   Assembly: "group-hover:text-[#624FE8]",
   BrandCss3: "group-hover:text-[#1572B6]",
   BrandGithub: "group-hover:text-[#181717]",
@@ -24,7 +24,13 @@ const brandColors = {
   BrandVercel: "group-hover:text-[#000000]",
   BrandVite: "group-hover:text-[#646CFF]",
   BrandVue: "group-hover:text-[#4FC08D]",
-  Components: "group-hover:text-[#384EF6]", // used for Lit HTML logo
+  Components: "group-hover:text-[#384EF6]",
+};
+
+const linkClasses = {
+  Performance: "hover:decoration-[#5A52DE]",
+  BrandReact: "hover:decoration-[#61DAFB]",
+  BrandVue: "hover:decoration-[#4FC08D]",
 };
 
 export type ListItem = {
@@ -34,22 +40,26 @@ export type ListItem = {
 };
 
 export const IconList = ({ items }: { items: ListItem[] }) => {
-  const icons = items.filter(
-    (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
-  );
-
   return (
-    <ul className="-ml-5 list-none" role="list">
-      {icons.map((item) => {
+    <ul className="ml-0 list-none pl-0" role="list">
+      {items.map((item) => {
         const IconItem = Icon[item.icon as keyof typeof Icon];
-        const color = brandColors[item.icon as keyof typeof brandColors];
-        const colorClass = color ? color : "group-hover:text-slate-400";
+        const color = iconColors[item.icon as keyof typeof iconColors];
+        const hoverClass = color ? color : "group-hover:text-slate-400";
         const iconClass = clsx([
-          colorClass,
           "text-slate-400/50",
           "transition-colors",
           "duration-200",
+          hoverClass,
         ]);
+        const linkUnderline =
+          linkClasses[item.icon as keyof typeof linkClasses];
+        const linkClass = clsx([
+          "text-slate-800/70",
+          "hover:text-slate-800",
+          linkUnderline,
+        ]);
+
         return (
           <li key={item.name}>
             <div className="group flex items-center gap-2">
@@ -59,7 +69,13 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
                 width={24}
                 height={24}
               />
-              {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
+              {item.url ? (
+                <Link className={linkClass} href={item.url}>
+                  {item.name}
+                </Link>
+              ) : (
+                item.name
+              )}
             </div>
           </li>
         );

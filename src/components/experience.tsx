@@ -87,7 +87,7 @@ const projects: Project[] = [
     stack: [
       { name: "React", icon: "BrandReact" },
       { name: "Redux", icon: "BrandRedux" },
-      { name: "TypeScript", icon: "BrandTypescript" },
+      { name: "JavaScript", icon: "BrandJavascript" },
       { name: "Webpack", icon: "BrandJavascript" },
       { name: "Jest", icon: "BrandJavascript" },
       { name: "Puppeteer", icon: "BrandJavascript" },
@@ -236,18 +236,20 @@ const Project = ({
           className="absolute left-4 top-4 -ml-px hidden h-full w-0.5 bg-gray-200 sm:block"
           aria-hidden="true"
         />
-      ) : null}{" "}
+      ) : null}
       <div className="relative flex space-x-3">
-        <div className="relative flex gap-2 space-x-3 md:gap-4">
-          <div className="hidden sm:block">
+        <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 space-x-3 md:gap-4">
+          <div className="h-10 w-10">
             <Ring size={8} animationDuration={8}>
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
-          <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4">
+          <h3 className="my-0 pt-0.5 text-lg font-semibold">
+            {project.company}
+          </h3>
+          <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
-              <h3 className="my-0 text-lg font-semibold">{project.company}</h3>
-              <dl className="grid grid-flow-row gap-1 md:grid-cols-2 md:items-stretch md:py-16">
+              <dl className="mt-0 grid grid-flow-row gap-1 md:mt-8 md:grid-cols-2 md:items-stretch">
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
@@ -291,10 +293,10 @@ const Project = ({
               </dl>
               <p>{project.description}</p>
             </div>
-            <div className="sm:overlapping-item absolute right-0 top-1.5 whitespace-nowrap text-right text-sm text-gray-500">
-              <div className="text-xs">{duration}</div>
-              <div className="text-xs opacity-70">{timespan}</div>
-            </div>
+          </div>
+          <div className="absolute right-0 top-1.5 order-first col-span-2 whitespace-nowrap text-right text-sm text-gray-500">
+            <div className="text-xs">{duration}</div>
+            <div className="text-xs opacity-70">{timespan}</div>
           </div>
         </div>
       </div>
@@ -307,7 +309,7 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root">
-        <ul role="list" className="-mb-8 -ml-4 list-none">
+        <ul className="ml-0 list-none pl-0" role="list">
           {projects.map((project, projectIdx) => (
             <Project
               key={project.company}

@@ -6,7 +6,7 @@ import * as Collapsible from "~/components/collapsible";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 
-const brandColors = {
+const iconColors = {
   Assembly: "hover:text-[#624FE8]",
   BrandCss3: "hover:text-[#1572B6]",
   BrandGithub: "hover:text-[#181717]",
@@ -25,7 +25,7 @@ const brandColors = {
   BrandVercel: "hover:text-[#000000]",
   BrandVite: "hover:text-[#646CFF]",
   BrandVue: "hover:text-[#4FC08D]",
-  Components: "hover:text-[#384EF6]", // used for Lit HTML logo
+  Components: "hover:text-[#384EF6]",
 };
 
 export function Stack({ items }: { items: ListItem[] }) {
@@ -36,25 +36,27 @@ export function Stack({ items }: { items: ListItem[] }) {
   );
   return (
     <>
-      <dt className="flex gap-2 md:m-0 md:justify-end">
-        <span className="text-slate-400/50">
-          {open ? (
-            <Icon.StackPop
-              aria-hidden="true"
-              width={24}
-              height={24}
-              className="text-slate-500/50"
-            />
-          ) : (
-            <Icon.StackPush
-              aria-hidden="true"
-              width={24}
-              height={24}
-              className="text-slate-500/50"
-            />
-          )}
-        </span>
-        <span className="text-slate-400">Stack</span>
+      <dt className="flex md:m-0 md:items-start md:justify-end">
+        <div className="flex items-center gap-2">
+          <span className="text-slate-400/50">
+            {open ? (
+              <Icon.StackPop
+                aria-hidden="true"
+                width={24}
+                height={24}
+                className="text-slate-500/50"
+              />
+            ) : (
+              <Icon.StackPush
+                aria-hidden="true"
+                width={24}
+                height={24}
+                className="text-slate-500/50"
+              />
+            )}
+          </span>
+          <span className="text-slate-400">Stack</span>
+        </div>
       </dt>
       <dd className="m-0 pl-4">
         <Collapsible.Root>
@@ -62,24 +64,24 @@ export function Stack({ items }: { items: ListItem[] }) {
             <div className="flex items-center gap-2">
               {open ? (
                 <>
-                  <span className="text-slate-800/80 underline hover:text-slate-800">
-                    Minimize Stack
-                  </span>
-                  <Icon.StackPop
+                  <Icon.Minus
                     aria-hidden="true"
                     width={24}
                     height={24}
                     className="text-slate-500/50"
                   />
+                  <span className="text-slate-800/70 underline hover:text-slate-800">
+                    Minimize Stack
+                  </span>
                 </>
               ) : (
                 icons.map((item) => {
                   const IconStack = Icon[item.icon as keyof typeof Icon];
                   const color =
-                    brandColors[item.icon as keyof typeof brandColors];
-                  const colorClass = color ? color : "hover:text-slate-400";
+                    iconColors[item.icon as keyof typeof iconColors];
+                  const hoverClass = color ? color : "hover:text-slate-400";
                   const iconClass = clsx([
-                    colorClass,
+                    hoverClass,
                     "text-slate-400/50",
                     "transition-colors",
                     "duration-200",

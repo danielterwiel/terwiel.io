@@ -48,10 +48,8 @@ export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
   );
 
   return (
-    <div>
-      <div ref={ringRef} className={className}>
-        {children}
-      </div>
+    <div ref={ringRef} className={className}>
+      {children}
     </div>
   );
 };

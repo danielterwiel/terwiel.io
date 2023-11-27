@@ -31,6 +31,7 @@ import HeartHandshake from "../images/icons/heart-handshake.svg";
 import HotelService from "../images/icons/hotel-service.svg";
 import MapPin from "../images/icons/map-pin.svg";
 import MessageCircleCode from "../images/icons/message-circle-code.svg";
+import Minus from "../images/icons/minus.svg";
 import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
 import Rocket from "../images/icons/rocket.svg";
@@ -110,6 +111,7 @@ const icons = {
   MessageCircleCode: MessageCircleCode as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
+  Minus: Minus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   News: News as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Package: Package as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
