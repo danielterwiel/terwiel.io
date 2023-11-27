@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { clsx } from "clsx";
+
 import { Icon } from "~/components/icon";
 
 const brandColors = {
@@ -17,12 +19,12 @@ const brandColors = {
   BrandRedux: "group-hover:text-[#764ABC]",
   BrandRust: "group-hover:text-[#DE4A00]",
   BrandSass: "group-hover:text-[#CC6699]",
-  BrandSpeedtest: "group-hover:text-[#DA2724]",
   BrandTailwind: "group-hover:text-[#06B6D4]",
   BrandTypescript: "group-hover:text-[#3178C6]",
   BrandVercel: "group-hover:text-[#000000]",
   BrandVite: "group-hover:text-[#646CFF]",
   BrandVue: "group-hover:text-[#4FC08D]",
+  Components: "group-hover:text-[#384EF6]", // used for Lit HTML logo
 };
 
 export type ListItem = {
@@ -41,8 +43,13 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
       {icons.map((item) => {
         const IconItem = Icon[item.icon as keyof typeof Icon];
         const color = brandColors[item.icon as keyof typeof brandColors];
-        const colorClass = color ? color : "hover:text-slate-400";
-        const iconClass = `text-slate-400/50 ${colorClass} transition-colors duration-200`;
+        const colorClass = color ? color : "group-hover:text-slate-400";
+        const iconClass = clsx([
+          colorClass,
+          "text-slate-400/50",
+          "transition-colors",
+          "duration-200",
+        ]);
         return (
           <li key={item.name}>
             <div className="group flex items-center gap-2">

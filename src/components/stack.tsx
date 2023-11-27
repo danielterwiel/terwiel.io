@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import { clsx } from "clsx";
 import * as Collapsible from "~/components/collapsible";
-
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 
@@ -20,12 +20,12 @@ const brandColors = {
   BrandRedux: "hover:text-[#764ABC]",
   BrandRust: "hover:text-[#DE4A00]",
   BrandSass: "hover:text-[#CC6699]",
-  BrandSpeedtest: "hover:text-[#DA2724]",
   BrandTailwind: "hover:text-[#06B6D4]",
   BrandTypescript: "hover:text-[#3178C6]",
   BrandVercel: "hover:text-[#000000]",
   BrandVite: "hover:text-[#646CFF]",
   BrandVue: "hover:text-[#4FC08D]",
+  Components: "hover:text-[#384EF6]", // used for Lit HTML logo
 };
 
 export function Stack({ items }: { items: ListItem[] }) {
@@ -50,7 +50,12 @@ export function Stack({ items }: { items: ListItem[] }) {
               const IconStack = Icon[item.icon as keyof typeof Icon];
               const color = brandColors[item.icon as keyof typeof brandColors];
               const colorClass = color ? color : "hover:text-slate-400";
-              const iconClass = `text-slate-400/50 ${colorClass} transition-colors duration-200`;
+              const iconClass = clsx([
+                colorClass,
+                "text-slate-400/50",
+                "transition-colors",
+                "duration-200",
+              ]);
               return (
                 <div className={iconClass} key={item.name}>
                   <IconStack aria-hidden="true" width={24} height={24} />
