@@ -287,15 +287,7 @@ const Project = ({
                   <span className="text-slate-400">Location</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.location}</dd>
-                <dt className="flex gap-2 md:m-0 md:justify-end">
-                  <span className=" text-slate-400/50">
-                    <Icon.Stack width={24} height={24} aria-hidden="true" />
-                  </span>
-                  <span className="text-slate-400">Stack</span>
-                </dt>
-                <dd className="m-0 pl-4 pt-1">
-                  <Stack items={project.stack} />
-                </dd>
+                <Stack items={project.stack} />
               </dl>
               <p>{project.description}</p>
             </div>
