@@ -16,16 +16,23 @@ export function Stack({ items }: { items: ListItem[] }) {
     <Collapsible.Root>
       <Collapsible.Trigger onClick={() => toggle()}>
         <div className="flex items-center gap-2">
-          {open
-            ? null
-            : icons.map((item) => {
-                const IconStack = Icon[item.icon];
-                return (
-                  <div className="text-slate-400/50" key={item.name}>
-                    <IconStack aria-hidden="true" width={24} height={24} />
-                  </div>
-                );
-              })}
+          {open ? (
+            <Icon.StackPop
+              aria-hidden="true"
+              width={24}
+              height={24}
+              className="text-slate-500"
+            />
+          ) : (
+            icons.map((item) => {
+              const IconStack = Icon[item.icon];
+              return (
+                <div className="text-slate-400/50" key={item.name}>
+                  <IconStack aria-hidden="true" width={24} height={24} />
+                </div>
+              );
+            })
+          )}
         </div>
       </Collapsible.Trigger>
 

@@ -21,7 +21,12 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
         return (
           <li key={item.name}>
             <div className="flex items-center gap-2">
-              <IconItem aria-hidden="true" width={24} height={24} />
+              <IconItem
+                className="text-slate-400/50"
+                aria-hidden="true"
+                width={24}
+                height={24}
+              />
               {item.url ? <Link href={item.url}>{item.name}</Link> : item.name}
             </div>
           </li>

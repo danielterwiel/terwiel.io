@@ -247,17 +247,21 @@ const Project = ({
           <div className="grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4">
             <div className="order-2 col-span-1">
               <h3 className="my-0 text-lg font-semibold">{project.company}</h3>
-              <dl className="grid grid-flow-row gap-1 md:grid-cols-2 md:grid-rows-2 md:py-16">
+              <dl className="grid grid-flow-row gap-1 md:grid-cols-2 md:items-stretch md:py-16">
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
-                    <Icon.User />
+                    <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Role</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.role}</dd>
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
-                    <Icon.UsersGroup />
+                    <Icon.UsersGroup
+                      width={24}
+                      height={24}
+                      aria-hidden="true"
+                    />
                   </span>
                   <span className="text-slate-400">Team</span>
                 </dt>
@@ -267,21 +271,25 @@ const Project = ({
                 </dd>
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
-                    <Icon.BuildingFactory2 />
+                    <Icon.BuildingFactory2
+                      width={24}
+                      height={24}
+                      aria-hidden="true"
+                    />
                   </span>
                   <span className="text-slate-400">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.industry}</dd>
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
-                    <Icon.MapPin />
+                    <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Location</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.location}</dd>
                 <dt className="flex gap-2 md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
-                    <Icon.Stack />
+                    <Icon.Stack width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Stack</span>
                 </dt>

@@ -38,7 +38,7 @@
     "**/*.cjs",
     "**/*.mjs",
     ".next/types/**/*.ts",
-    "./next.config.mts"
+    "./next.config.mjs"
   ],
   "exclude": ["node_modules"]
 }
