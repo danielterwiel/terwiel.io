@@ -3,6 +3,28 @@
 import Link from "next/link";
 import { Icon } from "~/components/icon";
 
+const brandColors = {
+  Assembly: "group-hover:text-[#624FE8]",
+  BrandCss3: "group-hover:text-[#1572B6]",
+  BrandGithub: "group-hover:text-[#181717]",
+  BrandGoogle: "group-hover:text-[#4285F4]",
+  BrandGraphql: "group-hover:text-[#E10098]",
+  BrandHtml5: "group-hover:text-[#E34F26]",
+  BrandJavascript: "group-hover:text-[#F7DF1E]",
+  BrandLinkedin: "group-hover:text-[#0A66C2]",
+  BrandPhp: "group-hover:text-[#777BB4]",
+  BrandReact: "group-hover:text-[#61DAFB]",
+  BrandRedux: "group-hover:text-[#764ABC]",
+  BrandRust: "group-hover:text-[#DE4A00]",
+  BrandSass: "group-hover:text-[#CC6699]",
+  BrandSpeedtest: "group-hover:text-[#DA2724]",
+  BrandTailwind: "group-hover:text-[#06B6D4]",
+  BrandTypescript: "group-hover:text-[#3178C6]",
+  BrandVercel: "group-hover:text-[#000000]",
+  BrandVite: "group-hover:text-[#646CFF]",
+  BrandVue: "group-hover:text-[#4FC08D]",
+};
+
 export type ListItem = {
   name: string;
   icon: string;
@@ -18,11 +40,14 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
     <ul className="-ml-5 list-none" role="list">
       {icons.map((item) => {
         const IconItem = Icon[item.icon as keyof typeof Icon];
+        const color = brandColors[item.icon as keyof typeof brandColors];
+        const colorClass = color ? color : "hover:text-slate-400";
+        const iconClass = `text-slate-400/50 ${colorClass} transition-colors duration-200`;
         return (
           <li key={item.name}>
-            <div className="flex items-center gap-2">
+            <div className="group flex items-center gap-2">
               <IconItem
-                className="text-slate-400/50"
+                className={iconClass}
                 aria-hidden="true"
                 width={24}
                 height={24}
