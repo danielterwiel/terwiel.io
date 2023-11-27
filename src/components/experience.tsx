@@ -227,7 +227,7 @@ const Project = ({
   const toApos = to.replace(/\d+/g, "'$&");
   const timespan = `${fromApos} - ${toApos}`;
 
-  const IconProject = Icon[project.icon];
+  const IconProject = Icon[project.icon as keyof typeof Icon];
 
   return (
     <div key={project.id} className="relative break-after-page pb-8 print:pt-8">

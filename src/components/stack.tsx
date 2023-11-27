@@ -25,7 +25,7 @@ export function Stack({ items }: { items: ListItem[] }) {
             />
           ) : (
             icons.map((item) => {
-              const IconStack = Icon[item.icon];
+              const IconStack = Icon[item.icon as keyof typeof Icon];
               return (
                 <div className="text-slate-400/50" key={item.name}>
                   <IconStack aria-hidden="true" width={24} height={24} />

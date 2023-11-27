@@ -42,10 +42,7 @@ import Svg from "../images/icons/svg.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
 
-export const Icon: Record<
-  string,
-  React.ComponentType<React.SVGProps<SVGSVGElement>>
-> = {
+const icons = {
   Accessible: Accessible as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Assembly: Assembly as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   BrandCss3: BrandCss3 as React.ComponentType<React.SVGProps<SVGSVGElement>>,
@@ -123,4 +120,11 @@ export const Icon: Record<
   Svg: Svg as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   User: User as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   UsersGroup: UsersGroup as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+};
+
+export const Icon: Record<
+  keyof typeof icons,
+  React.ComponentType<React.SVGProps<SVGSVGElement>>
+> = {
+  ...icons,
 };

@@ -17,7 +17,7 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
   return (
     <ul className="-ml-5 list-none" role="list">
       {icons.map((item) => {
-        const IconItem = Icon[item.icon];
+        const IconItem = Icon[item.icon as keyof typeof Icon];
         return (
           <li key={item.name}>
             <div className="flex items-center gap-2">
