@@ -24,7 +24,9 @@ const Stack = () => {
         <Icon.Stack aria-hidden="true" className="h-7 w-7" />
         Stack
       </h2>
-      <IconList items={stack} />
+      <div className="pl-2">
+        <IconList items={stack} />
+      </div>
     </div>
   );
 };
@@ -44,7 +46,9 @@ const Focus = () => {
         <Icon.Focus aria-hidden="true" className="h-7 w-7" />
         Focus
       </h2>
-      <IconList items={focus} />
+      <div className="pl-2">
+        <IconList items={focus} />
+      </div>
     </div>
   );
 };

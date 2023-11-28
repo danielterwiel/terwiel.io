@@ -19,14 +19,14 @@ const iconColors = {
   BrandRedux: "group-hover:text-[#764ABC]",
   BrandRust: "group-hover:text-[#DE4A00]",
   BrandSass: "group-hover:text-[#CC6699]",
+  Sql: "group-hover:text-[#F29111]",
+  Svg: "group-hover:text-[#FFB13B]",
   BrandTailwind: "group-hover:text-[#06B6D4]",
   BrandTypescript: "group-hover:text-[#3178C6]",
   BrandVercel: "group-hover:text-[#000000]",
   BrandVite: "group-hover:text-[#646CFF]",
   BrandVue: "group-hover:text-[#4FC08D]",
   Components: "group-hover:text-[#384EF6]",
-  Sql: "group-hover:text-[#F29111]",
-  Svg: "group-hover:text-[#FFB13B]",
 };
 
 const linkClasses = {
@@ -41,18 +41,18 @@ export type ListItem = {
   url?: string;
 };
 
-const listItemDuration = {
-  0: "animate-[animation-slide-down_0.1s_ease-in-out]",
-  1: "animate-[animation-slide-down_0.2s_ease-in-out]",
-  2: "animate-[animation-slide-down_0.3s_ease-in-out]",
-  3: "animate-[animation-slide-down_0.4s_ease-in-out]",
-  4: "animate-[animation-slide-down_0.5s_ease-in-out]",
-  5: "animate-[animation-slide-down_0.6s_ease-in-out]",
-  6: "animate-[animation-slide-down_0.7s_ease-in-out]",
-  7: "animate-[animation-slide-down_0.8s_ease-in-out]",
-  8: "animate-[animation-slide-down_0.9s_ease-in-out]",
-  9: "animate-[animation-slide-down_1.0s_ease-in-out]",
-};
+const listItemDuration = [
+  "animate-[animation-slide-down_0.1s_ease-in-out]",
+  "animate-[animation-slide-down_0.2s_ease-in-out]",
+  "animate-[animation-slide-down_0.3s_ease-in-out]",
+  "animate-[animation-slide-down_0.4s_ease-in-out]",
+  "animate-[animation-slide-down_0.5s_ease-in-out]",
+  "animate-[animation-slide-down_0.6s_ease-in-out]",
+  "animate-[animation-slide-down_0.7s_ease-in-out]",
+  "animate-[animation-slide-down_0.8s_ease-in-out]",
+  "animate-[animation-slide-down_0.9s_ease-in-out]",
+  "animate-[animation-slide-down_1.0s_ease-in-out]",
+];
 
 export const IconList = ({ items }: { items: ListItem[] }) => {
   return (
@@ -80,6 +80,7 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
         const listClass = clsx(
           listItemDuration[index as keyof typeof listItemDuration],
           "print:mt-1",
+          "print:animate-none",
           "pl-0",
         );
 

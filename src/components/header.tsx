@@ -20,7 +20,7 @@ export default function Header() {
         height={640}
       />
 
-      <div className="prose p-4 text-right sm:text-left">
+      <div className="p-4 text-right sm:text-left">
         <div className="flex flex-col justify-between sm:flex-row">
           <h1 className="mb-5">Daniël Terwiel</h1>
           <div className="absolute left-3 flex flex-col justify-end gap-2 sm:relative sm:flex-row sm:pt-2 print:sm:flex-col md:pt-2">
@@ -56,7 +56,7 @@ export default function Header() {
             </Link>
           </div>
         </div>
-        <p>
+        <p className="print:text-2xl">
           With over 15 years in web development, I&apos;ve gained extensive
           knowledge and a lot of experience in different settings, including
           startups, hyper-growth scale-ups, and large enterprises. My journey

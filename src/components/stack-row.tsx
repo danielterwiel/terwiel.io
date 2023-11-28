@@ -60,7 +60,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
 
   return (
     <>
-      <dt className="flex print:m-0 print:items-start print:justify-end md:m-0 md:items-start md:justify-end">
+      <dt className="m-0 flex print:m-0 print:items-start print:justify-end md:items-start md:justify-end">
         <div className="flex items-center gap-2">
           <button className="flex items-center gap-2" onClick={toggle}>
             <span className="text-slate-400/50">
@@ -84,7 +84,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           </button>
         </div>
       </dt>
-      <dd className="m-0">
+      <dd className="m-0 pl-4 md:pl-7">
         <Collapsible.Root open={open}>
           <Collapsible.Trigger onClick={() => toggle()} className="flex gap-1">
             {open ? (
@@ -123,7 +123,9 @@ export function StackRow({ items }: { items: ListItem[] }) {
           </Collapsible.Trigger>
 
           <Collapsible.Content>
-            <IconList items={items} />
+            <div className="pl-4 md:pl-2">
+              <IconList items={items} />
+            </div>
           </Collapsible.Content>
         </Collapsible.Root>
       </dd>

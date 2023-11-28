@@ -252,15 +252,15 @@ const Project = ({
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row gap-1 print:mt-8 print:grid-cols-2 print:items-stretch md:mt-8 md:grid-cols-2 md:items-stretch">
-                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+              <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr] md:grid-cols-[12rem_minmax(900px,_1fr)]">
+                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Role</span>
                 </dt>
-                <dd className="m-0">{project.role}</dd>
-                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dd className="m-0 pl-4 md:pl-7">{project.role}</dd>
+                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.UsersGroup
                       width={24}
@@ -270,11 +270,11 @@ const Project = ({
                   </span>
                   <span className="text-slate-400">Team</span>
                 </dt>
-                <dd className="m-0">
+                <dd className="m-0 pl-4 md:pl-7">
                   ~<span className="mr-2">{project.teamSize}</span>
                   developers
                 </dd>
-                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.BuildingFactory2
                       width={24}
@@ -284,14 +284,14 @@ const Project = ({
                   </span>
                   <span className="text-slate-400">Industry</span>
                 </dt>
-                <dd className="m-0">{project.industry}</dd>
-                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dd className="m-0 pl-4 md:pl-7">{project.industry}</dd>
+                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Location</span>
                 </dt>
-                <dd className="m-0">{project.location}</dd>
+                <dd className="m-0 pl-4 md:pl-7">{project.location}</dd>
                 <StackRow items={project.stack} />
               </dl>
               <p>{project.description}</p>

@@ -33,7 +33,9 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={`prose font-sans ${inter.variable}`}>{children}</body>
+      <body className={`prose font-sans print:max-w-full ${inter.variable}`}>
+        {children}
+      </body>
     </html>
   );
 }
