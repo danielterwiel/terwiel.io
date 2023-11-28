@@ -40,16 +40,16 @@ export type ListItem = {
 };
 
 const listItemDuration = {
-  0: "animate-[animation-slide-down_0.3s_ease-in-out]",
-  1: "animate-[animation-slide-down_0.6s_ease-in-out]",
-  2: "animate-[animation-slide-down_0.9s_ease-in-out]",
-  3: "animate-[animation-slide-down_1.2s_ease-in-out]",
-  4: "animate-[animation-slide-down_1.5s_ease-in-out]",
-  5: "animate-[animation-slide-down_1.8s_ease-in-out]",
-  6: "animate-[animation-slide-down_2.1s_ease-in-out]",
-  7: "animate-[animation-slide-down_2.4s_ease-in-out]",
-  8: "animate-[animation-slide-down_2.7s_ease-in-out]",
-  9: "animate-[animation-slide-down_3.0s_ease-in-out]",
+  0: "animate-[animation-slide-down_0.1s_ease-in-out]",
+  1: "animate-[animation-slide-down_0.2s_ease-in-out]",
+  2: "animate-[animation-slide-down_0.3s_ease-in-out]",
+  3: "animate-[animation-slide-down_0.4s_ease-in-out]",
+  4: "animate-[animation-slide-down_0.5s_ease-in-out]",
+  5: "animate-[animation-slide-down_0.6s_ease-in-out]",
+  6: "animate-[animation-slide-down_0.7s_ease-in-out]",
+  7: "animate-[animation-slide-down_0.8s_ease-in-out]",
+  8: "animate-[animation-slide-down_0.9s_ease-in-out]",
+  9: "animate-[animation-slide-down_1.0s_ease-in-out]",
 };
 
 export const IconList = ({ items }: { items: ListItem[] }) => {
@@ -63,8 +63,10 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
           "text-slate-400/50",
           "transition-colors",
           "duration-200",
+          "print:group-hover:text-slate-400/50",
           hoverClass,
         ]);
+
         const linkUnderline =
           linkClasses[item.icon as keyof typeof linkClasses];
         const linkClass = clsx([
@@ -73,8 +75,11 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
           linkUnderline,
         ]);
 
-        const listClass =
-          listItemDuration[index as keyof typeof listItemDuration];
+        const listClass = clsx(
+          listItemDuration[index as keyof typeof listItemDuration],
+          "print:mt-1",
+          "pl-0",
+        );
 
         return (
           <li key={item.name} className={listClass}>

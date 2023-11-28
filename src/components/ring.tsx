@@ -4,13 +4,11 @@ import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 
 interface RingProps {
-  size?: number;
   borderColor?: string;
-  animationDuration?: number; // in seconds
   children: React.ReactNode;
 }
 
-export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
+export const Ring: React.FC<RingProps> = ({ children }) => {
   const ringRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -32,20 +30,21 @@ export const Ring: React.FC<RingProps> = ({ size = 20, children }) => {
     };
   }, []);
 
-  // Dynamically generate Tailwind classes
-  const classContainer = `bg-white p-2 -ml-1.5 -mt-2`;
-  const classSize = `w-${size} h-${size}`;
-  const classBorder = `border-4 border-slate-300 rounded-full`;
-  const classAnimation = isVisible
-    ? `motion-safe:animation-ring`
-    : "opacity-0 print:opacity-100";
-
-  const className = clsx([
-    classContainer,
-    classSize,
-    classBorder,
-    classAnimation,
-  ]);
+  const className = clsx(
+    [
+      "bg-white",
+      "border-4",
+      "border-slate-300",
+      "rounded-full",
+      "h-full",
+      "grid",
+      "place-items-center",
+    ],
+    {
+      "motion-safe:animation-ring": isVisible,
+      "opacity-0 print:opacity-100": !isVisible,
+    },
+  );
 
   return (
     <div ref={ringRef} className={className}>

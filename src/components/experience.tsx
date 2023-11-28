@@ -6,7 +6,7 @@ import { IconList, type ListItem } from "./icon-list";
 import React from "react";
 
 import { Ring } from "~/components/ring";
-import { Stack } from "~/components/stack";
+import { StackRow } from "~/components/stack-row";
 
 import { Icon } from "~/components/icon";
 
@@ -230,34 +230,37 @@ const Project = ({
   const IconProject = Icon[project.icon as keyof typeof Icon];
 
   return (
-    <div key={project.id} className="relative break-after-page pb-8 print:pt-8">
+    <div
+      key={project.id}
+      className="relative break-inside-avoid-page pb-8 print:pt-8"
+    >
       {projectIdx !== totalLength - 1 ? (
         <span
-          className="absolute left-4 top-4 -ml-px hidden h-full w-0.5 bg-gray-200 sm:block"
+          className="absolute top-4 ml-[1.2rem] hidden h-full w-0.5 bg-gray-200 sm:block"
           aria-hidden="true"
         />
       ) : null}
-      <div className="relative flex space-x-3">
+      <div className="flex space-x-3">
         <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 space-x-3 md:gap-4">
           <div className="h-10 w-10">
-            <Ring size={8} animationDuration={8}>
+            <Ring>
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
-          <h3 className="my-0 pt-0.5 text-lg font-semibold">
+          <h3 className="my-0 mt-1.5 text-lg font-semibold">
             {project.company}
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row gap-1 md:mt-8 md:grid-cols-2 md:items-stretch">
-                <dt className="flex gap-2 md:m-0 md:justify-end">
+              <dl className="mt-0 grid grid-flow-row gap-1 print:mt-8 print:grid-cols-2 print:items-stretch md:mt-8 md:grid-cols-2 md:items-stretch">
+                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Role</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.role}</dd>
-                <dt className="flex gap-2 md:m-0 md:justify-end">
+                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.UsersGroup
                       width={24}
@@ -271,7 +274,7 @@ const Project = ({
                   ~<span className="mr-2">{project.teamSize}</span>
                   developers
                 </dd>
-                <dt className="flex gap-2 md:m-0 md:justify-end">
+                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.BuildingFactory2
                       width={24}
@@ -282,19 +285,19 @@ const Project = ({
                   <span className="text-slate-400">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.industry}</dd>
-                <dt className="flex gap-2 md:m-0 md:justify-end">
+                <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Location</span>
                 </dt>
                 <dd className="m-0 pl-4">{project.location}</dd>
-                <Stack items={project.stack} />
+                <StackRow items={project.stack} />
               </dl>
               <p>{project.description}</p>
             </div>
           </div>
-          <div className="absolute right-0 top-1.5 order-first col-span-2 whitespace-nowrap text-right text-sm text-gray-500">
+          <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-sm text-gray-500">
             <div className="text-xs">{duration}</div>
             <div className="text-xs opacity-70">{timespan}</div>
           </div>

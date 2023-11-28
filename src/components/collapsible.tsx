@@ -5,12 +5,14 @@ import * as RadixCollapsible from "@radix-ui/react-collapsible";
 const Root = ({
   children,
   className,
+  open,
 }: {
   children: React.ReactNode;
   className?: string;
+  open?: boolean;
 }) => {
   return (
-    <RadixCollapsible.Root className={className}>
+    <RadixCollapsible.Root open={open} className={className}>
       {children}
     </RadixCollapsible.Root>
   );
