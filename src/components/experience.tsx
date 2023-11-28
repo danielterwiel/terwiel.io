@@ -195,8 +195,8 @@ const projects: Project[] = [
     dateTo: "2013-06-30",
     description: "I created websites and a CRM system for financial advisors.",
     stack: [
-      { name: "Visual Basic.NET", icon: "BrandJavascript" },
-      { name: "SQL Server", icon: "BrandJavascript" },
+      { name: "Visual Basic.NET", icon: "BrandVisualStudio" },
+      { name: "SQL Server", icon: "Sql" },
       { name: "PHP", icon: "BrandPhp" },
       { name: "JavaScript", icon: "BrandJavascript" },
       { name: "CSS", icon: "BrandCss3" },
@@ -259,7 +259,7 @@ const Project = ({
                   </span>
                   <span className="text-slate-400">Role</span>
                 </dt>
-                <dd className="m-0 pl-4">{project.role}</dd>
+                <dd className="m-0">{project.role}</dd>
                 <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.UsersGroup
@@ -270,7 +270,7 @@ const Project = ({
                   </span>
                   <span className="text-slate-400">Team</span>
                 </dt>
-                <dd className="m-0 pl-4">
+                <dd className="m-0">
                   ~<span className="mr-2">{project.teamSize}</span>
                   developers
                 </dd>
@@ -284,14 +284,14 @@ const Project = ({
                   </span>
                   <span className="text-slate-400">Industry</span>
                 </dt>
-                <dd className="m-0 pl-4">{project.industry}</dd>
+                <dd className="m-0">{project.industry}</dd>
                 <dt className="flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-400">Location</span>
                 </dt>
-                <dd className="m-0 pl-4">{project.location}</dd>
+                <dd className="m-0">{project.location}</dd>
                 <StackRow items={project.stack} />
               </dl>
               <p>{project.description}</p>

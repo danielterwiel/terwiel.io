@@ -16,6 +16,7 @@ import BrandSpeedtest from "../images/icons/brand-speedtest.svg";
 import BrandTailwind from "../images/icons/brand-tailwind.svg";
 import BrandTypescript from "../images/icons/brand-typescript.svg";
 import BrandVercel from "../images/icons/brand-vercel.svg";
+import BrandVisualStudio from "../images/icons/brand-visual-studio.svg";
 import BrandVite from "../images/icons/brand-vite.svg";
 import BrandVitest from "../images/icons/brand-vitest.svg";
 import BrandVue from "../images/icons/brand-vue.svg";
@@ -36,9 +37,9 @@ import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
 import Rocket from "../images/icons/rocket.svg";
 import Sql from "../images/icons/sql.svg";
+import Stack from "../images/icons/stack.svg";
 import StackPop from "../images/icons/stack-pop.svg";
 import StackPush from "../images/icons/stack-push.svg";
-import Stack from "../images/icons/stack.svg";
 import Svg from "../images/icons/svg.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
@@ -80,6 +81,9 @@ const icons = {
   BrandVercel: BrandVercel as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
+  BrandVisualStudio: BrandVisualStudio as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
   BrandVite: BrandVite as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   BrandVitest: BrandVitest as React.ComponentType<
     React.SVGProps<SVGSVGElement>
@@ -116,9 +120,9 @@ const icons = {
   Package: Package as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   StackPop: StackPop as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   StackPush: StackPush as React.ComponentType<React.SVGProps<SVGSVGElement>>,
-  Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Svg: Svg as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   User: User as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   UsersGroup: UsersGroup as React.ComponentType<React.SVGProps<SVGSVGElement>>,

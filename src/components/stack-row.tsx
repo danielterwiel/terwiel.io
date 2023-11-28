@@ -27,6 +27,8 @@ const iconColors = {
   BrandVite: "hover:text-[#646CFF]",
   BrandVue: "hover:text-[#4FC08D]",
   Components: "hover:text-[#384EF6]",
+  Sql: "hover:text-[#F29111]",
+  Svg: "hover:text-[#FFB13B]",
 };
 
 export function StackRow({ items }: { items: ListItem[] }) {
@@ -82,11 +84,14 @@ export function StackRow({ items }: { items: ListItem[] }) {
           </button>
         </div>
       </dt>
-      <dd className="m-0 pl-4">
+      <dd className="m-0">
         <Collapsible.Root open={open}>
           <Collapsible.Trigger onClick={() => toggle()} className="flex gap-1">
             {open ? (
-              <div className="flex items-center gap-1 pt-1" aria-hidden="true">
+              <div
+                className="flex items-center gap-1 pt-1 print:hidden"
+                aria-hidden="true"
+              >
                 <Icon.Minus
                   width={24}
                   height={24}

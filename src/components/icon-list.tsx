@@ -25,6 +25,8 @@ const iconColors = {
   BrandVite: "group-hover:text-[#646CFF]",
   BrandVue: "group-hover:text-[#4FC08D]",
   Components: "group-hover:text-[#384EF6]",
+  Sql: "group-hover:text-[#F29111]",
+  Svg: "group-hover:text-[#FFB13B]",
 };
 
 const linkClasses = {
