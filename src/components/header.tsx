@@ -45,8 +45,6 @@ export default function Header() {
           </div>
         </div>
 
-        <div className="absolute inset-x-0 left-0 top-1/2 -ml-[50rem] hidden h-0.5 rotate-[104.2deg] bg-gradient-to-r from-slate-400/10 md:block"></div>
-
         <p className="print:text-2xl">
           With over 15 years in web development, I&apos;ve gained extensive
           knowledge and a lot of experience in different settings, including
