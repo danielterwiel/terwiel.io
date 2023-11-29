@@ -80,6 +80,7 @@ export const ProfilePicture = () => {
         width={256}
         height={256}
         onClick={handleClick}
+        priority={true}
       />
     </>
   );
