@@ -252,7 +252,7 @@ const Project = ({
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr] md:grid-cols-[12rem_minmax(900px,_1fr)]">
+              <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-400/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
