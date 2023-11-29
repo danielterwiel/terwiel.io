@@ -102,23 +102,27 @@ export function StackRow({ items }: { items: ListItem[] }) {
                 </span>
               </div>
             ) : (
-              icons.map((item) => {
-                const IconStack = Icon[item.icon as keyof typeof Icon];
-                const color = iconColors[item.icon as keyof typeof iconColors];
-                const hoverClass = color ? color : "hover:text-slate-400";
-                const iconClass = clsx([
-                  hoverClass,
-                  "text-slate-400/50",
-                  "motion-safe:transition-colors",
-                  "motion-safe:duration-200",
-                  "pt-1",
-                ]);
-                return (
-                  <div className={iconClass} key={item.name}>
-                    <IconStack aria-hidden="true" width={24} height={24} />
-                  </div>
-                );
-              })
+              <>
+                <span className="sr-only">Stack details</span>
+                {icons.map((item) => {
+                  const IconStack = Icon[item.icon as keyof typeof Icon];
+                  const color =
+                    iconColors[item.icon as keyof typeof iconColors];
+                  const hoverClass = color ? color : "hover:text-slate-400";
+                  const iconClass = clsx([
+                    hoverClass,
+                    "text-slate-400/50",
+                    "motion-safe:transition-colors",
+                    "motion-safe:duration-200",
+                    "pt-1",
+                  ]);
+                  return (
+                    <div className={iconClass} key={item.name}>
+                      <IconStack aria-hidden="true" width={24} height={24} />
+                    </div>
+                  );
+                })}
+              </>
             )}
           </Collapsible.Trigger>
 

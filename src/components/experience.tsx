@@ -254,10 +254,10 @@ const Project = ({
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
-                  <span className="text-slate-400/50">
+                  <span className="text-slate-500/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
-                  <span className="text-slate-400">Role</span>
+                  <span className="text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.role}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
@@ -268,28 +268,28 @@ const Project = ({
                       aria-hidden="true"
                     />
                   </span>
-                  <span className="text-slate-400">Team</span>
+                  <span className="text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   ~<span className="mr-2">{project.teamSize}</span>
                   developers
                 </dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
-                  <span className="text-slate-400/50">
+                  <span className="text-slate-500/50">
                     <Icon.BuildingFactory2
                       width={24}
                       height={24}
                       aria-hidden="true"
                     />
                   </span>
-                  <span className="text-slate-400">Industry</span>
+                  <span className="text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.industry}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-400/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
-                  <span className="text-slate-400">Location</span>
+                  <span className="text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.location}</dd>
                 <StackRow items={project.stack} />
