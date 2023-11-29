@@ -34,14 +34,14 @@ export const ProfilePicture = () => {
   const classNameLove = clsx(defaultClassName, ["print:hidden"], {
     "opacity-0": showLove,
     "opacity-100": !showLove,
-    flex: !showLove,
-    hidden: showLove,
+    flex: showLove,
+    hidden: !showLove,
   });
   const classNameDani = clsx(defaultClassName, {
     "opacity-0": !showLove,
     "opacity-100": showLove,
-    flex: showLove,
-    hidden: !showLove,
+    flex: !showLove,
+    hidden: showLove,
   });
 
   React.useEffect(() => {
