@@ -80,7 +80,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
                 />
               )}
             </span>
-            <span className="text-slate-400">Stack</span>
+            <span className="text-slate-500">Stack</span>
           </button>
         </div>
       </dt>
@@ -127,7 +127,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           </Collapsible.Trigger>
 
           <Collapsible.Content>
-            <div className="pl-4 md:pl-2">
+            <div className="pl-4 print:pl-0 md:pl-2">
               <IconList items={items} />
             </div>
           </Collapsible.Content>

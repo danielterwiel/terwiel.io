@@ -1,14 +1,14 @@
 "use client";
 
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
-import { IconList, type ListItem } from "./icon-list";
-
+import { search, sortKind } from "fast-fuzzy";
+import * as Form from "@radix-ui/react-form";
 import React from "react";
 
+import { Icon } from "~/components/icon";
+import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
 import { StackRow } from "~/components/stack-row";
-
-import { Icon } from "~/components/icon";
 
 type StackItem = {
   name: string;
@@ -177,7 +177,7 @@ const projects: Project[] = [
       "Working at Dinto, my role was to create interactive blueprints of warehouses using SVG, SQL, and JavaScript.",
     stack: [
       { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "SCSS", icon: "BrandSass" },
+      { name: "CSS", icon: "BrandCss3" },
       { name: "HTML", icon: "BrandHtml5" },
       { name: "SVG", icon: "Svg" },
       { name: "SQL", icon: "Sql" },
@@ -230,7 +230,7 @@ const Project = ({
   const IconProject = Icon[project.icon as keyof typeof Icon];
 
   return (
-    <div
+    <li
       key={project.id}
       className="relative break-inside-avoid-page pb-8 print:pt-8"
     >
@@ -303,17 +303,55 @@ const Project = ({
           </div>
         </div>
       </div>
-    </div>
+    </li>
   );
 };
 
 const Projects = () => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event?.target?.value);
+  };
+
+  const filteredProjects = React.useMemo(() => {
+    if (searchTerm === "") return projects;
+    return search(searchTerm, projects, {
+      keySelector: (project) => {
+        const { stack, ...r } = project;
+        const rest = Object.values(r).join(" ");
+        const stackItems = stack.map((item) => item.name).join(" ");
+        return `${rest} ${stackItems}`;
+      },
+    });
+  }, [searchTerm]);
+
   return (
     <>
       <h2>Projects</h2>
       <div className="flow-root">
-        <ul className="ml-0 list-none pl-0" role="list">
-          {projects.map((project, projectIdx) => (
+        <Form.Root>
+          <Form.Field name="term">
+            <div>
+              <Form.Label>Search keyword</Form.Label>
+              <Form.Message match="typeMismatch">
+                Please provide a your search term
+              </Form.Message>
+            </div>
+            <Form.Control asChild>
+              <input
+                type="search"
+                placeholder="e.g. Sendcloud, 2022, Rust"
+                value={searchTerm}
+                onChange={handleInputChange}
+                className="w-full rounded-md border px-4 py-2 transition-colors focus:border-blue-500 focus:outline-none"
+              />
+            </Form.Control>
+          </Form.Field>
+        </Form.Root>
+
+        <ol className="ml-0 list-none pl-0" role="list">
+          {filteredProjects.map((project, projectIdx) => (
             <Project
               key={project.company}
               project={project}
@@ -321,7 +359,7 @@ const Projects = () => {
               totalLength={projects.length}
             />
           ))}
-        </ul>
+        </ol>
       </div>
     </>
   );
