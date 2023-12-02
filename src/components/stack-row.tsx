@@ -80,7 +80,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
                 />
               )}
             </span>
-            <span className="text-slate-500">Stack</span>
+            <span className="font-normal text-slate-500">Stack</span>
           </button>
         </div>
       </dt>

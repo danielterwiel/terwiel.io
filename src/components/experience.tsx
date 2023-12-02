@@ -236,20 +236,18 @@ const Project = ({
     >
       {projectIdx !== totalLength - 1 ? (
         <span
-          className="absolute top-4 ml-[1.2rem] hidden h-full w-0.5 bg-gray-200 sm:block"
+          className="absolute top-4 ml-[1.4rem] hidden h-full w-0.5 bg-gray-200 sm:block"
           aria-hidden="true"
         />
       ) : null}
       <div className="flex space-x-3">
         <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 space-x-3 md:gap-4">
-          <div className="h-10 w-10">
+          <div className="h-12 w-12 text-slate-600/80">
             <Ring>
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
-          <h3 className="my-0 mt-1.5 text-lg font-semibold">
-            {project.company}
-          </h3>
+          <h3 className="mt-2.5 pl-2 text-lg">{project.company}</h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
@@ -257,7 +255,7 @@ const Project = ({
                   <span className="text-slate-500/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
-                  <span className="text-slate-500">Role</span>
+                  <span className="font-normal text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.role}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
@@ -268,7 +266,7 @@ const Project = ({
                       aria-hidden="true"
                     />
                   </span>
-                  <span className="text-slate-500">Team</span>
+                  <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   ~<span className="mr-2">{project.teamSize}</span>
@@ -282,14 +280,14 @@ const Project = ({
                       aria-hidden="true"
                     />
                   </span>
-                  <span className="text-slate-500">Industry</span>
+                  <span className="font-normal text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.industry}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
-                  <span className=" text-slate-500/50">
+                  <span className="text-slate-500/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
-                  <span className="text-slate-500">Location</span>
+                  <span className="font-normal text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.location}</dd>
                 <StackRow items={project.stack} />
@@ -304,6 +302,43 @@ const Project = ({
         </div>
       </div>
     </li>
+  );
+};
+
+const SearchSummary = ({
+  searchTerm,
+  items,
+}: {
+  searchTerm: string;
+  items: Project[];
+}) => {
+  const total = items.length;
+  const monthsDiff = new Set<number>();
+  for (const project of items) {
+    const dateFrom = parseISO(project.dateFrom);
+    const dateTo = parseISO(project.dateTo);
+    const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
+    monthsDiff.add(diffInMonths);
+  }
+  const monthsSum = Array.from(monthsDiff).reduce((acc, curr) => acc + curr, 0);
+  const years = Math.floor(monthsSum / 12);
+  const months = monthsSum % 12;
+
+  const duration = formatDuration({ months, years });
+  return (
+    <div className="text-klein border-klein/50 m4-8 rounded-md border-2 px-3 py-6 text-center print:hidden">
+      {total === 0 ? (
+        <span>Your search did not return any projects</span>
+      ) : (
+        <>
+          <div>
+            Your search for <strong>{searchTerm}</strong> returned{" "}
+            <strong>{total}</strong> projects with a total duration of{" "}
+            <strong>{duration}</strong>.
+          </div>
+        </>
+      )}
+    </div>
   );
 };
 
@@ -329,8 +364,8 @@ const Projects = () => {
   return (
     <>
       <h2>Projects</h2>
-      <div className="flow-root">
-        <Form.Root>
+      <div className="flow-root space-y-4">
+        <Form.Root className="print:hidden">
           <Form.Field name="term">
             <div>
               <Form.Label>Search keyword</Form.Label>
@@ -344,11 +379,15 @@ const Projects = () => {
                 placeholder="e.g. Sendcloud, 2022, Rust"
                 value={searchTerm}
                 onChange={handleInputChange}
-                className="w-full rounded-md border px-4 py-2 transition-colors focus:border-blue-500 focus:outline-none"
+                className="focus:border-klein w-full rounded-md border px-4 py-2 transition-colors focus:outline-none"
               />
             </Form.Control>
           </Form.Field>
         </Form.Root>
+
+        {searchTerm ? (
+          <SearchSummary searchTerm={searchTerm} items={filteredProjects} />
+        ) : null}
 
         <ol className="ml-0 list-none pl-0" role="list">
           {filteredProjects.map((project, projectIdx) => (
