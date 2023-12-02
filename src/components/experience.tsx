@@ -375,7 +375,10 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root space-y-4">
-        <Form.Root className="print:hidden">
+        <Form.Root
+          className="print:hidden"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <Form.Field name="term">
             <div>
               <Form.Label>Search keyword</Form.Label>
