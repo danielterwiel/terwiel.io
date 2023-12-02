@@ -294,9 +294,9 @@ const Project = ({
               <p>{project.description}</p>
             </div>
           </div>
-          <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-sm text-gray-500">
-            <div className="text-xs">{duration}</div>
-            <div className="text-xs opacity-70">{timespan}</div>
+          <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
+            <div>{duration}</div>
+            <div>{timespan}</div>
           </div>
         </div>
       </div>

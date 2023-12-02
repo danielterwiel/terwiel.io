@@ -15,6 +15,7 @@ export default function Header() {
             <Link
               href="https://github.com/danielterwiel"
               className="flex sm:order-last"
+              aria-label="View my GitHub profile"
             >
               <Icon.BrandGithub
                 aria-hidden="true"
@@ -29,7 +30,11 @@ export default function Header() {
                 .com/danielterwiel/
               </span>
             </Link>
-            <Link href="https://www.linkedin.com/in/terwiel/" className="flex">
+            <Link
+              href="https://www.linkedin.com/in/terwiel/"
+              className="flex"
+              aria-label="View my LinkedIn profile"
+            >
               <Icon.BrandLinkedin
                 aria-hidden="true"
                 className="h-7 w-7 text-white opacity-60 hover:opacity-100 print:hidden sm:text-slate-800"
