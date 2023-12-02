@@ -8,6 +8,9 @@ export default {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      colors: {
+        klein: "#002FA7",
+      },
     },
   },
   plugins: [require("@tailwindcss/typography")],

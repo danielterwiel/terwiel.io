@@ -1,7 +1,7 @@
 "use client";
 
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
-import { search, sortKind } from "fast-fuzzy";
+import { search } from "fast-fuzzy";
 import * as Form from "@radix-ui/react-form";
 import React from "react";
 
@@ -29,7 +29,7 @@ type Project = {
   icon: string;
 };
 
-const projects: Project[] = [
+const PROJECTS: Project[] = [
   {
     id: "PROJECT_0",
     company: "Departure Labs",
@@ -261,7 +261,7 @@ const Project = ({
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.role}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
-                  <span className=" text-slate-400/50">
+                  <span className=" text-slate-500/50">
                     <Icon.UsersGroup
                       width={24}
                       height={24}
@@ -286,7 +286,7 @@ const Project = ({
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">{project.industry}</dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
-                  <span className=" text-slate-400/50">
+                  <span className=" text-slate-500/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="text-slate-500">Location</span>
@@ -315,8 +315,8 @@ const Projects = () => {
   };
 
   const filteredProjects = React.useMemo(() => {
-    if (searchTerm === "") return projects;
-    return search(searchTerm, projects, {
+    if (searchTerm === "") return PROJECTS;
+    return search(searchTerm, PROJECTS, {
       keySelector: (project) => {
         const { stack, ...r } = project;
         const rest = Object.values(r).join(" ");
@@ -356,7 +356,7 @@ const Projects = () => {
               key={project.company}
               project={project}
               projectIdx={projectIdx}
-              totalLength={projects.length}
+              totalLength={PROJECTS.length}
             />
           ))}
         </ol>
