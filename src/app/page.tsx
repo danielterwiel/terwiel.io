@@ -10,7 +10,7 @@ export default function HomePage() {
         <Header />
         <About />
       </div>
-      <div className="px-4">
+      <div className="break-inside-avoid px-4">
         <Experience />
       </div>
       <div className="px-4">

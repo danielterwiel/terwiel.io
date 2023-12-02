@@ -46,7 +46,7 @@ export default function Header() {
         </div>
 
         <p className="print:text-2xl">
-          With over 15 years in web development, I&apos;ve gained extensive
+          With over 18 years in web development, I&apos;ve gained extensive
           knowledge and a lot of experience in different settings, including
           startups, hyper-growth scale-ups, and large enterprises. My journey
           has evolved from a beginner to a clean code absolutist, to becoming

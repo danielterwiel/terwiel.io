@@ -91,7 +91,6 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
 
     return () => {
       window.clearTimeout(timer);
-      // setIsLoaded(false);
     };
   });
   const IconItem = Icon[item.icon as keyof typeof Icon];

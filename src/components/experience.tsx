@@ -1,7 +1,6 @@
 "use client";
 
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
-import { search } from "fast-fuzzy";
 import * as Form from "@radix-ui/react-form";
 import React from "react";
 
@@ -342,23 +341,34 @@ const SearchSummary = ({
   );
 };
 
+const PROJECT_KEY_DISALLOWED = ["stack"];
+
 const Projects = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [filtered, setFiltered] = React.useState(PROJECTS);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event?.target?.value);
   };
 
-  const filteredProjects = React.useMemo(() => {
-    if (searchTerm === "") return PROJECTS;
-    return search(searchTerm, PROJECTS, {
-      keySelector: (project) => {
-        const { stack, ...r } = project;
-        const rest = Object.values(r).join(" ");
-        const stackItems = stack.map((item) => item.name).join(" ");
-        return `${rest} ${stackItems}`;
-      },
+  React.useEffect(() => {
+    if (searchTerm === "") setFiltered(PROJECTS);
+    const filteredProjects = PROJECTS.filter((project) => {
+      const { stack, ...rest } = project;
+      const stackMatches = stack.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+      const restMatches = Object.entries(rest).filter(([key, value]) => {
+        if (
+          value.toString().toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !PROJECT_KEY_DISALLOWED.includes(key)
+        ) {
+          return true;
+        }
+      });
+      return stackMatches.length > 0 || restMatches.length > 0;
     });
+    setFiltered(filteredProjects);
   }, [searchTerm]);
 
   return (
@@ -386,11 +396,11 @@ const Projects = () => {
         </Form.Root>
 
         {searchTerm ? (
-          <SearchSummary searchTerm={searchTerm} items={filteredProjects} />
+          <SearchSummary searchTerm={searchTerm} items={filtered} />
         ) : null}
 
         <ol className="ml-0 list-none pl-0" role="list">
-          {filteredProjects.map((project, projectIdx) => (
+          {filtered.map((project, projectIdx) => (
             <Project
               key={project.company}
               project={project}

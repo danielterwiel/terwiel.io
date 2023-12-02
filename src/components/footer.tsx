@@ -1,6 +1,6 @@
 export default function Footer() {
   return (
-    <footer>
+    <footer className="break-inside-avoid">
       <h3>Contact</h3>
       <dl className="md:grid md:grid-flow-col md:grid-cols-3 md:grid-rows-2">
         <dt className="text-slate-400">Name</dt>
