@@ -246,7 +246,10 @@ const Project = ({
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
-          <h3 className="mt-2.5 pl-2 text-lg">{project.company}</h3>
+          <h3
+            className="mt-2.5 pl-2 text-lg"
+            dangerouslySetInnerHTML={{ __html: project.company }}
+          ></h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
@@ -256,7 +259,10 @@ const Project = ({
                   </span>
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
-                <dd className="m-0 pl-4 md:pl-7">{project.role}</dd>
+                <dd
+                  className="m-0 pl-4 md:pl-7"
+                  dangerouslySetInnerHTML={{ __html: project.role }}
+                ></dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className=" text-slate-500/50">
                     <Icon.UsersGroup
@@ -268,7 +274,11 @@ const Project = ({
                   <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  ~<span className="mr-2">{project.teamSize}</span>
+                  ~
+                  <span
+                    className="mr-2"
+                    dangerouslySetInnerHTML={{ __html: project.teamSize }}
+                  ></span>
                   developers
                 </dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
@@ -281,17 +291,23 @@ const Project = ({
                   </span>
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
-                <dd className="m-0 pl-4 md:pl-7">{project.industry}</dd>
+                <dd
+                  className="m-0 pl-4 md:pl-7"
+                  dangerouslySetInnerHTML={{ __html: project.industry }}
+                ></dd>
                 <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
                   <span className="text-slate-500/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
-                <dd className="m-0 pl-4 md:pl-7">{project.location}</dd>
+                <dd
+                  className="m-0 pl-4 md:pl-7"
+                  dangerouslySetInnerHTML={{ __html: project.location }}
+                ></dd>
                 <StackRow items={project.stack} />
               </dl>
-              <p>{project.description}</p>
+              <p dangerouslySetInnerHTML={{ __html: project.description }}></p>
             </div>
           </div>
           <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
@@ -331,8 +347,11 @@ const SearchSummary = ({
       ) : (
         <>
           <div>
-            Your search for <strong>{searchTerm}</strong> returned{" "}
-            <strong>{total}</strong> projects with a total duration of{" "}
+            Your search for{" "}
+            <strong>
+              <mark>{searchTerm}</mark>
+            </strong>{" "}
+            returned <strong>{total}</strong> projects with a total duration of{" "}
             <strong>{duration}</strong>.
           </div>
         </>
@@ -342,6 +361,13 @@ const SearchSummary = ({
 };
 
 const PROJECT_KEY_DISALLOWED = ["stack"];
+const PROJECT_HIGHLIGHT_DISSALLOWED = [
+  "stack",
+  "id",
+  "icon",
+  "dateFrom",
+  "dateTo",
+];
 
 const Projects = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -352,7 +378,6 @@ const Projects = () => {
   };
 
   React.useEffect(() => {
-    if (searchTerm === "") setFiltered(PROJECTS);
     const filteredProjects = PROJECTS.filter((project) => {
       const { stack, ...rest } = project;
       const stackMatches = stack.filter((item) =>
@@ -368,7 +393,51 @@ const Projects = () => {
       });
       return stackMatches.length > 0 || restMatches.length > 0;
     });
-    setFiltered(filteredProjects);
+
+    const markedProjects = filteredProjects.map((project) => {
+      const { stack, ...rest } = project;
+      const stackMatches = stack.map((item) => {
+        const name = item.name.replace(
+          new RegExp(searchTerm, "gi"),
+          (match) => {
+            if (
+              searchTerm &&
+              match.toString().toLowerCase().includes(searchTerm.toLowerCase())
+            ) {
+              return `<mark>${match}</mark>`;
+            } else {
+              return match;
+            }
+          },
+        );
+        return { ...item, name };
+      });
+
+      const restMatches = Object.entries(rest).map(([key, value]) => {
+        if (
+          searchTerm &&
+          value.toString().toLowerCase().includes(searchTerm.toLowerCase()) &&
+          !PROJECT_HIGHLIGHT_DISSALLOWED.includes(key)
+        ) {
+          const name = value
+            .toString()
+            .replace(
+              new RegExp(searchTerm, "gi"),
+              (match) => `<mark>${match}</mark>`,
+            );
+          return [key, name];
+        }
+        return [key, value];
+      });
+
+      return {
+        ...project,
+        stack: stackMatches,
+        ...(Object.fromEntries(restMatches) as Omit<Project, "stack">),
+      };
+    });
+
+    setFiltered(markedProjects);
   }, [searchTerm]);
 
   return (
@@ -388,7 +457,7 @@ const Projects = () => {
             </div>
             <Form.Control asChild>
               <input
-                type="search"
+                type="input"
                 placeholder="e.g. Sendcloud, 2022, Rust"
                 value={searchTerm}
                 onChange={handleInputChange}

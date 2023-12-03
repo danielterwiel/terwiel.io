@@ -135,7 +135,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
             {item.name}
           </Link>
         ) : (
-          item.name
+          <span dangerouslySetInnerHTML={{ __html: item.name }}></span>
         )}
       </div>
     </li>
