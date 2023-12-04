@@ -60,29 +60,25 @@ export function StackRow({ items }: { items: ListItem[] }) {
 
   return (
     <>
-      <dt className="m-0 flex print:m-0 print:items-start print:justify-end md:items-start md:justify-end">
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2" onClick={toggle}>
-            <span className="text-slate-400/50">
-              {open ? (
-                <Icon.StackPop
-                  aria-hidden="true"
-                  width={24}
-                  height={24}
-                  className="text-slate-500/50"
-                />
-              ) : (
-                <Icon.StackPush
-                  aria-hidden="true"
-                  width={24}
-                  height={24}
-                  className="text-slate-500/50"
-                />
-              )}
-            </span>
-            <span className="font-normal text-slate-500">Stack</span>
-          </button>
-        </div>
+      <dt className="m-0 flex justify-end print:m-0 print:items-start print:justify-end md:items-start">
+        <button className="flex items-start gap-2" onClick={toggle}>
+          {open ? (
+            <Icon.StackPop
+              aria-hidden="true"
+              width={24}
+              height={24}
+              className="text-slate-500/50"
+            />
+          ) : (
+            <Icon.StackPush
+              aria-hidden="true"
+              width={24}
+              height={24}
+              className="text-slate-500/50"
+            />
+          )}
+          <span className="font-normal text-slate-500">Stack</span>
+        </button>
       </dt>
       <dd className="m-0 pl-4 md:pl-7">
         <Collapsible.Root open={open}>

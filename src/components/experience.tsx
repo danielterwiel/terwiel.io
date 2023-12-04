@@ -252,8 +252,8 @@ const Project = ({
           ></h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
-                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+              <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
+                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
                     <Icon.User width={24} height={24} aria-hidden="true" />
                   </span>
@@ -263,7 +263,7 @@ const Project = ({
                   className="m-0 pl-4 md:pl-7"
                   dangerouslySetInnerHTML={{ __html: project.role }}
                 ></dd>
-                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className=" text-slate-500/50">
                     <Icon.UsersGroup
                       width={24}
@@ -281,7 +281,7 @@ const Project = ({
                   ></span>
                   developers
                 </dd>
-                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
                     <Icon.BuildingFactory2
                       width={24}
@@ -295,7 +295,7 @@ const Project = ({
                   className="m-0 pl-4 md:pl-7"
                   dangerouslySetInnerHTML={{ __html: project.industry }}
                 ></dd>
-                <dt className="mt-0 flex gap-2 print:m-0 print:justify-end md:m-0 md:justify-end">
+                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
