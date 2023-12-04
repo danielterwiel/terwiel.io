@@ -235,7 +235,7 @@ const Project = ({
     >
       {projectIdx !== totalLength - 1 ? (
         <span
-          className="absolute top-4 ml-[1.4rem] hidden h-full w-0.5 bg-gray-200 sm:block"
+          className="absolute top-4 ml-[1.4rem] hidden h-full w-0.5 bg-gray-200 md:block"
           aria-hidden="true"
         />
       ) : null}
