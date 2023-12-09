@@ -1,7 +1,10 @@
 "use client";
 
+import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 import * as Form from "@radix-ui/react-form";
 import React from "react";
+
+import { type Project } from "./experience";
 
 export const SearchContext = React.createContext<
   [string, React.Dispatch<React.SetStateAction<string>> | (() => void)]
@@ -13,20 +16,20 @@ export const SearchContext = React.createContext<
 ]);
 
 export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [query, setQuery] = React.useState("");
 
   return (
-    <SearchContext.Provider value={[searchTerm, setSearchTerm]}>
+    <SearchContext.Provider value={[query, setQuery]}>
       {children}
     </SearchContext.Provider>
   );
 };
 
 export function SearchInput() {
-  const [searchTerm, setSearchTerm] = React.useContext(SearchContext);
+  const [query, setQuery] = React.useContext(SearchContext);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event?.target?.value);
+    setQuery(event?.target?.value);
   };
 
   return (
@@ -42,7 +45,7 @@ export function SearchInput() {
           <input
             type="input"
             placeholder="e.g. Sendcloud, 2022, Rust"
-            value={searchTerm}
+            value={query}
             onChange={handleInputChange}
             className="w-full rounded-md border px-4 py-2 transition-colors focus:border-klein focus:outline-none"
           />
@@ -51,3 +54,43 @@ export function SearchInput() {
     </Form.Root>
   );
 }
+
+export const SearchSummary = ({
+  query,
+  items,
+}: {
+  query: string;
+  items: Project[];
+}) => {
+  const total = items.length;
+  const monthsDiff = new Set<number>();
+  for (const project of items) {
+    const dateFrom = parseISO(project.dateFrom);
+    const dateTo = parseISO(project.dateTo);
+    const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
+    monthsDiff.add(diffInMonths);
+  }
+  const monthsSum = Array.from(monthsDiff).reduce((acc, curr) => acc + curr, 0);
+  const years = Math.floor(monthsSum / 12);
+  const months = monthsSum % 12;
+
+  const duration = formatDuration({ months, years });
+  return (
+    <div className="m4-8 rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
+      {total === 0 ? (
+        <span>Your search did not return any projects</span>
+      ) : (
+        <>
+          <div>
+            Your search for{" "}
+            <strong>
+              <mark>{query}</mark>
+            </strong>{" "}
+            returned <strong>{total}</strong> projects with a total duration of{" "}
+            <strong>{duration}</strong>.
+          </div>
+        </>
+      )}
+    </div>
+  );
+};

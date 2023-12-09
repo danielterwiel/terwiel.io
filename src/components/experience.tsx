@@ -3,7 +3,7 @@
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 import React from "react";
 
-import { SearchContext, SearchInput } from "./search";
+import { SearchContext, SearchInput, SearchSummary } from "./search";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
@@ -14,7 +14,7 @@ type StackItem = {
   icon: string;
 };
 
-type Project = {
+export type Project = {
   id: string;
   company: string;
   role: string;
@@ -320,46 +320,6 @@ const Project = ({
   );
 };
 
-const SearchSummary = ({
-  searchTerm,
-  items,
-}: {
-  searchTerm: string;
-  items: Project[];
-}) => {
-  const total = items.length;
-  const monthsDiff = new Set<number>();
-  for (const project of items) {
-    const dateFrom = parseISO(project.dateFrom);
-    const dateTo = parseISO(project.dateTo);
-    const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
-    monthsDiff.add(diffInMonths);
-  }
-  const monthsSum = Array.from(monthsDiff).reduce((acc, curr) => acc + curr, 0);
-  const years = Math.floor(monthsSum / 12);
-  const months = monthsSum % 12;
-
-  const duration = formatDuration({ months, years });
-  return (
-    <div className="m4-8 rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
-      {total === 0 ? (
-        <span>Your search did not return any projects</span>
-      ) : (
-        <>
-          <div>
-            Your search for{" "}
-            <strong>
-              <mark>{searchTerm}</mark>
-            </strong>{" "}
-            returned <strong>{total}</strong> projects with a total duration of{" "}
-            <strong>{duration}</strong>.
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
 const PROJECT_KEY_DISALLOWED = ["stack"];
 const PROJECT_HIGHLIGHT_DISSALLOWED = [
   "stack",
@@ -371,54 +331,48 @@ const PROJECT_HIGHLIGHT_DISSALLOWED = [
 
 const Projects = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
-  const [searchTerm] = React.useContext(SearchContext);
+  const [query] = React.useContext(SearchContext);
 
   React.useEffect(() => {
     const filteredProjects = PROJECTS.filter((project) => {
       const { stack, ...rest } = project;
       const stackMatches = stack.filter((item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+        item.name.toLowerCase().includes(query.toLowerCase()),
       );
-      const restMatches = Object.entries(rest).filter(([key, value]) => {
-        if (
-          value.toString().toLowerCase().includes(searchTerm.toLowerCase()) &&
-          !PROJECT_KEY_DISALLOWED.includes(key)
-        ) {
-          return true;
-        }
-      });
+      const restMatches = Object.entries(rest).filter(
+        ([key, value]) =>
+          value.toString().toLowerCase().includes(query.toLowerCase()) &&
+          !PROJECT_KEY_DISALLOWED.includes(key),
+      );
       return stackMatches.length > 0 || restMatches.length > 0;
     });
 
     const markedProjects = filteredProjects.map((project) => {
       const { stack, ...rest } = project;
       const stackMatches = stack.map((item) => {
-        const name = item.name.replace(
-          new RegExp(searchTerm, "gi"),
-          (match) => {
-            if (
-              searchTerm &&
-              match.toString().toLowerCase().includes(searchTerm.toLowerCase())
-            ) {
-              return `<mark>${match}</mark>`;
-            } else {
-              return match;
-            }
-          },
-        );
+        const name = item.name.replace(new RegExp(query, "gi"), (match) => {
+          if (
+            query &&
+            match.toString().toLowerCase().includes(query.toLowerCase())
+          ) {
+            return `<mark>${match}</mark>`;
+          } else {
+            return match;
+          }
+        });
         return { ...item, name };
       });
 
       const restMatches = Object.entries(rest).map(([key, value]) => {
         if (
-          searchTerm &&
-          value.toString().toLowerCase().includes(searchTerm.toLowerCase()) &&
+          query &&
+          value.toString().toLowerCase().includes(query.toLowerCase()) &&
           !PROJECT_HIGHLIGHT_DISSALLOWED.includes(key)
         ) {
           const name = value
             .toString()
             .replace(
-              new RegExp(searchTerm, "gi"),
+              new RegExp(query, "gi"),
               (match) => `<mark>${match}</mark>`,
             );
           return [key, name];
@@ -434,7 +388,7 @@ const Projects = () => {
     });
 
     setFiltered(markedProjects);
-  }, [searchTerm]);
+  }, [query]);
 
   return (
     <>
@@ -442,9 +396,7 @@ const Projects = () => {
       <div className="flow-root space-y-4">
         <SearchInput />
 
-        {searchTerm ? (
-          <SearchSummary searchTerm={searchTerm} items={filtered} />
-        ) : null}
+        {query ? <SearchSummary query={query} items={filtered} /> : null}
 
         <ol className="ml-0 list-none pl-0" role="list">
           {filtered.map((project, projectIdx) => (
