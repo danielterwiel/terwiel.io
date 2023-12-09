@@ -34,11 +34,11 @@ export function SearchInput() {
 
   return (
     <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
-      <Form.Field name="term">
+      <Form.Field name="query">
         <div>
-          <Form.Label>Search keyword</Form.Label>
+          <Form.Label>Search query</Form.Label>
           <Form.Message match="typeMismatch">
-            Please provide a your search term
+            Please provide a your search query
           </Form.Message>
         </div>
         <Form.Control asChild>

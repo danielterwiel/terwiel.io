@@ -34,7 +34,9 @@ export default function RootLayout({
         />
       </head>
 
-      <body className={`prose font-sans print:max-w-full ${inter.variable}`}>
+      <body
+        className={`a4-page prose font-sans print:max-w-full ${inter.variable}`}
+      >
         <SearchProvider>{children}</SearchProvider>
       </body>
     </html>
