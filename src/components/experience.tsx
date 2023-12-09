@@ -1,9 +1,9 @@
 "use client";
 
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
-import * as Form from "@radix-ui/react-form";
 import React from "react";
 
+import { SearchContext, SearchInput } from "./search";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
@@ -341,7 +341,7 @@ const SearchSummary = ({
 
   const duration = formatDuration({ months, years });
   return (
-    <div className="text-klein border-klein/50 m4-8 rounded-md border-2 px-3 py-6 text-center print:hidden">
+    <div className="m4-8 rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (
@@ -370,12 +370,8 @@ const PROJECT_HIGHLIGHT_DISSALLOWED = [
 ];
 
 const Projects = () => {
-  const [searchTerm, setSearchTerm] = React.useState("");
   const [filtered, setFiltered] = React.useState(PROJECTS);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event?.target?.value);
-  };
+  const [searchTerm] = React.useContext(SearchContext);
 
   React.useEffect(() => {
     const filteredProjects = PROJECTS.filter((project) => {
@@ -444,28 +440,7 @@ const Projects = () => {
     <>
       <h2>Projects</h2>
       <div className="flow-root space-y-4">
-        <Form.Root
-          className="print:hidden"
-          onSubmit={(e) => e.preventDefault()}
-        >
-          <Form.Field name="term">
-            <div>
-              <Form.Label>Search keyword</Form.Label>
-              <Form.Message match="typeMismatch">
-                Please provide a your search term
-              </Form.Message>
-            </div>
-            <Form.Control asChild>
-              <input
-                type="input"
-                placeholder="e.g. Sendcloud, 2022, Rust"
-                value={searchTerm}
-                onChange={handleInputChange}
-                className="focus:border-klein w-full rounded-md border px-4 py-2 transition-colors focus:outline-none"
-              />
-            </Form.Control>
-          </Form.Field>
-        </Form.Root>
+        <SearchInput />
 
         {searchTerm ? (
           <SearchSummary searchTerm={searchTerm} items={filtered} />

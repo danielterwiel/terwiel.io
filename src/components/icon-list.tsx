@@ -104,6 +104,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
     "transition-colors",
     "duration-200",
     "print:text-slate-400/50",
+    "focus:text-slate-400/50",
     hoverClass,
   ]);
 

@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
+import { SearchProvider } from "~/components/search";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,7 +35,7 @@ export default function RootLayout({
       </head>
 
       <body className={`prose font-sans print:max-w-full ${inter.variable}`}>
-        {children}
+        <SearchProvider>{children}</SearchProvider>
       </body>
     </html>
   );
