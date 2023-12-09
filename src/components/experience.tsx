@@ -39,7 +39,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
-      "Departure Labs started as a side project. When the technical founder, whom I met over Twitter, told me she had raised money to work on it full-time, I joined her in this adventure. After five unsuccessful blockchain products, we pivoted to creating a WebAssembly-enabled cloud platform.",
+      "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI and setting up the release and publishing flow using Rust. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
     stack: [
       { name: "Rust", icon: "BrandRust" },
       { name: "WebAssembly", icon: "Assembly" },
@@ -63,7 +63,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
-      "Touchpoint at ING is a department that develops a multi-component, plug-and-play platform, allowing all ING branches to integrate a unified user experience. I worked on authentication and utility libraries.",
+      "At ING's Touchpoint department, I was instrumental in developing and maintaining a multi-component, plug-and-play platform, used across various ING branches worldwide. My focus was on enhancing user authentication processes and building utility libraries to streamline user experiences. I employed advanced JavaScript, JSDoc, Lit, CSS, and HTML to deliver high-quality, scalable, and secure front-end solutions. My work contributed to standardizing the user experience across ING's global network. Furthermore I was responsible for the creation of a bootstrapping tool to spin up new projects that adhere to the ING infrastructure.",
     stack: [
       { name: "JavaScript", icon: "BrandJavascript" },
       { name: "Lit", icon: "Components" },
@@ -82,7 +82,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
-      "Here, I maintained and updated a four-year-old newsroom management application used by large media outlets in the Benelux.",
+      "At M&I, I was responsible for the maintenance and enhancement of a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
     stack: [
       { name: "React", icon: "BrandReact" },
       { name: "Redux", icon: "BrandRedux" },
@@ -106,11 +106,10 @@ const PROJECTS: Project[] = [
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
-      "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application.",
+      "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
     stack: [
       { name: "Vue", icon: "BrandVue" },
       { name: "Preact", icon: "BrandReact" },
-      { name: "GraphQL", icon: "BrandGraphql" },
       { name: "Webpack", icon: "BrandJavascript" },
       { name: "Jest", icon: "BrandJavascript" },
       { name: "JavaScript", icon: "BrandJavascript" },
@@ -123,13 +122,13 @@ const PROJECTS: Project[] = [
     id: "PROJECT_4",
     company: "Iperion",
     role: "Front End Developer",
-    teamSize: 4,
+    teamSize: 5,
     industry: "Life Sciences",
     location: "Vlijmen",
     dateFrom: "2016-06-01",
     dateTo: "2019-01-31",
     description:
-      "At Iperion, I worked on GxP Cloud. I had the opportunity to design and develop a greenfield application.",
+      "At Iperion, my role was centered around designing and developing the GxP Cloud, a greenfield application for the life sciences industry. I utilized React, Redux, Redux-saga, and Material UI among other technologies to create a user-friendly, scalable, and compliant application. My work involved deep collaboration with cross-functional teams to understand and implement industry-specific requirements, ensuring that the application met stringent regulatory standards while offering an intuitive user experience.",
     stack: [
       { name: "React", icon: "BrandReact" },
       { name: "Redux", icon: "BrandRedux" },
@@ -154,7 +153,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
     description:
-      "At Amadeus, I worked on ELS, a single-page application built with Knockout.js for the hospitality industry.",
+      "At Amadeus, I contributed to the development of ELS, a single-page application designed for the hospitality industry. My role primarily involved utilizing Knockout.js, JavaScript, CSS, and HTML to enhance the application's user interface and performance. This work included addressing various technical challenges and ensuring that the application met the needs of its users in the hospitality sector.",
     stack: [
       { name: "Knockout.js", icon: "BrandJavascript" },
       { name: "JavaScript", icon: "BrandJavascript" },
@@ -173,7 +172,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2013-10-01",
     dateTo: "2014-10-31",
     description:
-      "Working at Dinto, my role was to create interactive blueprints of warehouses using SVG, SQL, and JavaScript.",
+      "During my time at Dinto, I was involved in creating interactive blueprints for warehouse layouts using SVG, SQL, and JavaScript. This task required a focus on detail and accuracy to ensure the blueprints were both functional and user-friendly. My role contributed to improving the way warehouses could be organized and managed, offering a visual and practical tool for operational planning.",
     stack: [
       { name: "JavaScript", icon: "BrandJavascript" },
       { name: "CSS", icon: "BrandCss3" },
@@ -192,7 +191,8 @@ const PROJECTS: Project[] = [
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
-    description: "I created websites and a CRM system for financial advisors.",
+    description:
+      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full-stack development and understanding client needs in the financial sector.",
     stack: [
       { name: "Visual Basic.NET", icon: "BrandVisualStudio" },
       { name: "SQL Server", icon: "Sql" },
