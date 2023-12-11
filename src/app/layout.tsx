@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Terwiel - Freelance Developer",
+  title: "Daniël Terwiel - Developer",
   description:
     "An accomplished developer with a focus on the web, architecture, performance, accessibility",
   visualViewport: {
