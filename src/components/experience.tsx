@@ -42,7 +42,6 @@ const PROJECTS: Project[] = [
       "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI and setting up the release and publishing flow using Rust. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
     stack: [
       { name: "Rust", icon: "BrandRust" },
-      { name: "WebAssembly", icon: "Assembly" },
       { name: "JavaScript", icon: "BrandJavascript" },
       { name: "TypeScript", icon: "BrandTypescript" },
       { name: "Vue", icon: "BrandVue" },
@@ -50,6 +49,7 @@ const PROJECTS: Project[] = [
       { name: "Next.js", icon: "BrandVercel" },
       { name: "Tailwind", icon: "BrandTailwind" },
       { name: "Vite", icon: "BrandVite" },
+      { name: "Vitest", icon: "BrandVite" },
     ],
     icon: "Rocket",
   },
@@ -67,6 +67,8 @@ const PROJECTS: Project[] = [
     stack: [
       { name: "JavaScript", icon: "BrandJavascript" },
       { name: "Lit", icon: "Components" },
+      { name: "JSDoc", icon: "FileTypeDoc" },
+      { name: "Mocha", icon: "TestPipe" },
       { name: "CSS", icon: "BrandCss3" },
       { name: "HTML", icon: "BrandHtml5" },
     ],

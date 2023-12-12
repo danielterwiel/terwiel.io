@@ -26,6 +26,7 @@ import BuildingWarehouse from "../images/icons/building-warehouse.svg";
 import Bulb from "../images/icons/bulb.svg";
 import Components from "../images/icons/components.svg";
 import Focus from "../images/icons/focus.svg";
+import FileTypeDoc from "../images/icons/file-type-doc.svg";
 import Geometry from "../images/icons/geometry.svg";
 import HealthRecognition from "../images/icons/health-recognition.svg";
 import HeartHandshake from "../images/icons/heart-handshake.svg";
@@ -42,6 +43,7 @@ import Stack from "../images/icons/stack.svg";
 import StackPop from "../images/icons/stack-pop.svg";
 import StackPush from "../images/icons/stack-push.svg";
 import Svg from "../images/icons/svg.svg";
+import TestPipe from "../images/icons/test-pipe.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
 
@@ -103,6 +105,9 @@ const icons = {
   Components: Components as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Focus: Focus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Geometry: Geometry as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  FileTypeDoc: FileTypeDoc as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
   HealthRecognition: HealthRecognition as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
@@ -126,6 +131,7 @@ const icons = {
   StackPop: StackPop as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   StackPush: StackPush as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Svg: Svg as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  TestPipe: TestPipe as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   User: User as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   UsersGroup: UsersGroup as React.ComponentType<React.SVGProps<SVGSVGElement>>,
 };
