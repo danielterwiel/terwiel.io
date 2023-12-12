@@ -106,7 +106,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
-      "One of the fastest-growing scale-ups in the Netherlands. I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
+      "At one of the fastest-growing scale-ups in the Netherlands, I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
     stack: [
       { name: "Vue", icon: "BrandVue" },
       { name: "Preact", icon: "BrandReact" },

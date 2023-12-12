@@ -5,7 +5,6 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
-import { List } from "postcss/lib/list";
 
 export type ListItem = {
   name: string;
@@ -181,7 +180,7 @@ const LanguageListItem = ({
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor
     ? hoverColor
-    : "group-hover:text-slate-400 group-hover:saturate-100";
+    : "group-hover:text-slate-400 sm:group-hover:saturate-100";
   const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
   const iconClass = clsx([
     colorClass,
