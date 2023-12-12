@@ -5,6 +5,13 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
+import { List } from "postcss/lib/list";
+
+export type ListItem = {
+  name: string;
+  icon: string;
+  url?: string;
+};
 
 const ICON_GROUP_HOVER = {
   Assembly: "group-hover:text-[#624FE8]",
@@ -60,12 +67,6 @@ const LINK_CLASSES = {
   BrandVue: "hover:decoration-[#4FC08D]",
 };
 
-export type ListItem = {
-  name: string;
-  icon: string;
-  url?: string;
-};
-
 const LIST_ITEM_SLIDE_ANIMATION = [
   "motion-safe:animate-[animation-slide-down_0.1s_ease-in-out]",
   "motion-safe:animate-[animation-slide-down_0.2s_ease-in-out]",
@@ -93,6 +94,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
       window.clearTimeout(timer);
     };
   });
+
   const IconItem = Icon[item.icon as keyof typeof Icon];
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
@@ -101,18 +103,18 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
   const colorClass = isLoaded ? "text-slate-400/50" : color;
   const iconClass = clsx([
     colorClass,
+    hoverClass,
     "transition-colors",
     "duration-200",
     "print:text-slate-400/50",
     "focus:text-slate-400/50",
-    hoverClass,
   ]);
 
   const linkUnderline = LINK_CLASSES[item.icon as keyof typeof LINK_CLASSES];
   const linkClass = clsx([
+    linkUnderline,
     "text-slate-800/70",
     "hover:text-slate-800",
-    linkUnderline,
   ]);
 
   const listClass = clsx(
@@ -130,6 +132,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
           aria-hidden="true"
           width={24}
           height={24}
+          focusable="false"
         />
         {item.url ? (
           <Link className={linkClass} href={item.url}>
@@ -148,6 +151,76 @@ export const IconList = ({ items }: { items: ListItem[] }) => {
     <ul className="ml-0 mt-0 list-none pl-0" role="list">
       {items.map((item, index) => (
         <ListItem key={item.name} index={index} item={item} />
+      ))}
+    </ul>
+  );
+};
+
+const LanguageListItem = ({
+  index,
+  item,
+}: {
+  index: number;
+  item: LanguageListItem;
+}) => {
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  React.useEffect(() => {
+    const timer = window.setTimeout(
+      () => {
+        setIsLoaded(true);
+      },
+      50 + index * 75,
+    );
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  });
+
+  const hoverColor =
+    ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
+  const hoverClass = hoverColor
+    ? hoverColor
+    : "group-hover:text-slate-400 group-hover:saturate-100";
+  const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
+  const iconClass = clsx([
+    colorClass,
+    hoverClass,
+    "transition-colors",
+    "duration-200",
+    "print:text-slate-400/50",
+    "focus:text-slate-400/50",
+  ]);
+
+  const listClass = clsx(
+    LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
+    "print:mt-1",
+    "print:animate-none",
+    "pl-0",
+  );
+
+  return (
+    <li key={item.name} className={listClass}>
+      <div className="group flex items-center gap-2">
+        <span className={iconClass} aria-hidden="true">
+          {item.icon}
+        </span>
+        <span dangerouslySetInnerHTML={{ __html: item.name }}></span>
+        <span className="text-sm text-slate-800/70">({item.level})</span>
+      </div>
+    </li>
+  );
+};
+
+export type LanguageListItem = ListItem & {
+  level: string;
+};
+
+export const LanguageIconList = ({ items }: { items: LanguageListItem[] }) => {
+  return (
+    <ul className="ml-0 mt-0 list-none pl-0" role="list">
+      {items.map((item, index) => (
+        <LanguageListItem key={item.name} index={index} item={item} />
       ))}
     </ul>
   );

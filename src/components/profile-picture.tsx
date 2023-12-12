@@ -32,6 +32,7 @@ export const ProfilePicture = () => {
     "lg:aspect-[1/2]",
     "transition-opacity",
     "duration-500",
+    "hover:saturate-150",
   ];
   const classNameLove = clsx(defaultClassName, ["print:hidden"], {
     "opacity-0": showLove,

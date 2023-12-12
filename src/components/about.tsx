@@ -1,10 +1,10 @@
 import { Icon } from "~/components/icon";
-import { IconList } from "~/components/icon-list";
-
-type ListItem = {
-  name: string;
-  icon: string;
-};
+import {
+  IconList,
+  LanguageIconList,
+  type ListItem,
+  type LanguageListItem,
+} from "~/components/icon-list";
 
 const stack: ListItem[] = [
   { name: "HTML", icon: "BrandHtml5" },
@@ -53,11 +53,33 @@ const Focus = () => {
   );
 };
 
+const languages: LanguageListItem[] = [
+  { name: "Dutch", icon: "🇳🇱", level: "native" },
+  { name: "English", icon: "🇺🇸", level: "fluent" },
+  { name: "French", icon: "🇫🇷", level: "mediocre" },
+  { name: "German", icon: "🇩🇪", level: "mediocre" },
+];
+
+const Languages = () => {
+  return (
+    <div>
+      <h2 className="flex gap-4">
+        <Icon.Language aria-hidden="true" className="h-7 w-7" />
+        Languages
+      </h2>
+      <div className="pl-2">
+        <LanguageIconList items={languages} />
+      </div>
+    </div>
+  );
+};
+
 export default function About() {
   return (
     <aside className="flex flex-col px-4 sm:flex-row sm:gap-24">
       <Stack />
       <Focus />
+      <Languages />
     </aside>
   );
 }
