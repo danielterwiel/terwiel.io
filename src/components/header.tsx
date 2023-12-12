@@ -11,7 +11,7 @@ export default function Header() {
       <div className="p-4 text-right sm:text-left">
         <div className="flex flex-col justify-between sm:flex-row">
           <h1 className="mb-5">Daniël Terwiel</h1>
-          <div className="absolute left-3 flex flex-col justify-end gap-2 print:items-end print:justify-start print:gap-0 print:pt-0 print:text-right print:text-sm sm:relative sm:flex-row sm:pt-2 print:sm:flex-col">
+          <div className="absolute left-3 flex flex-col justify-end gap-2 print:items-end print:justify-start print:gap-0 print:pt-0 print:text-right print:text-sm sm:relative sm:left-0 sm:flex-row sm:pt-1 print:sm:flex-col">
             <Link
               href="https://www.terwiel.io"
               className="hidden print:block"

@@ -20,9 +20,9 @@ const stack: ListItem[] = [
 const Stack = () => {
   return (
     <div>
-      <h2 id="stack" className="flex gap-4">
-        <Icon.Stack aria-hidden="true" className="h-7 w-7" />
-        Stack
+      <h2 id="stack" className="flex items-center gap-4">
+        <Icon.Stack aria-hidden="true" className="h-6 w-6" />
+        <span>Stack</span>
       </h2>
       <div className="pl-2">
         <IconList items={stack} />
@@ -42,9 +42,9 @@ const focus: ListItem[] = [
 const Focus = () => {
   return (
     <div>
-      <h2 id="stack" className="flex gap-4">
-        <Icon.Focus aria-hidden="true" className="h-7 w-7" />
-        Focus
+      <h2 id="focus" className="flex items-center gap-4">
+        <Icon.Focus aria-hidden="true" className="h-6 w-6" />
+        <span>Focus</span>
       </h2>
       <div className="pl-2">
         <IconList items={focus} />
@@ -63,9 +63,9 @@ const languages: LanguageListItem[] = [
 const Languages = () => {
   return (
     <div>
-      <h2 id="languages" className="flex gap-4">
-        <Icon.Language aria-hidden="true" className="h-7 w-7" />
-        Languages
+      <h2 id="languages" className="flex items-center gap-4">
+        <Icon.Language aria-hidden="true" className="h-6 w-6" />
+        <span>Languages</span>
       </h2>
       <div className="pl-2">
         <LanguageIconList items={languages} />
