@@ -180,11 +180,12 @@ const LanguageListItem = ({
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor
     ? hoverColor
-    : "group-hover:text-slate-400 sm:group-hover:saturate-100";
+    : "sm:group-hover:text-slate-400 sm:group-hover:saturate-100";
   const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
   const iconClass = clsx([
     colorClass,
     hoverClass,
+    "select-none",
     "transition-colors",
     "duration-200",
     "print:text-slate-400/50",
