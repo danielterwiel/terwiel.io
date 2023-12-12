@@ -26,6 +26,7 @@ const ICON_GROUP_HOVER = {
   BrandRedux: "sm:group-hover:text-[#764ABC]",
   BrandRust: "sm:group-hover:text-[#DE4A00]",
   BrandSass: "sm:group-hover:text-[#CC6699]",
+  BrandSpeedtest: "sm:group-hover:text-[#5A52DE]",
   BrandTailwind: "sm:group-hover:text-[#06B6D4]",
   BrandTypescript: "sm:group-hover:text-[#3178C6]",
   BrandVercel: "sm:group-hover:text-[#000000]",
@@ -50,6 +51,7 @@ const ICON_COLORS = {
   BrandRedux: "text-[#764ABC]",
   BrandRust: "text-[#DE4A00]",
   BrandSass: "text-[#CC6699]",
+  BrandSpeedtest: "text-[#5A52DE]",
   BrandTailwind: "text-[#06B6D4]",
   BrandTypescript: "text-[#3178C6]",
   BrandVercel: "text-[#000000]",
@@ -61,7 +63,7 @@ const ICON_COLORS = {
 };
 
 const LINK_CLASSES = {
-  Performance: "hover:decoration-[#5A52DE]",
+  BrandSpeedtest: "hover:decoration-[#5A52DE]",
   BrandReact: "hover:decoration-[#61DAFB]",
   BrandVue: "hover:decoration-[#4FC08D]",
 };
