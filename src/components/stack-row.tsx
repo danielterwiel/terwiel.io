@@ -61,7 +61,11 @@ export function StackRow({ items }: { items: ListItem[] }) {
   return (
     <>
       <dt className="m-0 flex justify-end print:m-0 print:items-start print:justify-end md:items-start">
-        <button className="flex items-start gap-2" onClick={toggle}>
+        <button
+          className="flex items-start gap-2"
+          tabIndex={-1}
+          onClick={toggle}
+        >
           {open ? (
             <Icon.StackPop
               aria-hidden="true"
@@ -82,7 +86,10 @@ export function StackRow({ items }: { items: ListItem[] }) {
       </dt>
       <dd className="m-0 pl-4 md:pl-7">
         <Collapsible.Root open={open}>
-          <Collapsible.Trigger onClick={() => toggle()} className="flex gap-1">
+          <Collapsible.Trigger
+            onClick={() => toggle()}
+            className="flex gap-1 outline-offset-4"
+          >
             {open ? (
               <div
                 className="flex items-center gap-1 pt-1 print:hidden"
