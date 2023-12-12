@@ -392,7 +392,7 @@ const Projects = () => {
 
   return (
     <>
-      <h2>Projects</h2>
+      <h2 id="projects">Projects</h2>
       <div className="flow-root space-y-4">
         <SearchInput />
 
@@ -434,7 +434,7 @@ const conferences: ListItem[] = [
 const Conferences = () => {
   return (
     <>
-      <h2>Conferences</h2>
+      <h2 id="conferences">Conferences</h2>
       <IconList items={conferences} />
     </>
   );

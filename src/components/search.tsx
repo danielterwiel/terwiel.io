@@ -47,7 +47,7 @@ export function SearchInput() {
             placeholder="e.g. Sendcloud, 2022, Rust"
             value={query}
             onChange={handleInputChange}
-            className="w-full rounded-md border px-4 py-2 transition-colors focus:border-klein focus:outline-none"
+            className="w-full rounded-md border px-4 py-2 transition-colors hover:border-klein/50 focus:outline-none focus:ring-2 focus:ring-klein/70"
           />
         </Form.Control>
       </Form.Field>
