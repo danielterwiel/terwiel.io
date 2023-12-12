@@ -97,7 +97,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
   const IconItem = Icon[item.icon as keyof typeof Icon];
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
-  const hoverClass = hoverColor ? hoverColor : "group-hover:text-slate-400";
+  const hoverClass = hoverColor ? hoverColor : "group-hover:text-klein";
   const color = ICON_COLORS[item.icon as keyof typeof ICON_COLORS];
   const colorClass = isLoaded ? "text-slate-400/50" : color;
   const iconClass = clsx([
@@ -180,7 +180,7 @@ const LanguageListItem = ({
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor
     ? hoverColor
-    : "sm:group-hover:text-slate-400 sm:group-hover:saturate-100";
+    : "sm:group-hover:text-klein sm:group-hover:saturate-100";
   const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
   const iconClass = clsx([
     colorClass,
