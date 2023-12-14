@@ -1,12 +1,13 @@
 "use client";
 
-import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 import React from "react";
+import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
+import { useSearchParams } from "next/navigation";
 
-import { SearchContext, SearchInput, SearchSummary } from "./search";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
+import { SearchInput, SearchSummary } from "./search";
 import { StackRow } from "~/components/stack-row";
 
 type StackItem = {
@@ -336,7 +337,8 @@ const PROJECT_HIGHLIGHT_DISSALLOWED = [
 
 const Projects = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
-  const [query] = React.useContext(SearchContext);
+  const searchParams = useSearchParams();
+  const query = searchParams.get("search") ?? "";
 
   React.useEffect(() => {
     const filteredProjects = PROJECTS.filter((project) => {

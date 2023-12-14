@@ -1,7 +1,6 @@
 import "~/styles/globals.css";
 
 import { Inter } from "next/font/google";
-import { SearchProvider } from "~/components/search";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,7 +36,7 @@ export default function RootLayout({
       <body
         className={`a4-page prose font-sans selection:bg-klein selection:text-white print:max-w-full ${inter.variable}`}
       >
-        <SearchProvider>{children}</SearchProvider>
+        {children}
       </body>
     </html>
   );

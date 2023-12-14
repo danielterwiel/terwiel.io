@@ -1,35 +1,24 @@
 "use client";
 
-import { differenceInMonths, formatDuration, parseISO } from "date-fns";
-import * as Form from "@radix-ui/react-form";
 import React from "react";
+import * as Form from "@radix-ui/react-form";
+import { differenceInMonths, formatDuration, parseISO } from "date-fns";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 import { type Project } from "./experience";
 
-export const SearchContext = React.createContext<
-  [string, React.Dispatch<React.SetStateAction<string>> | (() => void)]
->([
-  "",
-  () => {
-    throw new Error("SearchContext not implemented");
-  },
-]);
-
-export const SearchProvider = ({ children }: { children: React.ReactNode }) => {
-  const [query, setQuery] = React.useState("");
-
-  return (
-    <SearchContext.Provider value={[query, setQuery]}>
-      {children}
-    </SearchContext.Provider>
-  );
-};
-
 export function SearchInput() {
-  const [query, setQuery] = React.useContext(SearchContext);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const query = searchParams.get("search") ?? "";
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(event?.target?.value);
+    const value = event?.target?.value;
+    const url = value ? `${pathname}?search=${value}` : pathname;
+    router.replace(url, {
+      scroll: false,
+    });
   };
 
   return (

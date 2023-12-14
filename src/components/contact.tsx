@@ -1,7 +1,8 @@
 "use client";
 
-import { useForm } from "@formspree/react";
 import * as Form from "@radix-ui/react-form";
+import { useForm } from "@formspree/react";
+import { Icon } from "./icon";
 
 export default function Contact() {
   const [state, handleSubmit] = useForm("mgejggnl");
@@ -22,8 +23,13 @@ export default function Contact() {
       >
         <Form.Field className="grid" name="email">
           <div className="flex items-baseline justify-between">
-            <Form.Label htmlFor="input-email">
-              Email <span className="text-sm text-red-600">(required)</span>
+            <Form.Label
+              htmlFor="input-email"
+              className="mb-1 flex items-center gap-1"
+            >
+              <Icon.At aria-hidden="true" className="text-slate-400/50" />
+              Email address{" "}
+              <span className="text-sm text-red-600">(required)</span>
             </Form.Label>
             <Form.Message match="valueMissing">
               <span className="text-red-600">Please enter your email</span>
@@ -45,7 +51,11 @@ export default function Contact() {
         </Form.Field>
         <Form.Field className="grid" name="question">
           <div className="flex items-baseline justify-between">
-            <Form.Label>
+            <Form.Label className="mb-1 flex items-center gap-1">
+              <Icon.QuestionMark
+                aria-hidden="true"
+                className="text-slate-400/50"
+              />
               Question <span className="text-sm text-red-600">(required)</span>
             </Form.Label>
             <Form.Message match="valueMissing">
@@ -54,7 +64,7 @@ export default function Contact() {
           </div>
           <Form.Control asChild>
             <textarea
-              className="rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
+              className="resize-y rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
               placeholder="e.g. let's talk about..."
               required
             />

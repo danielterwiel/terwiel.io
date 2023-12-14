@@ -1,5 +1,6 @@
 import Accessible from "../images/icons/accessible.svg";
 import Assembly from "../images/icons/assembly.svg";
+import At from "../images/icons/at.svg";
 import BrandCss3 from "../images/icons/brand-css3.svg";
 import BrandGithub from "../images/icons/brand-github.svg";
 import BrandGoogle from "../images/icons/brand-google.svg";
@@ -38,6 +39,7 @@ import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
 import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
+import QuestionMark from "../images/icons/question-mark.svg";
 import Rocket from "../images/icons/rocket.svg";
 import Sql from "../images/icons/sql.svg";
 import Stack from "../images/icons/stack.svg";
@@ -51,6 +53,7 @@ import UsersGroup from "../images/icons/users-group.svg";
 const icons = {
   Accessible: Accessible as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Assembly: Assembly as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  At: At as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   BrandCss3: BrandCss3 as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   BrandGithub: BrandGithub as React.ComponentType<
     React.SVGProps<SVGSVGElement>
@@ -127,6 +130,9 @@ const icons = {
   Minus: Minus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   News: News as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Package: Package as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  QuestionMark: QuestionMark as React.ComponentType<
+    React.SVGProps<SVGSVGElement>
+  >,
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
