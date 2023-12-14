@@ -3,22 +3,51 @@
 import React from "react";
 import * as Form from "@radix-ui/react-form";
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import { type Project } from "./experience";
 
-export function SearchInput() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const query = searchParams.get("search") ?? "";
+function debounce<T extends (query: string) => unknown>(
+  func: T,
+  wait: number,
+): (...funcArgs: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event?.target?.value;
-    const url = value ? `${pathname}?search=${value}` : pathname;
+  return function executedFunction(query: string) {
+    const later = () => {
+      timeout = null;
+      func(query);
+    };
+
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(later, wait);
+  };
+}
+
+export function SearchInput() {
+  const searchParams = useSearchParams();
+  const initialQuery = searchParams.get("search") ?? "";
+  const [query, setQuery] = React.useState(initialQuery);
+  const router = useRouter();
+  const pathname = usePathname();
+
+  function setSearchParams(query: string) {
+    const encodedValue = encodeURI(query);
+    const url = encodedValue ? `${pathname}?search=${encodedValue}` : pathname;
     router.replace(url, {
       scroll: false,
     });
+  }
+
+  const debouncedSetSearchParams = debounce(setSearchParams, 250);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event?.target?.value;
+    setQuery(value);
+    debouncedSetSearchParams(value);
   };
 
   return (

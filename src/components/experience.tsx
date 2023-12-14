@@ -338,7 +338,7 @@ const PROJECT_HIGHLIGHT_DISSALLOWED = [
 const Projects = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
   const searchParams = useSearchParams();
-  const query = searchParams.get("search") ?? "";
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
 
   React.useEffect(() => {
     const filteredProjects = PROJECTS.filter((project) => {
