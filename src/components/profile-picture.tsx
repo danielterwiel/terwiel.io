@@ -30,7 +30,7 @@ export const ProfilePicture = () => {
     "md:[clip-path:polygon(0%_0%,100%_0%,75%_100%,0%_100%)]",
     "md:[shape-outside:polygon(0%_0%,100%_0%,75%_100%,0%_100%)]",
     "lg:aspect-[1/2]",
-    "transition-opacity",
+    "motion-safe:transition-opacity",
     "duration-500",
     "hover:saturate-150",
   ];

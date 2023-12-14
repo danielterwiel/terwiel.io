@@ -32,6 +32,7 @@ import HealthRecognition from "../images/icons/health-recognition.svg";
 import HeartHandshake from "../images/icons/heart-handshake.svg";
 import HotelService from "../images/icons/hotel-service.svg";
 import Language from "../images/icons/language.svg";
+import Mail from "../images/icons/mail.svg";
 import MapPin from "../images/icons/map-pin.svg";
 import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
@@ -118,6 +119,7 @@ const icons = {
     React.SVGProps<SVGSVGElement>
   >,
   Language: Language as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Mail: Mail as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   MapPin: MapPin as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   MessageCircleCode: MessageCircleCode as React.ComponentType<
     React.SVGProps<SVGSVGElement>

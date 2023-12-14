@@ -19,7 +19,7 @@ const ICON_COLORS = {
   BrandPhp: "sm:hover:text-[#777BB4]",
   BrandReact: "sm:hover:text-[#61DAFB]",
   BrandRedux: "sm:hover:text-[#764ABC]",
-  BrandRust: "sm:hover:text-[#DE4A00]",
+  BrandRust: "sm:hover:text-[#E36F39]",
   BrandSass: "sm:hover:text-[#CC6699]",
   BrandSpeedtest: "sm:hover:text-[#5A52DE]",
   BrandTailwind: "sm:hover:text-[#06B6D4]",

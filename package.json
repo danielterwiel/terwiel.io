@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@formspree/react": "^2.5.1",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-form": "^0.0.3",
     "@t3-oss/env-nextjs": "^0.7.0",

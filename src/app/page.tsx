@@ -1,6 +1,11 @@
+// "use client";
+
+// import React from "react";
+
 import Header from "~/components/header";
 import About from "~/components/about";
 import Experience from "~/components/experience";
+import Contact from "~/components/contact";
 import Footer from "~/components/footer";
 
 export default function HomePage() {
@@ -14,6 +19,7 @@ export default function HomePage() {
         <Experience />
       </div>
       <div className="px-4">
+        <Contact />
         <Footer />
       </div>
     </main>

@@ -84,7 +84,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
-      "At M&I, I was responsible for the maintenance and enhancement of a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
+      "At M&I my main task was to maintain and enhance a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
     stack: [
       { name: "React", icon: "BrandReact" },
       { name: "Redux", icon: "BrandRedux" },
@@ -242,17 +242,17 @@ const Project = ({
         />
       ) : null}
       <div className="flex space-x-3">
-        <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 space-x-3 md:gap-4">
+        <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 md:gap-4">
           <div className="h-12 w-12 text-slate-600/80">
             <Ring>
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
           <h3
-            className="mt-2.5 pl-2 text-lg"
+            className="mt-2.5 pl-6 text-lg"
             dangerouslySetInnerHTML={{ __html: project.company }}
           ></h3>
-          <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between space-x-4 md:pl-10">
+          <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
@@ -309,7 +309,10 @@ const Project = ({
                 ></dd>
                 <StackRow items={project.stack} />
               </dl>
-              <p dangerouslySetInnerHTML={{ __html: project.description }}></p>
+              <p
+                className="md:pl-10"
+                dangerouslySetInnerHTML={{ __html: project.description }}
+              ></p>
             </div>
           </div>
           <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
@@ -353,14 +356,10 @@ const Projects = () => {
       const { stack, ...rest } = project;
       const stackMatches = stack.map((item) => {
         const name = item.name.replace(new RegExp(query, "gi"), (match) => {
-          if (
-            query &&
+          return query &&
             match.toString().toLowerCase().includes(query.toLowerCase())
-          ) {
-            return `<mark>${match}</mark>`;
-          } else {
-            return match;
-          }
+            ? `<mark>${match}</mark>`
+            : match;
         });
         return { ...item, name };
       });
