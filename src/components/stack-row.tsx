@@ -21,14 +21,17 @@ const ICON_COLORS = {
   BrandRedux: "sm:hover:text-[#764ABC]",
   BrandRust: "sm:hover:text-[#DE4A00]",
   BrandSass: "sm:hover:text-[#CC6699]",
+  BrandSpeedtest: "sm:hover:text-[#5A52DE]",
   BrandTailwind: "sm:hover:text-[#06B6D4]",
   BrandTypescript: "sm:hover:text-[#3178C6]",
   BrandVercel: "sm:hover:text-[#000000]",
   BrandVite: "sm:hover:text-[#646CFF]",
   BrandVue: "sm:hover:text-[#4FC08D]",
   Components: "sm:hover:text-[#384EF6]",
+  FileTypeDoc: "sm:hover:text-[#2F6DB5]",
   Sql: "sm:hover:text-[#F29111]",
   Svg: "sm:hover:text-[#FFB13B]",
+  TestPipe: "sm:hover:text-[#83664B]",
 };
 
 export function StackRow({ items }: { items: ListItem[] }) {

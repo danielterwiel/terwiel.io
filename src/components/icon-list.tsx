@@ -33,8 +33,10 @@ const ICON_GROUP_HOVER = {
   BrandVite: "sm:group-hover:text-[#646CFF]",
   BrandVue: "sm:group-hover:text-[#4FC08D]",
   Components: "sm:group-hover:text-[#384EF6]",
+  FileTypeDoc: "sm:group-hover:text-[#2F6DB5]",
   Sql: "sm:group-hover:text-[#F29111]",
   Svg: "sm:group-hover:text-[#FFB13B]",
+  TestPipe: "sm:group-hover:text-[#83664B]",
 };
 
 const ICON_COLORS = {
@@ -58,8 +60,10 @@ const ICON_COLORS = {
   BrandVite: "text-[#646CFF]",
   BrandVue: "text-[#4FC08D]",
   Components: "text-[#384EF6]",
+  FileTypeDoc: "text-[#2F6DB5]",
   Sql: "text-[#F29111]",
   Svg: "text-[#FFB13B]",
+  TestPipe: "text-[#83664B]",
 };
 
 const LINK_CLASSES = {
@@ -84,12 +88,7 @@ const LIST_ITEM_SLIDE_ANIMATION = [
 const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   React.useEffect(() => {
-    const timer = window.setTimeout(
-      () => {
-        setIsLoaded(true);
-      },
-      50 + index * 75,
-    );
+    const timer = window.setTimeout(() => setIsLoaded(true), 50 + index * 75);
 
     return () => {
       window.clearTimeout(timer);
@@ -166,12 +165,7 @@ const LanguageListItem = ({
 }) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   React.useEffect(() => {
-    const timer = window.setTimeout(
-      () => {
-        setIsLoaded(true);
-      },
-      50 + index * 75,
-    );
+    const timer = window.setTimeout(() => setIsLoaded(true), 50 + index * 75);
 
     return () => {
       window.clearTimeout(timer);
