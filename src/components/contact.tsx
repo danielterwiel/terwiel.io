@@ -37,6 +37,7 @@ export default function Contact() {
               type="email"
               id="input-email"
               autoComplete="email"
+              placeholder="e.g. yourname@domain.com"
               className="rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
               required
             />
@@ -54,6 +55,7 @@ export default function Contact() {
           <Form.Control asChild>
             <textarea
               className="rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
+              placeholder="e.g. let's talk about..."
               required
             />
           </Form.Control>

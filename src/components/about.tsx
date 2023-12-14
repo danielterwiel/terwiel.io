@@ -76,7 +76,7 @@ const Languages = () => {
 
 export default function About() {
   return (
-    <aside className="flex flex-col px-4 sm:flex-row sm:gap-24">
+    <aside className="grid px-4 sm:grid-flow-col">
       <Stack />
       <Focus />
       <Languages />
