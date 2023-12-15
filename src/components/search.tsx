@@ -34,6 +34,10 @@ export function SearchInput() {
   const router = useRouter();
   const pathname = usePathname();
 
+  React.useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
   function setSearchParams(query: string) {
     const encodedValue = encodeURI(query);
     const url = encodedValue ? `${pathname}?search=${encodedValue}` : pathname;
