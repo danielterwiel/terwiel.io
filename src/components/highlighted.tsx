@@ -1,17 +1,19 @@
-export const Highlighted = ({
-  text,
+import React from "react";
+
+export const HighlightedText = ({
+  children,
   query,
 }: {
-  text: string;
+  children: string;
   query: string;
 }) => {
   const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
-    return <>{text}</>;
+    return <>{children}</>;
   }
 
-  const parts = text.split(new RegExp(`(${escapedQuery})`, "gi"));
+  const parts = children.split(new RegExp(`(${escapedQuery})`, "gi"));
 
   return (
     <>
@@ -24,4 +26,26 @@ export const Highlighted = ({
       )}
     </>
   );
+};
+
+export const HighlightedIcon = ({
+  children,
+  query,
+  meta,
+}: {
+  children: React.ReactNode;
+  query: string;
+  meta: string;
+}) => {
+  const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+  if (query === "") {
+    return <span>{children}</span>;
+  }
+
+  if (meta.toLowerCase().includes(escapedQuery.toLowerCase())) {
+    return <mark>{children}</mark>;
+  } else {
+    return <span>{children}</span>;
+  }
 };

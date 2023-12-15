@@ -6,6 +6,8 @@ import { clsx } from "clsx";
 import * as Collapsible from "~/components/collapsible";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
+import { useSearchParams } from "next/navigation";
+import { HighlightedIcon } from "./highlighted";
 
 const ICON_COLORS = {
   Assembly: "sm:hover:text-[#624FE8]",
@@ -41,6 +43,9 @@ export function StackRow({ items }: { items: ListItem[] }) {
   const icons = items.filter(
     (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
   );
+
+  const searchParams = useSearchParams();
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
 
   React.useEffect(() => {
     const openStack = () => {
@@ -124,7 +129,9 @@ export function StackRow({ items }: { items: ListItem[] }) {
                   ]);
                   return (
                     <div className={iconClass} key={item.name}>
-                      <IconStack aria-hidden="true" width={24} height={24} />
+                      <HighlightedIcon query={query} meta={item.name}>
+                        <IconStack aria-hidden="true" width={24} height={24} />
+                      </HighlightedIcon>
                     </div>
                   );
                 })}

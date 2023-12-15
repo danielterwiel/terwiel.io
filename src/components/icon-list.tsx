@@ -5,7 +5,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
-import { Highlighted } from "./highlighted";
+import { HighlightedText } from "./highlighted";
 import { useSearchParams } from "next/navigation";
 
 export type ListItem = {
@@ -168,7 +168,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
           </Link>
         ) : (
           <span>
-            <Highlighted text={item.name} query={query} />
+            <HighlightedText query={query}>{item.name}</HighlightedText>
           </span>
         )}
       </div>
@@ -235,7 +235,7 @@ const LanguageListItem = ({
           {item.icon}
         </span>
         <span>
-          <Highlighted text={item.name} query={query} />
+          <HighlightedText query={query}>{item.name}</HighlightedText>
         </span>
         <span className="text-sm text-slate-800/70">({item.level})</span>
       </div>

@@ -4,7 +4,7 @@ import React from "react";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
-import { Highlighted } from "~/components/highlighted";
+import { Highlighted, HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
@@ -36,7 +36,7 @@ const PROJECTS: Project[] = [
     company: "Departure Labs",
     role: "Full-stack Developer & Designer",
     teamSize: 5,
-    industry: "Developer tools",
+    industry: "Finance & Developer tools",
     location: "Boston/Remote",
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
@@ -254,7 +254,7 @@ const Project = ({
             </Ring>
           </div>
           <h3 className="mt-2.5 pl-6 text-lg">
-            <Highlighted text={project.company} query={query} />
+            <HighlightedText query={query}>{project.company}</HighlightedText>
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
@@ -266,7 +266,9 @@ const Project = ({
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <Highlighted text={project.role} query={query} />
+                  <HighlightedText query={query}>
+                    {project.role}
+                  </HighlightedText>
                 </dd>
 
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
@@ -282,10 +284,9 @@ const Project = ({
                 <dd className="m-0 pl-4 md:pl-7">
                   ~
                   <span className="mr-2">
-                    <Highlighted
-                      text={project.teamSize.toString()}
-                      query={query}
-                    />
+                    <HighlightedText query={query}>
+                      {project.teamSize.toString()}
+                    </HighlightedText>
                   </span>
                   developers
                 </dd>
@@ -300,7 +301,9 @@ const Project = ({
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <Highlighted text={project.industry} query={query} />
+                  <HighlightedText query={query}>
+                    {project.industry}
+                  </HighlightedText>
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
@@ -309,12 +312,16 @@ const Project = ({
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <Highlighted text={project.location} query={query} />
+                  <HighlightedText query={query}>
+                    {project.location}
+                  </HighlightedText>
                 </dd>
                 <StackRow items={project.stack} />
               </dl>
               <p className="md:pl-10">
-                <Highlighted text={project.description} query={query} />
+                <HighlightedText query={query}>
+                  {project.description}
+                </HighlightedText>
               </p>
             </div>
           </div>
