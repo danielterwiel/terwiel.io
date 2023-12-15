@@ -16,7 +16,7 @@ export const Highlighted = ({
   return (
     <>
       {parts.map((part, index) =>
-        query !== "" && part.toLowerCase() === query.toLowerCase() ? (
+        part.toLowerCase() === query.toLowerCase() ? (
           <mark key={index}>{part}</mark>
         ) : (
           <span key={index}>{part}</span>

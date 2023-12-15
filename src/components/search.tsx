@@ -34,8 +34,15 @@ export function SearchInput() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
-    setQuery(initialQuery);
+    if (!inputRef.current) {
+      return;
+    }
+
+    if (document.activeElement !== inputRef.current) {
+      setQuery(initialQuery);
+    }
   }, [initialQuery]);
 
   function setSearchParams(query: string) {
@@ -65,6 +72,7 @@ export function SearchInput() {
         </div>
         <Form.Control asChild>
           <input
+            ref={inputRef}
             type="input"
             placeholder="e.g. Sendcloud, 2022, Rust"
             value={query}
