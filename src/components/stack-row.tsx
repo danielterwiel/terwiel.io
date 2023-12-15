@@ -87,7 +87,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           <span className="font-normal text-slate-500">Stack</span>
         </button>
       </dt>
-      <dd className="m-0 pl-4 md:pl-7">
+      <dd className="m-0 overflow-x-hidden pl-4 md:pl-7">
         <Collapsible.Root open={open}>
           <Collapsible.Trigger
             onClick={() => toggle()}
