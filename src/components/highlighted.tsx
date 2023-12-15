@@ -6,6 +6,11 @@ export const Highlighted = ({
   query: string;
 }) => {
   const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+
+  if (query === "") {
+    return <>{text}</>;
+  }
+
   const parts = text.split(new RegExp(`(${escapedQuery})`, "gi"));
 
   return (
