@@ -67,9 +67,30 @@ const ICON_COLORS = {
 };
 
 const LINK_CLASSES = {
-  BrandSpeedtest: "hover:decoration-[#5A52DE]",
+  Assembly: "hover:decoration-[#624FE8]",
+  BrandCss3: "hover:decoration-[#1572B6]",
+  BrandGithub: "hover:decoration-[#181717]",
+  BrandGoogle: "hover:decoration-[#4285F4]",
+  BrandGraphql: "hover:decoration-[#E10098]",
+  BrandHtml5: "hover:decoration-[#E34F26]",
+  BrandJavascript: "hover:decoration-[#F7DF1E]",
+  BrandLinkedin: "hover:decoration-[#0A66C2]",
+  BrandPhp: "hover:decoration-[#777BB4]",
   BrandReact: "hover:decoration-[#61DAFB]",
+  BrandRedux: "hover:decoration-[#764ABC]",
+  BrandRust: "hover:decoration-[#E36F39]",
+  BrandSass: "hover:decoration-[#CC6699]",
+  BrandSpeedtest: "hover:decoration-[#5A52DE]",
+  BrandTailwind: "hover:decoration-[#06B6D4]",
+  BrandTypescript: "hover:decoration-[#3178C6]",
+  BrandVercel: "hover:decoration-[#000000]",
+  BrandVite: "hover:decoration-[#646CFF]",
   BrandVue: "hover:decoration-[#4FC08D]",
+  Components: "hover:decoration-[#384EF6]",
+  FileTypeDoc: "hover:decoration-[#2F6DB5]",
+  Sql: "hover:decoration-[#F29111]",
+  Svg: "hover:decoration-[#FFB13B]",
+  TestPipe: "hover:decoration-[#83664B]",
 };
 
 const LIST_ITEM_SLIDE_ANIMATION = [
