@@ -13,7 +13,7 @@ export default function ContactButton() {
   };
 
   return (
-    <button onClick={scrollToContactForm} className="group print:hidden">
+    <button onClick={scrollToContactForm} className="group">
       <Icon.Mail
         aria-hidden="true"
         className="text-white opacity-60 hover:opacity-100 group-focus:opacity-100 sm:text-slate-800"

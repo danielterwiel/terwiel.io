@@ -11,24 +11,24 @@ export default function Header() {
       <div className="p-4 text-right sm:text-left">
         <div className="flex flex-col justify-between sm:flex-row">
           <h1 className="mb-5">Daniël Terwiel</h1>
-          <div className="md:jutify-end absolute left-3 flex flex-col gap-2 pt-1 print:relative print:items-end print:text-right print:text-xs md:relative md:flex-row md:items-start">
+          <div className="md:jutify-end absolute left-3 flex flex-col gap-2 pt-1 print:relative print:hidden print:items-end print:text-right print:text-xs md:relative md:flex-row md:items-start">
             <ContactButton />
 
             <Link
               className="group print:flex"
-              href="https://www.linkedin.com/in/terwiel/"
+              href="https://www.linkedin.com/in/terwiel"
               aria-label="View my LinkedIn profile"
             >
               <Icon.BrandLinkedin
                 aria-hidden="true"
-                className="text-white opacity-60 hover:opacity-100 group-focus:opacity-100 print:hidden sm:text-slate-800"
+                className="text-white opacity-60 hover:opacity-100 group-focus:opacity-100 sm:text-slate-800"
               />
               <span aria-hidden="true" className="hidden print:block">
                 https://www.
               </span>
               <span className="hidden print:block">linkedin</span>
               <span aria-hidden="true" className="hidden print:block">
-                .com/in/terwiel/
+                .com/in/terwiel
               </span>
             </Link>
             <Link
@@ -38,7 +38,7 @@ export default function Header() {
             >
               <Icon.BrandGithub
                 aria-hidden="true"
-                className="text-white opacity-60 hover:opacity-100 group-focus:opacity-100 print:hidden sm:text-slate-800"
+                className="text-white opacity-60 hover:opacity-100 group-focus:opacity-100 sm:text-slate-800"
               />
 
               <span aria-hidden="true" className="hidden print:block">
@@ -46,7 +46,7 @@ export default function Header() {
               </span>
               <span className="hidden print:block">github</span>
               <span aria-hidden="true" className="hidden print:block">
-                .com/danielterwiel/
+                .com/danielterwiel
               </span>
             </Link>
 
