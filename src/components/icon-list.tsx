@@ -167,7 +167,9 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
             {item.name}
           </Link>
         ) : (
-          <Highlighted text={item.name} query={query} />
+          <span>
+            <Highlighted text={item.name} query={query} />
+          </span>
         )}
       </div>
     </li>
