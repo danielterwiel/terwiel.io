@@ -5,7 +5,7 @@ import { Icon } from "./icon";
 export default function Footer() {
   return (
     <footer>
-      <dl className="md:grid md:grid-flow-col md:grid-cols-3 md:grid-rows-2">
+      <dl className="grid grid-flow-row md:grid-flow-col md:grid-rows-2">
         <dt className="flex items-center gap-1">
           <span className="text-slate-500/50">
             <Icon.User width={24} height={24} aria-hidden="true" />
@@ -17,7 +17,9 @@ export default function Footer() {
           <span className="text-slate-500/50">
             <Icon.HomeDollar width={24} height={24} aria-hidden="true" />
           </span>
-          <span className="text-slate-500">Chamber of Commerce</span>
+          <span className="whitespace-nowrap text-slate-500">
+            Chamber of Commerce
+          </span>
         </dt>
         <dd className="pl-7">77988035</dd>
         <dt className="flex items-center gap-1">
