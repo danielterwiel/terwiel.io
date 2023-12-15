@@ -4,6 +4,7 @@ import React from "react";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
+import { Highlighted } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
@@ -214,10 +215,12 @@ const PROJECTS: Project[] = [
 const Project = ({
   project,
   projectIdx,
+  query,
   totalLength,
 }: {
   project: Project;
   projectIdx: number;
+  query: string;
   totalLength: number;
 }) => {
   const dateFrom = parseISO(project.dateFrom);
@@ -252,10 +255,9 @@ const Project = ({
               <IconProject width={24} height={24} aria-hidden="true" />
             </Ring>
           </div>
-          <h3
-            className="mt-2.5 pl-6 text-lg"
-            dangerouslySetInnerHTML={{ __html: project.company }}
-          ></h3>
+          <h3 className="mt-2.5 pl-6 text-lg">
+            <Highlighted text={project.company} query={query} />
+          </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
@@ -265,10 +267,10 @@ const Project = ({
                   </span>
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
-                <dd
-                  className="m-0 pl-4 md:pl-7"
-                  dangerouslySetInnerHTML={{ __html: project.role }}
-                ></dd>
+                <dd className="m-0 pl-4 md:pl-7">
+                  <Highlighted text={project.role} query={query} />
+                </dd>
+
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className=" text-slate-500/50">
                     <Icon.UsersGroup
@@ -281,10 +283,12 @@ const Project = ({
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   ~
-                  <span
-                    className="mr-2"
-                    dangerouslySetInnerHTML={{ __html: project.teamSize }}
-                  ></span>
+                  <span className="mr-2">
+                    <Highlighted
+                      text={project.teamSize.toString()}
+                      query={query}
+                    />
+                  </span>
                   developers
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
@@ -297,26 +301,23 @@ const Project = ({
                   </span>
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
-                <dd
-                  className="m-0 pl-4 md:pl-7"
-                  dangerouslySetInnerHTML={{ __html: project.industry }}
-                ></dd>
+                <dd className="m-0 pl-4 md:pl-7">
+                  <Highlighted text={project.industry} query={query} />
+                </dd>
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
                     <Icon.MapPin width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
-                <dd
-                  className="m-0 pl-4 md:pl-7"
-                  dangerouslySetInnerHTML={{ __html: project.location }}
-                ></dd>
+                <dd className="m-0 pl-4 md:pl-7">
+                  <Highlighted text={project.location} query={query} />
+                </dd>
                 <StackRow items={project.stack} />
               </dl>
-              <p
-                className="md:pl-10"
-                dangerouslySetInnerHTML={{ __html: project.description }}
-              ></p>
+              <p className="md:pl-10">
+                <Highlighted text={project.description} query={query} />
+              </p>
             </div>
           </div>
           <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
@@ -330,13 +331,21 @@ const Project = ({
 };
 
 const PROJECT_KEY_DISALLOWED = ["stack"];
-const PROJECT_HIGHLIGHT_DISSALLOWED = [
-  "stack",
-  "id",
-  "icon",
-  "dateFrom",
-  "dateTo",
-];
+
+function filterProjects(projects: Project[], query: string) {
+  return projects.filter((project) => {
+    const { stack, ...rest } = project;
+    const stackMatches = stack.filter((item) =>
+      item.name.toLowerCase().includes(query.toLowerCase()),
+    );
+    const restMatches = Object.entries(rest).filter(
+      ([key, value]) =>
+        value.toString().toLowerCase().includes(query.toLowerCase()) &&
+        !PROJECT_KEY_DISALLOWED.includes(key),
+    );
+    return stackMatches.length > 0 || restMatches.length > 0;
+  });
+}
 
 const Projects = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
@@ -344,56 +353,9 @@ const Projects = () => {
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
   React.useEffect(() => {
-    const filteredProjects = PROJECTS.filter((project) => {
-      const { stack, ...rest } = project;
-      const stackMatches = stack.filter((item) =>
-        item.name.toLowerCase().includes(query.toLowerCase()),
-      );
-      const restMatches = Object.entries(rest).filter(
-        ([key, value]) =>
-          value.toString().toLowerCase().includes(query.toLowerCase()) &&
-          !PROJECT_KEY_DISALLOWED.includes(key),
-      );
-      return stackMatches.length > 0 || restMatches.length > 0;
-    });
+    const filteredProjects = filterProjects(PROJECTS, query);
 
-    const markedProjects = filteredProjects.map((project) => {
-      const { stack, ...rest } = project;
-      const stackMatches = stack.map((item) => {
-        const name = item.name.replace(new RegExp(query, "gi"), (match) => {
-          return query &&
-            match.toString().toLowerCase().includes(query.toLowerCase())
-            ? `<mark>${match}</mark>`
-            : match;
-        });
-        return { ...item, name };
-      });
-
-      const restMatches = Object.entries(rest).map(([key, value]) => {
-        if (
-          query &&
-          value.toString().toLowerCase().includes(query.toLowerCase()) &&
-          !PROJECT_HIGHLIGHT_DISSALLOWED.includes(key)
-        ) {
-          const name = value
-            .toString()
-            .replace(
-              new RegExp(query, "gi"),
-              (match) => `<mark>${match}</mark>`,
-            );
-          return [key, name];
-        }
-        return [key, value];
-      });
-
-      return {
-        ...project,
-        stack: stackMatches,
-        ...(Object.fromEntries(restMatches) as Omit<Project, "stack">),
-      };
-    });
-
-    setFiltered(markedProjects);
+    setFiltered(filteredProjects);
   }, [query]);
 
   return (
@@ -411,6 +373,7 @@ const Projects = () => {
               project={project}
               projectIdx={projectIdx}
               totalLength={PROJECTS.length}
+              query={query}
             />
           ))}
         </ol>

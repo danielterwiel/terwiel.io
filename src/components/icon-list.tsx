@@ -5,6 +5,8 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
+import { Highlighted } from "./highlighted";
+import { useSearchParams } from "next/navigation";
 
 export type ListItem = {
   name: string;
@@ -118,6 +120,9 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
     };
   });
 
+  const searchParams = useSearchParams();
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
+
   const IconItem = Icon[item.icon as keyof typeof Icon];
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
@@ -162,7 +167,7 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
             {item.name}
           </Link>
         ) : (
-          <span dangerouslySetInnerHTML={{ __html: item.name }}></span>
+          <Highlighted text={item.name} query={query} />
         )}
       </div>
     </li>
@@ -195,6 +200,9 @@ const LanguageListItem = ({
     };
   });
 
+  const searchParams = useSearchParams();
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
+
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor
@@ -224,7 +232,9 @@ const LanguageListItem = ({
         <span className={iconClass} aria-hidden="true">
           {item.icon}
         </span>
-        <span dangerouslySetInnerHTML={{ __html: item.name }}></span>
+        <span>
+          <Highlighted text={item.name} query={query} />
+        </span>
         <span className="text-sm text-slate-800/70">({item.level})</span>
       </div>
     </li>

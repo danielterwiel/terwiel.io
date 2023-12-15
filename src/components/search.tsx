@@ -29,7 +29,7 @@ function debounce<T extends (query: string) => unknown>(
 
 export function SearchInput() {
   const searchParams = useSearchParams();
-  const initialQuery = searchParams.get("search") ?? "";
+  const initialQuery = decodeURI(searchParams.get("search") ?? "").trim();
   const [query, setQuery] = React.useState(initialQuery);
   const router = useRouter();
   const pathname = usePathname();
