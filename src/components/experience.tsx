@@ -4,7 +4,7 @@ import React from "react";
 import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
-import { Highlighted, HighlightedText } from "~/components/highlighted";
+import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
