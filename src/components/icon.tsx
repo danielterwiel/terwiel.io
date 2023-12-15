@@ -27,10 +27,12 @@ import BuildingWarehouse from "../images/icons/building-warehouse.svg";
 import Bulb from "../images/icons/bulb.svg";
 import Components from "../images/icons/components.svg";
 import Focus from "../images/icons/focus.svg";
+import FileCv from "../images/icons/file-cv.svg";
 import FileTypeDoc from "../images/icons/file-type-doc.svg";
 import Geometry from "../images/icons/geometry.svg";
 import HealthRecognition from "../images/icons/health-recognition.svg";
 import HeartHandshake from "../images/icons/heart-handshake.svg";
+import HomeDollar from "../images/icons/home-dollar.svg";
 import HotelService from "../images/icons/hotel-service.svg";
 import Language from "../images/icons/language.svg";
 import Mail from "../images/icons/mail.svg";
@@ -40,6 +42,7 @@ import Minus from "../images/icons/minus.svg";
 import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
+import ReceiptTax from "../images/icons/receipt-tax.svg";
 import Rocket from "../images/icons/rocket.svg";
 import Sql from "../images/icons/sql.svg";
 import Stack from "../images/icons/stack.svg";
@@ -108,6 +111,7 @@ const icons = {
   Bulb: Bulb as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Components: Components as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Focus: Focus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  FileCv: FileCv as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Geometry: Geometry as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   FileTypeDoc: FileTypeDoc as React.ComponentType<
     React.SVGProps<SVGSVGElement>
@@ -118,6 +122,7 @@ const icons = {
   HeartHandshake: HeartHandshake as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
+  HomeDollar: HomeDollar as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   HotelService: HotelService as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
@@ -133,6 +138,7 @@ const icons = {
   QuestionMark: QuestionMark as React.ComponentType<
     React.SVGProps<SVGSVGElement>
   >,
+  ReceiptTax: ReceiptTax as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,

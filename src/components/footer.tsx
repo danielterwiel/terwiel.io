@@ -13,6 +13,7 @@ export default function Footer() {
           <span className="text-slate-500">Name</span>
         </dt>
         <dd className="pl-7">Daniël Terwiel</dd>
+
         <dt className="flex items-center gap-1">
           <span className="text-slate-500/50">
             <Icon.HomeDollar width={24} height={24} aria-hidden="true" />
@@ -22,6 +23,7 @@ export default function Footer() {
           </span>
         </dt>
         <dd className="pl-7">77988035</dd>
+
         <dt className="flex items-center gap-1">
           <span className="text-slate-500/50">
             <Icon.ReceiptTax width={24} height={24} aria-hidden="true" />
