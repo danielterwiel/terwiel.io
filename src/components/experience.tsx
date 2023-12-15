@@ -59,7 +59,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_1",
     company: "ING",
-    role: "Senior Front End Developer",
+    role: "Senior Front-end Developer",
     teamSize: 200,
     industry: "Finance",
     location: "Amsterdam",
@@ -80,7 +80,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_2",
     company: "M&I",
-    role: "Senior Front End Developer",
+    role: "Senior Front-end Developer",
     teamSize: 4,
     industry: "Media & Publishing",
     location: "Hilversum",
@@ -104,7 +104,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_3",
     company: "Sendcloud",
-    role: "Senior Front End Developer",
+    role: "Senior Front-end Developer",
     teamSize: 40,
     industry: "Logistics",
     location: "Eindhoven",
@@ -126,7 +126,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_4",
     company: "Iperion",
-    role: "Front End Developer",
+    role: "Front-end Developer",
     teamSize: 5,
     industry: "Life Sciences",
     location: "Vlijmen",
@@ -151,7 +151,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_5",
     company: "Amadeus",
-    role: "Front End Developer",
+    role: "Front-end Developer",
     teamSize: 30,
     industry: "Hospitality",
     location: "Breda",
@@ -170,7 +170,7 @@ const PROJECTS: Project[] = [
   {
     id: "PROJECT_6",
     company: "Dinto",
-    role: "Front End Developer",
+    role: "Front-end Developer",
     teamSize: 6,
     industry: "Logistics",
     location: "Breda",
