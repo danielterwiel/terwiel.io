@@ -14,6 +14,7 @@ import { StackRow } from "~/components/stack-row";
 type StackItem = {
   name: string;
   icon: string;
+  url: string;
 };
 
 export type Project = {
@@ -43,16 +44,28 @@ const PROJECTS: Project[] = [
     description:
       "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI and setting up the release and publishing flow using Rust. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
     stack: [
-      { name: "Rust", icon: "BrandRust" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "TypeScript", icon: "BrandTypescript" },
-      { name: "Vue", icon: "BrandVue" },
-      { name: "React", icon: "BrandReact" },
-      { name: "Next.js", icon: "BrandVercel" },
-      { name: "Tailwind", icon: "BrandTailwind" },
-      { name: "Vite", icon: "BrandVite" },
-      { name: "Vitest", icon: "BrandVite" },
-      { name: "HTML", icon: "BrandHtml5" },
+      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "TypeScript",
+        icon: "BrandTypescript",
+        url: "/?search=TypeScript#projects",
+      },
+      { name: "Vue", icon: "BrandVue", url: "/?search=Vue#projects" },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      { name: "Next.js", icon: "BrandVercel", url: "/?search=Next#projects" },
+      {
+        name: "Tailwind",
+        icon: "BrandTailwind",
+        url: "/?search=Tailwind#projects",
+      },
+      { name: "Vite", icon: "BrandVite", url: "/?search=Vite#projects" },
+      { name: "Vitest", icon: "BrandVite", url: "/?search=Vitest#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "Rocket",
   },
@@ -68,12 +81,16 @@ const PROJECTS: Project[] = [
     description:
       "At ING's Touchpoint department, I was instrumental in developing and maintaining a multi-component, plug-and-play platform, used across various ING branches worldwide. My focus was on enhancing user authentication processes and building utility libraries to streamline user experiences. I employed advanced JavaScript, JSDoc, Lit, CSS, and HTML to deliver high-quality, scalable, and secure front-end solutions. My work contributed to standardizing the user experience across ING's global network. Furthermore I was responsible for the creation of a bootstrapping tool to spin up new projects that adhere to the ING infrastructure.",
     stack: [
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "Lit", icon: "Components" },
-      { name: "JSDoc", icon: "FileTypeDoc" },
-      { name: "Mocha", icon: "TestPipe" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "Lit", icon: "Components", url: "/?search=Lit#projects" },
+      { name: "JSDoc", icon: "FileTypeDoc", url: "/?search=JSDoc#projects" },
+      { name: "Mocha", icon: "TestPipe", url: "/?search=Mocha#projects" },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "BuildingBank",
   },
@@ -89,15 +106,31 @@ const PROJECTS: Project[] = [
     description:
       "At M&I my main task was to maintain and enhance a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
     stack: [
-      { name: "React", icon: "BrandReact" },
-      { name: "Redux", icon: "BrandRedux" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "Webpack", icon: "BrandJavascript" },
-      { name: "Jest", icon: "BrandJavascript" },
-      { name: "Puppeteer", icon: "BrandJavascript" },
-      { name: "Tailwind", icon: "BrandTailwind" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      { name: "Redux", icon: "BrandRedux", url: "/?search=Redux#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "Webpack",
+        icon: "BrandJavascript",
+        url: "/?search=Webpack#projects",
+      },
+      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
+      {
+        name: "Puppeteer",
+        icon: "BrandJavascript",
+        url: "/?search=Puppeteer#projects",
+      },
+      {
+        name: "Tailwind",
+        icon: "BrandTailwind",
+        url: "/?search=Tailwind#projects",
+      },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "News",
   },
@@ -113,13 +146,21 @@ const PROJECTS: Project[] = [
     description:
       "At one of the fastest-growing scale-ups in the Netherlands, I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
     stack: [
-      { name: "Vue", icon: "BrandVue" },
-      { name: "Preact", icon: "BrandReact" },
-      { name: "Webpack", icon: "BrandJavascript" },
-      { name: "Jest", icon: "BrandJavascript" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
+      { name: "Vue", icon: "BrandVue", url: "/?search=Vue#projects" },
+      { name: "Preact", icon: "BrandReact", url: "/?search=Preact#projects" },
+      {
+        name: "Webpack",
+        icon: "BrandJavascript",
+        url: "/?search=Webpack#projects",
+      },
+      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "Package",
   },
@@ -135,16 +176,36 @@ const PROJECTS: Project[] = [
     description:
       "At Iperion, my role was centered around designing and developing the GxP Cloud, a greenfield application for the life sciences industry. I utilized React, Redux, Redux-saga, and Material UI among other technologies to create a user-friendly, scalable, and compliant application. My work involved deep collaboration with cross-functional teams to understand and implement industry-specific requirements, ensuring that the application met stringent regulatory standards while offering an intuitive user experience.",
     stack: [
-      { name: "React", icon: "BrandReact" },
-      { name: "Redux", icon: "BrandRedux" },
-      { name: "Redux-saga", icon: "BrandRedux" },
-      { name: "FlowType", icon: "BrandJavascript" },
-      { name: "Jest", icon: "BrandJavascript" },
-      { name: "Webpack", icon: "BrandJavascript" },
-      { name: "Material UI", icon: "BrandGoogle" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "SCSS", icon: "BrandSass" },
-      { name: "HTML", icon: "BrandHtml5" },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      { name: "Redux", icon: "BrandRedux", url: "/?search=Redux#projects" },
+      {
+        name: "Redux-saga",
+        icon: "BrandRedux",
+        url: "/?search=Redux#projects",
+      },
+      {
+        name: "FlowType",
+        icon: "BrandJavascript",
+        url: "/?search=FlowType#projects",
+      },
+      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
+      {
+        name: "Webpack",
+        icon: "BrandJavascript",
+        url: "/?search=Webpack#projects",
+      },
+      {
+        name: "Material UI",
+        icon: "BrandGoogle",
+        url: "/?search=Material#projects",
+      },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "SCSS", icon: "BrandSass", url: "/?search=SCSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "HealthRecognition",
   },
@@ -160,10 +221,18 @@ const PROJECTS: Project[] = [
     description:
       "At Amadeus, I contributed to the development of ELS, a single-page application designed for the hospitality industry. My role primarily involved utilizing Knockout.js, JavaScript, CSS, and HTML to enhance the application's user interface and performance. This work included addressing various technical challenges and ensuring that the application met the needs of its users in the hospitality sector.",
     stack: [
-      { name: "Knockout.js", icon: "BrandJavascript" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
+      {
+        name: "Knockout.js",
+        icon: "BrandJavascript",
+        url: "/?search=Knockout#projects",
+      },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "HotelService",
   },
@@ -179,11 +248,15 @@ const PROJECTS: Project[] = [
     description:
       "During my time at Dinto, I was involved in creating interactive blueprints for warehouse layouts using SVG, SQL, and JavaScript. This task required a focus on detail and accuracy to ensure the blueprints were both functional and user-friendly. My role contributed to improving the way warehouses could be organized and managed, offering a visual and practical tool for operational planning.",
     stack: [
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
-      { name: "SVG", icon: "Svg" },
-      { name: "SQL", icon: "Sql" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      { name: "SVG", icon: "Svg", url: "/?search=SVG#projects" },
+      { name: "SQL", icon: "Sql", url: "/?search=SQL#projects" },
     ],
     icon: "BuildingWarehouse",
   },
@@ -199,12 +272,20 @@ const PROJECTS: Project[] = [
     description:
       "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full-stack development and understanding client needs in the financial sector.",
     stack: [
-      { name: "Visual Basic.NET", icon: "BrandVisualStudio" },
-      { name: "SQL Server", icon: "Sql" },
-      { name: "PHP", icon: "BrandPhp" },
-      { name: "JavaScript", icon: "BrandJavascript" },
-      { name: "CSS", icon: "BrandCss3" },
-      { name: "HTML", icon: "BrandHtml5" },
+      {
+        name: "Visual Basic.NET",
+        icon: "BrandVisualStudio",
+        url: "/?search=Visual#projects",
+      },
+      { name: "SQL Server", icon: "Sql", url: "/?search=SQL#projects" },
+      { name: "PHP", icon: "BrandPhp", url: "/?search=PHP#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "HeartHandshake",
   },
