@@ -104,6 +104,8 @@ const LIST_ITEM_SLIDE_ANIMATION = [
   "motion-safe:animate-[animation-slide-down_0.8s_ease-in-out]",
   "motion-safe:animate-[animation-slide-down_0.9s_ease-in-out]",
   "motion-safe:animate-[animation-slide-down_1.0s_ease-in-out]",
+  "motion-safe:animate-[animation-slide-down_1.1s_ease-in-out]",
+  "motion-safe:animate-[animation-slide-down_1.2s_ease-in-out]",
 ];
 
 const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
