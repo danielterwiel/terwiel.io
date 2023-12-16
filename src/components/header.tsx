@@ -43,7 +43,9 @@ export default function Header() {
       <ProfilePicture />
       <div className="p-4 text-right sm:text-left">
         <div className="flex flex-col justify-between sm:flex-row">
-          <h1 className="mb-5 text-3xl print:text-5xl">Daniël Terwiel</h1>
+          <h1 className="mb-5 text-3xl print:text-5xl sm:whitespace-nowrap">
+            Daniël Terwiel
+          </h1>
           <Icons />
         </div>
 
