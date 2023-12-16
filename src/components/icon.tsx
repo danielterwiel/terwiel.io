@@ -44,6 +44,7 @@ import Package from "../images/icons/package.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
 import ReceiptTax from "../images/icons/receipt-tax.svg";
 import Rocket from "../images/icons/rocket.svg";
+import Printer from "../images/icons/printer.svg";
 import Search from "../images/icons/search.svg";
 import Sql from "../images/icons/sql.svg";
 import Stack from "../images/icons/stack.svg";
@@ -141,6 +142,7 @@ const icons = {
   >,
   ReceiptTax: ReceiptTax as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Printer: Printer as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Search: Search as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
