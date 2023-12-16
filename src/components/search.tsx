@@ -6,6 +6,7 @@ import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 import { type Project } from "./experience";
+import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
@@ -62,7 +63,10 @@ export function SearchInput() {
   };
 
   return (
-    <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
+    <Form.Root
+      className="h-20 print:hidden"
+      onSubmit={(e) => e.preventDefault()}
+    >
       <Form.Field name="query">
         <div>
           <Form.Label>Search query</Form.Label>
@@ -70,16 +74,22 @@ export function SearchInput() {
             Please provide a your search query
           </Form.Message>
         </div>
-        <Form.Control asChild>
-          <input
-            ref={inputRef}
-            type="input"
-            placeholder="e.g. Sendcloud, 2022, Rust"
-            value={query}
-            onChange={handleInputChange}
-            className="w-full rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
+        <div className="relative">
+          <Form.Control asChild>
+            <input
+              ref={inputRef}
+              type="input"
+              placeholder="e.g. Sendcloud, 2022, Rust"
+              value={query}
+              onChange={handleInputChange}
+              className="absolute w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
+            />
+          </Form.Control>
+          <Icon.Search
+            aria-hidden="true"
+            className="absolute left-2 top-2.5 text-slate-400/50"
           />
-        </Form.Control>
+        </div>
       </Form.Field>
     </Form.Root>
   );
@@ -106,7 +116,7 @@ export const SearchSummary = ({
 
   const duration = formatDuration({ months, years });
   return (
-    <div className="m4-8 rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
+    <div className="rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (

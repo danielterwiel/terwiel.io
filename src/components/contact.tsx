@@ -18,17 +18,16 @@ export default function Contact() {
     <div id="form-contact">
       <h2>Contact</h2>
       <Form.Root
-        className="flex flex-col gap-4 rounded-md border border-slate-500/50 p-4 print:hidden md:p-8"
+        className="flex flex-col rounded-md border border-slate-500/50 p-4 print:hidden md:p-8"
         onSubmit={handleSubmit}
       >
-        <Form.Field className="grid" name="email">
+        <Form.Field className="grid h-8" name="email">
           <div className="flex items-baseline justify-between">
             <Form.Label
               htmlFor="input-email"
               className="mb-1 flex items-center gap-1"
             >
-              <Icon.At aria-hidden="true" className="text-slate-400/50" />
-              Email address{" "}
+              Email address
               <span className="text-sm text-red-600">(required)</span>
             </Form.Label>
             <Form.Message match="valueMissing">
@@ -38,37 +37,45 @@ export default function Contact() {
               <span className="text-red-600">Please provide a valid email</span>
             </Form.Message>
           </div>
-          <Form.Control asChild>
-            <input
-              type="email"
-              id="input-email"
-              autoComplete="email"
-              placeholder="e.g. yourname@domain.com"
-              className="rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
-              required
+          <div className="relative">
+            <Form.Control asChild>
+              <input
+                type="email"
+                id="input-email"
+                autoComplete="email"
+                placeholder="e.g. yourname@domain.com"
+                className="absolute w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
+                required
+              />
+            </Form.Control>
+            <Icon.At
+              aria-hidden="true"
+              className="absolute left-2 top-2.5 text-slate-400/50"
             />
-          </Form.Control>
+          </div>
         </Form.Field>
-        <Form.Field className="grid" name="question">
+        <Form.Field className="grid pb-4 pt-14" name="question">
           <div className="flex items-baseline justify-between">
             <Form.Label className="mb-1 flex items-center gap-1">
-              <Icon.QuestionMark
-                aria-hidden="true"
-                className="text-slate-400/50"
-              />
               Question <span className="text-sm text-red-600">(required)</span>
             </Form.Label>
             <Form.Message match="valueMissing">
               <span className="text-red-600">Please enter a question</span>
             </Form.Message>
           </div>
-          <Form.Control asChild>
-            <textarea
-              className="resize-y rounded-md border border-slate-500/50 p-2 hover:border-klein focus:ring-klein focus:ring-offset-2"
-              placeholder="e.g. let's talk about..."
-              required
+          <div className="group relative">
+            <Form.Control asChild>
+              <textarea
+                className="w-full resize-y rounded-md border border-slate-500/50 py-2 pl-9 pr-2 hover:border-klein focus:pl-2 focus:ring-klein focus:ring-offset-2"
+                placeholder="e.g. let's talk about..."
+                required
+              />
+            </Form.Control>
+            <Icon.QuestionMark
+              aria-hidden="true"
+              className="absolute left-2 top-2.5 text-slate-400/50 group-focus-within:hidden"
             />
-          </Form.Control>
+          </div>
         </Form.Field>
 
         {/* FIXME: use a Form.Message here, currently blocked by https://github.com/radix-ui/primitives/issues/2279 */}
