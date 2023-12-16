@@ -121,7 +121,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
                     "motion-safe:duration-200",
                     "motion-safe:transition-colors",
                     "overflow-x-hidden",
-                    "pt-0.5",
+                    "pt-1",
                     "text-slate-400/50",
                     "transform-gpu",
                   ]);
