@@ -64,7 +64,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
 
   return (
     <>
-      <dt className="m-0 flex justify-end print:m-0 print:items-start print:justify-end md:items-start">
+      <dt className="m-0 flex justify-end print:items-start print:justify-end md:items-start">
         <button
           className="flex items-start gap-2"
           tabIndex={-1}
@@ -96,7 +96,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           >
             {open ? (
               <div
-                className="flex items-center gap-1 pt-0.5 print:hidden"
+                className="flex items-center gap-1 print:hidden"
                 aria-hidden="true"
               >
                 <Icon.Minus
@@ -121,7 +121,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
                     "motion-safe:duration-200",
                     "motion-safe:transition-colors",
                     "overflow-x-hidden",
-                    "pt-1",
+                    "pt-0.5",
                     "text-slate-400/50",
                     "transform-gpu",
                   ]);
