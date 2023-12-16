@@ -126,11 +126,9 @@ export function StackRow({ items }: { items: ListItem[] }) {
                     "transform-gpu",
                   ]);
                   return (
-                    <div className={iconClass} key={item.name}>
-                      <HighlightedIcon meta={item.name}>
-                        <IconStack aria-hidden="true" width={24} height={24} />
-                      </HighlightedIcon>
-                    </div>
+                    <HighlightedIcon key={item.name} meta={item.name}>
+                      <IconStack className={iconClass} />
+                    </HighlightedIcon>
                   );
                 })}
               </>
