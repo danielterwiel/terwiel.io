@@ -62,6 +62,11 @@ export function SearchInput() {
     debouncedSetSearchParams(value);
   };
 
+  const clear = () => {
+    setQuery("");
+    inputRef.current?.focus();
+  };
+
   return (
     <Form.Root
       className="h-20 print:hidden"
@@ -74,7 +79,7 @@ export function SearchInput() {
             Please provide a your search query
           </Form.Message>
         </div>
-        <div className="relative">
+        <div className="group relative">
           <Form.Control asChild>
             <input
               ref={inputRef}
@@ -90,6 +95,18 @@ export function SearchInput() {
             aria-hidden="true"
             focusable="false"
           />
+
+          {query ? (
+            <button type="reset" onClick={clear}>
+              <Icon.X
+                className="absolute right-2 top-2.5 hidden text-slate-400/50 hover:text-klein/80 focus:text-klein group-focus-within:inline"
+                aria-hidden="true"
+                focusable="false"
+              />
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
       </Form.Field>
     </Form.Root>

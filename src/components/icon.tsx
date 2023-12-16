@@ -54,6 +54,7 @@ import Svg from "../images/icons/svg.svg";
 import TestPipe from "../images/icons/test-pipe.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
+import X from "../images/icons/x.svg";
 
 const icons = {
   Accessible: Accessible as React.ComponentType<React.SVGProps<SVGSVGElement>>,
@@ -152,6 +153,7 @@ const icons = {
   TestPipe: TestPipe as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   User: User as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   UsersGroup: UsersGroup as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  X: X as React.ComponentType<React.SVGProps<SVGSVGElement>>,
 };
 
 export const Icon: Record<
