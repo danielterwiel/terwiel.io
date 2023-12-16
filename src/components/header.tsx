@@ -6,7 +6,7 @@ import ContactButton from "./contact-button";
 import PrintButton from "./print-button";
 
 const Icons = () => (
-  <div className="md:jutify-end absolute left-3 flex flex-col gap-2 print:relative print:hidden print:items-end print:text-right print:text-xs md:relative md:flex-row md:items-start">
+  <div className="md:jutify-end absolute left-3 flex flex-col gap-2 pt-1.5 print:relative print:hidden print:items-end print:text-right print:text-xs md:relative md:flex-row md:items-start">
     <ContactButton />
 
     <Link
