@@ -331,41 +331,35 @@ const Project = ({
         <div className="relative grid w-full grid-cols-[2rem_minmax(0,1fr)] gap-2 md:gap-4">
           <div className="h-12 w-12 text-slate-600/80">
             <Ring>
-              <IconProject width={24} height={24} aria-hidden="true" />
+              <IconProject aria-hidden="true" focusable="false" />
             </Ring>
           </div>
           <h3 className="mt-2.5 pl-6 text-lg">
-            <HighlightedText query={query}>{project.company}</HighlightedText>
+            <HighlightedText>{project.company}</HighlightedText>
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
-                    <Icon.User width={24} height={24} aria-hidden="true" />
+                    <Icon.User aria-hidden="true" focusable="false" />
                   </span>
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <HighlightedText query={query}>
-                    {project.role}
-                  </HighlightedText>
+                  <HighlightedText>{project.role}</HighlightedText>
                 </dd>
 
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className=" text-slate-500/50">
-                    <Icon.UsersGroup
-                      width={24}
-                      height={24}
-                      aria-hidden="true"
-                    />
+                    <Icon.UsersGroup aria-hidden="true" focusable="false" />
                   </span>
                   <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   ~
                   <span className="mr-2">
-                    <HighlightedText query={query}>
+                    <HighlightedText>
                       {project.teamSize.toString()}
                     </HighlightedText>
                   </span>
@@ -374,35 +368,28 @@ const Project = ({
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
                     <Icon.BuildingFactory2
-                      width={24}
-                      height={24}
                       aria-hidden="true"
+                      focusable="false"
                     />
                   </span>
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <HighlightedText query={query}>
-                    {project.industry}
-                  </HighlightedText>
+                  <HighlightedText>{project.industry}</HighlightedText>
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">
-                    <Icon.MapPin width={24} height={24} aria-hidden="true" />
+                    <Icon.MapPin aria-hidden="true" focusable="false" />
                   </span>
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  <HighlightedText query={query}>
-                    {project.location}
-                  </HighlightedText>
+                  <HighlightedText>{project.location}</HighlightedText>
                 </dd>
                 <StackRow items={project.stack} />
               </dl>
               <p className="md:pl-10">
-                <HighlightedText query={query}>
-                  {project.description}
-                </HighlightedText>
+                <HighlightedText>{project.description}</HighlightedText>
               </p>
             </div>
           </div>

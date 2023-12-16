@@ -86,8 +86,9 @@ export function SearchInput() {
             />
           </Form.Control>
           <Icon.Search
-            aria-hidden="true"
             className="absolute left-2 top-2.5 text-slate-400/50"
+            aria-hidden="true"
+            focusable="false"
           />
         </div>
       </Form.Field>

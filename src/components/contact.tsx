@@ -49,8 +49,9 @@ export default function Contact() {
               />
             </Form.Control>
             <Icon.At
-              aria-hidden="true"
               className="absolute left-2 top-2.5 text-slate-400/50"
+              aria-hidden="true"
+              focusable="false"
             />
           </div>
         </Form.Field>
@@ -72,8 +73,9 @@ export default function Contact() {
               />
             </Form.Control>
             <Icon.QuestionMark
-              aria-hidden="true"
               className="absolute left-2 top-2.5 text-slate-400/50 group-focus-within:hidden"
+              aria-hidden="true"
+              focusable="false"
             />
           </div>
         </Form.Field>

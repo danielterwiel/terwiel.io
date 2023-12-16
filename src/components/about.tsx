@@ -29,7 +29,7 @@ const Stack = () => {
   return (
     <div>
       <h2 id="stack" className="flex items-center gap-4">
-        <Icon.Stack aria-hidden="true" className="h-6 w-6" />
+        <Icon.Stack aria-hidden="true" focusable="false" />
         <span>Stack</span>
       </h2>
       <div className="pl-2">
@@ -51,7 +51,7 @@ const Focus = () => {
   return (
     <div>
       <h2 id="focus" className="flex items-center gap-4">
-        <Icon.Focus aria-hidden="true" className="h-6 w-6" />
+        <Icon.Focus aria-hidden="true" focusable="false" />
         <span>Focus</span>
       </h2>
       <div className="pl-2">
@@ -72,7 +72,7 @@ const Languages = () => {
   return (
     <div>
       <h2 id="languages" className="flex items-center gap-4">
-        <Icon.Language aria-hidden="true" className="h-6 w-6" />
+        <Icon.Language aria-hidden="true" focusable="false" />
         <span>Languages</span>
       </h2>
       <div className="pl-2">
