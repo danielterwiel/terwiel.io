@@ -6,7 +6,6 @@ import { clsx } from "clsx";
 import * as Collapsible from "~/components/collapsible";
 import { Icon } from "~/components/icon";
 import { IconList, type ListItem } from "./icon-list";
-import { useSearchParams } from "next/navigation";
 import { HighlightedIcon } from "./highlighted";
 
 const ICON_COLORS = {
@@ -43,9 +42,6 @@ export function StackRow({ items }: { items: ListItem[] }) {
   const icons = items.filter(
     (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
   );
-
-  const searchParams = useSearchParams();
-  const query = decodeURI(searchParams.get("search") ?? "").trim();
 
   React.useEffect(() => {
     const openStack = () => {
@@ -92,7 +88,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           <span className="font-normal text-slate-500">Stack</span>
         </button>
       </dt>
-      <dd className="m-0 overflow-x-hidden pl-4 md:pl-7">
+      <dd className="m-0  pl-4 md:pl-7">
         <Collapsible.Root open={open}>
           <Collapsible.Trigger
             onClick={() => toggle()}
@@ -100,7 +96,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           >
             {open ? (
               <div
-                className="flex items-center gap-1 pt-1 print:hidden"
+                className="flex items-center gap-1 pt-0.5 print:hidden"
                 aria-hidden="true"
               >
                 <Icon.Minus
@@ -122,14 +118,16 @@ export function StackRow({ items }: { items: ListItem[] }) {
                   const hoverClass = color ? color : "hover:text-slate-400";
                   const iconClass = clsx([
                     hoverClass,
-                    "text-slate-400/50",
-                    "motion-safe:transition-colors",
                     "motion-safe:duration-200",
-                    "pt-1",
+                    "motion-safe:transition-colors",
+                    "overflow-x-hidden",
+                    "pt-0.5",
+                    "text-slate-400/50",
+                    "transform-gpu",
                   ]);
                   return (
                     <div className={iconClass} key={item.name}>
-                      <HighlightedIcon query={query} meta={item.name}>
+                      <HighlightedIcon meta={item.name}>
                         <IconStack aria-hidden="true" width={24} height={24} />
                       </HighlightedIcon>
                     </div>
@@ -141,7 +139,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
 
           <Collapsible.Content>
             <div className="pl-4 print:pl-0 md:pl-2">
-              <IconList items={items} />
+              <IconList items={items} highlight={true} />
             </div>
           </Collapsible.Content>
         </Collapsible.Root>

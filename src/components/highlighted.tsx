@@ -1,12 +1,10 @@
 import React from "react";
+import { useSearchParams } from "next/navigation";
 
-export const HighlightedText = ({
-  children,
-  query,
-}: {
-  children: string;
-  query: string;
-}) => {
+export const HighlightedText = ({ children }: { children: string }) => {
+  const searchParams = useSearchParams();
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
+
   const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
@@ -30,13 +28,14 @@ export const HighlightedText = ({
 
 export const HighlightedIcon = ({
   children,
-  query,
   meta,
 }: {
   children: React.ReactNode;
-  query: string;
   meta: string;
 }) => {
+  const searchParams = useSearchParams();
+  const query = decodeURI(searchParams.get("search") ?? "").trim();
+
   const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {

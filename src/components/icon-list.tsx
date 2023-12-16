@@ -5,8 +5,7 @@ import Link from "next/link";
 import { clsx } from "clsx";
 
 import { Icon } from "~/components/icon";
-import { HighlightedText } from "./highlighted";
-import { useSearchParams } from "next/navigation";
+import { HighlightedIcon, HighlightedText } from "./highlighted";
 
 export type ListItem = {
   name: string;
@@ -110,7 +109,13 @@ const LIST_ITEM_SLIDE_ANIMATION = [
   "motion-safe:animate-[animation-slide-down_1.2s_ease-in-out]",
 ];
 
-const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
+type ListItemProps = {
+  index: number;
+  item: ListItem;
+  highlight?: boolean;
+};
+
+const ListItem = ({ index, item, highlight = false }: ListItemProps) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   React.useEffect(() => {
     const timer = window.setTimeout(() => setIsLoaded(true), 50 + index * 75);
@@ -119,9 +124,6 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
       window.clearTimeout(timer);
     };
   });
-
-  const searchParams = useSearchParams();
-  const query = decodeURI(searchParams.get("search") ?? "").trim();
 
   const IconItem = Icon[item.icon as keyof typeof Icon];
   const hoverColor =
@@ -132,7 +134,9 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
   const iconClass = clsx([
     colorClass,
     hoverClass,
+    "select-none",
     "motion-safe:transition-colors",
+    "transform-gpu",
     "duration-200",
     "print:text-slate-400/50",
     "focus:text-slate-400/50",
@@ -152,9 +156,9 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
     "pl-0",
   );
 
-  return (
-    <li key={item.name} className={listClass}>
-      <div className="group flex items-center gap-2">
+  const ItemIcon = () =>
+    highlight ? (
+      <HighlightedIcon meta={item.name}>
         <IconItem
           className={iconClass}
           aria-hidden="true"
@@ -162,25 +166,67 @@ const ListItem = ({ index, item }: { index: number; item: ListItem }) => {
           height={24}
           focusable="false"
         />
-        {item.url ? (
-          <Link className={linkClass} href={item.url}>
-            {item.name}
-          </Link>
-        ) : (
-          <span>
-            <HighlightedText query={query}>{item.name}</HighlightedText>
-          </span>
-        )}
+      </HighlightedIcon>
+    ) : (
+      <IconItem
+        className={iconClass}
+        aria-hidden="true"
+        width={24}
+        height={24}
+        focusable="false"
+      />
+    );
+
+  let ItemNode: React.ReactNode;
+
+  if (item.url && highlight) {
+    ItemNode = (
+      <Link className={linkClass} href={item.url}>
+        <HighlightedText>{item.name}</HighlightedText>
+      </Link>
+    );
+  }
+  if (item.url && !highlight) {
+    ItemNode = (
+      <Link className={linkClass} href={item.url}>
+        {item.name}
+      </Link>
+    );
+  }
+  if (!item.url && highlight) {
+    ItemNode = <HighlightedText>{item.name}</HighlightedText>;
+  }
+  if (!item.url && !highlight) {
+    ItemNode = <>{item.name}</>;
+  }
+
+  const ItemText = () => ItemNode;
+
+  return (
+    <li key={item.name} className={listClass}>
+      <div className="group flex items-center gap-2">
+        <ItemIcon />
+        <ItemText />
       </div>
     </li>
   );
 };
 
-export const IconList = ({ items }: { items: ListItem[] }) => {
+type IconListProps = {
+  items: ListItem[];
+  highlight?: boolean;
+};
+
+export const IconList = ({ items, highlight = false }: IconListProps) => {
   return (
     <ul className="ml-0 mt-0 list-none pl-0" role="list">
       {items.map((item, index) => (
-        <ListItem key={item.name} index={index} item={item} />
+        <ListItem
+          key={item.name}
+          index={index}
+          item={item}
+          highlight={highlight}
+        />
       ))}
     </ul>
   );
@@ -202,9 +248,6 @@ const LanguageListItem = ({
     };
   });
 
-  const searchParams = useSearchParams();
-  const query = decodeURI(searchParams.get("search") ?? "").trim();
-
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor
@@ -216,6 +259,7 @@ const LanguageListItem = ({
     hoverClass,
     "select-none",
     "motion-safe:transition-colors",
+    "transform-gpu",
     "duration-200",
     "print:text-slate-400/50",
     "focus:text-slate-400/50",
@@ -234,9 +278,7 @@ const LanguageListItem = ({
         <span className={iconClass} aria-hidden="true">
           {item.icon}
         </span>
-        <span>
-          <HighlightedText query={query}>{item.name}</HighlightedText>
-        </span>
+        {item.name}
         <span className="text-sm text-slate-800/70">({item.level})</span>
       </div>
     </li>

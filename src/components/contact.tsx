@@ -95,7 +95,7 @@ export default function Contact() {
         <Form.Submit asChild>
           <button
             type="submit"
-            className="relative flex h-12 items-center justify-center overflow-hidden rounded-md bg-klein font-medium text-white shadow-2xl duration-300 before:absolute before:inset-0 before:border-0 before:border-white before:duration-100 before:ease-linear hover:border hover:border-klein/80 hover:bg-white hover:text-klein hover:shadow-klein/90 hover:before:border-[25px] focus:bg-white focus:text-klein focus:shadow-klein/90 focus:ring-2 focus:ring-klein focus:ring-offset-2 motion-safe:transition-all print:hidden"
+            className="relative flex h-12 transform-gpu items-center justify-center overflow-hidden rounded-md bg-klein font-medium text-white shadow-2xl duration-300 before:absolute before:inset-0 before:border-0 before:border-white before:duration-100 before:ease-linear hover:border hover:border-klein/80 hover:bg-white hover:text-klein hover:shadow-klein/90 hover:before:border-[25px] focus:bg-white focus:text-klein focus:shadow-klein/90 focus:ring-2 focus:ring-klein focus:ring-offset-2 motion-safe:transition-all print:hidden"
             disabled={state.submitting}
           >
             <span className="relative">Contact</span>
