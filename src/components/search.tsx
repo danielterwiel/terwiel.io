@@ -42,6 +42,8 @@ export function SearchInput() {
     }
 
     if (document.activeElement !== inputRef.current) {
+      console.log("setting query");
+
       setQuery(initialQuery);
     }
   }, [initialQuery]);
@@ -64,6 +66,7 @@ export function SearchInput() {
 
   const clear = () => {
     setQuery("");
+    setSearchParams("");
     inputRef.current?.focus();
   };
 
@@ -97,12 +100,13 @@ export function SearchInput() {
           />
 
           {query ? (
-            <button type="reset" onClick={clear}>
-              <Icon.X
-                className="absolute right-2 top-2.5 hidden text-slate-400/50 hover:text-klein/80 focus:text-klein group-focus-within:inline"
-                aria-hidden="true"
-                focusable="false"
-              />
+            <button
+              type="reset"
+              onClick={clear}
+              className="absolute right-3 top-3 hidden rounded-sm text-slate-400/50 outline-offset-4 hover:text-klein/80 focus:text-klein focus:outline-2 group-focus-within:block"
+            >
+              <Icon.X aria-hidden="true" focusable="false" />
+              <span className="sr-only">Clear search input</span>
             </button>
           ) : (
             <></>
