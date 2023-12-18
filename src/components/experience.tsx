@@ -294,12 +294,10 @@ const PROJECTS: Project[] = [
 const Project = ({
   project,
   projectIdx,
-  query,
   totalLength,
 }: {
   project: Project;
   projectIdx: number;
-  query: string;
   totalLength: number;
 }) => {
   const dateFrom = parseISO(project.dateFrom);

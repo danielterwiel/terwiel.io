@@ -42,8 +42,6 @@ export function SearchInput() {
     }
 
     if (document.activeElement !== inputRef.current) {
-      console.log("setting query");
-
       setQuery(initialQuery);
     }
   }, [initialQuery]);
