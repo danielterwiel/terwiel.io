@@ -43,7 +43,7 @@ export const HighlightedIcon = ({
   }
 
   if (meta.toLowerCase().includes(escapedQuery.toLowerCase())) {
-    return <mark>{children}</mark>;
+    return <mark className="pb-1">{children}</mark>;
   } else {
     return <span>{children}</span>;
   }
