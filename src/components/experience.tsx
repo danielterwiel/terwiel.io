@@ -444,7 +444,6 @@ const Projects = () => {
               project={project}
               projectIdx={projectIdx}
               totalLength={PROJECTS.length}
-              query={query}
             />
           ))}
         </ol>

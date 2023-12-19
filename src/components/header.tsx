@@ -49,7 +49,7 @@ export default function Header() {
           <Icons />
         </div>
 
-        <p className="print:text-2xl">
+        <p className="print:text-xl">
           With over 18 years in web development, I&apos;ve gained extensive
           knowledge and a lot of experience in different settings, including
           startups, hyper-growth scale-ups, and large enterprises. My journey
