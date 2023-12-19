@@ -35,13 +35,15 @@ export const ProfilePicture = () => {
     "transform-gpu",
     "w-full",
   ];
-  const classNameLove = clsx(defaultClassName, ["print:hidden"], {
+  const classNameLove = clsx(defaultClassName, {
+    "print:hidden": !showLove,
     "opacity-0": showLove,
     "opacity-100": !showLove,
     flex: showLove,
     hidden: !showLove,
   });
   const classNameDani = clsx(defaultClassName, {
+    "print:hidden": showLove,
     "opacity-0": !showLove,
     "opacity-100": showLove,
     flex: !showLove,
