@@ -55,7 +55,7 @@ const Focus = () => {
         <span>Focus</span>
       </h2>
       <div className="pl-2">
-        <IconList items={focus} />
+        <IconList items={focus} colored={false} />
       </div>
     </div>
   );

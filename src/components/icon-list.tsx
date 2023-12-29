@@ -113,9 +113,15 @@ type ListItemProps = {
   index: number;
   item: ListItem;
   highlight?: boolean;
+  colored?: boolean;
 };
 
-const ListItem = ({ index, item, highlight = false }: ListItemProps) => {
+const ListItem = ({
+  index,
+  item,
+  highlight = false,
+  colored = true,
+}: ListItemProps) => {
   const [isLoaded, setIsLoaded] = React.useState(false);
   React.useEffect(() => {
     const timer = window.setTimeout(() => setIsLoaded(true), 50 + index * 75);
@@ -129,7 +135,9 @@ const ListItem = ({ index, item, highlight = false }: ListItemProps) => {
   const hoverColor =
     ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
   const hoverClass = hoverColor ? hoverColor : "group-hover:text-klein";
-  const color = ICON_COLORS[item.icon as keyof typeof ICON_COLORS];
+  const color = colored
+    ? ICON_COLORS[item.icon as keyof typeof ICON_COLORS]
+    : "text-slate-400";
   const colorClass = isLoaded ? "text-slate-400/50" : color;
   const iconClass = clsx([
     colorClass,
@@ -215,9 +223,10 @@ const ListItem = ({ index, item, highlight = false }: ListItemProps) => {
 type IconListProps = {
   items: ListItem[];
   highlight?: boolean;
+  colored?: boolean;
 };
 
-export const IconList = ({ items, highlight = false }: IconListProps) => {
+export const IconList = ({ items, highlight = false, colored = true }: IconListProps) => {
   return (
     <ul className="ml-0 mt-0 list-none pl-0" role="list">
       {items.map((item, index) => (
@@ -226,6 +235,7 @@ export const IconList = ({ items, highlight = false }: IconListProps) => {
           index={index}
           item={item}
           highlight={highlight}
+	  colored={colored}
         />
       ))}
     </ul>
