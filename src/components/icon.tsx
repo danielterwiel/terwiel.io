@@ -40,6 +40,7 @@ import MapPin from "../images/icons/map-pin.svg";
 import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
 import News from "../images/icons/news.svg";
+import Ship from "../images/icons/ship.svg";
 import Package from "../images/icons/package.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
 import ReceiptTax from "../images/icons/receipt-tax.svg";
@@ -137,6 +138,7 @@ const icons = {
   >,
   Minus: Minus as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   News: News as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  Ship: Ship as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Package: Package as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   QuestionMark: QuestionMark as React.ComponentType<
     React.SVGProps<SVGSVGElement>

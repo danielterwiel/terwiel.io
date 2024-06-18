@@ -64,6 +64,7 @@ const Focus = () => {
 const languages: LanguageListItem[] = [
   { name: "Dutch", icon: "🇳🇱", level: "native" },
   { name: "English", icon: "🇺🇸", level: "fluent" },
+  { name: "Italian", icon: "🇮🇹", level: "mediocre" },
   { name: "French", icon: "🇫🇷", level: "mediocre" },
   { name: "German", icon: "🇩🇪", level: "mediocre" },
 ];

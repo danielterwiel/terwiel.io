@@ -33,7 +33,41 @@ export type Project = {
 
 const PROJECTS: Project[] = [
   {
-    id: "PROJECT_0",
+    id: "PROJECT_8",
+    company: "90 Percent of Everything",
+    role: "Front-end Developer",
+    teamSize: 150,
+    industry: "Cargo Shipping",
+    location: "London/Remote",
+    dateFrom: "2024-02-01",
+    dateTo: "present",
+    description:
+      "At 90 Percent of Everything, I took charge of enhancing Sentry within our micro-frontend application. Upon joining the team, our objective was to establish a new, time-sensitive project that also performs efficiently on a vessel.",
+    stack: [
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "TypeScript",
+        icon: "BrandTypescript",
+        url: "/?search=TypeScript#projects",
+      },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      {
+        name: "GraphQL",
+        icon: "BrandGraphql",
+        url: "/?search=GraphQL#projects",
+      },
+      { name: "Vite", icon: "BrandVite", url: "/?search=Vite#projects" },
+      { name: "Vitest", icon: "BrandVite", url: "/?search=Vitest#projects" },
+      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+    ],
+    icon: "Rocket",
+  },
+  {
+    id: "PROJECT_7",
     company: "Departure Labs",
     role: "Full-stack Developer & Designer",
     teamSize: 5,
@@ -70,7 +104,7 @@ const PROJECTS: Project[] = [
     icon: "Rocket",
   },
   {
-    id: "PROJECT_1",
+    id: "PROJECT_6",
     company: "ING",
     role: "Senior Front-end Developer",
     teamSize: 200,
@@ -95,7 +129,7 @@ const PROJECTS: Project[] = [
     icon: "BuildingBank",
   },
   {
-    id: "PROJECT_2",
+    id: "PROJECT_5",
     company: "M&I",
     role: "Senior Front-end Developer",
     teamSize: 4,
@@ -135,7 +169,7 @@ const PROJECTS: Project[] = [
     icon: "News",
   },
   {
-    id: "PROJECT_3",
+    id: "PROJECT_4",
     company: "Sendcloud",
     role: "Senior Front-end Developer",
     teamSize: 40,
@@ -165,7 +199,7 @@ const PROJECTS: Project[] = [
     icon: "Package",
   },
   {
-    id: "PROJECT_4",
+    id: "PROJECT_3",
     company: "Iperion",
     role: "Front-end Developer",
     teamSize: 5,
@@ -210,7 +244,7 @@ const PROJECTS: Project[] = [
     icon: "HealthRecognition",
   },
   {
-    id: "PROJECT_5",
+    id: "PROJECT_2",
     company: "Amadeus",
     role: "Front-end Developer",
     teamSize: 30,
@@ -237,7 +271,7 @@ const PROJECTS: Project[] = [
     icon: "HotelService",
   },
   {
-    id: "PROJECT_6",
+    id: "PROJECT_1",
     company: "Dinto",
     role: "Front-end Developer",
     teamSize: 6,
@@ -261,7 +295,7 @@ const PROJECTS: Project[] = [
     icon: "BuildingWarehouse",
   },
   {
-    id: "PROJECT_7",
+    id: "PROJECT_0",
     company: "Finview",
     role: "Developer",
     teamSize: 2,
@@ -300,8 +334,11 @@ const Project = ({
   projectIdx: number;
   totalLength: number;
 }) => {
+  const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
-  const dateTo = parseISO(project.dateTo);
+  const dateTo = parseISO(
+    isPresent ? new Date().toISOString() : project.dateTo,
+  );
   const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
   const years = Math.floor(diffInMonths / 12);
   const months = diffInMonths % 12;
@@ -310,7 +347,7 @@ const Project = ({
   const to = format(dateTo, "MMM yy");
   const fromApos = from.replace(/\d+/g, "'$&");
   const toApos = to.replace(/\d+/g, "'$&");
-  const timespan = `${fromApos} - ${toApos}`;
+  const timespan = `${fromApos} - ${isPresent ? "present" : toApos}`;
 
   const IconProject = Icon[project.icon as keyof typeof Icon];
 
@@ -437,7 +474,7 @@ const Projects = () => {
 
         {query ? <SearchSummary query={query} items={filtered} /> : null}
 
-        <ol className="ml-0 list-none pl-0" role="list">
+        <ol className="ml-0 list-none pl-0">
           {filtered.map((project, projectIdx) => (
             <Project
               key={project.company}
