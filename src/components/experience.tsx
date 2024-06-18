@@ -64,7 +64,7 @@ const PROJECTS: Project[] = [
       { name: "Vitest", icon: "BrandVite", url: "/?search=Vitest#projects" },
       { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
-    icon: "Rocket",
+    icon: "Ship",
   },
   {
     id: "PROJECT_7",
