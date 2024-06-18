@@ -109,7 +109,7 @@ const PROJECTS: Project[] = [
     role: "Senior Front-end Developer",
     teamSize: 200,
     industry: "Finance",
-    location: "Amsterdam",
+    location: "Amsterdam/Remote",
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
@@ -134,7 +134,7 @@ const PROJECTS: Project[] = [
     role: "Senior Front-end Developer",
     teamSize: 4,
     industry: "Media & Publishing",
-    location: "Hilversum",
+    location: "Hilversum/Remote",
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
@@ -174,7 +174,7 @@ const PROJECTS: Project[] = [
     role: "Senior Front-end Developer",
     teamSize: 40,
     industry: "Logistics",
-    location: "Eindhoven",
+    location: "Eindhoven/Remote",
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
