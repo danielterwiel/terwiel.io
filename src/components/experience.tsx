@@ -11,6 +11,8 @@ import { Ring } from "~/components/ring";
 import { SearchInput, SearchSummary } from "./search";
 import { StackRow } from "~/components/stack-row";
 
+import { Suspense } from 'react';
+
 type StackItem = {
   name: string;
   icon: string;
@@ -42,7 +44,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2024-02-01",
     dateTo: "present",
     description:
-      "At 90 Percent of Everything, I took charge of enhancing Sentry within our micro-frontend application. Upon joining the team, our objective was to establish a new, time-sensitive project that also performs efficiently on a vessel.",
+      "At 90 Percent of Everything, I've built multiple micro-frontend CRUD applications using TypeScript. I took charge of enhancing Sentry within our micro-frontend application.",
     stack: [
       {
         name: "JavaScript",
@@ -470,7 +472,9 @@ const Projects = () => {
     <>
       <h2 id="projects">Projects</h2>
       <div className="flow-root space-y-4">
-        <SearchInput />
+        <Suspense fallback={<div>Loading</div>} >
+          <SearchInput />
+        </Suspense>
 
         {query ? <SearchSummary query={query} items={filtered} /> : null}
 
