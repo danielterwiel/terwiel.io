@@ -126,7 +126,7 @@ export const SearchSummary = ({
   const monthsDiff = new Set<number>();
   for (const project of items) {
     const dateFrom = parseISO(project.dateFrom);
-    const dateTo = parseISO(project.dateTo);
+    const dateTo = project.dateTo === 'present' ? parseISO(new Date().toISOString()) : parseISO(project.dateTo);
     const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
     monthsDiff.add(diffInMonths);
   }
@@ -135,6 +135,7 @@ export const SearchSummary = ({
   const months = monthsSum % 12;
 
   const duration = formatDuration({ months, years });
+
   return (
     <div className="rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
       {total === 0 ? (
