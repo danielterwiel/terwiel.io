@@ -35,16 +35,54 @@ export type Project = {
 
 const PROJECTS: Project[] = [
   {
+    id: "PROJECT_9",
+    company: "Permatrust",
+    role: "Developer",
+    teamSize: 1,
+    industry: "Cybersecurity",
+    location: "Home",
+    dateFrom: "2024-06-01",
+    dateTo: "present",
+    description:
+      "In my personal time, I am developing a ransomware-resilient QMS using Rust and XState on the Internet Computer. This initiative serves to master these technologies and a terminal-centric workflow, with the goal of creating robust, secure applications for vulnerable SMBs in nowadays rapidly evolving threat landscape.",
+    stack: [
+      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "TypeScript",
+        icon: "BrandTypescript",
+        url: "/?search=TypeScript#projects",
+      },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      { name: "Tanstack", icon: "Stack", url: "/?search=Tanstack#projects" },
+      {
+        name: "Tailwind",
+        icon: "BrandTailwind",
+        url: "/?search=Tailwind#projects",
+      },
+      {
+        name: "XState",
+        icon: "X",
+        url: "/?search=XState#projects",
+      },
+    ],
+    icon: "ShieldLock",
+  },
+  {
     id: "PROJECT_8",
     company: "90 Percent of Everything",
     role: "Front-end Developer",
     teamSize: 150,
     industry: "Cargo Shipping",
-    location: "London/Remote",
+    location: "London (Remote)",
     dateFrom: "2024-02-01",
     dateTo: "present",
     description:
-      "At 90 Percent of Everything, I've built multiple micro-frontend CRUD applications using TypeScript. I took charge of enhancing Sentry within our micro-frontend application.",
+      "At 90 Percent of Everything, I've built multiple micro-frontend CRUD applications using TypeScript. I also took charge of enhancing Sentry within our micro-frontend architecture.",
     stack: [
       {
         name: "JavaScript",
@@ -62,9 +100,6 @@ const PROJECTS: Project[] = [
         icon: "BrandGraphql",
         url: "/?search=GraphQL#projects",
       },
-      { name: "Vite", icon: "BrandVite", url: "/?search=Vite#projects" },
-      { name: "Vitest", icon: "BrandVite", url: "/?search=Vitest#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
     ],
     icon: "Ship",
   },
@@ -74,7 +109,7 @@ const PROJECTS: Project[] = [
     role: "Full-stack Developer & Designer",
     teamSize: 5,
     industry: "Finance & Developer tools",
-    location: "Boston/Remote",
+    location: "Boston (Remote)",
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
@@ -111,7 +146,7 @@ const PROJECTS: Project[] = [
     role: "Senior Front-end Developer",
     teamSize: 200,
     industry: "Finance",
-    location: "Amsterdam/Remote",
+    location: "Amsterdam (Remote)",
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
@@ -394,13 +429,13 @@ const Project = ({
                   <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
-                  ~
+                  {project.teamSize > 1 && "~"}
                   <span className="mr-2">
                     <HighlightedText>
                       {project.teamSize.toString()}
                     </HighlightedText>
                   </span>
-                  developers
+                  developer{project.teamSize > 1 && 's'}
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
                   <span className="text-slate-500/50">

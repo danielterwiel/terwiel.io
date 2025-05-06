@@ -25,6 +25,7 @@ import BuildingBank from "../images/icons/building-bank.svg";
 import BuildingFactory2 from "../images/icons/building-factory-2.svg";
 import BuildingWarehouse from "../images/icons/building-warehouse.svg";
 import Bulb from "../images/icons/bulb.svg";
+import ShieldLock from "../images/icons/shield-lock.svg";
 import Components from "../images/icons/components.svg";
 import Focus from "../images/icons/focus.svg";
 import FileCv from "../images/icons/file-cv.svg";
@@ -147,6 +148,7 @@ const icons = {
   Rocket: Rocket as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Printer: Printer as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Search: Search as React.ComponentType<React.SVGProps<SVGSVGElement>>,
+  ShieldLock: ShieldLock as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Sql: Sql as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   Stack: Stack as React.ComponentType<React.SVGProps<SVGSVGElement>>,
   StackPop: StackPop as React.ComponentType<React.SVGProps<SVGSVGElement>>,
