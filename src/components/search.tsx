@@ -134,7 +134,7 @@ export const SearchSummary = ({
   const years = Math.floor(monthsSum / 12);
   const months = monthsSum % 12;
 
-  const duration = formatDuration({ months, years });
+  const duration = formatDuration({ months, years }, { delimiter: " and " });
 
   return (
     <div className="rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
