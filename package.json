@@ -2,6 +2,9 @@
   "name": "terwiel.io",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "build": "next build --profile",
     "dev": "next dev",
