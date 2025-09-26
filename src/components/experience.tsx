@@ -1,17 +1,14 @@
 "use client";
 
-import React from "react";
-import { differenceInMonths, formatDuration, parseISO, format } from "date-fns";
+import { differenceInMonths, format, formatDuration, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
-
+import React, { Suspense, useId } from "react";
 import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
-import { IconList, type ListItem } from "./icon-list";
 import { Ring } from "~/components/ring";
-import { SearchInput, SearchSummary } from "./search";
 import { StackRow } from "~/components/stack-row";
-
-import { Suspense } from 'react';
+import { IconList, type ListItem } from "./icon-list";
+import { SearchInput, SearchSummary } from "./search";
 
 type StackItem = {
   name: string;
@@ -35,11 +32,58 @@ export type Project = {
 
 const PROJECTS: Project[] = [
   {
+    id: "PROJECT_10",
+    company: "Currentflow",
+    role: "Developer",
+    teamSize: 1,
+    industry: "Auditing",
+    location: "Home",
+    dateFrom: "2025-07-01",
+    dateTo: "present",
+    description:
+      "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized application. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
+    stack: [
+      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
+      {
+        name: "JavaScript",
+        icon: "BrandJavascript",
+        url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "Tanstack Start",
+        icon: "BrandTanstack",
+        url: "/?search=Tanstack#projects",
+      },
+      {
+        name: "Tanstack Router",
+        icon: "BrandTanstack",
+        url: "/?search=Tanstack#projects",
+      },
+      {
+        name: "TypeScript",
+        icon: "BrandTypescript",
+        url: "/?search=TypeScript#projects",
+      },
+      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
+      {
+        name: "Tailwind",
+        icon: "BrandTailwind",
+        url: "/?search=Tailwind#projects",
+      },
+      {
+        name: "XState",
+        icon: "BrandXstate",
+        url: "/?search=XState#projects",
+      },
+    ],
+    icon: "ShieldLock",
+  },
+  {
     id: "PROJECT_9",
     company: "Permatrust",
     role: "Developer",
     teamSize: 1,
-    industry: "Cybersecurity",
+    industry: "Auditing",
     location: "Home",
     dateFrom: "2024-06-01",
     dateTo: "present",
@@ -51,6 +95,16 @@ const PROJECTS: Project[] = [
         name: "JavaScript",
         icon: "BrandJavascript",
         url: "/?search=JavaScript#projects",
+      },
+      {
+        name: "Tanstack",
+        icon: "BrandTanstack",
+        url: "/?search=Tanstack#projects",
+      },
+      {
+        name: "Tanstack",
+        icon: "BrandTanstack",
+        url: "/?search=Tanstack#projects",
       },
       {
         name: "TypeScript",
@@ -66,7 +120,7 @@ const PROJECTS: Project[] = [
       },
       {
         name: "XState",
-        icon: "X",
+        icon: "BrandXstate",
         url: "/?search=XState#projects",
       },
     ],
@@ -82,7 +136,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2024-02-01",
     dateTo: "present",
     description:
-      "At 90 Percent of Everything, I've built multiple micro-frontend CRUD applications using TypeScript. I also took charge of enhancing Sentry within our micro-frontend architecture.",
+      "At 90 Percent of Everything, I've built and maintained multiple micro-frontend CRUD applications using TypeScript.",
     stack: [
       {
         name: "JavaScript",
@@ -171,7 +225,7 @@ const PROJECTS: Project[] = [
     role: "Senior Front-end Developer",
     teamSize: 4,
     industry: "Media & Publishing",
-    location: "Hilversum/Remote",
+    location: "Hilversum (Hybrid)",
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
@@ -386,7 +440,8 @@ const Project = ({
   const toApos = to.replace(/\d+/g, "'$&");
   const timespan = `${fromApos} - ${isPresent ? "present" : toApos}`;
 
-  const IconProject = Icon[project.icon as keyof typeof Icon];
+  const IconProject =
+    Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
 
   return (
     <li
@@ -411,8 +466,8 @@ const Project = ({
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch md:grid-cols-[12rem_1fr]">
-                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
+              <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 md:grid-cols-[12rem_1fr] print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch">
+                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
                   <span className="text-slate-500/50">
                     <Icon.User aria-hidden="true" focusable="false" />
                   </span>
@@ -422,7 +477,7 @@ const Project = ({
                   <HighlightedText>{project.role}</HighlightedText>
                 </dd>
 
-                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
+                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
                   <span className=" text-slate-500/50">
                     <Icon.UsersGroup aria-hidden="true" focusable="false" />
                   </span>
@@ -435,9 +490,9 @@ const Project = ({
                       {project.teamSize.toString()}
                     </HighlightedText>
                   </span>
-                  developer{project.teamSize > 1 && 's'}
+                  developer{project.teamSize > 1 && "s"}
                 </dd>
-                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
+                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
                   <span className="text-slate-500/50">
                     <Icon.BuildingFactory2
                       aria-hidden="true"
@@ -449,7 +504,7 @@ const Project = ({
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.industry}</HighlightedText>
                 </dd>
-                <dt className="mt-0 flex justify-end gap-2 print:m-0 print:justify-end md:m-0">
+                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
                   <span className="text-slate-500/50">
                     <Icon.MapPin aria-hidden="true" focusable="false" />
                   </span>
@@ -492,7 +547,7 @@ function filterProjects(projects: Project[], query: string) {
   });
 }
 
-const Projects = () => {
+const ProjectsContent = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
@@ -503,13 +558,13 @@ const Projects = () => {
     setFiltered(filteredProjects);
   }, [query]);
 
+  const projectsId = useId();
+
   return (
     <>
-      <h2 id="projects">Projects</h2>
+      <h2 id={projectsId}>Projects</h2>
       <div className="flow-root space-y-4">
-        <Suspense fallback={<div>Loading</div>} >
-          <SearchInput />
-        </Suspense>
+        <SearchInput />
 
         {query ? <SearchSummary query={query} items={filtered} /> : null}
 
@@ -525,6 +580,14 @@ const Projects = () => {
         </ol>
       </div>
     </>
+  );
+};
+
+const Projects = () => {
+  return (
+    <Suspense fallback={<div>Loading projects...</div>}>
+      <ProjectsContent />
+    </Suspense>
   );
 };
 
@@ -547,9 +610,10 @@ const conferences: ListItem[] = [
 ];
 
 const Conferences = () => {
+  const conferencesId = useId();
   return (
     <>
-      <h2 id="conferences">Conferences</h2>
+      <h2 id={conferencesId}>Conferences</h2>
       <IconList items={conferences} />
     </>
   );

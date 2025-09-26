@@ -12,6 +12,61 @@
     margin: 0;
     padding: 0;
   }
+
+  /* Enhanced print styles for one-pager */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .print\\:break-inside-avoid {
+    break-inside: avoid;
+  }
+
+  .print\\:page-break-before {
+    page-break-before: always;
+  }
+
+  /* Ensure compact layout for one-pager */
+  .print\\:text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .print\\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .print\\:p-4 {
+    padding: 1rem;
+  }
+
+  .print\\:max-w-none {
+    max-width: none;
+  }
+
+  .print\\:mx-0 {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+@layer components {
+  .icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .icon-container svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
 }
 
 @keyframes animationRing {
@@ -54,5 +109,12 @@
   }
   .animation-slide-down {
     animation: animationSlideDown 0.5s ease-in-out forwards;
+  }
+
+  .svg-contain {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
   }
 }

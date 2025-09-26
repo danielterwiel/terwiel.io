@@ -1,7 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export const HighlightedText = ({ children }: { children: string }) => {
+const HighlightedTextContent = ({ children }: { children: string }) => {
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
@@ -26,7 +26,15 @@ export const HighlightedText = ({ children }: { children: string }) => {
   );
 };
 
-export const HighlightedIcon = ({
+export const HighlightedText = ({ children }: { children: string }) => {
+  return (
+    <Suspense fallback={<span>{children}</span>}>
+      <HighlightedTextContent>{children}</HighlightedTextContent>
+    </Suspense>
+  );
+};
+
+const HighlightedIconContent = ({
   children,
   meta,
 }: {
@@ -47,4 +55,18 @@ export const HighlightedIcon = ({
   } else {
     return <span>{children}</span>;
   }
+};
+
+export const HighlightedIcon = ({
+  children,
+  meta,
+}: {
+  children: React.ReactNode;
+  meta: string;
+}) => {
+  return (
+    <Suspense fallback={<span>{children}</span>}>
+      <HighlightedIconContent meta={meta}>{children}</HighlightedIconContent>
+    </Suspense>
+  );
 };

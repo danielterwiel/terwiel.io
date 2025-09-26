@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
 import { clsx } from "clsx";
+import React from "react";
 
 import * as Collapsible from "~/components/collapsible";
 import { Icon } from "~/components/icon";
-import { IconList, type ListItem } from "./icon-list";
 import { HighlightedIcon } from "./highlighted";
+import { IconList, type ListItem } from "./icon-list";
 
 const ICON_COLORS = {
   Assembly: "sm:hover:text-[#624FE8]",
@@ -64,8 +64,9 @@ export function StackRow({ items }: { items: ListItem[] }) {
 
   return (
     <>
-      <dt className="m-0 flex justify-end print:items-start print:justify-end md:items-start">
+      <dt className="m-0 flex justify-end md:items-start print:items-start print:justify-end">
         <button
+          type="button"
           className="flex items-start gap-2"
           tabIndex={-1}
           onClick={toggle}
@@ -126,7 +127,10 @@ export function StackRow({ items }: { items: ListItem[] }) {
                     "transform-gpu",
                   ]);
                   return (
-                    <HighlightedIcon key={item.name} meta={item.name}>
+                    <HighlightedIcon
+                      key={`${item.name}-${item.icon}`}
+                      meta={item.name}
+                    >
                       <IconStack className={iconClass} />
                     </HighlightedIcon>
                   );
@@ -136,7 +140,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
           </Collapsible.Trigger>
 
           <Collapsible.Content>
-            <div className="pl-4 print:pl-0 md:pl-2">
+            <div className="pl-4 md:pl-2 print:pl-0">
               <IconList items={items} highlight={true} />
             </div>
           </Collapsible.Content>

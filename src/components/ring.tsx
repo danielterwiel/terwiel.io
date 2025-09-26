@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface RingProps {
   borderColor?: string;
@@ -19,13 +20,14 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
       });
     });
 
-    if (ringRef.current) {
-      observer.observe(ringRef.current);
+    const currentRef = ringRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (ringRef.current) {
-        observer.unobserve(ringRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, []);

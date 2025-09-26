@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Icon } from "~/components/icon";
 import {
   IconList,
@@ -26,9 +27,10 @@ const stack: ListItem[] = [
 ];
 
 const Stack = () => {
+  const stackId = useId();
   return (
     <div>
-      <h2 id="stack" className="flex items-center gap-4">
+      <h2 id={stackId} className="flex items-center gap-4">
         <Icon.Stack aria-hidden="true" focusable="false" />
         <span>Stack</span>
       </h2>
@@ -48,9 +50,10 @@ const focus: ListItem[] = [
 ];
 
 const Focus = () => {
+  const focusId = useId();
   return (
     <div>
-      <h2 id="focus" className="flex items-center gap-4">
+      <h2 id={focusId} className="flex items-center gap-4">
         <Icon.Focus aria-hidden="true" focusable="false" />
         <span>Focus</span>
       </h2>
@@ -70,9 +73,10 @@ const languages: LanguageListItem[] = [
 ];
 
 const Languages = () => {
+  const languagesId = useId();
   return (
     <div>
-      <h2 id="languages" className="flex items-center gap-4">
+      <h2 id={languagesId} className="flex items-center gap-4">
         <Icon.Language aria-hidden="true" focusable="false" />
         <span>Languages</span>
       </h2>
