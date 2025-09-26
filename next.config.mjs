@@ -22,7 +22,7 @@ const config = {
         typeof rule === "object" &&
         "test" in rule &&
         rule.test instanceof RegExp &&
-        rule.test.test(".svg"),
+        rule.test.test(".svg")
     );
 
     if (
@@ -48,7 +48,7 @@ const config = {
           issuer: fileLoaderRule.issuer,
           resourceQuery: { not: [...fileLoaderRule.resourceQuery.not, /url/] }, // exclude if *.svg?url
           use: ["@svgr/webpack"],
-        },
+        }
       );
     }
 

@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
 import { clsx } from "clsx";
+import Link from "next/link";
+
+import React from "react";
 
 import { Icon } from "~/components/icon";
 import { HighlightedIcon, HighlightedText } from "./highlighted";
@@ -116,6 +117,41 @@ type ListItemProps = {
   colored?: boolean;
 };
 
+const ItemIcon = ({
+  IconComponent,
+  iconClass,
+  highlight,
+  itemName,
+}: {
+  IconComponent: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  iconClass: string;
+  highlight?: boolean;
+  itemName: string;
+}) =>
+  highlight ? (
+    <HighlightedIcon meta={itemName}>
+      <IconComponent
+        className={iconClass}
+        aria-hidden="true"
+        width={24}
+        height={24}
+        focusable="false"
+      />
+    </HighlightedIcon>
+  ) : (
+    <IconComponent
+      className={iconClass}
+      aria-hidden="true"
+      width={24}
+      height={24}
+      focusable="false"
+    />
+  );
+
+const ItemText = ({ children }: { children: React.ReactNode }) => (
+  <>{children}</>
+);
+
 const ListItem = ({
   index,
   item,
@@ -161,29 +197,8 @@ const ListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0",
+    "pl-0"
   );
-
-  const ItemIcon = () =>
-    highlight ? (
-      <HighlightedIcon meta={item.name}>
-        <IconItem
-          className={iconClass}
-          aria-hidden="true"
-          width={24}
-          height={24}
-          focusable="false"
-        />
-      </HighlightedIcon>
-    ) : (
-      <IconItem
-        className={iconClass}
-        aria-hidden="true"
-        width={24}
-        height={24}
-        focusable="false"
-      />
-    );
 
   let ItemNode: React.ReactNode;
 
@@ -205,16 +220,19 @@ const ListItem = ({
     ItemNode = <HighlightedText>{item.name}</HighlightedText>;
   }
   if (!item.url && !highlight) {
-    ItemNode = <>{item.name}</>;
+    ItemNode = item.name;
   }
 
-  const ItemText = () => ItemNode;
-
   return (
-    <li key={item.name} className={listClass}>
+    <li className={listClass}>
       <div className="group flex items-center gap-2">
-        <ItemIcon />
-        <ItemText />
+        <ItemIcon
+          IconComponent={IconItem}
+          iconClass={iconClass}
+          highlight={highlight}
+          itemName={item.name}
+        />
+        <ItemText>{ItemNode}</ItemText>
       </div>
     </li>
   );
@@ -226,16 +244,20 @@ type IconListProps = {
   colored?: boolean;
 };
 
-export const IconList = ({ items, highlight = false, colored = true }: IconListProps) => {
+export const IconList = ({
+  items,
+  highlight = false,
+  colored = true,
+}: IconListProps) => {
   return (
-    <ul className="ml-0 mt-0 list-none pl-0" role="list">
+    <ul className="ml-0 mt-0 list-none pl-0">
       {items.map((item, index) => (
         <ListItem
-          key={item.name}
+          key={`${item.name}-${index}`}
           index={index}
           item={item}
           highlight={highlight}
-	  colored={colored}
+          colored={colored}
         />
       ))}
     </ul>
@@ -279,11 +301,11 @@ const LanguageListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0",
+    "pl-0"
   );
 
   return (
-    <li key={item.name} className={listClass}>
+    <li className={listClass}>
       <div className="group flex items-center gap-2">
         <span className={iconClass} aria-hidden="true">
           {item.icon}
@@ -301,7 +323,7 @@ export type LanguageListItem = ListItem & {
 
 export const LanguageIconList = ({ items }: { items: LanguageListItem[] }) => {
   return (
-    <ul className="ml-0 mt-0 list-none pl-0" role="list">
+    <ul className="ml-0 mt-0 list-none pl-0">
       {items.map((item, index) => (
         <LanguageListItem key={item.name} index={index} item={item} />
       ))}

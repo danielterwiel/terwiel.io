@@ -1,12 +1,8 @@
-// "use client";
-
-// import React from "react";
-
-import Header from "~/components/header";
 import About from "~/components/about";
-import Experience from "~/components/experience";
 import Contact from "~/components/contact";
+import Experience from "~/components/experience";
 import Footer from "~/components/footer";
+import Header from "~/components/header";
 
 export default function HomePage() {
   return (

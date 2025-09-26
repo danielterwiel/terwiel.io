@@ -1,16 +1,17 @@
 "use client";
 
-import React from "react";
 import * as Form from "@radix-ui/react-form";
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { type Project } from "./experience";
+import React from "react";
+
+import type { Project } from "./experience";
 import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number,
+  wait: number
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -28,7 +29,7 @@ function debounce<T extends (query: string) => unknown>(
   };
 }
 
-export function SearchInput() {
+const SearchInputContent = () => {
   const searchParams = useSearchParams();
   const initialQuery = decodeURI(searchParams.get("search") ?? "").trim();
   const router = useRouter();
@@ -106,12 +107,20 @@ export function SearchInput() {
               <Icon.X aria-hidden="true" focusable="false" />
               <span className="sr-only">Clear search input</span>
             </button>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
       </Form.Field>
     </Form.Root>
+  );
+};
+
+export function SearchInput() {
+  return (
+    <React.Suspense
+      fallback={<div className="h-20 print:hidden">Loading search...</div>}
+    >
+      <SearchInputContent />
+    </React.Suspense>
   );
 }
 
@@ -126,7 +135,10 @@ export const SearchSummary = ({
   const monthsDiff = new Set<number>();
   for (const project of items) {
     const dateFrom = parseISO(project.dateFrom);
-    const dateTo = project.dateTo === 'present' ? parseISO(new Date().toISOString()) : parseISO(project.dateTo);
+    const dateTo =
+      project.dateTo === "present"
+        ? parseISO(new Date().toISOString())
+        : parseISO(project.dateTo);
     const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
     monthsDiff.add(diffInMonths);
   }
@@ -141,16 +153,14 @@ export const SearchSummary = ({
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (
-        <>
-          <div>
-            Your search for{" "}
-            <strong>
-              <mark>{query}</mark>
-            </strong>{" "}
-            returned <strong>{total}</strong> projects with a total duration of{" "}
-            <strong>{duration}</strong>.
-          </div>
-        </>
+        <div>
+          Your search for{" "}
+          <strong>
+            <mark>{query}</mark>
+          </strong>{" "}
+          returned <strong>{total}</strong> projects with a total duration of{" "}
+          <strong>{duration}</strong>.
+        </div>
       )}
     </div>
   );

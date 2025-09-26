@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 import { Icon } from "~/components/icon";
-import { ProfilePicture } from "./profile-picture";
 import ContactButton from "./contact-button";
 import PrintButton from "./print-button";
+import { ProfilePicture } from "./profile-picture";
 
 const Icons = () => (
-  <div className="md:jutify-end absolute left-3 flex flex-col gap-2 pt-1.5 print:relative print:hidden print:items-end print:text-right print:text-xs md:relative md:flex-row md:items-start">
+  <div className="md:jutify-end absolute left-3 flex flex-col gap-2 pt-1.5 md:relative md:flex-row md:items-start print:relative print:hidden print:items-end print:text-right print:text-xs">
     <ContactButton />
 
     <Link
@@ -43,14 +43,14 @@ export default function Header() {
       <ProfilePicture />
       <div className="p-4 text-right sm:text-left">
         <div className="flex flex-col justify-between sm:flex-row">
-          <h1 className="mb-5 text-3xl print:text-5xl sm:whitespace-nowrap">
+          <h1 className="mb-5 text-3xl sm:whitespace-nowrap print:text-5xl">
             Daniël Terwiel
           </h1>
           <Icons />
         </div>
 
         <p className="print:text-xl">
-          With over 18 years in web development, I&apos;ve gained extensive
+          With over 20 years in web development, I&apos;ve gained extensive
           knowledge and a lot of experience in different settings, including
           startups, hyper-growth scale-ups, and large enterprises. My journey
           has evolved from a beginner to a clean code absolutist, to becoming

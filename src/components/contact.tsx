@@ -1,11 +1,16 @@
 "use client";
 
-import * as Form from "@radix-ui/react-form";
 import { useForm } from "@formspree/react";
+import * as Form from "@radix-ui/react-form";
+
+import { useId } from "react";
+
 import { Icon } from "./icon";
 
 export default function Contact() {
   const [state, handleSubmit] = useForm("mgejggnl");
+  const formId = useId();
+  const emailInputId = useId();
   if (state.succeeded) {
     return (
       <p className="flex flex-col rounded-md border border-slate-500/50 p-4 text-klein print:hidden md:p-8">
@@ -15,7 +20,7 @@ export default function Contact() {
   }
 
   return (
-    <div id="form-contact">
+    <div id={formId} data-contact-form>
       <h2>Contact</h2>
       <Form.Root
         className="flex flex-col rounded-md border border-slate-500/50 p-4 print:hidden md:p-8"
@@ -41,7 +46,7 @@ export default function Contact() {
             <Form.Control asChild>
               <input
                 type="email"
-                id="input-email"
+                id={emailInputId}
                 autoComplete="email"
                 placeholder="e.g. yourname@domain.com"
                 className="absolute w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
@@ -90,9 +95,7 @@ export default function Contact() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
         <Form.Submit asChild>
           <button

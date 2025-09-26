@@ -1,11 +1,13 @@
-import React from "react";
 import { useSearchParams } from "next/navigation";
 
-export const HighlightedText = ({ children }: { children: string }) => {
+import type React from "react";
+import { Suspense } from "react";
+
+const HighlightedTextContent = ({ children }: { children: string }) => {
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
-  const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
     return <>{children}</>;
@@ -15,18 +17,27 @@ export const HighlightedText = ({ children }: { children: string }) => {
 
   return (
     <>
-      {parts.map((part, index) =>
-        part.toLowerCase() === query.toLowerCase() ? (
-          <mark key={index}>{part}</mark>
+      {parts.map((part, index) => {
+        const key = `${part}-${index}-${part.length}`;
+        return part.toLowerCase() === query.toLowerCase() ? (
+          <mark key={key}>{part}</mark>
         ) : (
-          <span key={index}>{part}</span>
-        ),
-      )}
+          <span key={key}>{part}</span>
+        );
+      })}
     </>
   );
 };
 
-export const HighlightedIcon = ({
+export const HighlightedText = ({ children }: { children: string }) => {
+  return (
+    <Suspense fallback={<span>{children}</span>}>
+      <HighlightedTextContent>{children}</HighlightedTextContent>
+    </Suspense>
+  );
+};
+
+const HighlightedIconContent = ({
   children,
   meta,
 }: {
@@ -36,7 +47,7 @@ export const HighlightedIcon = ({
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
-  const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
     return <span>{children}</span>;
@@ -47,4 +58,18 @@ export const HighlightedIcon = ({
   } else {
     return <span>{children}</span>;
   }
+};
+
+export const HighlightedIcon = ({
+  children,
+  meta,
+}: {
+  children: React.ReactNode;
+  meta: string;
+}) => {
+  return (
+    <Suspense fallback={<span>{children}</span>}>
+      <HighlightedIconContent meta={meta}>{children}</HighlightedIconContent>
+    </Suspense>
+  );
 };
