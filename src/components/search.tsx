@@ -3,6 +3,7 @@
 import * as Form from "@radix-ui/react-form";
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
 import React from "react";
 
 import type { Project } from "./experience";
@@ -10,7 +11,7 @@ import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number,
+  wait: number
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -106,9 +107,7 @@ const SearchInputContent = () => {
               <Icon.X aria-hidden="true" focusable="false" />
               <span className="sr-only">Clear search input</span>
             </button>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </div>
       </Form.Field>
     </Form.Root>
@@ -154,16 +153,14 @@ export const SearchSummary = ({
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (
-        <>
-          <div>
-            Your search for{" "}
-            <strong>
-              <mark>{query}</mark>
-            </strong>{" "}
-            returned <strong>{total}</strong> projects with a total duration of{" "}
-            <strong>{duration}</strong>.
-          </div>
-        </>
+        <div>
+          Your search for{" "}
+          <strong>
+            <mark>{query}</mark>
+          </strong>{" "}
+          returned <strong>{total}</strong> projects with a total duration of{" "}
+          <strong>{duration}</strong>.
+        </div>
       )}
     </div>
   );

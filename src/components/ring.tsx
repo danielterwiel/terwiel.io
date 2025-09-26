@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -46,7 +47,7 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
       "motion-safe:animation-ring": isVisible,
       "opacity-0": !isVisible,
       "print:opacity-100": !isVisible,
-    },
+    }
   );
 
   return (

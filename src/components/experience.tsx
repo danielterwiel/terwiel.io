@@ -2,7 +2,9 @@
 
 import { differenceInMonths, format, formatDuration, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
+
 import React, { Suspense, useId } from "react";
+
 import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { Ring } from "~/components/ring";
@@ -41,7 +43,7 @@ const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized application. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
+      "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
     stack: [
       { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
       {
@@ -97,12 +99,12 @@ const PROJECTS: Project[] = [
         url: "/?search=JavaScript#projects",
       },
       {
-        name: "Tanstack",
+        name: "Tanstack Router",
         icon: "BrandTanstack",
         url: "/?search=Tanstack#projects",
       },
       {
-        name: "Tanstack",
+        name: "Tanstack Query",
         icon: "BrandTanstack",
         url: "/?search=Tanstack#projects",
       },
@@ -428,7 +430,7 @@ const Project = ({
   const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
   const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo,
+    isPresent ? new Date().toISOString() : project.dateTo
   );
   const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
   const years = Math.floor(diffInMonths / 12);
@@ -536,12 +538,12 @@ function filterProjects(projects: Project[], query: string) {
   return projects.filter((project) => {
     const { stack, ...rest } = project;
     const stackMatches = stack.filter((item) =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
+      item.name.toLowerCase().includes(query.toLowerCase())
     );
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         value.toString().toLowerCase().includes(query.toLowerCase()) &&
-        !PROJECT_KEY_DISALLOWED.includes(key),
+        !PROJECT_KEY_DISALLOWED.includes(key)
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });

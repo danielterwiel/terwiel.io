@@ -1,11 +1,13 @@
-import React, { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+
+import type React from "react";
+import { Suspense } from "react";
 
 const HighlightedTextContent = ({ children }: { children: string }) => {
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
-  const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
     return <>{children}</>;
@@ -15,13 +17,14 @@ const HighlightedTextContent = ({ children }: { children: string }) => {
 
   return (
     <>
-      {parts.map((part, index) =>
-        part.toLowerCase() === query.toLowerCase() ? (
-          <mark key={index}>{part}</mark>
+      {parts.map((part, index) => {
+        const key = `${part}-${index}-${part.length}`;
+        return part.toLowerCase() === query.toLowerCase() ? (
+          <mark key={key}>{part}</mark>
         ) : (
-          <span key={index}>{part}</span>
-        ),
-      )}
+          <span key={key}>{part}</span>
+        );
+      })}
     </>
   );
 };
@@ -44,7 +47,7 @@ const HighlightedIconContent = ({
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("search") ?? "").trim();
 
-  const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 
   if (query === "") {
     return <span>{children}</span>;

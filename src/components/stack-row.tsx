@@ -1,6 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
+
 import React from "react";
 
 import * as Collapsible from "~/components/collapsible";
@@ -40,7 +41,7 @@ export function StackRow({ items }: { items: ListItem[] }) {
   const [openBeforePrint, setOpenBeforePrint] = React.useState(false);
   const toggle = () => setOpen((prev) => !prev);
   const icons = items.filter(
-    (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon),
+    (obj, index, self) => index === self.findIndex((t) => t.icon === obj.icon)
   );
 
   React.useEffect(() => {

@@ -5,7 +5,10 @@
   "scripts": {
     "build": "next build --profile",
     "dev": "next dev",
-    "lint": "next lint",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write",
+    "format:check": "biome format",
     "start": "next start",
     "typecheck": "tsc --noEmit"
   },
@@ -23,21 +26,15 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/typography": "^0.5.10",
-    "@types/eslint": "^8.44.7",
     "@types/node": "^18.16.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@types/webpack": "^5.28.5",
-    "@typescript-eslint/eslint-plugin": "^8.0.0",
-    "@typescript-eslint/parser": "^8.0.0",
     "autoprefixer": "^10.4.14",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "^15.5.4",
     "postcss": "^8.4.27",
-    "prettier": "^3.0.0",
-    "prettier-plugin-tailwindcss": "^0.5.7",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.3.2",
     "webpack": "^5.89.0"
