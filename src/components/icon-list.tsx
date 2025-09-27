@@ -10,7 +10,7 @@ import {
   ICON_COLORS,
   ICON_GROUP_HOVER,
   LINK_CLASSES,
-} from "~/consts/icon-colors";
+} from "~/data/icon-colors";
 import { HighlightedIcon, HighlightedText } from "./highlighted";
 
 export type ListItem = {
@@ -121,7 +121,7 @@ const ListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0"
+    "pl-0",
   );
 
   let ItemNode: React.ReactNode;
@@ -225,7 +225,7 @@ const LanguageListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0"
+    "pl-0",
   );
 
   return (

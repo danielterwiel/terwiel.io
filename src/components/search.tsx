@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import React from "react";
 
-import type { Project } from "./experience";
+import type { Project } from "~/data/projects";
 import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
@@ -31,7 +31,9 @@ function debounce<T extends (query: string) => unknown>(
 
 const SearchInputContent = () => {
   const searchParams = useSearchParams();
-  const initialQuery = decodeURI(searchParams.get("search") ?? "").trim();
+  const initialQuery = decodeURIComponent(
+    searchParams.get("search") ?? ""
+  ).trim();
   const router = useRouter();
   const pathname = usePathname();
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -48,7 +50,7 @@ const SearchInputContent = () => {
   }, [initialQuery]);
 
   function setSearchParams(query: string) {
-    const encodedValue = encodeURI(query);
+    const encodedValue = encodeURIComponent(query);
     const url = encodedValue ? `${pathname}?search=${encodedValue}` : pathname;
     router.replace(url, {
       scroll: false,

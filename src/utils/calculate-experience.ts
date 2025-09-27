@@ -89,7 +89,7 @@ export function calculateExperienceScale(
   allExperiences: StackExperience[],
   config: ScalingConfig = {
     minScale: 0.7,
-    maxScale: 1.6,
+    maxScale: 1.1, // Further reduced to 1.1 for smaller large icons
     baseRadius: 35,
   }
 ): number {
@@ -109,10 +109,17 @@ export function calculateExperienceScale(
   const normalizedExperience =
     (totalMonths - minExperience) / (maxExperience - minExperience);
 
-  // Apply smooth scaling with easing (ease-out curve)
-  const eased = 1 - (1 - normalizedExperience) ** 2;
+  // Apply more aggressive diminishing returns using square root scaling
+  // This further discriminates against larger nodes by reducing their growth rate
+  const diminished = Math.sqrt(normalizedExperience);
 
-  // Scale between min and max
+  // Apply additional diminishing returns for very high experience
+  const doubleReduced = Math.sqrt(diminished);
+
+  // Apply smooth easing for visual appeal
+  const eased = 1 - (1 - doubleReduced) ** 1.2;
+
+  // Scale between min and max with the diminished factor
   const scale = config.minScale + eased * (config.maxScale - config.minScale);
 
   return Math.round(config.baseRadius * scale);

@@ -9,30 +9,10 @@ import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { Ring } from "~/components/ring";
 import { StackRow } from "~/components/stack-row";
-import { PROJECTS } from "~/data/projects";
+import { PROJECTS, type Project } from "~/data/projects";
 import { calculateProjectDuration } from "~/utils/calculate-experience";
 import { IconList, type ListItem } from "./icon-list";
 import { SearchSummary } from "./search";
-
-type StackItem = {
-  name: string;
-  icon: string;
-  url: string;
-};
-
-export type Project = {
-  id: string;
-  company: string;
-  role: string;
-  teamSize: number;
-  industry: string;
-  location: string;
-  dateFrom: string;
-  dateTo: string;
-  description: string;
-  stack: StackItem[];
-  icon: string;
-};
 
 const Project = ({
   project,

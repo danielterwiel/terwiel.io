@@ -1,8 +1,22 @@
+import { generateStackUrl } from "~/utils/generate-stack-url";
+
 export type StackItem = {
   name: string;
   icon: string;
-  url: string;
+  url?: string;
 };
+
+export function createStackItem(
+  name: string,
+  icon: string,
+  url?: string
+): StackItem {
+  return {
+    name,
+    icon,
+    url: url ?? generateStackUrl(name),
+  };
+}
 
 export type Project = {
   id: string;
@@ -31,42 +45,22 @@ export const PROJECTS: Project[] = [
     description:
       "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
     stack: [
-      {
-        name: "Effect",
-        icon: "Stack",
-        url: "/?search=Effect#projects",
-      },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      {
-        name: "Tanstack Start",
-        icon: "BrandTanstack",
-        url: "/?search=Tanstack#projects",
-      },
-      {
-        name: "Tanstack Router",
-        icon: "BrandTanstack",
-        url: "/?search=Tanstack#projects",
-      },
-      {
-        name: "TypeScript",
-        icon: "BrandTypescript",
-        url: "/?search=TypeScript#projects",
-      },
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      {
-        name: "Tailwind",
-        icon: "BrandTailwind",
-        url: "/?search=Tailwind#projects",
-      },
-      {
-        name: "XState",
-        icon: "BrandXstate",
-        url: "/?search=XState#projects",
-      },
+      createStackItem("Effect", "Stack"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem(
+        "Tanstack", // TODO: should be "Tanstack Start" when displayed as an individual project stack item
+        "BrandTanstack",
+        "/?search=Tanstack#projects"
+      ),
+      createStackItem(
+        "Tanstack Router",
+        "BrandTanstack",
+        "/?search=Tanstack#projects"
+      ),
+      createStackItem("TypeScript", "BrandTypescript"),
+      createStackItem("React", "BrandReact"),
+      createStackItem("Tailwind", "BrandTailwind"),
+      createStackItem("XState", "BrandXstate"),
     ],
     icon: "ShieldLock",
   },
@@ -82,39 +76,23 @@ export const PROJECTS: Project[] = [
     description:
       "In my personal time, I am developing a ransomware-resilient QMS using Rust and XState on the Internet Computer. This initiative serves to master these technologies and a terminal-centric workflow, with the goal of creating robust, secure applications for vulnerable SMBs in nowadays rapidly evolving threat landscape.",
     stack: [
-      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      {
-        name: "Tanstack Router",
-        icon: "BrandTanstack",
-        url: "/?search=Tanstack#projects",
-      },
-      {
-        name: "Tanstack Query",
-        icon: "BrandTanstack",
-        url: "/?search=Tanstack#projects",
-      },
-      {
-        name: "TypeScript",
-        icon: "BrandTypescript",
-        url: "/?search=TypeScript#projects",
-      },
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      { name: "Tanstack", icon: "Stack", url: "/?search=Tanstack#projects" },
-      {
-        name: "Tailwind",
-        icon: "BrandTailwind",
-        url: "/?search=Tailwind#projects",
-      },
-      {
-        name: "XState",
-        icon: "BrandXstate",
-        url: "/?search=XState#projects",
-      },
+      createStackItem("Rust", "BrandRust"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem(
+        "Tanstack Router",
+        "BrandTanstack",
+        "/?search=Tanstack#projects"
+      ),
+      createStackItem(
+        "Tanstack Query",
+        "BrandTanstack",
+        "/?search=Tanstack#projects"
+      ),
+      createStackItem("TypeScript", "BrandTypescript"),
+      createStackItem("React", "BrandReact"),
+      createStackItem("Tanstack", "Stack", "/?search=Tanstack#projects"),
+      createStackItem("Tailwind", "BrandTailwind"),
+      createStackItem("XState", "BrandXstate"),
     ],
     icon: "ShieldLock",
   },
@@ -122,30 +100,18 @@ export const PROJECTS: Project[] = [
     id: "PROJECT_8",
     company: "90 Percent of Everything",
     role: "Front-end Developer",
-    teamSize: 150,
-    industry: "Cargo Shipping",
+    teamSize: 100,
+    industry: "Logistics",
     location: "London (Remote)",
     dateFrom: "2024-02-01",
     dateTo: "present",
     description:
       "At 90 Percent of Everything, I've built and maintained multiple micro-frontend CRUD applications using TypeScript.",
     stack: [
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      {
-        name: "TypeScript",
-        icon: "BrandTypescript",
-        url: "/?search=TypeScript#projects",
-      },
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      {
-        name: "GraphQL",
-        icon: "BrandGraphql",
-        url: "/?search=GraphQL#projects",
-      },
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("TypeScript", "BrandTypescript"),
+      createStackItem("React", "BrandReact"),
+      createStackItem("GraphQL", "BrandGraphql"),
     ],
     icon: "Ship",
   },
@@ -161,28 +127,16 @@ export const PROJECTS: Project[] = [
     description:
       "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI and setting up the release and publishing flow using Rust. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
     stack: [
-      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      {
-        name: "TypeScript",
-        icon: "BrandTypescript",
-        url: "/?search=TypeScript#projects",
-      },
-      { name: "Vue", icon: "BrandVue", url: "/?search=Vue#projects" },
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      { name: "Next.js", icon: "BrandVercel", url: "/?search=Next#projects" },
-      {
-        name: "Tailwind",
-        icon: "BrandTailwind",
-        url: "/?search=Tailwind#projects",
-      },
-      { name: "Vite", icon: "BrandVite", url: "/?search=Vite#projects" },
-      { name: "Vitest", icon: "BrandVite", url: "/?search=Vitest#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("Rust", "BrandRust"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("TypeScript", "BrandTypescript"),
+      createStackItem("Vue", "BrandVue"),
+      createStackItem("React", "BrandReact"),
+      createStackItem("Next.js", "BrandVercel"),
+      createStackItem("Tailwind", "BrandTailwind"),
+      createStackItem("Vite", "BrandVite"),
+      createStackItem("Vitest", "BrandVite"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "Rocket",
   },
@@ -198,16 +152,12 @@ export const PROJECTS: Project[] = [
     description:
       "At ING's Touchpoint department, I was instrumental in developing and maintaining a multi-component, plug-and-play platform, used across various ING branches worldwide. My focus was on enhancing user authentication processes and building utility libraries to streamline user experiences. I employed advanced JavaScript, JSDoc, Lit, CSS, and HTML to deliver high-quality, scalable, and secure front-end solutions. My work contributed to standardizing the user experience across ING's global network. Furthermore I was responsible for the creation of a bootstrapping tool to spin up new projects that adhere to the ING infrastructure.",
     stack: [
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "Lit", icon: "Components", url: "/?search=Lit#projects" },
-      { name: "JSDoc", icon: "FileTypeDoc", url: "/?search=JSDoc#projects" },
-      { name: "Mocha", icon: "TestPipe", url: "/?search=Mocha#projects" },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("Lit", "Components"),
+      createStackItem("JSDoc", "FileTypeDoc"),
+      createStackItem("Mocha", "TestPipe"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "BuildingBank",
   },
@@ -223,31 +173,15 @@ export const PROJECTS: Project[] = [
     description:
       "At M&I my main task was to maintain and enhance a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
     stack: [
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      { name: "Redux", icon: "BrandRedux", url: "/?search=Redux#projects" },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      {
-        name: "Webpack",
-        icon: "BrandJavascript",
-        url: "/?search=Webpack#projects",
-      },
-      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
-      {
-        name: "Puppeteer",
-        icon: "BrandJavascript",
-        url: "/?search=Puppeteer#projects",
-      },
-      {
-        name: "Tailwind",
-        icon: "BrandTailwind",
-        url: "/?search=Tailwind#projects",
-      },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("React", "BrandReact"),
+      createStackItem("Redux", "BrandRedux"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("Webpack", "BrandJavascript"),
+      createStackItem("Jest", "BrandJavascript"),
+      createStackItem("Puppeteer", "BrandJavascript"),
+      createStackItem("Tailwind", "BrandTailwind"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "News",
   },
@@ -263,21 +197,13 @@ export const PROJECTS: Project[] = [
     description:
       "At one of the fastest-growing scale-ups in the Netherlands, I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
     stack: [
-      { name: "Vue", icon: "BrandVue", url: "/?search=Vue#projects" },
-      { name: "Preact", icon: "BrandReact", url: "/?search=Preact#projects" },
-      {
-        name: "Webpack",
-        icon: "BrandJavascript",
-        url: "/?search=Webpack#projects",
-      },
-      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("Vue", "BrandVue"),
+      createStackItem("Preact", "BrandReact"),
+      createStackItem("Webpack", "BrandJavascript"),
+      createStackItem("Jest", "BrandJavascript"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "Package",
   },
@@ -293,36 +219,16 @@ export const PROJECTS: Project[] = [
     description:
       "At Iperion, my role was centered around designing and developing the GxP Cloud, a greenfield application for the life sciences industry. I utilized React, Redux, Redux-saga, and Material UI among other technologies to create a user-friendly, scalable, and compliant application. My work involved deep collaboration with cross-functional teams to understand and implement industry-specific requirements, ensuring that the application met stringent regulatory standards while offering an intuitive user experience.",
     stack: [
-      { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-      { name: "Redux", icon: "BrandRedux", url: "/?search=Redux#projects" },
-      {
-        name: "Redux-saga",
-        icon: "BrandRedux",
-        url: "/?search=Redux#projects",
-      },
-      {
-        name: "FlowType",
-        icon: "BrandJavascript",
-        url: "/?search=FlowType#projects",
-      },
-      { name: "Jest", icon: "BrandJavascript", url: "/?search=Jest#projects" },
-      {
-        name: "Webpack",
-        icon: "BrandJavascript",
-        url: "/?search=Webpack#projects",
-      },
-      {
-        name: "Material UI",
-        icon: "BrandGoogle",
-        url: "/?search=Material#projects",
-      },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "SCSS", icon: "BrandSass", url: "/?search=SCSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("React", "BrandReact"),
+      createStackItem("Redux", "BrandRedux"),
+      createStackItem("Redux-saga", "BrandRedux"),
+      createStackItem("FlowType", "BrandJavascript"),
+      createStackItem("Jest", "BrandJavascript"),
+      createStackItem("Webpack", "BrandJavascript"),
+      createStackItem("Material UI", "BrandGoogle"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("SCSS", "BrandSass"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "HealthRecognition",
   },
@@ -338,18 +244,10 @@ export const PROJECTS: Project[] = [
     description:
       "At Amadeus, I contributed to the development of ELS, a single-page application designed for the hospitality industry. My role primarily involved utilizing Knockout.js, JavaScript, CSS, and HTML to enhance the application's user interface and performance. This work included addressing various technical challenges and ensuring that the application met the needs of its users in the hospitality sector.",
     stack: [
-      {
-        name: "Knockout.js",
-        icon: "BrandJavascript",
-        url: "/?search=Knockout#projects",
-      },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("Knockout.js", "BrandJavascript"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "HotelService",
   },
@@ -365,15 +263,11 @@ export const PROJECTS: Project[] = [
     description:
       "During my time at Dinto, I was involved in creating interactive blueprints for warehouse layouts using SVG, SQL, and JavaScript. This task required a focus on detail and accuracy to ensure the blueprints were both functional and user-friendly. My role contributed to improving the way warehouses could be organized and managed, offering a visual and practical tool for operational planning.",
     stack: [
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
-      { name: "SVG", icon: "Svg", url: "/?search=SVG#projects" },
-      { name: "SQL", icon: "Sql", url: "/?search=SQL#projects" },
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
+      createStackItem("SVG", "Svg"),
+      createStackItem("SQL", "Sql"),
     ],
     icon: "BuildingWarehouse",
   },
@@ -389,20 +283,12 @@ export const PROJECTS: Project[] = [
     description:
       "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full-stack development and understanding client needs in the financial sector.",
     stack: [
-      {
-        name: "Visual Basic.NET",
-        icon: "BrandVisualStudio",
-        url: "/?search=Visual#projects",
-      },
-      { name: "SQL Server", icon: "Sql", url: "/?search=SQL#projects" },
-      { name: "PHP", icon: "BrandPhp", url: "/?search=PHP#projects" },
-      {
-        name: "JavaScript",
-        icon: "BrandJavascript",
-        url: "/?search=JavaScript#projects",
-      },
-      { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-      { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
+      createStackItem("Visual Basic.NET", "BrandVisualStudio"),
+      createStackItem("SQL Server", "Sql"),
+      createStackItem("PHP", "BrandPhp"),
+      createStackItem("JavaScript", "BrandJavascript"),
+      createStackItem("CSS", "BrandCss3"),
+      createStackItem("HTML", "BrandHtml5"),
     ],
     icon: "HeartHandshake",
   },

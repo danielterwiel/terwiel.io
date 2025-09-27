@@ -67,6 +67,65 @@
     object-fit: contain;
     display: block;
   }
+
+  /* Magnetic Node Effect - Inner Wrapper */
+  .node-magnetic {
+    position: relative;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(0, 47, 167, 0.03)
+    );
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .node-magnetic::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(100% + 32px);
+    height: calc(100% + 32px);
+    border: 2px solid rgba(0, 47, 167, 0.3);
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: -1;
+  }
+
+  .node-magnetic-hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 47, 167, 0.25);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15),
+      rgba(0, 47, 167, 0.08)
+    );
+  }
+
+  .node-magnetic-hover::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    border-color: rgba(0, 47, 167, 0.6);
+  }
+
+  .node-magnetic-selected {
+    background: linear-gradient(
+      135deg,
+      rgba(0, 47, 167, 0.12),
+      rgba(0, 47, 167, 0.06)
+    );
+    box-shadow: 0 4px 16px rgba(0, 47, 167, 0.2);
+  }
+
+  .node-magnetic-selected::after {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(0.9);
+    border-color: rgba(0, 47, 167, 0.5);
+  }
 }
 
 @keyframes animationRing {
@@ -100,6 +159,28 @@
   }
 }
 
+@keyframes float-subtle {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes magnetic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;
@@ -109,6 +190,12 @@
   }
   .animation-slide-down {
     animation: animationSlideDown 0.5s ease-in-out forwards;
+  }
+  .animation-float-subtle {
+    animation: float-subtle 4s ease-in-out infinite;
+  }
+  .animation-magnetic-pulse {
+    animation: magnetic-pulse 2s ease-in-out infinite;
   }
 
   .svg-contain {

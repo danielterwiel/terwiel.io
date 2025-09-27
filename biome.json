@@ -39,6 +39,7 @@
         "useImportType": "error"
       },
       "suspicious": {
+        "noRedeclare": "off",
         "noEmptyBlockStatements": "error",
         "noExplicitAny": "error",
         "noExtraNonNullAssertion": "error",
