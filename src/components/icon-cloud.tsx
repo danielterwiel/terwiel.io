@@ -9,6 +9,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "~/components/icon";
 import { PROJECTS, type Project } from "~/data/projects";
 import { ICON_COLORS } from "~/consts/icon-colors";
+import { calculateStackExperience, calculateExperienceScale } from "~/utils/calculate-experience";
 
 type IconNode = {
   id: string;
@@ -34,16 +35,38 @@ function extractUniqueIcons(
   const iconMap = new Map<string, IconNode>();
   let idCounter = 0;
 
+  // Calculate experience for all stack items
+  const stackExperience = calculateStackExperience(projects);
+
+  // Create a map for quick experience lookup by stack name
+  const experienceMap = new Map(
+    stackExperience.map(exp => [exp.name, exp])
+  );
+
   // Extract stack icons
   projects.forEach((project) => {
     project.stack.forEach((stackItem) => {
       if (!iconMap.has(stackItem.icon)) {
+        // Get experience for this stack item
+        const experience = experienceMap.get(stackItem.name);
+
+        // Calculate dynamic radius based on experience
+        // Base radius is 35, max is 70 (2x), min stays at 35
+        const baseRadius = 35;
+        const dynamicRadius = experience
+          ? calculateExperienceScale(
+              experience.totalMonths,
+              stackExperience,
+              { minScale: 1.0, maxScale: 2.0, baseRadius }
+            )
+          : baseRadius;
+
         iconMap.set(stackItem.icon, {
           id: `stack-${idCounter++}`,
           name: stackItem.name,
           icon: stackItem.icon,
           url: stackItem.url,
-          r: 35,
+          r: dynamicRadius,
           group: 1, // Stack icons
         });
       }
@@ -97,7 +120,7 @@ export const IconCloud: React.FC = () => {
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force(
         "collision",
-        d3.forceCollide<IconNode>().radius((d) => d.r + 15), // Increased padding
+        d3.forceCollide<IconNode>().radius((d) => d.r + 15), // Dynamic padding based on node size
       )
       .force("x", d3.forceX(width / 2).strength(0.05)) // Reduced from 0.1
       .force("y", d3.forceY(height / 2).strength(0.05)) // Reduced from 0.1

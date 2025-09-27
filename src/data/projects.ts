@@ -31,7 +31,11 @@ export const PROJECTS: Project[] = [
     description:
       "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
     stack: [
-      { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
+      {
+        name: "Effect",
+        icon: "Stack",
+        url: "/?search=Effect#projects",
+      },
       {
         name: "JavaScript",
         icon: "BrandJavascript",

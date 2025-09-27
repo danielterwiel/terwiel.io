@@ -1,6 +1,6 @@
 "use client";
 
-import { differenceInMonths, format, formatDuration, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useSearchParams } from "next/navigation";
 
 import React, { Suspense, useId } from "react";
@@ -10,8 +10,9 @@ import { Icon } from "~/components/icon";
 import { Ring } from "~/components/ring";
 import { StackRow } from "~/components/stack-row";
 import { PROJECTS } from "~/data/projects";
+import { calculateProjectDuration } from "~/utils/calculate-experience";
 import { IconList, type ListItem } from "./icon-list";
-import { SearchInput, SearchSummary } from "./search";
+import { SearchSummary } from "./search";
 
 type StackItem = {
   name: string;
@@ -45,12 +46,12 @@ const Project = ({
   const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
   const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo,
+    isPresent ? new Date().toISOString() : project.dateTo
   );
-  const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
-  const years = Math.floor(diffInMonths / 12);
-  const months = diffInMonths % 12;
-  const duration = formatDuration({ months, years });
+  const { duration } = calculateProjectDuration(
+    project.dateFrom,
+    project.dateTo
+  );
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
   const fromApos = from.replace(/\d+/g, "'$&");
@@ -153,12 +154,12 @@ function filterProjects(projects: Project[], query: string) {
   return projects.filter((project) => {
     const { stack, ...rest } = project;
     const stackMatches = stack.filter((item) =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
+      item.name.toLowerCase().includes(query.toLowerCase())
     );
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         value.toString().toLowerCase().includes(query.toLowerCase()) &&
-        !PROJECT_KEY_DISALLOWED.includes(key),
+        !PROJECT_KEY_DISALLOWED.includes(key)
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });

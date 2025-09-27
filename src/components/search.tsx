@@ -11,7 +11,7 @@ import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number,
+  wait: number
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
