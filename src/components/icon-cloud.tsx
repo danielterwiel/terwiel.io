@@ -5,11 +5,15 @@ import { createRoot } from "react-dom/client";
 
 import type React from "react";
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Icon } from "~/components/icon";
 import { PROJECTS, type Project } from "~/data/projects";
 import { ICON_COLORS } from "~/consts/icon-colors";
-import { calculateStackExperience, calculateExperienceScale } from "~/utils/calculate-experience";
+import {
+  calculateStackExperience,
+  calculateExperienceScale,
+} from "~/utils/calculate-experience";
 
 type IconNode = {
   id: string;
@@ -39,9 +43,7 @@ function extractUniqueIcons(
   const stackExperience = calculateStackExperience(projects);
 
   // Create a map for quick experience lookup by stack name
-  const experienceMap = new Map(
-    stackExperience.map(exp => [exp.name, exp])
-  );
+  const experienceMap = new Map(stackExperience.map((exp) => [exp.name, exp]));
 
   // Extract stack icons
   projects.forEach((project) => {
@@ -54,11 +56,11 @@ function extractUniqueIcons(
         // Base radius is 35, max is 70 (2x), min stays at 35
         const baseRadius = 35;
         const dynamicRadius = experience
-          ? calculateExperienceScale(
-              experience.totalMonths,
-              stackExperience,
-              { minScale: 1.0, maxScale: 2.0, baseRadius }
-            )
+          ? calculateExperienceScale(experience.totalMonths, stackExperience, {
+              minScale: 1.0,
+              maxScale: 2.0,
+              baseRadius,
+            })
           : baseRadius;
 
         iconMap.set(stackItem.icon, {
@@ -95,6 +97,7 @@ export const IconCloud: React.FC = () => {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<IconNode, undefined> | null>(null);
   const [isAnimationReady, setIsAnimationReady] = useState(false);
+  const router = useRouter();
 
   // Fixed dimensions for viewBox - will scale responsively
   const width = 800;
@@ -222,7 +225,9 @@ export const IconCloud: React.FC = () => {
             // Get color values for smooth interpolation
             const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
             const defaultColor = "#6b7280"; // text-gray-500 equivalent
-            const hoverColor = iconColor ? iconColor.replace("text-[", "").replace("]", "") : defaultColor;
+            const hoverColor = iconColor
+              ? iconColor.replace("text-[", "").replace("]", "")
+              : defaultColor;
 
             // Apply hover styles with smooth color interpolation
             d3.select(iconElement)
@@ -230,15 +235,18 @@ export const IconCloud: React.FC = () => {
               .transition(transitionKey)
               .duration(300)
               .ease(d3.easeCubicInOut)
-              .styleTween("color", function() {
-                const interpolateColor = d3.interpolate(defaultColor, hoverColor);
-                return function(t) {
+              .styleTween("color", function () {
+                const interpolateColor = d3.interpolate(
+                  defaultColor,
+                  hoverColor,
+                );
+                return function (t) {
                   return interpolateColor(t);
                 };
               })
-              .styleTween("transform", function() {
+              .styleTween("transform", function () {
                 const interpolateScale = d3.interpolate(1, 1.5);
-                return function(t) {
+                return function (t) {
                   return `scale(${interpolateScale(t)})`;
                 };
               });
@@ -274,7 +282,9 @@ export const IconCloud: React.FC = () => {
             // Get color values for smooth interpolation back to default
             const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
             const defaultColor = "#6b7280"; // text-gray-500 equivalent
-            const hoverColor = iconColor ? iconColor.replace("text-[", "").replace("]", "") : defaultColor;
+            const hoverColor = iconColor
+              ? iconColor.replace("text-[", "").replace("]", "")
+              : defaultColor;
 
             // Apply default styles with smooth color interpolation back to default
             d3.select(iconElement)
@@ -283,15 +293,18 @@ export const IconCloud: React.FC = () => {
               .transition(transitionKey)
               .duration(300)
               .ease(d3.easeCubicInOut)
-              .styleTween("color", function() {
-                const interpolateColor = d3.interpolate(hoverColor, defaultColor);
-                return function(t) {
+              .styleTween("color", function () {
+                const interpolateColor = d3.interpolate(
+                  hoverColor,
+                  defaultColor,
+                );
+                return function (t) {
                   return interpolateColor(t);
                 };
               })
-              .styleTween("transform", function() {
-                const interpolateScale = d3.interpolate(1.5, 1);
-                return function(t) {
+              .styleTween("transform", function () {
+                const interpolateScale = d3.interpolate(1.3, 1);
+                return function (t) {
                   return `scale(${interpolateScale(t)})`;
                 };
               });
@@ -301,7 +314,13 @@ export const IconCloud: React.FC = () => {
 
     // Add click handlers
     nodeGroups.on("click", (_event, d) => {
-      window.location.href = d.url;
+      if (d.url.startsWith('http') || d.url.startsWith('//')) {
+        // External links - open in new tab
+        window.open(d.url, '_blank', 'noopener,noreferrer');
+      } else {
+        // Internal links - use Next.js router for SPA navigation
+        router.push(d.url);
+      }
     });
 
     // Mouse interaction for attraction
@@ -349,17 +368,10 @@ export const IconCloud: React.FC = () => {
     // Create div containers for React components
     const iconContainers = foreignObjects
       .append("xhtml:div")
-      .style("width", "100%")
-      .style("height", "100%")
-      .style("display", "flex")
-      .style("align-items", "center")
-      .style("justify-content", "center")
-      .style("pointer-events", "none")
-      .style("margin", "0")
-      .style("padding", "0")
-      .style("box-sizing", "border-box")
-      .style("position", "relative")
-      .style("overflow", "hidden");
+      .attr(
+        "class",
+        "w-full h-full flex items-center justify-center pointer-events-none m-0 p-0 box-border relative overflow-hidden",
+      );
 
     // Render React icons into each container
     iconContainers.each(function (d) {
@@ -380,26 +392,11 @@ export const IconCloud: React.FC = () => {
         element.setAttribute("data-hover-class", hoverClass);
 
         root.render(
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              left: 0,
-            }}
-          >
+          <div className="flex items-center justify-center w-full h-full absolute top-0 left-0">
             <IconComponent
               width={d.r * 1.0}
               height={d.r * 1.0}
-              className={defaultClass}
-              style={{
-                display: "block",
-                margin: "auto",
-              }}
+              className={`${defaultClass} block m-auto`}
               ref={(svgElement: SVGSVGElement | null) => {
                 if (svgElement) {
                   // Auto-center the icon based on its geometric bounds
@@ -481,10 +478,7 @@ export const IconCloud: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto my-8 px-4 overflow-visible">
-      <div
-        className="relative w-full overflow-visible"
-        style={{ paddingBottom: "75%" }}
-      >
+      <div className="relative w-full overflow-visible pb-[75%]">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
