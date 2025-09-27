@@ -11,7 +11,7 @@ import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -76,7 +76,7 @@ const SearchInputContent = () => {
     >
       <Form.Field name="query">
         <div>
-          <Form.Label>Search query</Form.Label>
+          <Form.Label className="sr-only">Search query</Form.Label>
           <Form.Message match="typeMismatch">
             Please provide a your search query
           </Form.Message>
@@ -86,7 +86,7 @@ const SearchInputContent = () => {
             <input
               ref={inputRef}
               type="input"
-              placeholder="e.g. Sendcloud, 2022, Rust"
+              placeholder="Search - e.g. Sendcloud, 2022, Rust"
               value={query}
               onChange={handleInputChange}
               className="absolute w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
