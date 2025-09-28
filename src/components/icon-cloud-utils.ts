@@ -9,7 +9,7 @@ import { generateStackUrl } from "~/utils/generate-stack-url";
 export function extractUniqueIcons(
   projects: Project[],
   width: number,
-  height: number,
+  height: number
 ): IconNode[] {
   const iconMap = new Map<string, IconNode>();
   let idCounter = 0;

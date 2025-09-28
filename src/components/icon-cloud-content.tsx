@@ -14,10 +14,10 @@ import {
 } from "react";
 
 import type { IconNode } from "../types/icon-node";
-import { HoverTextDisplay } from "~/components/hover-text-display";
 import { Icon } from "~/components/icon";
-import { ICON_COLORS } from "~/data/icon-colors";
+import { StackItemExperience } from "~/components/stack-item-experience";
 import { PROJECTS } from "~/data/projects";
+import { getIconColorClass, getIconHexColor } from "~/utils/icon-colors";
 import { extractUniqueIcons } from "./icon-cloud-utils";
 
 export const IconCloudContent: React.FC = () => {
@@ -138,7 +138,7 @@ export const IconCloudContent: React.FC = () => {
 
         if (outerContainer) {
           const shouldBeSelected = d.id === targetNode.id && isSelected;
-          const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
+          const iconColor = getIconHexColor(d.icon);
 
           // Update magnetic container styling for selected state
           const magneticContainer = outerContainer.querySelector(
@@ -158,9 +158,7 @@ export const IconCloudContent: React.FC = () => {
           if (iconElement) {
             if (shouldBeSelected && iconColor) {
               // Apply selected styling with icon's specific color
-              const selectedColor = iconColor
-                .replace("text-[", "")
-                .replace("]", "");
+              const selectedColor = iconColor;
               d3.select(iconElement)
                 .interrupt() // Cancel any ongoing transitions
                 .transition()
@@ -335,11 +333,9 @@ export const IconCloudContent: React.FC = () => {
               const transitionKey = `hover-${d.id}`;
 
               // Get color values for smooth interpolation - use the node's specific color
-              const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
+              const iconColor = getIconHexColor(d.icon);
               const defaultColor = "#6b7280"; // text-gray-500 equivalent
-              const hoverColor = iconColor
-                ? iconColor.replace("text-[", "").replace("]", "")
-                : defaultColor;
+              const hoverColor = iconColor || defaultColor;
 
               // Calculate scale based on icon size - larger icons scale less
               const baseScale = d.r > 50 ? 1.15 : d.r > 40 ? 1.2 : 1.25;
@@ -399,15 +395,13 @@ export const IconCloudContent: React.FC = () => {
               const transitionKey = `unhover-${d.id}`;
 
               // Get color values for smooth interpolation back to default/selected state
-              const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
+              const iconColor = getIconHexColor(d.icon);
               const defaultColor = "#6b7280"; // text-gray-500 equivalent
 
               // Determine target state based on selection - use specific icon color
               const isSelected = selectedNode?.id === d.id;
               const targetColor =
-                isSelected && iconColor
-                  ? iconColor.replace("text-[", "").replace("]", "")
-                  : defaultColor;
+                isSelected && iconColor ? iconColor : defaultColor;
 
               // Calculate selected scale based on icon size - larger icons scale less
               const selectedScale = isSelected
@@ -521,16 +515,17 @@ export const IconCloudContent: React.FC = () => {
 
         if (IconComponent) {
           const root = createRoot(this as Element);
-          const iconColor = ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
+          const iconHexColor = getIconHexColor(d.icon);
+          const iconColorClass = getIconColorClass(d.icon);
           const isSelected = selectedNode?.id === d.id;
 
           const defaultClass =
             "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-100 transition-all duration-300 ease-in-out";
-          const hoverClass = iconColor
-            ? `${iconColor} drop-shadow-sm scale-150 transition-all duration-300 ease-in-out`
+          const hoverClass = iconColorClass
+            ? `${iconColorClass} drop-shadow-sm scale-150 transition-all duration-300 ease-in-out`
             : "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-150 transition-all duration-300 ease-in-out";
-          const selectedClass = iconColor
-            ? `${iconColor} drop-shadow-sm scale-125 transition-all duration-300 ease-in-out`
+          const selectedClass = iconColorClass
+            ? `${iconColorClass} drop-shadow-sm scale-125 transition-all duration-300 ease-in-out`
             : "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-125 transition-all duration-300 ease-in-out";
 
           // Store classes for hover state management
@@ -566,11 +561,8 @@ export const IconCloudContent: React.FC = () => {
                 ref={(svgElement: SVGSVGElement | null) => {
                   if (svgElement) {
                     // Apply initial selected styling if needed
-                    if (shouldShowSelected && iconColor) {
-                      const selectedColor = iconColor
-                        .replace("text-[", "")
-                        .replace("]", "");
-                      svgElement.style.color = selectedColor;
+                    if (shouldShowSelected && iconHexColor) {
+                      svgElement.style.color = iconHexColor;
                       svgElement.style.transform = `scale(1.25)`;
                     }
 
@@ -631,13 +623,8 @@ export const IconCloudContent: React.FC = () => {
                         }
 
                         // Apply icon color based on node state
-                        const iconColor =
-                          ICON_COLORS[d.icon as keyof typeof ICON_COLORS];
-                        if (shouldShowSelected && iconColor) {
-                          const selectedColor = iconColor
-                            .replace("text-[", "")
-                            .replace("]", "");
-                          svgElement.style.color = selectedColor;
+                        if (shouldShowSelected && iconHexColor) {
+                          svgElement.style.color = iconHexColor;
                         }
 
                         svgElement.setAttribute(
@@ -670,7 +657,12 @@ export const IconCloudContent: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl mx-auto my-8 px-4 overflow-visible">
+    <div className="w-full max-w-4xl mx-auto mb-8 px-4 overflow-visible flex flex-col">
+      <StackItemExperience
+        hoveredNode={hoveredNode}
+        selectedNode={selectedNode}
+      />
+
       <div className="relative w-full overflow-visible pb-[75%]">
         <svg
           ref={svgRef}
@@ -686,8 +678,6 @@ export const IconCloudContent: React.FC = () => {
           }}
         />
       </div>
-
-      <HoverTextDisplay hoveredNode={hoveredNode} selectedNode={selectedNode} />
     </div>
   );
 };

@@ -1,8 +1,17 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
+import {
+  generateIconSafelist,
+  generateTailwindIconColors,
+} from "./src/utils/icon-colors";
+
 export default {
   content: ["./src/**/*.tsx"],
+  safelist: [
+    // Icon color classes for dynamic generation
+    ...generateIconSafelist(),
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -10,6 +19,8 @@ export default {
       },
       colors: {
         klein: "#002FA7",
+        // Icon brand colors (generated from ICON_COLORS)
+        ...generateTailwindIconColors(),
       },
     },
   },

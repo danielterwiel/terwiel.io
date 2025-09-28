@@ -7,10 +7,10 @@ import React from "react";
 
 import { Icon } from "~/components/icon";
 import {
-  ICON_COLORS,
-  ICON_GROUP_HOVER,
-  LINK_CLASSES,
-} from "~/data/icon-colors";
+  getIconColorClass,
+  getIconDecorationColorClass,
+  getIconHoverColorClass,
+} from "~/utils/icon-colors";
 import { HighlightedIcon, HighlightedText } from "./highlighted";
 
 export type ListItem = {
@@ -92,12 +92,9 @@ const ListItem = ({
   });
 
   const IconItem = Icon[item.icon as keyof typeof Icon];
-  const hoverColor =
-    ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
-  const hoverClass = hoverColor ? hoverColor : "group-hover:text-klein";
-  const color = colored
-    ? ICON_COLORS[item.icon as keyof typeof ICON_COLORS]
-    : "text-slate-400";
+  const hoverClass =
+    getIconHoverColorClass(item.icon) || "group-hover:text-klein";
+  const color = colored ? getIconColorClass(item.icon) : "text-slate-400";
   const colorClass = isLoaded ? "text-slate-400/50" : color;
   const iconClass = clsx([
     colorClass,
@@ -110,7 +107,7 @@ const ListItem = ({
     "focus:text-slate-400/50",
   ]);
 
-  const linkUnderline = LINK_CLASSES[item.icon as keyof typeof LINK_CLASSES];
+  const linkUnderline = getIconDecorationColorClass(item.icon);
   const linkClass = clsx([
     linkUnderline,
     "text-slate-800/70",
@@ -121,7 +118,7 @@ const ListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0",
+    "pl-0"
   );
 
   let ItemNode: React.ReactNode;
@@ -204,11 +201,9 @@ const LanguageListItem = ({
     };
   });
 
-  const hoverColor =
-    ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
-  const hoverClass = hoverColor
-    ? hoverColor
-    : "sm:group-hover:text-klein sm:group-hover:saturate-100";
+  const hoverClass =
+    getIconHoverColorClass(item.icon) ||
+    "sm:group-hover:text-klein sm:group-hover:saturate-100";
   const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
   const iconClass = clsx([
     colorClass,
@@ -225,7 +220,7 @@ const LanguageListItem = ({
     LIST_ITEM_SLIDE_ANIMATION[index as keyof typeof LIST_ITEM_SLIDE_ANIMATION],
     "print:mt-1",
     "print:animate-none",
-    "pl-0",
+    "pl-0"
   );
 
   return (

@@ -11,7 +11,7 @@ import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number
+  wait: number,
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -32,7 +32,7 @@ function debounce<T extends (query: string) => unknown>(
 const SearchInputContent = () => {
   const searchParams = useSearchParams();
   const initialQuery = decodeURIComponent(
-    searchParams.get("search") ?? ""
+    searchParams.get("search") ?? "",
   ).trim();
   const router = useRouter();
   const pathname = usePathname();
@@ -72,10 +72,7 @@ const SearchInputContent = () => {
   };
 
   return (
-    <Form.Root
-      className="h-20 print:hidden"
-      onSubmit={(e) => e.preventDefault()}
-    >
+    <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
       <Form.Field name="query">
         <div>
           <Form.Label className="sr-only">Search query</Form.Label>
@@ -88,10 +85,10 @@ const SearchInputContent = () => {
             <input
               ref={inputRef}
               type="input"
-              placeholder="Search - e.g. Sendcloud, 2022, Rust"
+              placeholder="Search - e.g. Rust, 2022, Logistics"
               value={query}
               onChange={handleInputChange}
-              className="absolute w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
+              className="w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
             />
           </Form.Control>
           <Icon.Search
@@ -119,7 +116,7 @@ const SearchInputContent = () => {
 export function SearchInput() {
   return (
     <React.Suspense
-      fallback={<div className="h-20 print:hidden">Loading search...</div>}
+      fallback={<div className="print:hidden">Loading search...</div>}
     >
       <SearchInputContent />
     </React.Suspense>

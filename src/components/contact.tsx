@@ -20,7 +20,7 @@ export default function Contact() {
   }
 
   return (
-    <div id={formId} data-contact-form>
+    <div id={formId} data-contact-form className="break-before-avoid">
       <h2>Contact</h2>
       <Form.Root
         className="flex flex-col rounded-md border border-slate-500/50 p-4 print:hidden md:p-8"
