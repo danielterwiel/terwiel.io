@@ -68,64 +68,7 @@
     display: block;
   }
 
-  /* Magnetic Node Effect - Inner Wrapper */
-  .node-magnetic {
-    position: relative;
-    border-radius: 50%;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.08),
-      rgba(0, 47, 167, 0.03)
-    );
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .node-magnetic::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: calc(100% + 32px);
-    height: calc(100% + 32px);
-    border: 2px solid rgba(0, 47, 167, 0.3);
-    border-radius: 50%;
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.8);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: -1;
-  }
-
-  .node-magnetic-hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 25px rgba(0, 47, 167, 0.25);
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.15),
-      rgba(0, 47, 167, 0.08)
-    );
-  }
-
-  .node-magnetic-hover::after {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-    border-color: rgba(0, 47, 167, 0.6);
-  }
-
-  .node-magnetic-selected {
-    background: linear-gradient(
-      135deg,
-      rgba(0, 47, 167, 0.12),
-      rgba(0, 47, 167, 0.06)
-    );
-    box-shadow: 0 4px 16px rgba(0, 47, 167, 0.2);
-  }
-
-  .node-magnetic-selected::after {
-    opacity: 0.7;
-    transform: translate(-50%, -50%) scale(0.9);
-    border-color: rgba(0, 47, 167, 0.5);
-  }
+  /* Legacy magnetic classes moved to Tailwind utilities */
 }
 
 @keyframes animationRing {

@@ -26,11 +26,11 @@ const Project = ({
   const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
   const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo,
+    isPresent ? new Date().toISOString() : project.dateTo
   );
   const { duration } = calculateProjectDuration(
     project.dateFrom,
-    project.dateTo,
+    project.dateTo
   );
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
@@ -134,12 +134,12 @@ function filterProjects(projects: Project[], query: string) {
   return projects.filter((project) => {
     const { stack, ...rest } = project;
     const stackMatches = stack.filter((item) =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
+      item.name.toLowerCase().includes(query.toLowerCase())
     );
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         value.toString().toLowerCase().includes(query.toLowerCase()) &&
-        !PROJECT_KEY_DISALLOWED.includes(key),
+        !PROJECT_KEY_DISALLOWED.includes(key)
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });

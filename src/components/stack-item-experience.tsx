@@ -41,18 +41,18 @@ export const StackItemExperience: React.FC<StackItemExperienceProps> = ({
         {displayNode &&
           (() => {
             const experience = calculateStackExperience(PROJECTS).find(
-              (exp) => exp.name === displayNode.name,
+              (exp) => exp.name === displayNode.name
             );
             if (experience) {
               const parts = [];
               if (experience.years > 0) {
                 parts.push(
-                  `${experience.years} year${experience.years > 1 ? "s" : ""}`,
+                  `${experience.years} year${experience.years > 1 ? "s" : ""}`
                 );
               }
               if (experience.months > 0) {
                 parts.push(
-                  `${experience.months} month${experience.months > 1 ? "s" : ""}`,
+                  `${experience.months} month${experience.months > 1 ? "s" : ""}`
                 );
               }
               return parts.join(" ") || "< 1 month";

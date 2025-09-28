@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import * as d3 from "d3";
 import { useSearchParams } from "next/navigation";
 import { createRoot } from "react-dom/client";
@@ -17,7 +18,11 @@ import type { IconNode } from "../types/icon-node";
 import { Icon } from "~/components/icon";
 import { StackItemExperience } from "~/components/stack-item-experience";
 import { PROJECTS } from "~/data/projects";
-import { getIconColorClass, getIconHexColor } from "~/utils/icon-colors";
+import {
+  getIconColorClass,
+  getIconHexColor,
+  getMagneticClasses,
+} from "~/utils/icon-colors";
 import { extractUniqueIcons } from "./icon-cloud-utils";
 
 export const IconCloudContent: React.FC = () => {
@@ -80,7 +85,7 @@ export const IconCloudContent: React.FC = () => {
 
           return Math.max(
             baseRadius * (1 + influenceFactor * (expansionMultiplier - 1)),
-            minRadius,
+            minRadius
           );
         }
 
@@ -95,7 +100,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius(radiusFunction)
             .strength(0.3) // Much gentler strength for calmer movement
-            .iterations(1), // Fewer iterations for more natural, less rigid behavior
+            .iterations(1) // Fewer iterations for more natural, less rigid behavior
         )
         .alphaTarget(0.02) // Ultra-low energy for very calm, slow movement
         .restart();
@@ -119,7 +124,7 @@ export const IconCloudContent: React.FC = () => {
         }
       }, 5000);
     },
-    [],
+    []
   );
 
   // Helper function to update node visual styling without full rerender
@@ -142,15 +147,18 @@ export const IconCloudContent: React.FC = () => {
 
           // Update magnetic container styling for selected state
           const magneticContainer = outerContainer.querySelector(
-            ".node-magnetic",
+            ".magnetic-base"
           ) as HTMLElement;
           if (magneticContainer) {
+            // Remove all variant classes first
+            magneticContainer.classList.remove(
+              "magnetic-hover",
+              "magnetic-active",
+              "magnetic-selected"
+            );
+
             if (shouldBeSelected) {
-              magneticContainer.classList.add("node-magnetic-selected");
-              magneticContainer.classList.remove("node-magnetic-hover");
-            } else {
-              magneticContainer.classList.remove("node-magnetic-selected");
-              magneticContainer.classList.remove("node-magnetic-hover");
+              magneticContainer.classList.add("magnetic-selected");
             }
           }
 
@@ -181,7 +189,7 @@ export const IconCloudContent: React.FC = () => {
         }
       });
     },
-    [],
+    []
   );
 
   // Sync selected node with URL params only when needed
@@ -190,7 +198,7 @@ export const IconCloudContent: React.FC = () => {
   if (currentSearchQuery && nodesRef.current.length > 0) {
     const decodedSearch = decodeURIComponent(currentSearchQuery).toLowerCase();
     const foundNode = nodesRef.current.find(
-      (node) => node.name.toLowerCase() === decodedSearch,
+      (node) => node.name.toLowerCase() === decodedSearch
     );
     if (foundNode && foundNode.id !== selectedNode?.id) {
       selectedNodeRef.current = foundNode;
@@ -225,7 +233,7 @@ export const IconCloudContent: React.FC = () => {
       if (searchQuery && !selectedNode) {
         const decodedSearch = decodeURIComponent(searchQuery).toLowerCase();
         const foundNode = nodes.find(
-          (node) => node.name.toLowerCase() === decodedSearch,
+          (node) => node.name.toLowerCase() === decodedSearch
         );
         if (foundNode) {
           setSelectedNode(foundNode);
@@ -248,7 +256,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius((d) => Math.max(d.r + 12, 50))
             .strength(0.3) // Much gentler collision strength
-            .iterations(1), // Fewer iterations for more organic movement
+            .iterations(1) // Fewer iterations for more organic movement
         )
         .force("x", d3.forceX(width / 2).strength(0.008)) // Ultra-gentle centering
         .force("y", d3.forceY(height / 2).strength(0.008)) // Ultra-gentle centering
@@ -295,7 +303,7 @@ export const IconCloudContent: React.FC = () => {
               if (targetElement && targetElement instanceof Element) {
                 d3.select(targetElement).style("z-index", "auto");
               }
-            }),
+            })
         );
 
       // Circles removed - using water droplet effect instead
@@ -321,10 +329,15 @@ export const IconCloudContent: React.FC = () => {
             .node() as HTMLElement;
           if (outerContainer) {
             const magneticContainer = outerContainer.querySelector(
-              ".node-magnetic",
+              ".magnetic-base"
             ) as HTMLElement;
             if (magneticContainer) {
-              magneticContainer.classList.add("node-magnetic-hover");
+              // Remove other variant classes and add hover
+              magneticContainer.classList.remove(
+                "magnetic-active",
+                "magnetic-selected"
+              );
+              magneticContainer.classList.add("magnetic-hover");
             }
 
             const iconElement = outerContainer.querySelector("svg");
@@ -375,17 +388,21 @@ export const IconCloudContent: React.FC = () => {
             .node() as HTMLElement;
           if (outerContainer) {
             const magneticContainer = outerContainer.querySelector(
-              ".node-magnetic",
+              ".magnetic-base"
             ) as HTMLElement;
             if (magneticContainer) {
-              magneticContainer.classList.remove("node-magnetic-hover");
+              // Remove all variant classes first
+              magneticContainer.classList.remove(
+                "magnetic-hover",
+                "magnetic-active"
+              );
 
               // Apply selected state if this node is selected
               const isSelected = selectedNode?.id === d.id;
               if (isSelected) {
-                magneticContainer.classList.add("node-magnetic-selected");
+                magneticContainer.classList.add("magnetic-selected");
               } else {
-                magneticContainer.classList.remove("node-magnetic-selected");
+                magneticContainer.classList.remove("magnetic-selected");
               }
             }
 
@@ -499,13 +516,25 @@ export const IconCloudContent: React.FC = () => {
         .append("xhtml:div")
         .attr(
           "class",
-          "w-full h-full flex items-center justify-center pointer-events-none relative",
+          clsx(
+            "w-full h-full flex items-center justify-center",
+            "pointer-events-none relative"
+          )
         );
 
       // Create magnetic inner containers with minimum size for visual consistency
       const magneticContainers = outerContainers
         .append("xhtml:div")
-        .attr("class", "node-magnetic flex items-center justify-center")
+        .attr(
+          "class",
+          clsx(
+            getMagneticClasses(undefined, {
+              component: "node",
+              withRing: true, // Explicitly enable ring for nodes
+            }),
+            "flex items-center justify-center"
+          )
+        )
         .style("width", (d) => `${Math.max(d.r * 2, 80)}px`) // Minimum 80px for magnetic effect
         .style("height", (d) => `${Math.max(d.r * 2, 80)}px`); // Minimum 80px for magnetic effect
 
@@ -519,14 +548,25 @@ export const IconCloudContent: React.FC = () => {
           const iconColorClass = getIconColorClass(d.icon);
           const isSelected = selectedNode?.id === d.id;
 
-          const defaultClass =
-            "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-100 transition-all duration-300 ease-in-out";
-          const hoverClass = iconColorClass
-            ? `${iconColorClass} drop-shadow-sm scale-150 transition-all duration-300 ease-in-out`
-            : "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-150 transition-all duration-300 ease-in-out";
-          const selectedClass = iconColorClass
-            ? `${iconColorClass} drop-shadow-sm scale-125 transition-all duration-300 ease-in-out`
-            : "text-gray-800 dark:text-gray-400 drop-shadow-sm scale-125 transition-all duration-300 ease-in-out";
+          const baseClasses =
+            "drop-shadow-sm transition-all duration-300 ease-in-out";
+          const defaultColorClasses = "text-gray-800 dark:text-gray-400";
+
+          const defaultClass = clsx(
+            baseClasses,
+            defaultColorClasses,
+            "scale-100"
+          );
+          const hoverClass = clsx(
+            baseClasses,
+            iconColorClass || defaultColorClasses,
+            "scale-150"
+          );
+          const selectedClass = clsx(
+            baseClasses,
+            iconColorClass || defaultColorClasses,
+            "scale-125"
+          );
 
           // Store classes for hover state management
           const element = this as HTMLElement;
@@ -549,7 +589,7 @@ export const IconCloudContent: React.FC = () => {
           // Apply initial magnetic selected state
           const containerElement = this as HTMLElement;
           if (shouldShowSelected) {
-            containerElement.classList.add("node-magnetic-selected");
+            containerElement.classList.add("magnetic-selected");
           }
 
           root.render(
@@ -557,7 +597,7 @@ export const IconCloudContent: React.FC = () => {
               <IconComponent
                 width={d.r * 0.75}
                 height={d.r * 0.75}
-                className={`${initialClass} block m-auto`}
+                className={clsx(initialClass, "block m-auto")}
                 ref={(svgElement: SVGSVGElement | null) => {
                   if (svgElement) {
                     // Apply initial selected styling if needed
@@ -575,7 +615,7 @@ export const IconCloudContent: React.FC = () => {
                           svgElement.setAttribute("viewBox", "0 0 24 24");
                           svgElement.setAttribute(
                             "preserveAspectRatio",
-                            "xMidYMid",
+                            "xMidYMid"
                           );
                           return;
                         }
@@ -629,20 +669,20 @@ export const IconCloudContent: React.FC = () => {
 
                         svgElement.setAttribute(
                           "preserveAspectRatio",
-                          "xMidYMid",
+                          "xMidYMid"
                         );
                       } catch (error) {
                         console.warn(
                           "Error auto-centering icon:",
                           d.icon,
-                          error,
+                          error
                         );
                       }
                     }, 0);
                   }
                 }}
               />
-            </div>,
+            </div>
           );
         }
       });

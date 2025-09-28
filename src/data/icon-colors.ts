@@ -1,4 +1,3 @@
-// Icon brand colors as hex values
 export const ICON_COLORS = {
   Assembly: "#624FE8",
   BrandCss3: "#1572B6",

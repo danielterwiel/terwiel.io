@@ -1,17 +1,19 @@
 "use client";
 
 import * as Form from "@radix-ui/react-form";
+import { clsx } from "clsx";
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import React from "react";
 
 import type { Project } from "~/data/projects";
+import { getMagneticClasses } from "~/utils/icon-colors";
 import { Icon } from "./icon";
 
 function debounce<T extends (query: string) => unknown>(
   func: T,
-  wait: number,
+  wait: number
 ): (...funcArgs: Parameters<T>) => void {
   let timeout: NodeJS.Timeout | null = null;
 
@@ -32,12 +34,14 @@ function debounce<T extends (query: string) => unknown>(
 const SearchInputContent = () => {
   const searchParams = useSearchParams();
   const initialQuery = decodeURIComponent(
-    searchParams.get("search") ?? "",
+    searchParams.get("search") ?? ""
   ).trim();
   const router = useRouter();
   const pathname = usePathname();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [query, setQuery] = React.useState(initialQuery);
+  const [isHovered, setIsHovered] = React.useState(false);
+  const [isFocused, setIsFocused] = React.useState(false);
 
   React.useEffect(() => {
     if (!inputRef.current) {
@@ -65,11 +69,36 @@ const SearchInputContent = () => {
     debouncedSetSearchParams(value);
   };
 
+  const handleFocus = () => {
+    setIsFocused(true);
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   const clear = () => {
     setQuery("");
     setSearchParams("");
     inputRef.current?.focus();
   };
+
+  const magneticClasses = getMagneticClasses(undefined, {
+    component: "input",
+    isHovered,
+    isFocused,
+    hasQuery: !!query,
+    includeAnimation: isFocused,
+    withRing: false, // Explicitly disable ring for input to avoid border conflicts
+  });
 
   return (
     <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
@@ -80,7 +109,11 @@ const SearchInputContent = () => {
             Please provide a your search query
           </Form.Message>
         </div>
-        <div className="group relative">
+        <fieldset
+          className={clsx("group relative", magneticClasses)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <Form.Control asChild>
             <input
               ref={inputRef}
@@ -88,11 +121,19 @@ const SearchInputContent = () => {
               placeholder="Search - e.g. Rust, 2022, Logistics"
               value={query}
               onChange={handleInputChange}
-              className="w-full rounded-md border border-slate-500/50 py-2 pl-9 hover:border-klein focus:ring-klein focus:ring-offset-2"
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              className="w-full rounded-md border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500"
             />
           </Form.Control>
           <Icon.Search
-            className="absolute left-2 top-2.5 text-slate-400/50"
+            className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 ${
+              isFocused || query
+                ? "text-klein"
+                : isHovered
+                  ? "text-slate-600"
+                  : "text-slate-400"
+            }`}
             aria-hidden="true"
             focusable="false"
           />
@@ -101,13 +142,13 @@ const SearchInputContent = () => {
             <button
               type="reset"
               onClick={clear}
-              className="absolute right-3 top-3 hidden rounded-sm text-slate-400/50 outline-offset-4 hover:text-klein/80 focus:text-klein focus:outline-2 group-focus-within:block"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-1 text-slate-400 transition-colors duration-300 outline-offset-4 hover:text-klein focus:text-klein focus:outline-2"
             >
               <Icon.X aria-hidden="true" focusable="false" />
               <span className="sr-only">Clear search input</span>
             </button>
           ) : null}
-        </div>
+        </fieldset>
       </Form.Field>
     </Form.Root>
   );
@@ -148,14 +189,14 @@ export const SearchSummary = ({
   const duration = formatDuration({ months, years }, { delimiter: " and " });
 
   return (
-    <div className="rounded-md border-2 border-klein/50 px-3 py-6 text-center text-klein print:hidden">
+    <div className="px-6 py-6 text-center text-klein print:hidden border-klein border-2 w-full">
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (
         <div>
           Your search for{" "}
           <strong>
-            <mark>{query}</mark>
+            <mark className="bg-klein/10 px-1 rounded">{query}</mark>
           </strong>{" "}
           returned <strong>{total}</strong> projects with a total duration of{" "}
           <strong>{duration}</strong>.

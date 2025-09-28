@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { z } from "zod";
 
 import { ICON_COLORS } from "../data/icon-colors";
@@ -67,6 +68,135 @@ export function getIconHexColor(iconName: string): string {
 }
 
 /**
+ * Get magnetic effect classes for an icon or color theme
+ * Returns a string of classes for magnetic base styling with proper clsx composition
+ */
+export function getMagneticClasses(
+  _iconName?: string,
+  options: {
+    variant?: "base" | "hover" | "active" | "selected";
+    shape?: "rounded-lg" | "rounded-full";
+    component?: "node" | "input" | "card" | "button";
+    includeAnimation?: boolean;
+    className?: string;
+    isHovered?: boolean;
+    isFocused?: boolean;
+    hasQuery?: boolean;
+    withRing?: boolean;
+  } = {}
+): string {
+  const {
+    variant,
+    shape,
+    component = "node", // Default to node for backward compatibility
+    includeAnimation = false,
+    className,
+    isHovered = false,
+    isFocused = false,
+    hasQuery = false,
+    withRing,
+  } = options;
+
+  // Determine variant automatically if state props are provided
+  let finalVariant = variant;
+  if (
+    !variant &&
+    (isHovered !== undefined ||
+      isFocused !== undefined ||
+      hasQuery !== undefined)
+  ) {
+    if (isFocused || hasQuery) {
+      finalVariant = "selected";
+    } else if (isHovered) {
+      finalVariant = "hover";
+    } else {
+      finalVariant = "base";
+    }
+  } else if (!variant) {
+    finalVariant = "base";
+  }
+
+  // Determine shape based on component type if not explicitly provided
+  let finalShape = shape;
+  if (!shape && component) {
+    finalShape = component === "node" ? "rounded-full" : "rounded-lg";
+  }
+
+  // Determine whether to include ring based on component type if not explicitly provided
+  let finalWithRing = withRing;
+  if (withRing === undefined) {
+    // Nodes get rings by default for the iconic look, inputs don't to avoid border conflicts
+    finalWithRing =
+      component === "node" || component === "card" || component === "button";
+  }
+
+  return clsx(
+    "magnetic-base",
+    {
+      // Component type classes
+      "magnetic-node": component === "node",
+      "magnetic-input": component === "input",
+      "magnetic-card": component === "card",
+      "magnetic-button": component === "button",
+
+      // State variant classes
+      "magnetic-hover": finalVariant === "hover",
+      "magnetic-active": finalVariant === "active",
+      "magnetic-selected": finalVariant === "selected",
+
+      // Shape classes
+      "magnetic-rounded-lg": finalShape === "rounded-lg",
+      "magnetic-rounded-full": finalShape === "rounded-full",
+
+      // Ring effect addon
+      "magnetic-with-ring": finalWithRing,
+
+      // Animation
+      "animate-magnetic-pulse": includeAnimation,
+    },
+    className
+  );
+}
+
+/**
+ * Get magnetic effect classes with custom color
+ * Returns CSS variables for dynamic color theming
+ */
+export function getMagneticClassesWithColor(
+  iconName: string,
+  options: {
+    variant?: "base" | "hover" | "active" | "selected";
+    shape?: "rounded-lg" | "rounded-full";
+    includeAnimation?: boolean;
+    className?: string;
+  } = {}
+): { classes: string; style: React.CSSProperties } {
+  const classes = getMagneticClasses(iconName, options);
+  const hexColor = getIconHexColor(iconName);
+
+  // Convert hex to RGB for alpha transparency
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result?.[1] && result[2] && result[3]
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : { r: 0, g: 47, b: 167 }; // fallback to klein blue
+  };
+
+  const rgb = hexToRgb(hexColor);
+
+  const style: React.CSSProperties = {
+    "--magnetic-color": `${rgb.r}, ${rgb.g}, ${rgb.b}`,
+    background: `linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03))`,
+  } as React.CSSProperties;
+
+  return { classes, style };
+}
+
+/**
  * Generate Tailwind color object from ICON_COLORS
  * Used by tailwind.config.ts to create icon-* color classes
  */
@@ -101,6 +231,10 @@ export function generateIconSafelist(): string[] {
 
     // Add decoration variants
     classes.push(`hover:decoration-${colorKey}`);
+
+    // Add magnetic effect variants
+    classes.push(`magnetic-${colorKey.replace("icon-", "")}`);
+    classes.push(`magnetic-border-${colorKey.replace("icon-", "")}`);
   });
 
   return classes;
