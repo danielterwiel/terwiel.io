@@ -88,8 +88,8 @@ export function calculateExperienceScale(
   totalMonths: number,
   allExperiences: StackExperience[],
   config: ScalingConfig = {
-    minScale: 0.7,
-    maxScale: 1.1, // Further reduced to 1.1 for smaller large icons
+    minScale: 1.0,
+    maxScale: 3.0, // 1-3 ratio as requested
     baseRadius: 35,
   }
 ): number {
@@ -109,18 +109,60 @@ export function calculateExperienceScale(
   const normalizedExperience =
     (totalMonths - minExperience) / (maxExperience - minExperience);
 
-  // Apply more aggressive diminishing returns using square root scaling
-  // This further discriminates against larger nodes by reducing their growth rate
-  const diminished = Math.sqrt(normalizedExperience);
-
-  // Apply additional diminishing returns for very high experience
-  const doubleReduced = Math.sqrt(diminished);
-
-  // Apply smooth easing for visual appeal
-  const eased = 1 - (1 - doubleReduced) ** 1.2;
-
-  // Scale between min and max with the diminished factor
-  const scale = config.minScale + eased * (config.maxScale - config.minScale);
+  // Apply linear scaling (no discrimination against larger nodes)
+  const scale =
+    config.minScale +
+    normalizedExperience * (config.maxScale - config.minScale);
 
   return Math.round(config.baseRadius * scale);
+}
+
+/**
+ * Calculate a scale level (1-10) for Tailwind class generation
+ * Maps experience to discrete scale levels for consistent styling
+ */
+export function calculateScaleLevel(
+  totalMonths: number,
+  allExperiences: StackExperience[]
+): number {
+  if (allExperiences.length === 0) return 5; // Default middle scale
+
+  const maxExperience = Math.max(
+    ...allExperiences.map((exp) => exp.totalMonths)
+  );
+  const minExperience = Math.min(
+    ...allExperiences.map((exp) => exp.totalMonths)
+  );
+
+  // Avoid division by zero
+  if (maxExperience === minExperience) return 5;
+
+  // Normalize experience to 0-1 range
+  const normalizedExperience =
+    (totalMonths - minExperience) / (maxExperience - minExperience);
+
+  // Map to scale levels 1-10 (1 = smallest, 10 = largest)
+  const scaleLevel = Math.round(1 + normalizedExperience * 9);
+
+  return Math.max(1, Math.min(10, scaleLevel));
+}
+
+/**
+ * Generate scale levels for all stack experiences
+ * Returns a map of scale levels to the stack items that use them
+ */
+export function generateScaleLevels(
+  allExperiences: StackExperience[]
+): Map<number, StackExperience[]> {
+  const scaleLevels = new Map<number, StackExperience[]>();
+
+  allExperiences.forEach((experience) => {
+    const level = calculateScaleLevel(experience.totalMonths, allExperiences);
+    if (!scaleLevels.has(level)) {
+      scaleLevels.set(level, []);
+    }
+    scaleLevels.get(level)?.push(experience);
+  });
+
+  return scaleLevels;
 }

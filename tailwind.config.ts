@@ -6,10 +6,74 @@ import {
   generateTailwindIconColors,
 } from "./src/utils/icon-colors";
 
+// Generate dynamic scale classes based on actual project data
+function generateNodeScaleClasses() {
+  const classes: Record<string, Record<string, string>> = {};
+
+  // Generate classes for each scale level (1-10)
+  for (let level = 1; level <= 10; level++) {
+    // Base scale factor: level 1 = 1.0x, level 10 = 3.0x (1-3 ratio)
+    const scaleFactor = 1.0 + ((level - 1) / 9) * 2.0;
+
+    classes[`.node-scale-${level}`] = {
+      "--node-scale": scaleFactor.toFixed(2),
+    };
+
+    // Container sizing (foreignObject and magnetic container)
+    classes[`.node-scale-${level} .node-container`] = {
+      width: `${Math.max(35 * scaleFactor * 2.8, 120)}px`,
+      height: `${Math.max(35 * scaleFactor * 2.8, 120)}px`,
+    };
+
+    // Magnetic container sizing
+    classes[`.node-scale-${level} .node-magnetic`] = {
+      width: `${Math.max(35 * scaleFactor * 2, 80)}px`,
+      height: `${Math.max(35 * scaleFactor * 2, 80)}px`,
+    };
+
+    // Icon sizing
+    classes[`.node-scale-${level} .node-icon`] = {
+      width: `${35 * scaleFactor * 0.75}px`,
+      height: `${35 * scaleFactor * 0.75}px`,
+    };
+
+    // Hover scaling (proportional to base size)
+    const hoverScale =
+      scaleFactor > 2.5 ? 1.15 : scaleFactor > 2.0 ? 1.2 : 1.25;
+    classes[`.node-scale-${level}:hover .node-icon`] = {
+      transform: `scale(${hoverScale})`,
+    };
+
+    // Selected scaling (proportional to base size)
+    const selectedScale =
+      scaleFactor > 2.5 ? 1.08 : scaleFactor > 2.0 ? 1.12 : 1.15;
+    classes[`.node-scale-${level}.node-selected .node-icon`] = {
+      transform: `scale(${selectedScale})`,
+    };
+  }
+
+  return classes;
+}
+
+// Generate safelist for scale classes
+function generateNodeScaleSafelist(): string[] {
+  const classes: string[] = [];
+
+  for (let level = 1; level <= 10; level++) {
+    classes.push(`node-scale-${level}`);
+  }
+
+  // Add component classes
+  classes.push("node-container", "node-magnetic", "node-icon", "node-selected");
+
+  return classes;
+}
+
 export default {
   content: ["./src/**/*.tsx"],
   safelist: [
     ...generateIconSafelist(),
+    ...generateNodeScaleSafelist(),
     "magnetic-base",
     "magnetic-rounded-lg",
     "magnetic-rounded-full",
@@ -71,6 +135,9 @@ export default {
       theme: (path: string) => string;
     }) => {
       addComponents({
+        // Node scale classes for dynamic sizing
+        ...generateNodeScaleClasses(),
+
         // Base magnetic effect - no pseudo-elements for maximum flexibility
         ".magnetic-base": {
           position: "relative",
@@ -133,12 +200,13 @@ export default {
         },
 
         // Universal state variants - work with all component types
-        ".magnetic-hover": {
+        // Hover effects only apply when NOT selected to prevent conflicts
+        ".magnetic-hover:not(.magnetic-selected)": {
           transform: "scale(1.02)",
           boxShadow: "0 8px 25px rgba(0, 47, 167, 0.25)",
           background: `linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(0, 47, 167, 0.08))`,
         },
-        ".magnetic-hover.magnetic-with-ring::after": {
+        ".magnetic-hover:not(.magnetic-selected).magnetic-with-ring::after": {
           opacity: "1",
           transform: "translate(-50%, -50%) scale(1)",
           borderColor: "rgba(0, 47, 167, 0.6)",
@@ -166,7 +234,8 @@ export default {
         },
 
         // Input-specific state overrides
-        ".magnetic-input.magnetic-hover": {
+        // Input hover only applies when NOT selected
+        ".magnetic-input.magnetic-hover:not(.magnetic-selected)": {
           borderColor: "rgba(0, 47, 167, 0.4)",
           transform: "scale(1.01)", // Gentler scale for inputs
         },

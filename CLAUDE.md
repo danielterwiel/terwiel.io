@@ -42,6 +42,10 @@ The layout is controlled by a `LayoutToggle` component and state managed in the 
 
 The year is 2025. Use this year for your web searches when applicable.
 
+### Testing
+
+I manually test my components. No need to rebuild or run the dev server. Just fix linting errors at the end of each prompt response.
+
 ### Path Aliases
 
 - `~/*` maps to `./src/*` (configured in `tsconfig.json`)
@@ -93,14 +97,3 @@ This project has been updated to Next.js 15 with the following changes:
 - Uses Inter font from Google Fonts
 - Includes favicon and proper metadata setup
 - Built for Vercel deployment (includes .vercel directory)
-
-## Recent Updates
-
-This project was successfully updated from Next.js 14 to Next.js 15 with the following changes:
-
-- **Major version updates**: Next.js 14 → 15, @formspree/react 2.x → 3.x
-- **Minor/patch updates**: Various TypeScript, Tailwind, PostCSS, and tooling packages
-- **Breaking change fixes**: Added Suspense boundaries for `useSearchParams()` usage
-- **Future considerations**: Several packages have major version updates available (React 19, date-fns 4, Zod 4, Tailwind 4, ESLint 9) but were not applied to avoid additional breaking changes
-
-The project builds successfully and maintains full functionality after the updates.

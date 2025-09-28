@@ -2,6 +2,7 @@ import type { Project } from "~/data/projects";
 import type { IconNode } from "../types/icon-node";
 import {
   calculateExperienceScale,
+  calculateScaleLevel,
   calculateStackExperience,
 } from "~/utils/calculate-experience";
 import { generateStackUrl } from "~/utils/generate-stack-url";
@@ -27,16 +28,20 @@ export function extractUniqueIcons(
         // Get experience for this stack item
         const experience = experienceMap.get(stackItem.name);
 
-        // Calculate dynamic radius based on experience
-        // Base radius is 35, max is 70 (2x), min stays at 35
+        // Calculate dynamic radius and scale level based on experience
         const baseRadius = 35;
         const dynamicRadius = experience
           ? calculateExperienceScale(experience.totalMonths, stackExperience, {
               minScale: 1.0,
-              maxScale: 2.0,
+              maxScale: 3.0, // Updated to 1-3 ratio
               baseRadius,
             })
           : baseRadius;
+
+        // Calculate scale level for Tailwind classes
+        const scaleLevel = experience
+          ? calculateScaleLevel(experience.totalMonths, stackExperience)
+          : 5; // Default middle scale
 
         iconMap.set(stackItem.icon, {
           id: `stack-${idCounter++}`,
@@ -44,6 +49,7 @@ export function extractUniqueIcons(
           icon: stackItem.icon,
           url: stackItem.url ?? generateStackUrl(stackItem.name),
           r: dynamicRadius,
+          scaleLevel,
           group: 1, // Stack icons
         });
       }

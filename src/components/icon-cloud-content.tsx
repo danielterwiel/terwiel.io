@@ -2,7 +2,7 @@
 
 import clsx from "clsx";
 import * as d3 from "d3";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createRoot } from "react-dom/client";
 
 import type React from "react";
@@ -18,15 +18,22 @@ import type { IconNode } from "../types/icon-node";
 import { Icon } from "~/components/icon";
 import { StackItemExperience } from "~/components/stack-item-experience";
 import { PROJECTS } from "~/data/projects";
+import { extractUniqueIcons } from "~/utils/extract-unique-icons";
+import { getIconHexColor, getMagneticClasses } from "~/utils/icon-colors";
 import {
-  getIconColorClass,
-  getIconHexColor,
-  getMagneticClasses,
-} from "~/utils/icon-colors";
-import { extractUniqueIcons } from "./icon-cloud-utils";
+  getIconClasses,
+  getIconTargetColor,
+  type NodeState,
+  updateNodeDOMClasses,
+} from "~/utils/node-styling";
+
+function getScaleFactor(scaleLevel: number): number {
+  return 1.0 + ((scaleLevel - 1) / 9) * 2.0;
+}
 
 export const IconCloudContent: React.FC = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<IconNode, undefined> | null>(null);
@@ -40,12 +47,14 @@ export const IconCloudContent: React.FC = () => {
   const width = 800;
   const height = 600;
 
-  // Optimized URL update function that doesn't trigger React rerenders
-  const updateUrlWithoutRerender = useCallback((nodeName: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.set("search", encodeURIComponent(nodeName));
-    window.history.replaceState({}, "", url.toString());
-  }, []);
+  const updateUrl = useCallback(
+    (nodeName: string) => {
+      const url = new URL(window.location.href);
+      url.searchParams.set("search", encodeURIComponent(nodeName));
+      router.replace(url.toString(), { scroll: false });
+    },
+    [router],
+  );
 
   // Helper function to smoothly update collision force radius
   const updateCollisionForce = useCallback(
@@ -85,7 +94,7 @@ export const IconCloudContent: React.FC = () => {
 
           return Math.max(
             baseRadius * (1 + influenceFactor * (expansionMultiplier - 1)),
-            minRadius
+            minRadius,
           );
         }
 
@@ -100,7 +109,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius(radiusFunction)
             .strength(0.3) // Much gentler strength for calmer movement
-            .iterations(1) // Fewer iterations for more natural, less rigid behavior
+            .iterations(1), // Fewer iterations for more natural, less rigid behavior
         )
         .alphaTarget(0.02) // Ultra-low energy for very calm, slow movement
         .restart();
@@ -124,7 +133,7 @@ export const IconCloudContent: React.FC = () => {
         }
       }, 5000);
     },
-    []
+    [],
   );
 
   // Helper function to update node visual styling without full rerender
@@ -143,71 +152,80 @@ export const IconCloudContent: React.FC = () => {
 
         if (outerContainer) {
           const shouldBeSelected = d.id === targetNode.id && isSelected;
-          const iconColor = getIconHexColor(d.icon);
+          const nodeState: NodeState = {
+            isHovered: d.isHovered || false,
+            isSelected: shouldBeSelected,
+            isActive: false,
+          };
 
-          // Update magnetic container styling for selected state
-          const magneticContainer = outerContainer.querySelector(
-            ".magnetic-base"
-          ) as HTMLElement;
-          if (magneticContainer) {
-            // Remove all variant classes first
-            magneticContainer.classList.remove(
-              "magnetic-hover",
-              "magnetic-active",
-              "magnetic-selected"
-            );
+          // Update DOM classes using utility function
+          updateNodeDOMClasses(outerContainer, d, nodeState);
 
-            if (shouldBeSelected) {
-              magneticContainer.classList.add("magnetic-selected");
-            }
-          }
-
+          // Update icon color with smooth transition
           const iconElement = outerContainer.querySelector("svg");
           if (iconElement) {
-            if (shouldBeSelected && iconColor) {
-              // Apply selected styling with icon's specific color
-              const selectedColor = iconColor;
-              d3.select(iconElement)
-                .interrupt() // Cancel any ongoing transitions
-                .transition()
-                .duration(300)
-                .ease(d3.easeCubicInOut)
-                .style("color", selectedColor)
-                .style("transform", "scale(1.25)");
-            } else if (!shouldBeSelected) {
-              // Apply default styling only to other nodes
-              const defaultColor = "#6b7280";
-              d3.select(iconElement)
-                .interrupt() // Cancel any ongoing transitions
-                .transition()
-                .duration(300)
-                .ease(d3.easeCubicInOut)
-                .style("color", defaultColor)
-                .style("transform", "scale(1)");
-            }
+            const targetColor = getIconTargetColor(d, nodeState);
+            d3.select(iconElement)
+              .interrupt() // Cancel any ongoing transitions
+              .transition()
+              .duration(300)
+              .ease(d3.easeCubicInOut)
+              .style("color", targetColor);
           }
         }
       });
     },
-    []
+    [],
   );
 
-  // Sync selected node with URL params only when needed
-  // This runs during render but only when necessary
-  const currentSearchQuery = searchParams.get("search");
-  if (currentSearchQuery && nodesRef.current.length > 0) {
-    const decodedSearch = decodeURIComponent(currentSearchQuery).toLowerCase();
-    const foundNode = nodesRef.current.find(
-      (node) => node.name.toLowerCase() === decodedSearch
-    );
-    if (foundNode && foundNode.id !== selectedNode?.id) {
-      selectedNodeRef.current = foundNode;
-      setSelectedNode(foundNode);
+  useEffect(() => {
+    const currentSearchQuery = searchParams.get("search");
+
+    if (currentSearchQuery && nodesRef.current.length > 0) {
+      const decodedSearch =
+        decodeURIComponent(currentSearchQuery).toLowerCase();
+      const foundNode = nodesRef.current.find(
+        (node) => node.name.toLowerCase() === decodedSearch,
+      );
+
+      if (foundNode) {
+        // Clear previous selection styling if different node
+        if (selectedNode && selectedNode.id !== foundNode.id) {
+          updateNodeVisualStyling(selectedNode, false);
+        }
+
+        // Update state and ref
+        selectedNodeRef.current = foundNode;
+        setSelectedNode(foundNode);
+
+        // Apply visual styling to new selection
+        setTimeout(() => {
+          updateNodeVisualStyling(foundNode, true);
+          // Update collision force for the newly selected node
+          updateCollisionForce(hoveredNode, foundNode);
+        }, 0);
+      }
+    } else if (!currentSearchQuery) {
+      // Clear selection when no search query
+      if (selectedNode) {
+        // Remove visual styling from previously selected node
+        setTimeout(() => {
+          updateNodeVisualStyling(selectedNode, false);
+          // Update collision force to reflect cleared selection
+          updateCollisionForce(hoveredNode, null);
+        }, 0);
+      }
+
+      selectedNodeRef.current = null;
+      setSelectedNode(null);
     }
-  } else if (!currentSearchQuery && selectedNode) {
-    selectedNodeRef.current = null;
-    setSelectedNode(null);
-  }
+  }, [
+    searchParams,
+    updateNodeVisualStyling,
+    hoveredNode,
+    updateCollisionForce,
+    selectedNode,
+  ]);
 
   // Effect to update collision forces when hover/select state changes
   useEffect(() => {
@@ -228,18 +246,6 @@ export const IconCloudContent: React.FC = () => {
       const nodes = extractUniqueIcons(PROJECTS, width, height);
       nodesRef.current = nodes;
 
-      // Check if we need to set selectedNode from URL params now that nodes are ready
-      const searchQuery = searchParams.get("search");
-      if (searchQuery && !selectedNode) {
-        const decodedSearch = decodeURIComponent(searchQuery).toLowerCase();
-        const foundNode = nodes.find(
-          (node) => node.name.toLowerCase() === decodedSearch
-        );
-        if (foundNode) {
-          setSelectedNode(foundNode);
-        }
-      }
-
       // Stop previous simulation if it exists
       if (simulationRef.current) {
         simulationRef.current.stop();
@@ -256,7 +262,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius((d) => Math.max(d.r + 12, 50))
             .strength(0.3) // Much gentler collision strength
-            .iterations(1) // Fewer iterations for more organic movement
+            .iterations(1), // Fewer iterations for more organic movement
         )
         .force("x", d3.forceX(width / 2).strength(0.008)) // Ultra-gentle centering
         .force("y", d3.forceY(height / 2).strength(0.008)) // Ultra-gentle centering
@@ -303,7 +309,7 @@ export const IconCloudContent: React.FC = () => {
               if (targetElement && targetElement instanceof Element) {
                 d3.select(targetElement).style("z-index", "auto");
               }
-            })
+            }),
         );
 
       // Circles removed - using water droplet effect instead
@@ -322,47 +328,37 @@ export const IconCloudContent: React.FC = () => {
           // Update collision force for smooth node spacing
           updateCollisionForce(d, selectedNode);
 
-          // Apply magnetic hover effect to container
+          // Update node styling for hover state
           const foreignObject = d3.select(this).select("foreignObject");
           const outerContainer = foreignObject
             .select("div")
             .node() as HTMLElement;
+
           if (outerContainer) {
-            const magneticContainer = outerContainer.querySelector(
-              ".magnetic-base"
-            ) as HTMLElement;
-            if (magneticContainer) {
-              // Remove other variant classes and add hover
-              magneticContainer.classList.remove(
-                "magnetic-active",
-                "magnetic-selected"
-              );
-              magneticContainer.classList.add("magnetic-hover");
-            }
+            const currentSearchQuery = searchParams.get("search");
+            const isSelected =
+              currentSearchQuery &&
+              decodeURIComponent(currentSearchQuery).toLowerCase() ===
+                d.name.toLowerCase();
+            const nodeState: NodeState = {
+              isHovered: true,
+              isSelected: Boolean(isSelected),
+              isActive: false,
+            };
+
+            updateNodeDOMClasses(outerContainer, d, nodeState);
 
             const iconElement = outerContainer.querySelector("svg");
             if (iconElement) {
-              // Create a unique transition key for this specific icon
+              const targetColor = getIconTargetColor(d, nodeState);
               const transitionKey = `hover-${d.id}`;
 
-              // Get color values for smooth interpolation - use the node's specific color
-              const iconColor = getIconHexColor(d.icon);
-              const defaultColor = "#6b7280"; // text-gray-500 equivalent
-              const hoverColor = iconColor || defaultColor;
-
-              // Calculate scale based on icon size - larger icons scale less
-              const baseScale = d.r > 50 ? 1.15 : d.r > 40 ? 1.2 : 1.25;
-              // Duration based on size - larger icons take longer for smoother effect
-              const duration = d.r > 50 ? 600 : d.r > 40 ? 500 : 450;
-
-              // Apply hover styles with the specific icon color
               d3.select(iconElement)
                 .interrupt(transitionKey) // Cancel any ongoing transitions for this icon
                 .transition(transitionKey)
-                .duration(duration)
-                .ease(d3.easeQuadOut) // Gentler easing
-                .style("color", hoverColor)
-                .style("transform", `scale(${baseScale})`);
+                .duration(450)
+                .ease(d3.easeQuadOut)
+                .style("color", targetColor);
             }
           }
 
@@ -381,84 +377,49 @@ export const IconCloudContent: React.FC = () => {
           // Reset collision force to normal state
           updateCollisionForce(null, selectedNode);
 
-          // Remove magnetic hover effect and reset container state
+          // Update node styling to preserve selected state while removing hover
           const foreignObject = d3.select(this).select("foreignObject");
           const outerContainer = foreignObject
             .select("div")
             .node() as HTMLElement;
+
           if (outerContainer) {
-            const magneticContainer = outerContainer.querySelector(
-              ".magnetic-base"
-            ) as HTMLElement;
-            if (magneticContainer) {
-              // Remove all variant classes first
-              magneticContainer.classList.remove(
-                "magnetic-hover",
-                "magnetic-active"
-              );
+            const currentSearchQuery = searchParams.get("search");
+            const isSelected =
+              currentSearchQuery &&
+              decodeURIComponent(currentSearchQuery).toLowerCase() ===
+                d.name.toLowerCase();
+            const nodeState: NodeState = {
+              isHovered: false,
+              isSelected: Boolean(isSelected),
+              isActive: false,
+            };
 
-              // Apply selected state if this node is selected
-              const isSelected = selectedNode?.id === d.id;
-              if (isSelected) {
-                magneticContainer.classList.add("magnetic-selected");
-              } else {
-                magneticContainer.classList.remove("magnetic-selected");
-              }
-            }
+            // Update DOM classes using utility function
+            updateNodeDOMClasses(outerContainer, d, nodeState);
 
+            // Update icon color with smooth transition
             const iconElement = outerContainer.querySelector("svg");
             if (iconElement) {
-              // Create a unique transition key for this specific icon
+              const targetColor = getIconTargetColor(d, nodeState);
               const transitionKey = `unhover-${d.id}`;
 
-              // Get color values for smooth interpolation back to default/selected state
-              const iconColor = getIconHexColor(d.icon);
-              const defaultColor = "#6b7280"; // text-gray-500 equivalent
-
-              // Determine target state based on selection - use specific icon color
-              const isSelected = selectedNode?.id === d.id;
-              const targetColor =
-                isSelected && iconColor ? iconColor : defaultColor;
-
-              // Calculate selected scale based on icon size - larger icons scale less
-              const selectedScale = isSelected
-                ? d.r > 50
-                  ? 1.08
-                  : d.r > 40
-                    ? 1.12
-                    : 1.15
-                : 1;
-
-              // Duration based on size for smooth transitions
-              const duration = d.r > 50 ? 600 : d.r > 40 ? 500 : 450;
-
-              // Apply target styles with smooth color interpolation back to target state
               d3.select(iconElement)
                 .interrupt(`hover-${d.id}`) // Cancel any ongoing hover transitions
                 .interrupt(transitionKey) // Cancel any ongoing unhover transitions
                 .transition(transitionKey)
-                .duration(duration)
-                .ease(d3.easeQuadOut) // Gentler easing for smoother feel
-                .style("color", targetColor)
-                .style("transform", `scale(${selectedScale})`);
+                .duration(450)
+                .ease(d3.easeQuadOut)
+                .style("color", targetColor);
             }
           }
         });
 
       // Add click handlers
       nodeGroups.on("click", (_event, d) => {
-        // Update selected node state and ref without triggering rerender
-        selectedNodeRef.current = d;
-        setSelectedNode(d);
-
-        // Update URL without triggering Next.js rerender
-        updateUrlWithoutRerender(d.name);
-
-        // Apply visual styling immediately
-        updateNodeVisualStyling(d, true);
-
-        // Update collision force for selected node
-        updateCollisionForce(hoveredNode, d);
+        // Only update URL - let useEffect handle all state updates and visual styling
+        // This makes URLSearchParams the single source of truth
+        updateUrl(d.name);
 
         if (d.url.startsWith("http") || d.url.startsWith("//")) {
           // External links - open in new tab
@@ -502,41 +463,59 @@ export const IconCloudContent: React.FC = () => {
         setIsAnimationReady(true);
       });
 
-      // Use foreignObject to embed React icons with extra space for magnetic effect
-      // Ensure minimum container size for proper icon display and hover effects
+      // Use foreignObject to embed React icons with scale classes for consistent sizing
       const foreignObjects = nodeGroups
         .append("foreignObject")
-        .attr("width", (d) => Math.max(d.r * 2.8, 120)) // Minimum 120px width for proper containment
-        .attr("height", (d) => Math.max(d.r * 2.8, 120)) // Minimum 120px height for proper containment
-        .attr("x", (d) => -Math.max(d.r * 1.4, 60)) // Adjusted x position to center with minimum
-        .attr("y", (d) => -Math.max(d.r * 1.4, 60)); // Adjusted y position to center with minimum
+        .attr("width", (d) => {
+          // Calculate size based on scale level to match CSS classes
+          const scaleFactor = getScaleFactor(d.scaleLevel);
+          return Math.max(35 * scaleFactor * 2.8, 120);
+        })
+        .attr("height", (d) => {
+          const scaleFactor = getScaleFactor(d.scaleLevel);
+          return Math.max(35 * scaleFactor * 2.8, 120);
+        })
+        .attr("x", (d) => {
+          const scaleFactor = getScaleFactor(d.scaleLevel);
+          return -Math.max(35 * scaleFactor * 1.4, 60);
+        })
+        .attr("y", (d) => {
+          const scaleFactor = getScaleFactor(d.scaleLevel);
+          return -Math.max(35 * scaleFactor * 1.4, 60);
+        })
+        .attr("class", (d) => `node-scale-${d.scaleLevel}`);
 
-      // Create outer containers for React components with extra padding for magnetic effect
+      // Create outer containers for React components with node-container class for scaling
       const outerContainers = foreignObjects
         .append("xhtml:div")
         .attr(
           "class",
           clsx(
-            "w-full h-full flex items-center justify-center",
-            "pointer-events-none relative"
-          )
+            "node-container flex items-center justify-center",
+            "pointer-events-none relative",
+          ),
         );
 
-      // Create magnetic inner containers with minimum size for visual consistency
+      // Create magnetic inner containers with node-magnetic class for scaling
       const magneticContainers = outerContainers
         .append("xhtml:div")
-        .attr(
-          "class",
-          clsx(
+        .attr("class", (d) => {
+          // Check if this node should be selected from URL
+          const searchQuery = searchParams.get("search");
+          const isSelectedFromUrl =
+            searchQuery &&
+            decodeURIComponent(searchQuery).toLowerCase() ===
+              d.name.toLowerCase();
+
+          return clsx(
             getMagneticClasses(undefined, {
               component: "node",
               withRing: true, // Explicitly enable ring for nodes
+              variant: isSelectedFromUrl ? "selected" : "base",
             }),
-            "flex items-center justify-center"
-          )
-        )
-        .style("width", (d) => `${Math.max(d.r * 2, 80)}px`) // Minimum 80px for magnetic effect
-        .style("height", (d) => `${Math.max(d.r * 2, 80)}px`); // Minimum 80px for magnetic effect
+            "node-magnetic flex items-center justify-center",
+          );
+        });
 
       // Render React icons into each magnetic container
       magneticContainers.each(function (d) {
@@ -545,66 +524,39 @@ export const IconCloudContent: React.FC = () => {
         if (IconComponent) {
           const root = createRoot(this as Element);
           const iconHexColor = getIconHexColor(d.icon);
-          const iconColorClass = getIconColorClass(d.icon);
-          const isSelected = selectedNode?.id === d.id;
 
-          const baseClasses =
-            "drop-shadow-sm transition-all duration-300 ease-in-out";
-          const defaultColorClasses = "text-gray-800 dark:text-gray-400";
-
-          const defaultClass = clsx(
-            baseClasses,
-            defaultColorClasses,
-            "scale-100"
-          );
-          const hoverClass = clsx(
-            baseClasses,
-            iconColorClass || defaultColorClasses,
-            "scale-150"
-          );
-          const selectedClass = clsx(
-            baseClasses,
-            iconColorClass || defaultColorClasses,
-            "scale-125"
-          );
-
-          // Store classes for hover state management
-          const element = this as HTMLElement;
-          element.setAttribute("data-default-class", defaultClass);
-          element.setAttribute("data-hover-class", hoverClass);
-          element.setAttribute("data-selected-class", selectedClass);
-
-          // Determine initial class based on selection state
-          // Check both current selectedNode and URL params for refresh scenarios
+          // Determine initial state based on selection
           const searchQuery = searchParams.get("search");
           const isSelectedFromUrl =
             searchQuery &&
             decodeURIComponent(searchQuery).toLowerCase() ===
               d.name.toLowerCase();
-          const shouldShowSelected = isSelected || isSelectedFromUrl;
-          const initialClass = shouldShowSelected
-            ? selectedClass
-            : defaultClass;
+          const shouldShowSelected = Boolean(
+            selectedNode?.id === d.id || isSelectedFromUrl,
+          );
 
-          // Apply initial magnetic selected state
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: shouldShowSelected,
+            isActive: false,
+          };
+
+          // Generate icon classes using utility function
+          const iconClasses = getIconClasses({ node: d, state: nodeState });
+
+          // Apply initial magnetic state using utility function
           const containerElement = this as HTMLElement;
-          if (shouldShowSelected) {
-            containerElement.classList.add("magnetic-selected");
-          }
+          updateNodeDOMClasses(containerElement, d, nodeState);
 
           root.render(
             <div className="w-full h-full flex items-center justify-center">
               <IconComponent
-                width={d.r * 0.75}
-                height={d.r * 0.75}
-                className={clsx(initialClass, "block m-auto")}
+                className={clsx(iconClasses.current, "node-icon block m-auto")}
                 ref={(svgElement: SVGSVGElement | null) => {
                   if (svgElement) {
-                    // Apply initial selected styling if needed
-                    if (shouldShowSelected && iconHexColor) {
-                      svgElement.style.color = iconHexColor;
-                      svgElement.style.transform = `scale(1.25)`;
-                    }
+                    // Apply initial styling based on state
+                    const targetColor = getIconTargetColor(d, nodeState);
+                    svgElement.style.color = targetColor;
 
                     // Auto-center the icon based on its geometric bounds
                     setTimeout(() => {
@@ -615,7 +567,7 @@ export const IconCloudContent: React.FC = () => {
                           svgElement.setAttribute("viewBox", "0 0 24 24");
                           svgElement.setAttribute(
                             "preserveAspectRatio",
-                            "xMidYMid"
+                            "xMidYMid",
                           );
                           return;
                         }
@@ -669,20 +621,20 @@ export const IconCloudContent: React.FC = () => {
 
                         svgElement.setAttribute(
                           "preserveAspectRatio",
-                          "xMidYMid"
+                          "xMidYMid",
                         );
                       } catch (error) {
                         console.warn(
                           "Error auto-centering icon:",
                           d.icon,
-                          error
+                          error,
                         );
                       }
                     }, 0);
                   }
                 }}
               />
-            </div>
+            </div>,
           );
         }
       });

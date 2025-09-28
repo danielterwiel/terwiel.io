@@ -67,8 +67,6 @@
     object-fit: contain;
     display: block;
   }
-
-  /* Legacy magnetic classes moved to Tailwind utilities */
 }
 
 @keyframes animationRing {

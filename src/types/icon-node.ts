@@ -4,6 +4,7 @@ export type IconNode = {
   icon: string;
   url: string;
   r: number;
+  scaleLevel: number; // 1-10 scale level for Tailwind classes
   x?: number;
   y?: number;
   fx?: number | null;
