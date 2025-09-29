@@ -44,7 +44,7 @@ The year is 2025. Use this year for your web searches when applicable.
 
 ### Testing
 
-I manually test my components. No need to rebuild or run the dev server. Just fix linting errors at the end of each prompt response.
+I manually test my components. No need to rebuild or run the dev server. Just fix type and lint errors at the end of each prompt response.
 
 ### Path Aliases
 

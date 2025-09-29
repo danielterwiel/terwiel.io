@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { z } from "zod";
 
-import { ICON_COLORS } from "../data/icon-colors";
+import { ICON_COLORS } from "../data/icons";
 
 type IconName = keyof typeof ICON_COLORS;
 

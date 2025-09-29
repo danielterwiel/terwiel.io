@@ -14,10 +14,12 @@ import {
   useState,
 } from "react";
 
+import type { Domain } from "~/data/projects";
 import type { IconNode } from "../types/icon-node";
 import { ExperienceDisplayNode } from "~/components/experience-display-node";
 import { Icon } from "~/components/icon";
 import { PROJECTS } from "~/data/projects";
+import { getDomainGlow, getDomainGlowHover } from "~/utils/domain-colors";
 import { extractUniqueIcons } from "~/utils/extract-unique-icons";
 import { getIconHexColor, getMagneticClasses } from "~/utils/icon-colors";
 import {
@@ -48,6 +50,7 @@ export const IconCloudContent: React.FC = () => {
   const [isAnimationReady, setIsAnimationReady] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<IconNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<IconNode | null>(null);
+  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
 
   // Fixed dimensions for viewBox - will scale responsively
   const width = 800;
@@ -79,6 +82,36 @@ export const IconCloudContent: React.FC = () => {
     [router]
   );
 
+  // Helper function to update node glows based on hovered domain
+  const updateNodeGlows = useCallback((hoveredDomain: Domain | null) => {
+    if (!svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const nodeGroups = svg.selectAll<SVGGElement, IconNode>("g.node");
+
+    nodeGroups.each(function (d) {
+      const foreignObject = d3.select(this).select("foreignObject");
+      const magneticContainer = foreignObject
+        .select("div.node-magnetic")
+        .node() as HTMLElement;
+
+      if (magneticContainer && d.domain) {
+        const isMatchingDomain = hoveredDomain === d.domain;
+        const glowColor = isMatchingDomain
+          ? getDomainGlowHover(d.domain)
+          : getDomainGlow(d.domain);
+
+        // Apply enhanced glow with transition
+        if (isMatchingDomain) {
+          magneticContainer.style.boxShadow = `0 0 30px ${glowColor}, 0 0 60px ${glowColor}, 0 0 90px ${glowColor}`;
+        } else {
+          magneticContainer.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
+        }
+        magneticContainer.style.transition = "box-shadow 0.3s ease-out";
+      }
+    });
+  }, []);
+
   // Helper function to re-render the experience display node
   const updateExperienceDisplayNode = useCallback(() => {
     if (experienceNodeRootRef.current) {
@@ -87,6 +120,7 @@ export const IconCloudContent: React.FC = () => {
           <ExperienceDisplayNode
             selectedNode={selectedNode}
             hoveredNode={hoveredNode}
+            onDomainHover={setHoveredDomain}
           />
         </div>
       );
@@ -276,6 +310,13 @@ export const IconCloudContent: React.FC = () => {
     updateExperienceDisplayNode();
   }, [updateExperienceDisplayNode]);
 
+  // Effect to update node glows when domain hover changes
+  useEffect(() => {
+    if (nodesRef.current.length > 0) {
+      updateNodeGlows(hoveredDomain);
+    }
+  }, [hoveredDomain, updateNodeGlows]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally empty deps to run simulation setup only once
   useLayoutEffect(() => {
     // Small delay to ensure DOM is ready
@@ -441,6 +482,9 @@ export const IconCloudContent: React.FC = () => {
       // Add hover effects
       nodeGroups
         .on("mouseenter", function (_event, d) {
+          // Skip hover effects for experience-display node (it handles its own interactions)
+          if (d.id === "experience-display") return;
+
           // Lock the node position
           d.fx = d.x;
           d.fy = d.y;
@@ -490,6 +534,9 @@ export const IconCloudContent: React.FC = () => {
           d3.select(this).raise();
         })
         .on("mouseleave", function (_event, d) {
+          // Skip hover effects for experience-display node (it handles its own interactions)
+          if (d.id === "experience-display") return;
+
           // Unlock the node position
           d.fx = null;
           d.fy = null;
@@ -607,18 +654,20 @@ export const IconCloudContent: React.FC = () => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
           return -Math.max(35 * scaleFactor * 1.4, 60);
         })
-        .attr("class", (d) => `node-scale-${d.scaleLevel}`);
+        .attr("class", (d) => `node-scale-${d.scaleLevel}`)
+        .style("overflow", "visible");
 
       // Create outer containers for React components with node-container class for scaling
       const outerContainers = foreignObjects
         .append("xhtml:div")
-        .attr(
-          "class",
+        .attr("class", (d) =>
           clsx(
-            "node-container flex items-center justify-center",
-            "pointer-events-none relative"
+            "node-container flex items-center justify-center relative overflow-visible",
+            // Experience display node needs pointer events for pie chart interaction
+            d.id !== "experience-display" && "pointer-events-none"
           )
-        );
+        )
+        .style("overflow", "visible");
 
       // Create magnetic inner containers with node-magnetic class for scaling
       const magneticContainers = outerContainers
@@ -637,8 +686,17 @@ export const IconCloudContent: React.FC = () => {
               withRing: true, // Explicitly enable ring for nodes
               variant: isSelectedFromUrl ? "selected" : "base",
             }),
-            "node-magnetic flex items-center justify-center"
+            "node-magnetic flex items-center justify-center transition-shadow duration-300 overflow-visible"
           );
+        })
+        .style("overflow", "visible")
+        .each(function (d) {
+          // Apply initial domain glow
+          if (d.domain) {
+            const container = this as HTMLElement;
+            const glowColor = getDomainGlow(d.domain);
+            container.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
+          }
         });
 
       // Render React icons into each magnetic container

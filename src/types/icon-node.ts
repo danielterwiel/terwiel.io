@@ -1,6 +1,9 @@
+import type { Domain } from "~/data/projects";
+
 export type IconNode = {
   id: string;
   name: string;
+  parent?: string;
   icon: string;
   url: string;
   r: number;
@@ -13,4 +16,5 @@ export type IconNode = {
   vy?: number;
   group: number;
   isHovered?: boolean;
+  domain?: Domain; // Domain for color-coding
 };

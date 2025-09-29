@@ -46,11 +46,13 @@ export function extractUniqueIcons(
         iconMap.set(stackItem.icon, {
           id: `stack-${idCounter++}`,
           name: stackItem.name,
+          ...(stackItem.parent && { parent: stackItem.parent }),
           icon: stackItem.icon,
           url: stackItem.url ?? generateStackUrl(stackItem.name),
           r: dynamicRadius,
           scaleLevel,
           group: 1, // Stack icons
+          domain: stackItem.domain,
         });
       }
     });
