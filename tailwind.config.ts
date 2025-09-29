@@ -99,6 +99,13 @@ export default {
       colors: {
         klein: "#002FA7",
         ...generateTailwindIconColors(),
+        // Domain colors - muted glassmorphic palette harmonizing with Klein Blue
+        domain: {
+          devops: "#5ba4ad", // Soft teal - operational, systematic
+          backend: "#8d7dae", // Soft lavender - deep, foundational
+          frontend: "#c98978", // Soft coral - warm, visible
+          design: "#c77894", // Soft rose - creative, aesthetic
+        },
       },
       animation: {
         "magnetic-ring": "magnetic-ring 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
