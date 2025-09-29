@@ -110,18 +110,6 @@
   }
 }
 
-@keyframes magnetic-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;

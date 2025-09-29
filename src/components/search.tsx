@@ -96,7 +96,6 @@ const SearchInputContent = () => {
     isHovered,
     isFocused,
     hasQuery: !!query,
-    includeAnimation: isFocused,
     withRing: false, // Explicitly disable ring for input to avoid border conflicts
   });
 

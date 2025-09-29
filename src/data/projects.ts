@@ -90,7 +90,6 @@ export const PROJECTS: Project[] = [
       ),
       createStackItem("TypeScript", "BrandTypescript"),
       createStackItem("React", "BrandReact"),
-      createStackItem("Tanstack", "Stack", "/?search=Tanstack#projects"),
       createStackItem("Tailwind", "BrandTailwind"),
       createStackItem("XState", "BrandXstate"),
     ],

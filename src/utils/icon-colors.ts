@@ -77,7 +77,6 @@ export function getMagneticClasses(
     variant?: "base" | "hover" | "active" | "selected";
     shape?: "rounded-lg" | "rounded-full";
     component?: "node" | "input" | "card" | "button";
-    includeAnimation?: boolean;
     className?: string;
     isHovered?: boolean;
     isFocused?: boolean;
@@ -89,7 +88,6 @@ export function getMagneticClasses(
     variant,
     shape,
     component = "node", // Default to node for backward compatibility
-    includeAnimation = false,
     className,
     isHovered = false,
     isFocused = false,
@@ -150,9 +148,6 @@ export function getMagneticClasses(
 
       // Ring effect addon
       "magnetic-with-ring": finalWithRing,
-
-      // Animation
-      "animate-magnetic-pulse": includeAnimation,
     },
     className
   );
@@ -167,7 +162,6 @@ export function getMagneticClassesWithColor(
   options: {
     variant?: "base" | "hover" | "active" | "selected";
     shape?: "rounded-lg" | "rounded-full";
-    includeAnimation?: boolean;
     className?: string;
   } = {}
 ): { classes: string; style: React.CSSProperties } {
