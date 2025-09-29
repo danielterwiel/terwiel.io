@@ -25,7 +25,7 @@ export function getIconClasses({ node, state }: NodeClassConfig): {
 } {
   const iconColorClass = getIconColorClass(node.icon);
   const baseClasses = "drop-shadow-sm transition-all duration-300 ease-in-out";
-  const defaultColorClasses = "text-gray-800 dark:text-gray-400";
+  const defaultColorClasses = "text-gray-800";
 
   const classes = {
     default: clsx(baseClasses, defaultColorClasses, "scale-100"),

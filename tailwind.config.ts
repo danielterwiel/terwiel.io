@@ -10,10 +10,13 @@ import {
 function generateNodeScaleClasses() {
   const classes: Record<string, Record<string, string>> = {};
 
-  // Generate classes for each scale level (1-10)
-  for (let level = 1; level <= 10; level++) {
+  // Generate classes for each scale level (1-11)
+  // Level 11 is special: 25% larger than level 10 for experience display node
+  for (let level = 1; level <= 11; level++) {
     // Base scale factor: level 1 = 1.0x, level 10 = 3.0x (1-3 ratio)
-    const scaleFactor = 1.0 + ((level - 1) / 9) * 2.0;
+    // Level 11 = 3.75x (25% larger than level 10)
+    const scaleFactor =
+      level <= 10 ? 1.0 + ((level - 1) / 9) * 2.0 : 3.0 * 1.25;
 
     classes[`.node-scale-${level}`] = {
       "--node-scale": scaleFactor.toFixed(2),
@@ -59,7 +62,7 @@ function generateNodeScaleClasses() {
 function generateNodeScaleSafelist(): string[] {
   const classes: string[] = [];
 
-  for (let level = 1; level <= 10; level++) {
+  for (let level = 1; level <= 11; level++) {
     classes.push(`node-scale-${level}`);
   }
 
@@ -98,20 +101,9 @@ export default {
         ...generateTailwindIconColors(),
       },
       animation: {
-        "magnetic-pulse": "magnetic-pulse 2s ease-in-out infinite",
         "magnetic-ring": "magnetic-ring 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       },
       keyframes: {
-        "magnetic-pulse": {
-          "0%, 100%": {
-            transform: "scale(1)",
-            opacity: "0.5",
-          },
-          "50%": {
-            transform: "scale(1.05)",
-            opacity: "0.8",
-          },
-        },
         "magnetic-ring": {
           "0%": {
             transform: "translate(-50%, -50%) scale(0.8)",

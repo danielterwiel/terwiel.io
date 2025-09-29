@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import * as d3 from "d3";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createRoot } from "react-dom/client";
+import { createRoot, type Root } from "react-dom/client";
 
 import type React from "react";
 import {
@@ -15,8 +15,8 @@ import {
 } from "react";
 
 import type { IconNode } from "../types/icon-node";
+import { ExperienceDisplayNode } from "~/components/experience-display-node";
 import { Icon } from "~/components/icon";
-import { StackItemExperience } from "~/components/stack-item-experience";
 import { PROJECTS } from "~/data/projects";
 import { extractUniqueIcons } from "~/utils/extract-unique-icons";
 import { getIconHexColor, getMagneticClasses } from "~/utils/icon-colors";
@@ -27,7 +27,12 @@ import {
   updateNodeDOMClasses,
 } from "~/utils/node-styling";
 
+// Experience display node configuration
+const EXPERIENCE_NODE_SCALE_LEVEL = 11; // Scale level 11 (3.75x) - 25% larger than level 10 for prominent display
+
 function getScaleFactor(scaleLevel: number): number {
+  // Level 11 is special: 25% larger than level 10
+  if (scaleLevel === 11) return 3.0 * 1.25;
   return 1.0 + ((scaleLevel - 1) / 9) * 2.0;
 }
 
@@ -39,22 +44,54 @@ export const IconCloudContent: React.FC = () => {
   const simulationRef = useRef<d3.Simulation<IconNode, undefined> | null>(null);
   const nodesRef = useRef<IconNode[]>([]);
   const selectedNodeRef = useRef<IconNode | null>(null);
+  const experienceNodeRootRef = useRef<Root | null>(null);
   const [isAnimationReady, setIsAnimationReady] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<IconNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<IconNode | null>(null);
 
   // Fixed dimensions for viewBox - will scale responsively
   const width = 800;
-  const height = 600;
+  const height = 800;
+
+  // Adjust center point to account for 25% height increase in container
+  // Move center down to prevent overlap with search component
+  const centerX = width / 2;
+  const centerY = height * 0.6; // Move center down from 0.5 to 0.6
 
   const updateUrl = useCallback(
     (nodeName: string) => {
       const url = new URL(window.location.href);
-      url.searchParams.set("search", encodeURIComponent(nodeName));
+      const currentSearch = url.searchParams.get("search");
+
+      // If the node is already selected, clear the search parameter
+      if (
+        currentSearch &&
+        decodeURIComponent(currentSearch).toLowerCase() ===
+          nodeName.toLowerCase()
+      ) {
+        url.searchParams.delete("search");
+      } else {
+        url.searchParams.set("search", encodeURIComponent(nodeName));
+      }
+
       router.replace(url.toString(), { scroll: false });
     },
-    [router],
+    [router]
   );
+
+  // Helper function to re-render the experience display node
+  const updateExperienceDisplayNode = useCallback(() => {
+    if (experienceNodeRootRef.current) {
+      experienceNodeRootRef.current.render(
+        <div className="w-full h-full flex items-center justify-center">
+          <ExperienceDisplayNode
+            selectedNode={selectedNode}
+            hoveredNode={hoveredNode}
+          />
+        </div>
+      );
+    }
+  }, [selectedNode, hoveredNode]);
 
   // Helper function to smoothly update collision force radius
   const updateCollisionForce = useCallback(
@@ -94,7 +131,7 @@ export const IconCloudContent: React.FC = () => {
 
           return Math.max(
             baseRadius * (1 + influenceFactor * (expansionMultiplier - 1)),
-            minRadius,
+            minRadius
           );
         }
 
@@ -109,7 +146,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius(radiusFunction)
             .strength(0.3) // Much gentler strength for calmer movement
-            .iterations(1), // Fewer iterations for more natural, less rigid behavior
+            .iterations(1) // Fewer iterations for more natural, less rigid behavior
         )
         .alphaTarget(0.02) // Ultra-low energy for very calm, slow movement
         .restart();
@@ -133,7 +170,7 @@ export const IconCloudContent: React.FC = () => {
         }
       }, 5000);
     },
-    [],
+    []
   );
 
   // Helper function to update node visual styling without full rerender
@@ -175,7 +212,7 @@ export const IconCloudContent: React.FC = () => {
         }
       });
     },
-    [],
+    []
   );
 
   useEffect(() => {
@@ -185,7 +222,7 @@ export const IconCloudContent: React.FC = () => {
       const decodedSearch =
         decodeURIComponent(currentSearchQuery).toLowerCase();
       const foundNode = nodesRef.current.find(
-        (node) => node.name.toLowerCase() === decodedSearch,
+        (node) => node.name.toLowerCase() === decodedSearch
       );
 
       if (foundNode) {
@@ -234,6 +271,11 @@ export const IconCloudContent: React.FC = () => {
     }
   }, [hoveredNode, selectedNode, updateCollisionForce]);
 
+  // Effect to update the experience display node when state changes
+  useEffect(() => {
+    updateExperienceDisplayNode();
+  }, [updateExperienceDisplayNode]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally empty deps to run simulation setup only once
   useLayoutEffect(() => {
     // Small delay to ensure DOM is ready
@@ -244,6 +286,23 @@ export const IconCloudContent: React.FC = () => {
       svg.selectAll("*").remove();
 
       const nodes = extractUniqueIcons(PROJECTS, width, height);
+
+      // Add special experience display node
+      const experienceNode: IconNode = {
+        id: "experience-display",
+        name: "Experience Display",
+        icon: "experience",
+        url: "",
+        r: Math.max(...nodes.map((n) => n.r)) * 1.5, // 50% larger than largest node
+        scaleLevel: EXPERIENCE_NODE_SCALE_LEVEL,
+        x: centerX,
+        y: centerY,
+        fx: centerX, // Initially fixed at center
+        fy: centerY,
+        group: 0, // Special group for experience node
+      };
+
+      nodes.push(experienceNode);
       nodesRef.current = nodes;
 
       // Stop previous simulation if it exists
@@ -255,17 +314,35 @@ export const IconCloudContent: React.FC = () => {
       const simulation = d3
         .forceSimulation<IconNode>(nodes)
         .force("charge", d3.forceManyBody().strength(3)) // Much more reduced for ultra-calm movement
-        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("center", d3.forceCenter(centerX, centerY))
         .force(
           "collision",
           d3
             .forceCollide<IconNode>()
             .radius((d) => Math.max(d.r + 12, 50))
             .strength(0.3) // Much gentler collision strength
-            .iterations(1), // Fewer iterations for more organic movement
+            .iterations(1) // Fewer iterations for more organic movement
         )
-        .force("x", d3.forceX(width / 2).strength(0.008)) // Ultra-gentle centering
-        .force("y", d3.forceY(height / 2).strength(0.008)) // Ultra-gentle centering
+        .force("x", d3.forceX(centerX).strength(0.008)) // Ultra-gentle centering
+        .force("y", d3.forceY(centerY).strength(0.008)) // Ultra-gentle centering
+        .force("boundaryY", () => {
+          // Y-axis boundary constraint to keep nodes within container
+          nodes.forEach((node) => {
+            const nodeRadius = Math.max(node.r + 12, 50);
+            const minY = nodeRadius;
+            const maxY = height - nodeRadius;
+
+            if (node.y !== undefined) {
+              if (node.y < minY) {
+                node.y = minY;
+                node.vy = Math.max(0, node.vy || 0); // Prevent moving further up
+              } else if (node.y > maxY) {
+                node.y = maxY;
+                node.vy = Math.min(0, node.vy || 0); // Prevent moving further down
+              }
+            }
+          });
+        })
         .alpha(0.1) // Start with very low energy
         .alphaDecay(0.005) // Extremely slow decay for calm settling
         .velocityDecay(0.6); // Higher velocity decay for calmer movement
@@ -302,14 +379,61 @@ export const IconCloudContent: React.FC = () => {
             })
             .on("end", (event, d) => {
               if (!event.active) simulation.alphaTarget(0);
-              d.fx = null;
-              d.fy = null;
+
+              // Special behavior for experience display node - return to center
+              if (d.id === "experience-display") {
+                // Don't clear fx/fy immediately - use smooth transition
+
+                // Create a smooth transition back to center using D3 transitions
+                const targetX = centerX;
+                const targetY = centerY;
+                const currentX = d.x || targetX;
+                const currentY = d.y || targetY;
+
+                // Use D3 transition to smoothly animate back to center
+                d3.transition()
+                  .duration(2000) // 2 second smooth transition
+                  .ease(d3.easeCubicOut)
+                  .tween("position", () => {
+                    const interpolateX = d3.interpolate(currentX, targetX);
+                    const interpolateY = d3.interpolate(currentY, targetY);
+
+                    return (t: number) => {
+                      if (
+                        simulationRef.current &&
+                        d.id === "experience-display"
+                      ) {
+                        // Update fixed position during transition
+                        d.fx = interpolateX(t);
+                        d.fy = interpolateY(t);
+
+                        // Gently warm the simulation to apply the new position
+                        simulationRef.current.alphaTarget(0.01).restart();
+                      }
+                    };
+                  })
+                  .on("end", () => {
+                    // Ensure final position is exactly center
+                    if (d.id === "experience-display") {
+                      d.fx = targetX;
+                      d.fy = targetY;
+                      if (simulationRef.current) {
+                        simulationRef.current.alphaTarget(0);
+                      }
+                    }
+                  });
+              } else {
+                // Normal behavior for other nodes
+                d.fx = null;
+                d.fy = null;
+              }
+
               // Reset z-index after dragging
               const targetElement = event.sourceEvent?.target?.parentNode;
               if (targetElement && targetElement instanceof Element) {
                 d3.select(targetElement).style("z-index", "auto");
               }
-            }),
+            })
         );
 
       // Circles removed - using water droplet effect instead
@@ -492,8 +616,8 @@ export const IconCloudContent: React.FC = () => {
           "class",
           clsx(
             "node-container flex items-center justify-center",
-            "pointer-events-none relative",
-          ),
+            "pointer-events-none relative"
+          )
         );
 
       // Create magnetic inner containers with node-magnetic class for scaling
@@ -513,16 +637,43 @@ export const IconCloudContent: React.FC = () => {
               withRing: true, // Explicitly enable ring for nodes
               variant: isSelectedFromUrl ? "selected" : "base",
             }),
-            "node-magnetic flex items-center justify-center",
+            "node-magnetic flex items-center justify-center"
           );
         });
 
       // Render React icons into each magnetic container
       magneticContainers.each(function (d) {
+        const root = createRoot(this as Element);
+
+        // Special handling for experience display node
+        if (d.id === "experience-display") {
+          // Apply the same magnetic container styling as selected nodes
+          const containerElement = this as HTMLElement;
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: true, // Always use selected styling
+            isActive: false,
+          };
+          updateNodeDOMClasses(containerElement, d, nodeState);
+
+          // Store the root reference for later updates
+          experienceNodeRootRef.current = root;
+
+          root.render(
+            <div className="w-full h-full flex items-center justify-center">
+              <ExperienceDisplayNode
+                selectedNode={selectedNode}
+                hoveredNode={hoveredNode}
+              />
+            </div>
+          );
+          return;
+        }
+
+        // Regular icon nodes
         const IconComponent = Icon[d.icon as keyof typeof Icon];
 
         if (IconComponent) {
-          const root = createRoot(this as Element);
           const iconHexColor = getIconHexColor(d.icon);
 
           // Determine initial state based on selection
@@ -532,7 +683,7 @@ export const IconCloudContent: React.FC = () => {
             decodeURIComponent(searchQuery).toLowerCase() ===
               d.name.toLowerCase();
           const shouldShowSelected = Boolean(
-            selectedNode?.id === d.id || isSelectedFromUrl,
+            selectedNode?.id === d.id || isSelectedFromUrl
           );
 
           const nodeState: NodeState = {
@@ -554,7 +705,6 @@ export const IconCloudContent: React.FC = () => {
                 className={clsx(iconClasses.current, "node-icon block m-auto")}
                 ref={(svgElement: SVGSVGElement | null) => {
                   if (svgElement) {
-                    // Apply initial styling based on state
                     const targetColor = getIconTargetColor(d, nodeState);
                     svgElement.style.color = targetColor;
 
@@ -567,7 +717,7 @@ export const IconCloudContent: React.FC = () => {
                           svgElement.setAttribute("viewBox", "0 0 24 24");
                           svgElement.setAttribute(
                             "preserveAspectRatio",
-                            "xMidYMid",
+                            "xMidYMid"
                           );
                           return;
                         }
@@ -621,20 +771,20 @@ export const IconCloudContent: React.FC = () => {
 
                         svgElement.setAttribute(
                           "preserveAspectRatio",
-                          "xMidYMid",
+                          "xMidYMid"
                         );
                       } catch (error) {
                         console.warn(
                           "Error auto-centering icon:",
                           d.icon,
-                          error,
+                          error
                         );
                       }
                     }, 0);
                   }
                 }}
               />
-            </div>,
+            </div>
           );
         }
       });
@@ -645,17 +795,14 @@ export const IconCloudContent: React.FC = () => {
       if (simulationRef.current) {
         simulationRef.current.stop();
       }
+      // Clean up the experience node root reference
+      experienceNodeRootRef.current = null;
     };
   }, []);
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-8 px-4 overflow-visible flex flex-col">
-      <StackItemExperience
-        hoveredNode={hoveredNode}
-        selectedNode={selectedNode}
-      />
-
-      <div className="relative w-full overflow-visible pb-[75%]">
+      <div className="relative w-full overflow-visible pb-[100%]">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${width} ${height}`}
