@@ -1,23 +1,19 @@
-import About from "~/components/about";
 import Contact from "~/components/contact";
 import Experience from "~/components/experience";
 import Footer from "~/components/footer";
-import Header from "~/components/header";
+import { IconCloud } from "~/components/icon-cloud";
+import { SearchInput } from "~/components/search";
 
 export default function HomePage() {
   return (
-    <main className="flex min-h-screen flex-col print:m-0">
-      <div>
-        <Header />
-        <About />
-      </div>
-      <div className="break-inside-avoid px-4">
+    <div className="flex justify-center">
+      <main className="flex min-h-screen max-w-xl p-4 flex-col print:m-0 a4-page prose w-full">
+        <SearchInput />
+        <IconCloud />
         <Experience />
-      </div>
-      <div className="break-inside-avoid px-4">
         <Contact />
         <Footer />
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

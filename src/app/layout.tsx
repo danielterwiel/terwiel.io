@@ -34,7 +34,7 @@ export default function RootLayout({
       </head>
 
       <body
-        className={`a4-page prose font-sans selection:bg-klein selection:text-white print:max-w-full ${inter.variable}`}
+        className={` font-sans selection:bg-klein selection:text-white print:max-w-full ${inter.variable}`}
       >
         {children}
       </body>

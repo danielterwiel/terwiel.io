@@ -6,93 +6,17 @@ import Link from "next/link";
 import React from "react";
 
 import { Icon } from "~/components/icon";
+import {
+  getIconColorClass,
+  getIconDecorationColorClass,
+  getIconHoverColorClass,
+} from "~/utils/icon-colors";
 import { HighlightedIcon, HighlightedText } from "./highlighted";
 
 export type ListItem = {
   name: string;
   icon: string;
   url?: string;
-};
-
-const ICON_GROUP_HOVER = {
-  Assembly: "sm:group-hover:text-[#624FE8]",
-  BrandCss3: "sm:group-hover:text-[#1572B6]",
-  BrandGithub: "sm:group-hover:text-[#181717]",
-  BrandGoogle: "sm:group-hover:text-[#4285F4]",
-  BrandGraphql: "sm:group-hover:text-[#E10098]",
-  BrandHtml5: "sm:group-hover:text-[#E34F26]",
-  BrandJavascript: "sm:group-hover:text-[#F7DF1E]",
-  BrandLinkedin: "sm:group-hover:text-[#0A66C2]",
-  BrandPhp: "sm:group-hover:text-[#777BB4]",
-  BrandReact: "sm:group-hover:text-[#61DAFB]",
-  BrandRedux: "sm:group-hover:text-[#764ABC]",
-  BrandRust: "sm:group-hover:text-[#E36F39]",
-  BrandSass: "sm:group-hover:text-[#CC6699]",
-  BrandSpeedtest: "sm:group-hover:text-[#5A52DE]",
-  BrandTailwind: "sm:group-hover:text-[#06B6D4]",
-  BrandTypescript: "sm:group-hover:text-[#3178C6]",
-  BrandVercel: "sm:group-hover:text-[#000000]",
-  BrandVite: "sm:group-hover:text-[#646CFF]",
-  BrandVue: "sm:group-hover:text-[#4FC08D]",
-  Components: "sm:group-hover:text-[#384EF6]",
-  FileTypeDoc: "sm:group-hover:text-[#2F6DB5]",
-  Sql: "sm:group-hover:text-[#F29111]",
-  Svg: "sm:group-hover:text-[#FFB13B]",
-  TestPipe: "sm:group-hover:text-[#83664B]",
-};
-
-const ICON_COLORS = {
-  Assembly: "text-[#624FE8]",
-  BrandCss3: "text-[#1572B6]",
-  BrandGithub: "text-[#181717]",
-  BrandGoogle: "text-[#4285F4]",
-  BrandGraphql: "text-[#E10098]",
-  BrandHtml5: "text-[#E34F26]",
-  BrandJavascript: "text-[#F7DF1E]",
-  BrandLinkedin: "text-[#0A66C2]",
-  BrandPhp: "text-[#777BB4]",
-  BrandReact: "text-[#61DAFB]",
-  BrandRedux: "text-[#764ABC]",
-  BrandRust: "text-[#E36F39]",
-  BrandSass: "text-[#CC6699]",
-  BrandSpeedtest: "text-[#5A52DE]",
-  BrandTailwind: "text-[#06B6D4]",
-  BrandTypescript: "text-[#3178C6]",
-  BrandVercel: "text-[#000000]",
-  BrandVite: "text-[#646CFF]",
-  BrandVue: "text-[#4FC08D]",
-  Components: "text-[#384EF6]",
-  FileTypeDoc: "text-[#2F6DB5]",
-  Sql: "text-[#F29111]",
-  Svg: "text-[#FFB13B]",
-  TestPipe: "text-[#83664B]",
-};
-
-const LINK_CLASSES = {
-  Assembly: "hover:decoration-[#624FE8]",
-  BrandCss3: "hover:decoration-[#1572B6]",
-  BrandGithub: "hover:decoration-[#181717]",
-  BrandGoogle: "hover:decoration-[#4285F4]",
-  BrandGraphql: "hover:decoration-[#E10098]",
-  BrandHtml5: "hover:decoration-[#E34F26]",
-  BrandJavascript: "hover:decoration-[#F7DF1E]",
-  BrandLinkedin: "hover:decoration-[#0A66C2]",
-  BrandPhp: "hover:decoration-[#777BB4]",
-  BrandReact: "hover:decoration-[#61DAFB]",
-  BrandRedux: "hover:decoration-[#764ABC]",
-  BrandRust: "hover:decoration-[#E36F39]",
-  BrandSass: "hover:decoration-[#CC6699]",
-  BrandSpeedtest: "hover:decoration-[#5A52DE]",
-  BrandTailwind: "hover:decoration-[#06B6D4]",
-  BrandTypescript: "hover:decoration-[#3178C6]",
-  BrandVercel: "hover:decoration-[#000000]",
-  BrandVite: "hover:decoration-[#646CFF]",
-  BrandVue: "hover:decoration-[#4FC08D]",
-  Components: "hover:decoration-[#384EF6]",
-  FileTypeDoc: "hover:decoration-[#2F6DB5]",
-  Sql: "hover:decoration-[#F29111]",
-  Svg: "hover:decoration-[#FFB13B]",
-  TestPipe: "hover:decoration-[#83664B]",
 };
 
 const LIST_ITEM_SLIDE_ANIMATION = [
@@ -168,12 +92,9 @@ const ListItem = ({
   });
 
   const IconItem = Icon[item.icon as keyof typeof Icon];
-  const hoverColor =
-    ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
-  const hoverClass = hoverColor ? hoverColor : "group-hover:text-klein";
-  const color = colored
-    ? ICON_COLORS[item.icon as keyof typeof ICON_COLORS]
-    : "text-slate-400";
+  const hoverClass =
+    getIconHoverColorClass(item.icon) || "group-hover:text-klein";
+  const color = colored ? getIconColorClass(item.icon) : "text-slate-400";
   const colorClass = isLoaded ? "text-slate-400/50" : color;
   const iconClass = clsx([
     colorClass,
@@ -186,7 +107,7 @@ const ListItem = ({
     "focus:text-slate-400/50",
   ]);
 
-  const linkUnderline = LINK_CLASSES[item.icon as keyof typeof LINK_CLASSES];
+  const linkUnderline = getIconDecorationColorClass(item.icon);
   const linkClass = clsx([
     linkUnderline,
     "text-slate-800/70",
@@ -280,11 +201,9 @@ const LanguageListItem = ({
     };
   });
 
-  const hoverColor =
-    ICON_GROUP_HOVER[item.icon as keyof typeof ICON_GROUP_HOVER];
-  const hoverClass = hoverColor
-    ? hoverColor
-    : "sm:group-hover:text-klein sm:group-hover:saturate-100";
+  const hoverClass =
+    getIconHoverColorClass(item.icon) ||
+    "sm:group-hover:text-klein sm:group-hover:saturate-100";
   const colorClass = isLoaded ? "saturate-0 text-slate-400/30" : "saturate-100";
   const iconClass = clsx([
     colorClass,

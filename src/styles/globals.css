@@ -100,6 +100,28 @@
   }
 }
 
+@keyframes float-subtle {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes magnetic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;
@@ -109,6 +131,12 @@
   }
   .animation-slide-down {
     animation: animationSlideDown 0.5s ease-in-out forwards;
+  }
+  .animation-float-subtle {
+    animation: float-subtle 4s ease-in-out infinite;
+  }
+  .animation-magnetic-pulse {
+    animation: magnetic-pulse 2s ease-in-out infinite;
   }
 
   .svg-contain {

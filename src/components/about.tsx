@@ -7,24 +7,17 @@ import {
   type LanguageListItem,
   type ListItem,
 } from "~/components/icon-list";
+import { createStackItem } from "~/data/projects";
 
 const stack: ListItem[] = [
-  { name: "HTML", icon: "BrandHtml5", url: "/?search=HTML#projects" },
-  { name: "CSS", icon: "BrandCss3", url: "/?search=CSS#projects" },
-  {
-    name: "JavaScript",
-    icon: "BrandJavascript",
-    url: "/?search=JavaScript#projects",
-  },
-  {
-    name: "TypeScript",
-    icon: "BrandTypescript",
-    url: "/?search=TypeScript#projects",
-  },
-  { name: "React", icon: "BrandReact", url: "/?search=React#projects" },
-  { name: "Vue", icon: "BrandVue", url: "/?search=Vue#projects" },
-  { name: "Lit", icon: "Components", url: "/?search=Lit#projects" },
-  { name: "Rust", icon: "BrandRust", url: "/?search=Rust#projects" },
+  createStackItem("HTML", "BrandHtml5"),
+  createStackItem("CSS", "BrandCss3"),
+  createStackItem("JavaScript", "BrandJavascript"),
+  createStackItem("TypeScript", "BrandTypescript"),
+  createStackItem("React", "BrandReact"),
+  createStackItem("Vue", "BrandVue"),
+  createStackItem("Lit", "Components"),
+  createStackItem("Rust", "BrandRust"),
 ];
 
 const Stack = () => {

@@ -4,7 +4,7 @@ import { Icon } from "./icon";
 
 export default function Footer() {
   return (
-    <footer>
+    <footer className="break-before-avoid">
       <dl className="grid grid-flow-row md:grid-flow-col md:grid-rows-2">
         <dt className="flex items-center gap-1">
           <span className="text-slate-500/50">

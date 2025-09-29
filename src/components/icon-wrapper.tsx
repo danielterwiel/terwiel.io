@@ -28,7 +28,7 @@ export default function IconWrapper({
 
   return (
     <div
-      className={`flex-shrink-0 ${sizeClasses[size]} flex items-center justify-center overflow-hidden`}
+      className={`flex-shrink-0 ${sizeClasses[size]} grid place-items-center overflow-hidden`}
     >
       <IconComponent
         aria-hidden={ariaHidden}
