@@ -8,10 +8,9 @@ import React, { Suspense, useId } from "react";
 import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { Ring } from "~/components/ring";
-import { StackRow } from "~/components/stack-row";
 import { PROJECTS, type Project } from "~/data/projects";
 import { calculateProjectDuration } from "~/utils/calculate-experience";
-import { IconList, type ListItem } from "./icon-list";
+import { ProjectStack, type StackItem } from "./project-stack";
 import { SearchSummary } from "./search";
 
 const Project = ({
@@ -26,11 +25,11 @@ const Project = ({
   const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
   const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo
+    isPresent ? new Date().toISOString() : project.dateTo,
   );
   const { duration } = calculateProjectDuration(
     project.dateFrom,
-    project.dateTo
+    project.dateTo,
   );
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
@@ -111,11 +110,13 @@ const Project = ({
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.location}</HighlightedText>
                 </dd>
-                <StackRow items={project.stack} />
               </dl>
               <p className="md:pl-10">
                 <HighlightedText>{project.description}</HighlightedText>
               </p>
+              <div className="pl-10">
+                <ProjectStack items={project.stack} />
+              </div>
             </div>
           </div>
           <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
@@ -134,12 +135,12 @@ function filterProjects(projects: Project[], query: string) {
   return projects.filter((project) => {
     const { stack, ...rest } = project;
     const stackMatches = stack.filter((item) =>
-      item.name.toLowerCase().includes(query.toLowerCase())
+      item.name.toLowerCase().includes(query.toLowerCase()),
     );
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         value.toString().toLowerCase().includes(query.toLowerCase()) &&
-        !PROJECT_KEY_DISALLOWED.includes(key)
+        !PROJECT_KEY_DISALLOWED.includes(key),
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });
@@ -187,7 +188,7 @@ const Projects = () => {
   );
 };
 
-const conferences: ListItem[] = [
+const conferences: StackItem[] = [
   {
     name: "Performance.now()",
     icon: "BrandSpeedtest",
@@ -210,7 +211,7 @@ const Conferences = () => {
   return (
     <>
       <h2 id={conferencesId}>Conferences</h2>
-      <IconList items={conferences} />
+      <ProjectStack items={conferences} />
     </>
   );
 };
