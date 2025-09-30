@@ -10,7 +10,7 @@ import { Icon } from "~/components/icon";
 import { Ring } from "~/components/ring";
 import { PROJECTS, type Project } from "~/data/projects";
 import { calculateProjectDuration } from "~/utils/calculate-experience";
-import { ProjectStack, type StackItem } from "./project-stack";
+import { ProjectStack } from "./project-stack";
 import { SearchSummary } from "./search";
 
 const Project = ({
@@ -25,11 +25,11 @@ const Project = ({
   const isPresent = project.dateTo === "present";
   const dateFrom = parseISO(project.dateFrom);
   const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo,
+    isPresent ? new Date().toISOString() : project.dateTo
   );
   const { duration } = calculateProjectDuration(
     project.dateFrom,
-    project.dateTo,
+    project.dateTo
   );
   const from = format(dateFrom, "MMM yy");
   const to = format(dateTo, "MMM yy");
@@ -114,7 +114,7 @@ const Project = ({
               <p className="md:pl-10">
                 <HighlightedText>{project.description}</HighlightedText>
               </p>
-              <div className="pl-10">
+              <div className="md:pl-10">
                 <ProjectStack items={project.stack} />
               </div>
             </div>
@@ -135,12 +135,12 @@ function filterProjects(projects: Project[], query: string) {
   return projects.filter((project) => {
     const { stack, ...rest } = project;
     const stackMatches = stack.filter((item) =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
+      item.name.toLowerCase().includes(query.toLowerCase())
     );
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         value.toString().toLowerCase().includes(query.toLowerCase()) &&
-        !PROJECT_KEY_DISALLOWED.includes(key),
+        !PROJECT_KEY_DISALLOWED.includes(key)
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });
@@ -188,39 +188,10 @@ const Projects = () => {
   );
 };
 
-const conferences: StackItem[] = [
-  {
-    name: "Performance.now()",
-    icon: "BrandSpeedtest",
-    url: "https://perfnow.nl/",
-  },
-  {
-    name: "React Summit",
-    icon: "BrandReact",
-    url: "https://reactsummit.com/",
-  },
-  {
-    name: "VueJS Amsterdam",
-    icon: "BrandVue",
-    url: "https://vuejs.amsterdam/",
-  },
-];
-
-const Conferences = () => {
-  const conferencesId = useId();
-  return (
-    <>
-      <h2 id={conferencesId}>Conferences</h2>
-      <ProjectStack items={conferences} />
-    </>
-  );
-};
-
 export default function Experience() {
   return (
     <article className="break-inside-avoid">
       <Projects />
-      <Conferences />
     </article>
   );
 }
