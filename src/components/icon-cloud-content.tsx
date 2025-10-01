@@ -233,6 +233,24 @@ export const IconCloudContent: React.FC = () => {
         )
         .force("x", d3.forceX(centerX).strength(0.008)) // Ultra-gentle centering
         .force("y", d3.forceY(centerY).strength(0.008)) // Ultra-gentle centering
+        .force("boundaryX", () => {
+          // X-axis boundary constraint to keep nodes within container
+          nodes.forEach((node) => {
+            const nodeRadius = Math.max(node.r + 12, 50);
+            const minX = nodeRadius;
+            const maxX = width - nodeRadius;
+
+            if (node.x !== undefined) {
+              if (node.x < minX) {
+                node.x = minX;
+                node.vx = Math.max(0, node.vx || 0); // Prevent moving further left
+              } else if (node.x > maxX) {
+                node.x = maxX;
+                node.vx = Math.min(0, node.vx || 0); // Prevent moving further right
+              }
+            }
+          });
+        })
         .force("boundaryY", () => {
           // Y-axis boundary constraint to keep nodes within container
           nodes.forEach((node) => {
@@ -251,8 +269,9 @@ export const IconCloudContent: React.FC = () => {
             }
           });
         })
-        .alpha(0.1) // Start with very low energy
-        .alphaDecay(0.005) // Extremely slow decay for calm settling
+        .alpha(0.5) // Increased from 0.1 for better mobile initialization
+        .alphaMin(0.001) // Explicit alphaMin threshold
+        .alphaDecay(0.01) // Increased from 0.005 for quicker but still smooth settling
         .velocityDecay(0.6); // Higher velocity decay for calmer movement
 
       simulationRef.current = simulation;
