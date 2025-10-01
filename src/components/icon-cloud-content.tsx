@@ -503,22 +503,18 @@ export const IconCloudContent: React.FC = () => {
         simulation.force("mouse", null).force("mouse-y", null).alphaTarget(0);
       });
 
-      // Update positions on tick with very smooth transitions
+      // Update positions on tick - direct attribute updates (no transitions needed)
+      // The simulation provides smooth animation through its own physics
       simulation.on("tick", () => {
-        nodeGroups
-          .transition()
-          .duration(isAnimationReady ? 200 : 0) // Longer transition duration for smoother movement
-          .ease(d3.easeQuadOut) // Gentler easing for calmer visual animation
-          .attr("transform", (d) => {
-            // Remove container scaling to avoid double scaling with icon scaling
-            return `translate(${d.x},${d.y})`;
-          });
+        nodeGroups.attr("transform", (d) => {
+          return `translate(${d.x},${d.y})`;
+        });
       });
 
-      // Enable smooth animations after initial positioning
-      simulation.on("end", () => {
+      // Fade in visualization after initial positioning
+      setTimeout(() => {
         setIsAnimationReady(true);
-      });
+      }, 300);
 
       // Use foreignObject to embed React icons with scale classes for consistent sizing
       const foreignObjects = nodeGroups
