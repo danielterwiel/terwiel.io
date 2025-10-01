@@ -94,20 +94,21 @@ export function calculateBaseNodeRadius(
   let scaleFactor = 1.0;
 
   if (viewport.isMobile) {
-    // Mobile: reduce size significantly to fit more nodes
-    scaleFactor = 0.35;
+    // Mobile: reduce size significantly to fit more nodes (~26 nodes on 600x600 viewport)
+    // With ~26 nodes, we need very compact packing
+    scaleFactor = 0.25;
   } else if (viewport.isTablet) {
     // Tablet: moderate reduction
-    scaleFactor = 0.5;
+    scaleFactor = 0.4;
   } else {
     // Desktop: use larger nodes
-    scaleFactor = 0.65;
+    scaleFactor = 0.55;
   }
 
   // Apply minimum and maximum constraints
   const radius = baseRadius * scaleFactor;
-  const minRadius = viewport.isMobile ? 15 : viewport.isTablet ? 20 : 25;
-  const maxRadius = viewport.isMobile ? 35 : viewport.isTablet ? 50 : 70;
+  const minRadius = viewport.isMobile ? 12 : viewport.isTablet ? 18 : 22;
+  const maxRadius = viewport.isMobile ? 28 : viewport.isTablet ? 42 : 60;
 
   return Math.max(minRadius, Math.min(maxRadius, radius));
 }
@@ -169,8 +170,9 @@ export function calculateCollisionRadius(
   const scaleFactor = calculateNodeScaleFactor(baseRadius, scaleLevel);
   let radius = baseRadius * scaleFactor;
 
-  // Add padding for collision detection
-  const basePadding = 12;
+  // Add padding for collision detection - reduce on mobile for tighter packing
+  const viewport = getViewportDimensions();
+  const basePadding = viewport.isMobile ? 8 : viewport.isTablet ? 10 : 12;
 
   // Increase radius when hovered or selected for better spacing
   if (isSelected) {
@@ -179,24 +181,46 @@ export function calculateCollisionRadius(
     radius *= 1.5;
   }
 
-  return Math.max(radius + basePadding, 50);
+  const minRadius = viewport.isMobile ? 35 : viewport.isTablet ? 42 : 50;
+  return Math.max(radius + basePadding, minRadius);
 }
 
 /**
  * Gets optimal SVG dimensions for the icon cloud based on viewport
+ * Always returns 800x800 initially to prevent SSR/CSR hydration mismatch
+ * Use getResponsiveSVGDimensions() after mount for device-specific sizing
  *
  * @returns Object with width and height for the SVG viewBox
  */
 export function getOptimalSVGDimensions(): { width: number; height: number } {
+  // Always return 800x800 to match SSR and prevent hydration errors
+  // Responsive sizing will be applied after initial mount
+  return { width: 800, height: 800 };
+}
+
+/**
+ * Gets responsive SVG dimensions based on actual viewport or container size
+ * This should be called after component mount to apply device-specific sizing
+ *
+ * @param containerWidth - Optional actual container width from ResizeObserver
+ * @returns Object with width and height for the SVG viewBox
+ */
+export function getResponsiveSVGDimensions(containerWidth?: number): {
+  width: number;
+  height: number;
+} {
   const viewport = getViewportDimensions();
+
+  // If we have container width from ResizeObserver, use it for more accurate sizing
+  const effectiveWidth = containerWidth ?? viewport.width;
 
   // Use fixed viewBox dimensions that work well across devices
   // The viewBox scaling will handle the actual responsive behavior
-  if (viewport.isMobile) {
+  if (effectiveWidth < MOBILE_BREAKPOINT) {
     return { width: 600, height: 600 };
   }
 
-  if (viewport.isTablet) {
+  if (effectiveWidth < TABLET_BREAKPOINT) {
     return { width: 700, height: 700 };
   }
 

@@ -26,6 +26,7 @@ import { updateCollisionForce } from "~/utils/icon-cloud-collision";
 import { updateNodeGlows } from "~/utils/icon-cloud-glow";
 import {
   getOptimalSVGDimensions,
+  getResponsiveSVGDimensions,
   isMobileDevice,
 } from "~/utils/icon-cloud-responsive";
 import { EXPERIENCE_NODE_SCALE_LEVEL } from "~/utils/icon-cloud-scale";
@@ -39,11 +40,23 @@ import {
   updateNodeDOMClasses,
 } from "~/utils/node-styling";
 
+/**
+ * Responsive D3 Force Simulation with Centered Experience Node
+ *
+ * Centering Strategy (following d3 v7.x best practices):
+ * 1. SVG uses viewBox + preserveAspectRatio="xMidYMid meet" for responsive scaling
+ * 2. Experience node is FIXED at center using fx/fy (doesn't respond to forces)
+ * 3. Other nodes use gentle forceX/forceY to drift toward center
+ * 4. On resize: update viewBox dimensions and recalculate center (width/2, height/2)
+ * 5. Mobile-first: viewBox dimensions scale down on smaller devices (600x600 -> 800x800)
+ */
 export const IconCloudContent: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
   const simulationRef = useRef<d3.Simulation<IconNode, undefined> | null>(null);
   const nodesRef = useRef<IconNode[]>([]);
   const selectedNodeRef = useRef<IconNode | null>(null);
@@ -56,14 +69,13 @@ export const IconCloudContent: React.FC = () => {
     getOptimalSVGDimensions(),
   );
 
-  // Get responsive dimensions
+  // Get responsive viewBox dimensions (coordinate system for d3)
   const width = svgDimensions.width;
   const height = svgDimensions.height;
 
-  // Adjust center point to account for 25% height increase in container
-  // Move center down to prevent overlap with search component
+  // Calculate center in viewBox coordinate space - this is where experience node stays fixed
   const centerX = width / 2;
-  const centerY = height * 0.6; // Move center down from 0.5 to 0.6
+  const centerY = height / 2;
 
   const updateUrl = useCallback(
     (nodeName: string) => {
@@ -190,16 +202,166 @@ export const IconCloudContent: React.FC = () => {
     }
   }, [hoveredDomain, handleUpdateNodeGlows]);
 
-  // Effect to handle viewport resize and update SVG dimensions
+  // Effect to set up ResizeObserver and update dimensions after mount
+  useEffect(() => {
+    // Update dimensions immediately after mount
+    if (containerRef.current) {
+      const containerWidth = containerRef.current.clientWidth;
+      const newDimensions = getResponsiveSVGDimensions(containerWidth);
+      setSvgDimensions(newDimensions);
+    }
+
+    // Set up ResizeObserver for precise container size tracking
+    if (typeof ResizeObserver !== "undefined" && containerRef.current) {
+      let resizeTimeout: NodeJS.Timeout | null = null;
+
+      const handleResize = (entries: ResizeObserverEntry[]) => {
+        // Debounce resize handling
+        if (resizeTimeout) {
+          clearTimeout(resizeTimeout);
+        }
+
+        resizeTimeout = setTimeout(() => {
+          for (const entry of entries) {
+            const containerWidth = entry.contentRect.width;
+            const newDimensions = getResponsiveSVGDimensions(containerWidth);
+
+            // Only update if dimensions actually changed
+            if (
+              newDimensions.width !== svgDimensions.width ||
+              newDimensions.height !== svgDimensions.height
+            ) {
+              setSvgDimensions(newDimensions);
+
+              // Restart simulation with new dimensions
+              if (simulationRef.current && nodesRef.current.length > 0) {
+                const newCenterX = newDimensions.width / 2;
+                const newCenterY = newDimensions.height / 2;
+
+                // Update experience node fixed position to new center
+                const expNode = nodesRef.current.find(
+                  (n) => n.id === "experience-display",
+                );
+                if (expNode) {
+                  expNode.fx = newCenterX;
+                  expNode.fy = newCenterY;
+                }
+
+                // Update centering forces for other nodes
+                simulationRef.current
+                  .force(
+                    "x",
+                    d3
+                      .forceX()
+                      .x((d) => {
+                        const node = d as IconNode;
+                        return node.id === "experience-display"
+                          ? newCenterX
+                          : newCenterX;
+                      })
+                      .strength(0.008),
+                  )
+                  .force(
+                    "y",
+                    d3
+                      .forceY()
+                      .y((d) => {
+                        const node = d as IconNode;
+                        return node.id === "experience-display"
+                          ? newCenterY
+                          : newCenterY;
+                      })
+                      .strength(0.008),
+                  )
+                  .force(
+                    "collision",
+                    d3
+                      .forceCollide<IconNode>()
+                      .radius((d) => {
+                        const nodeState: NodeState = {
+                          isHovered: d.isHovered ?? false,
+                          isSelected: selectedNode?.id === d.id,
+                          isActive: false,
+                        };
+                        const useExistingRadius = d.id === "experience-display";
+                        const sizing = calculateNodeSizing(
+                          d,
+                          nodesRef.current.length,
+                          newDimensions.width,
+                          newDimensions.height,
+                          nodeState,
+                          useExistingRadius,
+                        );
+                        return sizing.collisionRadius;
+                      })
+                      .strength(0.3)
+                      .iterations(1),
+                  )
+                  .alpha(0.3)
+                  .restart();
+              }
+            }
+          }
+        }, 250);
+      };
+
+      resizeObserverRef.current = new ResizeObserver(handleResize);
+      resizeObserverRef.current.observe(containerRef.current);
+    }
+
+    return () => {
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+    };
+  }, [selectedNode, svgDimensions.width, svgDimensions.height]);
+
+  // Effect to handle viewport resize and update SVG dimensions (fallback for browsers without ResizeObserver)
   useEffect(() => {
     const handleResize = debounce(() => {
-      const newDimensions = getOptimalSVGDimensions();
+      const newDimensions = getResponsiveSVGDimensions();
       setSvgDimensions(newDimensions);
 
       // Restart simulation with new dimensions to reposition nodes
       if (simulationRef.current && nodesRef.current.length > 0) {
-        // Update collision force with new radius
+        const newCenterX = newDimensions.width / 2;
+        const newCenterY = newDimensions.height / 2;
+
+        // Update experience node fixed position to new center
+        const expNode = nodesRef.current.find(
+          (n) => n.id === "experience-display",
+        );
+        if (expNode) {
+          expNode.fx = newCenterX;
+          expNode.fy = newCenterY;
+        }
+
+        // Update forces with new dimensions
         simulationRef.current
+          .force(
+            "x",
+            d3
+              .forceX()
+              .x((d) => {
+                const node = d as IconNode;
+                return node.id === "experience-display"
+                  ? newCenterX
+                  : newCenterX;
+              })
+              .strength(0.008),
+          )
+          .force(
+            "y",
+            d3
+              .forceY()
+              .y((d) => {
+                const node = d as IconNode;
+                return node.id === "experience-display"
+                  ? newCenterY
+                  : newCenterY;
+              })
+              .strength(0.008),
+          )
           .force(
             "collision",
             d3
@@ -288,11 +450,11 @@ export const IconCloudContent: React.FC = () => {
         simulationRef.current.stop();
       }
 
-      // Create force simulation with ultra-gentle forces for very calm behavior
+      // Create force simulation with simplified centering approach
+      // Experience node is FIXED at center via fx/fy, other nodes use gentle centering forces
       const simulation = d3
         .forceSimulation<IconNode>(nodes)
-        .force("charge", d3.forceManyBody().strength(3)) // Much more reduced for ultra-calm movement
-        .force("center", d3.forceCenter(centerX, centerY))
+        .force("charge", d3.forceManyBody().strength(3)) // Gentle repulsion between nodes
         .force(
           "collision",
           d3
@@ -316,11 +478,34 @@ export const IconCloudContent: React.FC = () => {
               );
               return sizing.collisionRadius;
             })
-            .strength(0.3) // Much gentler collision strength
-            .iterations(1), // Fewer iterations for more organic movement
+            .strength(0.3)
+            .iterations(1),
         )
-        .force("x", d3.forceX(centerX).strength(0.008)) // Ultra-gentle centering
-        .force("y", d3.forceY(centerY).strength(0.008)) // Ultra-gentle centering
+        // Use forceX/forceY for gentle attraction to center (experience node ignores due to fx/fy)
+        .force(
+          "x",
+          d3
+            .forceX()
+            .x((d) => {
+              const node = d as IconNode;
+              return node.id === "experience-display"
+                ? (node.fx ?? centerX)
+                : centerX;
+            })
+            .strength(0.008),
+        )
+        .force(
+          "y",
+          d3
+            .forceY()
+            .y((d) => {
+              const node = d as IconNode;
+              return node.id === "experience-display"
+                ? (node.fy ?? centerY)
+                : centerY;
+            })
+            .strength(0.008),
+        )
         .force("boundaryY", () => {
           // Y-axis boundary constraint to keep nodes within container
           nodes.forEach((node) => {
@@ -398,50 +583,16 @@ export const IconCloudContent: React.FC = () => {
             .on("end", (event, d) => {
               if (!event.active) simulation.alphaTarget(0);
 
-              // Special behavior for experience display node - return to center
+              // Experience node returns to center, others are free to move
               if (d.id === "experience-display") {
-                // Don't clear fx/fy immediately - use smooth transition
-
-                // Create a smooth transition back to center using D3 transitions
-                const targetX = centerX;
-                const targetY = centerY;
-                const currentX = d.x || targetX;
-                const currentY = d.y || targetY;
-
-                // Use D3 transition to smoothly animate back to center
-                d3.transition()
-                  .duration(2000) // 2 second smooth transition
-                  .ease(d3.easeCubicOut)
-                  .tween("position", () => {
-                    const interpolateX = d3.interpolate(currentX, targetX);
-                    const interpolateY = d3.interpolate(currentY, targetY);
-
-                    return (t: number) => {
-                      if (
-                        simulationRef.current &&
-                        d.id === "experience-display"
-                      ) {
-                        // Update fixed position during transition
-                        d.fx = interpolateX(t);
-                        d.fy = interpolateY(t);
-
-                        // Gently warm the simulation to apply the new position
-                        simulationRef.current.alphaTarget(0.01).restart();
-                      }
-                    };
-                  })
-                  .on("end", () => {
-                    // Ensure final position is exactly center
-                    if (d.id === "experience-display") {
-                      d.fx = targetX;
-                      d.fy = targetY;
-                      if (simulationRef.current) {
-                        simulationRef.current.alphaTarget(0);
-                      }
-                    }
-                  });
+                // Simply reset to center position - fx/fy keeps it there
+                d.fx = centerX;
+                d.fy = centerY;
+                // Gentle simulation restart to smoothly reposition
+                simulation.alphaTarget(0.05).restart();
+                setTimeout(() => simulation.alphaTarget(0), 500);
               } else {
-                // Normal behavior for other nodes
+                // Release other nodes after drag
                 d.fx = null;
                 d.fy = null;
               }
@@ -602,8 +753,26 @@ export const IconCloudContent: React.FC = () => {
           .duration(isAnimationReady ? 200 : 0) // Longer transition duration for smoother movement
           .ease(d3.easeQuadOut) // Gentler easing for calmer visual animation
           .attr("transform", (d) => {
-            // Remove container scaling to avoid double scaling with icon scaling
-            return `translate(${d.x},${d.y})`;
+            // Calculate offset to center foreignObject around node position
+            // Apply offset in transform instead of foreignObject x/y attributes (Safari bug workaround)
+            const nodeState: NodeState = {
+              isHovered: d.isHovered ?? false,
+              isSelected: selectedNode?.id === d.id,
+              isActive: false,
+            };
+            const useExistingRadius = d.id === "experience-display";
+            const sizing = calculateNodeSizing(
+              d,
+              nodes.length,
+              width,
+              height,
+              nodeState,
+              useExistingRadius,
+            );
+            // Apply centering offset in the transform (Safari ignores foreignObject x/y)
+            const offsetX = (d.x ?? 0) + sizing.offset;
+            const offsetY = (d.y ?? 0) + sizing.offset;
+            return `translate(${offsetX},${offsetY})`;
           });
       });
 
@@ -651,44 +820,11 @@ export const IconCloudContent: React.FC = () => {
           );
           return sizing.foreignObjectSize;
         })
-        .attr("x", (d) => {
-          const nodeState: NodeState = {
-            isHovered: false,
-            isSelected: false,
-            isActive: false,
-          };
-          const useExistingRadius = d.id === "experience-display";
-          const sizing = calculateNodeSizing(
-            d,
-            nodes.length,
-            width,
-            height,
-            nodeState,
-            useExistingRadius,
-          );
-          return sizing.offset;
-        })
-        .attr("y", (d) => {
-          const nodeState: NodeState = {
-            isHovered: false,
-            isSelected: false,
-            isActive: false,
-          };
-          const useExistingRadius = d.id === "experience-display";
-          const sizing = calculateNodeSizing(
-            d,
-            nodes.length,
-            width,
-            height,
-            nodeState,
-            useExistingRadius,
-          );
-          return sizing.offset;
-        })
+        // Safari ignores foreignObject x/y attributes - we apply offset in parent <g> transform instead
+        .attr("x", 0)
+        .attr("y", 0)
         .attr("class", (d) => `node-scale-${d.scaleLevel}`)
-        .style("overflow", "visible")
-        .style("position", "fixed") // Fix Safari foreignObject positioning bug
-        .style("transform-origin", "0px 0px"); // Fix Safari foreignObject scale bug
+        .style("overflow", "visible");
 
       // Create outer containers for React components with node-container class for scaling
       const outerContainers = foreignObjects
@@ -892,7 +1028,10 @@ export const IconCloudContent: React.FC = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-4xl mx-auto mb-8 px-4 overflow-visible flex flex-col">
+    <div
+      ref={containerRef}
+      className="w-full max-w-4xl mx-auto mb-8 px-4 overflow-visible flex flex-col"
+    >
       <div className="relative w-full overflow-visible pb-[100%]">
         <svg
           ref={svgRef}
