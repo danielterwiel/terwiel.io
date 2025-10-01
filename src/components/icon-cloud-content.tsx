@@ -49,10 +49,25 @@ export const IconCloudContent: React.FC = () => {
   const [hoveredNode, setHoveredNode] = useState<IconNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<IconNode | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Fixed dimensions for viewBox - will scale responsively
-  const width = 800;
-  const height = 800;
+  // Detect mobile/tablet on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      // Consider devices with viewport width <= 1024px as mobile/tablet
+      const mobile = window.innerWidth <= 1024;
+      setIsMobile(mobile);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Responsive dimensions based on device type
+  // Use smaller dimensions for mobile to reduce node overlap
+  const width = isMobile ? 600 : 800;
+  const height = isMobile ? 600 : 800;
 
   // Adjust center point to account for 25% height increase in container
   // Move center down to prevent overlap with search component
@@ -94,11 +109,12 @@ export const IconCloudContent: React.FC = () => {
             selectedNode={selectedNode}
             hoveredNode={hoveredNode}
             onDomainHover={setHoveredDomain}
+            isMobile={isMobile}
           />
         </div>,
       );
     }
-  }, [selectedNode, hoveredNode]);
+  }, [selectedNode, hoveredNode, isMobile]);
 
   // Helper function to smoothly update collision force radius
   const handleUpdateCollisionForce = useCallback(
@@ -184,7 +200,10 @@ export const IconCloudContent: React.FC = () => {
     }
   }, [hoveredDomain, handleUpdateNodeGlows]);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally empty deps to run simulation setup only once
+  // Re-run simulation setup when mobile state changes
+  // Note: selectedNode, hoveredNode, searchParams, and updateUrl are intentionally
+  // not in dependencies as they are handled via separate useEffects and refs
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Simulation should only recreate on viewport size change
   useLayoutEffect(() => {
     // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(() => {
@@ -193,15 +212,23 @@ export const IconCloudContent: React.FC = () => {
       const svg = d3.select(svgRef.current);
       svg.selectAll("*").remove();
 
+      // Scale down nodes for mobile devices
       const nodes = extractUniqueIcons(PROJECTS, width, height);
+      if (isMobile) {
+        // Reduce node sizes by 70% on mobile (was 40%, but still too large)
+        nodes.forEach((node) => {
+          node.r = node.r * 0.3;
+        });
+      }
 
       // Add special experience display node
+      const maxNodeRadius = Math.max(...nodes.map((n) => n.r));
       const experienceNode: IconNode = {
         id: "experience-display",
         name: "Experience Display",
         icon: "experience",
         url: "",
-        r: Math.max(...nodes.map((n) => n.r)) * 1.5, // 50% larger than largest node
+        r: maxNodeRadius * (isMobile ? 1.1 : 1.5), // Much smaller on mobile
         scaleLevel: EXPERIENCE_NODE_SCALE_LEVEL,
         x: centerX,
         y: centerY,
@@ -279,6 +306,10 @@ export const IconCloudContent: React.FC = () => {
       // Create container for nodes
       const nodeContainer = svg.append("g").attr("class", "nodes");
 
+      // Detect if device supports touch
+      const isTouchDevice =
+        "ontouchstart" in window || navigator.maxTouchPoints > 0;
+
       // Create node groups
       const nodeGroups = nodeContainer
         .selectAll<SVGGElement, IconNode>("g")
@@ -286,8 +317,11 @@ export const IconCloudContent: React.FC = () => {
         .enter()
         .append("g")
         .attr("class", "node")
-        .style("cursor", "pointer")
-        .call(
+        .style("cursor", "pointer");
+
+      // Only enable drag on non-touch devices (desktop)
+      if (!isTouchDevice) {
+        nodeGroups.call(
           d3
             .drag<SVGGElement, IconNode>()
             .on("start", (event, d) => {
@@ -362,6 +396,7 @@ export const IconCloudContent: React.FC = () => {
               }
             }),
         );
+      }
 
       // Circles removed - using water droplet effect instead
 
@@ -522,19 +557,27 @@ export const IconCloudContent: React.FC = () => {
         .attr("width", (d) => {
           // Calculate size based on scale level to match CSS classes
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          return Math.max(35 * scaleFactor * 2.8, 120);
+          const baseSizeMultiplier = isMobile ? 1.8 : 2.8; // Reduce size on mobile
+          const minSize = isMobile ? 70 : 120;
+          return Math.max(35 * scaleFactor * baseSizeMultiplier, minSize);
         })
         .attr("height", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          return Math.max(35 * scaleFactor * 2.8, 120);
+          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
+          const minSize = isMobile ? 70 : 120;
+          return Math.max(35 * scaleFactor * baseSizeMultiplier, minSize);
         })
         .attr("x", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          return -Math.max(35 * scaleFactor * 1.4, 60);
+          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
+          const minSize = isMobile ? 70 : 120;
+          return -Math.max(35 * scaleFactor * baseSizeMultiplier, minSize) / 2;
         })
         .attr("y", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          return -Math.max(35 * scaleFactor * 1.4, 60);
+          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
+          const minSize = isMobile ? 70 : 120;
+          return -Math.max(35 * scaleFactor * baseSizeMultiplier, minSize) / 2;
         })
         .attr("class", (d) => `node-scale-${d.scaleLevel}`)
         .style("overflow", "visible");
@@ -604,6 +647,7 @@ export const IconCloudContent: React.FC = () => {
               <ExperienceDisplayNode
                 selectedNode={selectedNode}
                 hoveredNode={hoveredNode}
+                isMobile={isMobile}
               />
             </div>,
           );
@@ -738,7 +782,7 @@ export const IconCloudContent: React.FC = () => {
       // Clean up the experience node root reference
       experienceNodeRootRef.current = null;
     };
-  }, []);
+  }, [isMobile, width, height, centerX, centerY]);
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-8 px-4 overflow-visible flex flex-col">

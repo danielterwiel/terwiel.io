@@ -18,6 +18,7 @@ interface ExperienceDisplayNodeProps {
   hoveredNode: IconNode | null;
   className?: string;
   onDomainHover?: (domain: Domain | null) => void;
+  isMobile?: boolean;
 }
 
 type DisplayState = {
@@ -31,6 +32,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
   hoveredNode,
   className,
   onDomainHover,
+  isMobile = false,
 }) => {
   const [displayState, setDisplayState] = useState<DisplayState>({
     title: "Global Stats",
@@ -104,7 +106,8 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
       className={clsx(
         "experience-display-node flex flex-col items-center justify-center",
         "text-center transition-all duration-300 ease-out",
-        "w-full h-full gap-3",
+        "w-full h-full",
+        isMobile ? "gap-1" : "gap-3",
         getMagneticClasses(undefined, {
           component: "card",
           shape: "rounded-full",
@@ -122,7 +125,10 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <DomainPieChart size={180} onDomainHover={onDomainHover} />
+          <DomainPieChart
+            size={isMobile ? 120 : 180}
+            onDomainHover={onDomainHover}
+          />
 
           {/* Experience Stats Overlay - Hidden on Hover */}
           <div
@@ -145,7 +151,12 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
             {/* Text content with reduced prominence */}
             <div className="relative z-10 flex flex-col items-center gap-0.5">
               {/* Title - smaller and more subtle */}
-              <div className="text-lg font-semibold text-gray-700 mb-1">
+              <div
+                className={clsx(
+                  "font-semibold text-gray-700",
+                  isMobile ? "text-sm mb-0" : "text-lg mb-1",
+                )}
+              >
                 {displayState.title}
               </div>
 
@@ -168,12 +179,22 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
                 return (
                   <div className="flex flex-col items-center">
                     {years > 0 && (
-                      <div className="text-2xl font-bold text-klein">
+                      <div
+                        className={clsx(
+                          "font-bold text-klein",
+                          isMobile ? "text-lg" : "text-2xl",
+                        )}
+                      >
                         {years} year{years > 1 ? "s" : ""}
                       </div>
                     )}
                     {months > 0 && (
-                      <div className="text-base font-semibold text-klein/70">
+                      <div
+                        className={clsx(
+                          "font-semibold text-klein/70",
+                          isMobile ? "text-xs" : "text-base",
+                        )}
+                      >
                         {months} month{months > 1 ? "s" : ""}
                       </div>
                     )}
@@ -189,19 +210,31 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
       {displayNode && (
         <>
           {/* Icon and Title Section */}
-          <div className="flex flex-col items-center justify-center gap-2">
+          <div
+            className={clsx(
+              "flex flex-col items-center justify-center",
+              isMobile ? "gap-1" : "gap-2",
+            )}
+          >
             {(() => {
               const IconComponent = Icon[displayNode.icon as keyof typeof Icon];
               return IconComponent ? (
                 <IconComponent
                   className={clsx(
-                    "w-6 h-6 mb-2 scale-150",
                     getIconColorClass(displayNode.icon),
+                    isMobile
+                      ? "w-4 h-4 mb-0 scale-125"
+                      : "w-6 h-6 mb-2 scale-150",
                   )}
                 />
               ) : null;
             })()}
-            <div className="text-2xl font-semibold text-center text-gray-900 leading-tight">
+            <div
+              className={clsx(
+                "font-semibold text-center text-gray-900 leading-tight",
+                isMobile ? "text-base" : "text-2xl",
+              )}
+            >
               {displayState.title}
             </div>
           </div>
@@ -212,31 +245,61 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
               experience.years > 0 && experience.months > 0 ? (
                 // Both years and months - two lines
                 <div className="flex flex-col items-center gap-1">
-                  <div className="text-2xl font-bold text-klein">
+                  <div
+                    className={clsx(
+                      "font-bold text-klein",
+                      isMobile ? "text-base" : "text-2xl",
+                    )}
+                  >
                     {experience.years} year{experience.years > 1 ? "s" : ""}
                   </div>
-                  <div className="text-lg font-semibold text-klein/70">
+                  <div
+                    className={clsx(
+                      "font-semibold text-klein/70",
+                      isMobile ? "text-xs" : "text-lg",
+                    )}
+                  >
                     {experience.months} month{experience.months > 1 ? "s" : ""}
                   </div>
                 </div>
               ) : experience.years > 0 ? (
-                <div className="text-2xl font-bold text-klein">
+                <div
+                  className={clsx(
+                    "font-bold text-klein",
+                    isMobile ? "text-base" : "text-2xl",
+                  )}
+                >
                   {experience.years} year{experience.years > 1 ? "s" : ""}
                 </div>
               ) : (
-                <div className="text-2xl font-bold text-klein">
+                <div
+                  className={clsx(
+                    "font-bold text-klein",
+                    isMobile ? "text-base" : "text-2xl",
+                  )}
+                >
                   {experience.months} month{experience.months > 1 ? "s" : ""}
                 </div>
               )
             ) : (
-              <div className="text-2xl font-bold text-klein">
+              <div
+                className={clsx(
+                  "font-bold text-klein",
+                  isMobile ? "text-base" : "text-2xl",
+                )}
+              >
                 {displayState.experience}
               </div>
             )}
           </div>
 
           {/* Subtitle Section */}
-          <div className="text-sm text-gray-600 text-center">
+          <div
+            className={clsx(
+              "text-gray-600 text-center",
+              isMobile ? "text-xs" : "text-sm",
+            )}
+          >
             {displayState.subtitle || "\u00A0"}
           </div>
         </>
