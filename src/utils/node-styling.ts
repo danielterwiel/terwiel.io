@@ -129,12 +129,14 @@ export function updateNodeDOMClasses(
  * @param node - The icon node to calculate sizing for
  * @param nodeCount - Total number of nodes in the simulation
  * @param state - Current state of the node (hover, selected, etc.)
+ * @param useExistingRadius - If true, use the node's existing radius instead of recalculating
  * @returns Complete sizing information for the node
  */
 export function calculateNodeSizing(
   node: IconNode,
   nodeCount: number,
   state: NodeState,
+  useExistingRadius = false,
 ): NodeSizing {
   const viewport = getViewportDimensions();
 
@@ -145,11 +147,20 @@ export function calculateNodeSizing(
     viewport.height,
   );
 
-  // Get scale factor for this specific node based on its scale level
-  const scaleFactor = calculateNodeScaleFactor(baseRadius, node.scaleLevel);
+  let radius: number;
+  let scaleFactor: number;
 
-  // Calculate the actual radius for this node
-  const radius = baseRadius * scaleFactor;
+  // Use existing radius for special nodes (like experience display) or calculate new one
+  if (useExistingRadius && node.r) {
+    radius = node.r;
+    // Calculate scaleFactor based on existing radius
+    scaleFactor = radius / baseRadius;
+  } else {
+    // Get scale factor for this specific node based on its scale level
+    scaleFactor = calculateNodeScaleFactor(baseRadius, node.scaleLevel);
+    // Calculate the actual radius for this node
+    radius = baseRadius * scaleFactor;
+  }
 
   // Calculate collision radius (includes state-based adjustments)
   const collisionRadius = calculateCollisionRadius(

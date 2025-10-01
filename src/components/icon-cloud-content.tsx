@@ -210,10 +210,13 @@ export const IconCloudContent: React.FC = () => {
                   isSelected: selectedNode?.id === d.id,
                   isActive: false,
                 };
+                // Use existing radius for experience display node
+                const useExistingRadius = d.id === "experience-display";
                 const sizing = calculateNodeSizing(
                   d,
                   nodesRef.current.length,
                   nodeState,
+                  useExistingRadius,
                 );
                 return sizing.collisionRadius;
               })
@@ -293,7 +296,14 @@ export const IconCloudContent: React.FC = () => {
                 isSelected: false,
                 isActive: false,
               };
-              const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+              // Use existing radius for experience display node
+              const useExistingRadius = d.id === "experience-display";
+              const sizing = calculateNodeSizing(
+                d,
+                nodes.length,
+                nodeState,
+                useExistingRadius,
+              );
               return sizing.collisionRadius;
             })
             .strength(0.3) // Much gentler collision strength
@@ -310,7 +320,14 @@ export const IconCloudContent: React.FC = () => {
               isSelected: false,
               isActive: false,
             };
-            const sizing = calculateNodeSizing(node, nodes.length, nodeState);
+            // Use existing radius for experience display node
+            const useExistingRadius = node.id === "experience-display";
+            const sizing = calculateNodeSizing(
+              node,
+              nodes.length,
+              nodeState,
+              useExistingRadius,
+            );
             const nodeRadius = sizing.collisionRadius;
             const minY = nodeRadius;
             const maxY = height - nodeRadius;
@@ -593,7 +610,14 @@ export const IconCloudContent: React.FC = () => {
             isSelected: false,
             isActive: false,
           };
-          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          // Use existing radius for experience display node to preserve its custom size
+          const useExistingRadius = d.id === "experience-display";
+          const sizing = calculateNodeSizing(
+            d,
+            nodes.length,
+            nodeState,
+            useExistingRadius,
+          );
           return sizing.foreignObjectSize;
         })
         .attr("height", (d) => {
@@ -602,7 +626,13 @@ export const IconCloudContent: React.FC = () => {
             isSelected: false,
             isActive: false,
           };
-          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          const useExistingRadius = d.id === "experience-display";
+          const sizing = calculateNodeSizing(
+            d,
+            nodes.length,
+            nodeState,
+            useExistingRadius,
+          );
           return sizing.foreignObjectSize;
         })
         .attr("x", (d) => {
@@ -611,7 +641,13 @@ export const IconCloudContent: React.FC = () => {
             isSelected: false,
             isActive: false,
           };
-          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          const useExistingRadius = d.id === "experience-display";
+          const sizing = calculateNodeSizing(
+            d,
+            nodes.length,
+            nodeState,
+            useExistingRadius,
+          );
           return sizing.offset;
         })
         .attr("y", (d) => {
@@ -620,7 +656,13 @@ export const IconCloudContent: React.FC = () => {
             isSelected: false,
             isActive: false,
           };
-          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          const useExistingRadius = d.id === "experience-display";
+          const sizing = calculateNodeSizing(
+            d,
+            nodes.length,
+            nodeState,
+            useExistingRadius,
+          );
           return sizing.offset;
         })
         .attr("class", (d) => `node-scale-${d.scaleLevel}`)
