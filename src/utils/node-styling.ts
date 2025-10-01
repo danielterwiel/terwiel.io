@@ -1,12 +1,26 @@
 import { clsx } from "clsx";
 
 import type { IconNode } from "../types/icon-node";
+import {
+  calculateBaseNodeRadius,
+  calculateCollisionRadius,
+  calculateNodeScaleFactor,
+  getViewportDimensions,
+} from "./icon-cloud-responsive";
 import { getIconColorClass, getIconHexColor } from "./icon-colors";
 
 export interface NodeState {
   isHovered: boolean;
   isSelected: boolean;
   isActive: boolean;
+}
+
+export interface NodeSizing {
+  radius: number;
+  collisionRadius: number;
+  foreignObjectSize: number;
+  offset: number;
+  scaleFactor: number;
 }
 
 export interface NodeClassConfig {
@@ -106,4 +120,57 @@ export function updateNodeDOMClasses(
       foreignObject.classList.add("node-selected");
     }
   }
+}
+
+/**
+ * Calculates responsive node sizing based on viewport, node count, and node state
+ * This acts as the main sizing state machine for icon cloud nodes
+ *
+ * @param node - The icon node to calculate sizing for
+ * @param nodeCount - Total number of nodes in the simulation
+ * @param state - Current state of the node (hover, selected, etc.)
+ * @returns Complete sizing information for the node
+ */
+export function calculateNodeSizing(
+  node: IconNode,
+  nodeCount: number,
+  state: NodeState,
+): NodeSizing {
+  const viewport = getViewportDimensions();
+
+  // Calculate base radius for all nodes based on viewport and node count
+  const baseRadius = calculateBaseNodeRadius(
+    nodeCount,
+    viewport.width,
+    viewport.height,
+  );
+
+  // Get scale factor for this specific node based on its scale level
+  const scaleFactor = calculateNodeScaleFactor(baseRadius, node.scaleLevel);
+
+  // Calculate the actual radius for this node
+  const radius = baseRadius * scaleFactor;
+
+  // Calculate collision radius (includes state-based adjustments)
+  const collisionRadius = calculateCollisionRadius(
+    baseRadius,
+    node.scaleLevel,
+    state.isHovered,
+    state.isSelected,
+  );
+
+  // Calculate foreignObject dimensions
+  // ForeignObject needs to be larger to accommodate icon scaling on hover
+  const foreignObjectSize = Math.max(radius * 2.8, 120);
+
+  // Calculate offset to center the foreignObject
+  const offset = -foreignObjectSize / 2;
+
+  return {
+    radius,
+    collisionRadius,
+    foreignObjectSize,
+    offset,
+    scaleFactor,
+  };
 }

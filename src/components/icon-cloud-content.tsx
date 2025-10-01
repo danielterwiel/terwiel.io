@@ -19,17 +19,20 @@ import type { IconNode } from "../types/icon-node";
 import { ExperienceDisplayNode } from "~/components/experience-display-node";
 import { Icon } from "~/components/icon";
 import { PROJECTS } from "~/data/projects";
+import { debounce } from "~/utils/debounce";
 import { getDomainGlow } from "~/utils/domain-colors";
 import { extractUniqueIcons } from "~/utils/extract-unique-icons";
 import { updateCollisionForce } from "~/utils/icon-cloud-collision";
 import { updateNodeGlows } from "~/utils/icon-cloud-glow";
 import {
-  EXPERIENCE_NODE_SCALE_LEVEL,
-  getScaleFactor,
-} from "~/utils/icon-cloud-scale";
+  getOptimalSVGDimensions,
+  isMobileDevice,
+} from "~/utils/icon-cloud-responsive";
+import { EXPERIENCE_NODE_SCALE_LEVEL } from "~/utils/icon-cloud-scale";
 import { updateNodeVisualStyling } from "~/utils/icon-cloud-styling";
 import { getIconHexColor, getMagneticClasses } from "~/utils/icon-colors";
 import {
+  calculateNodeSizing,
   getIconClasses,
   getIconTargetColor,
   type NodeState,
@@ -49,10 +52,13 @@ export const IconCloudContent: React.FC = () => {
   const [hoveredNode, setHoveredNode] = useState<IconNode | null>(null);
   const [selectedNode, setSelectedNode] = useState<IconNode | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+  const [svgDimensions, setSvgDimensions] = useState(() =>
+    getOptimalSVGDimensions(),
+  );
 
-  // Fixed dimensions for viewBox - will scale responsively
-  const width = 800;
-  const height = 800;
+  // Get responsive dimensions
+  const width = svgDimensions.width;
+  const height = svgDimensions.height;
 
   // Adjust center point to account for 25% height increase in container
   // Move center down to prevent overlap with search component
@@ -184,6 +190,48 @@ export const IconCloudContent: React.FC = () => {
     }
   }, [hoveredDomain, handleUpdateNodeGlows]);
 
+  // Effect to handle viewport resize and update SVG dimensions
+  useEffect(() => {
+    const handleResize = debounce(() => {
+      const newDimensions = getOptimalSVGDimensions();
+      setSvgDimensions(newDimensions);
+
+      // Restart simulation with new dimensions to reposition nodes
+      if (simulationRef.current && nodesRef.current.length > 0) {
+        // Update collision force with new radius
+        simulationRef.current
+          .force(
+            "collision",
+            d3
+              .forceCollide<IconNode>()
+              .radius((d) => {
+                const nodeState: NodeState = {
+                  isHovered: d.isHovered ?? false,
+                  isSelected: selectedNode?.id === d.id,
+                  isActive: false,
+                };
+                const sizing = calculateNodeSizing(
+                  d,
+                  nodesRef.current.length,
+                  nodeState,
+                );
+                return sizing.collisionRadius;
+              })
+              .strength(0.3)
+              .iterations(1),
+          )
+          .alpha(0.3)
+          .restart();
+      }
+    }, 250);
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [selectedNode]);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally empty deps to run simulation setup only once
   useLayoutEffect(() => {
     // Small delay to ensure DOM is ready
@@ -194,6 +242,17 @@ export const IconCloudContent: React.FC = () => {
       svg.selectAll("*").remove();
 
       const nodes = extractUniqueIcons(PROJECTS, width, height);
+
+      // Update all node radii with responsive sizing
+      nodes.forEach((node) => {
+        const nodeState: NodeState = {
+          isHovered: false,
+          isSelected: false,
+          isActive: false,
+        };
+        const sizing = calculateNodeSizing(node, nodes.length + 1, nodeState);
+        node.r = sizing.radius;
+      });
 
       // Add special experience display node
       const experienceNode: IconNode = {
@@ -227,7 +286,16 @@ export const IconCloudContent: React.FC = () => {
           "collision",
           d3
             .forceCollide<IconNode>()
-            .radius((d) => Math.max(d.r + 12, 50))
+            .radius((d) => {
+              // Use responsive sizing calculation for collision radius
+              const nodeState: NodeState = {
+                isHovered: d.isHovered ?? false,
+                isSelected: false,
+                isActive: false,
+              };
+              const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+              return sizing.collisionRadius;
+            })
             .strength(0.3) // Much gentler collision strength
             .iterations(1), // Fewer iterations for more organic movement
         )
@@ -236,7 +304,14 @@ export const IconCloudContent: React.FC = () => {
         .force("boundaryY", () => {
           // Y-axis boundary constraint to keep nodes within container
           nodes.forEach((node) => {
-            const nodeRadius = Math.max(node.r + 12, 50);
+            // Use responsive sizing for boundary calculations
+            const nodeState: NodeState = {
+              isHovered: node.isHovered ?? false,
+              isSelected: false,
+              isActive: false,
+            };
+            const sizing = calculateNodeSizing(node, nodes.length, nodeState);
+            const nodeRadius = sizing.collisionRadius;
             const minY = nodeRadius;
             const maxY = height - nodeRadius;
 
@@ -260,6 +335,9 @@ export const IconCloudContent: React.FC = () => {
       // Create container for nodes
       const nodeContainer = svg.append("g").attr("class", "nodes");
 
+      // Detect if mobile device to disable drag & drop
+      const isMobile = isMobileDevice();
+
       // Create node groups
       const nodeGroups = nodeContainer
         .selectAll<SVGGElement, IconNode>("g")
@@ -267,8 +345,11 @@ export const IconCloudContent: React.FC = () => {
         .enter()
         .append("g")
         .attr("class", "node")
-        .style("cursor", "pointer")
-        .call(
+        .style("cursor", "pointer");
+
+      // Only enable drag & drop on non-mobile devices
+      if (!isMobile) {
+        nodeGroups.call(
           d3
             .drag<SVGGElement, IconNode>()
             .on("start", (event, d) => {
@@ -343,6 +424,7 @@ export const IconCloudContent: React.FC = () => {
               }
             }),
         );
+      }
 
       // Circles removed - using water droplet effect instead
 
@@ -501,28 +583,50 @@ export const IconCloudContent: React.FC = () => {
         setIsAnimationReady(true);
       });
 
-      // Use foreignObject to embed React icons with scale classes for consistent sizing
+      // Use foreignObject to embed React icons with responsive sizing
       const foreignObjects = nodeGroups
         .append("foreignObject")
         .attr("width", (d) => {
-          // Calculate size based on scale level to match CSS classes
-          const scaleFactor = getScaleFactor(d.scaleLevel);
-          return Math.max(35 * scaleFactor * 2.8, 120);
+          // Calculate responsive size based on viewport, node count, and node state
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: false,
+            isActive: false,
+          };
+          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          return sizing.foreignObjectSize;
         })
         .attr("height", (d) => {
-          const scaleFactor = getScaleFactor(d.scaleLevel);
-          return Math.max(35 * scaleFactor * 2.8, 120);
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: false,
+            isActive: false,
+          };
+          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          return sizing.foreignObjectSize;
         })
         .attr("x", (d) => {
-          const scaleFactor = getScaleFactor(d.scaleLevel);
-          return -Math.max(35 * scaleFactor * 1.4, 60);
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: false,
+            isActive: false,
+          };
+          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          return sizing.offset;
         })
         .attr("y", (d) => {
-          const scaleFactor = getScaleFactor(d.scaleLevel);
-          return -Math.max(35 * scaleFactor * 1.4, 60);
+          const nodeState: NodeState = {
+            isHovered: false,
+            isSelected: false,
+            isActive: false,
+          };
+          const sizing = calculateNodeSizing(d, nodes.length, nodeState);
+          return sizing.offset;
         })
         .attr("class", (d) => `node-scale-${d.scaleLevel}`)
-        .style("overflow", "visible");
+        .style("overflow", "visible")
+        .style("position", "fixed") // Fix Safari foreignObject positioning bug
+        .style("transform-origin", "0px 0px"); // Fix Safari foreignObject scale bug
 
       // Create outer containers for React components with node-container class for scaling
       const outerContainers = foreignObjects
