@@ -5,7 +5,6 @@ import {
   calculateBaseNodeRadius,
   calculateCollisionRadius,
   calculateNodeScaleFactor,
-  getViewportDimensions,
 } from "./icon-cloud-responsive";
 import { getIconColorClass, getIconHexColor } from "./icon-colors";
 
