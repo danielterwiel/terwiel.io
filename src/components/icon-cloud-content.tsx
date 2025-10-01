@@ -215,9 +215,9 @@ export const IconCloudContent: React.FC = () => {
       // Scale down nodes for mobile devices
       const nodes = extractUniqueIcons(PROJECTS, width, height);
       if (isMobile) {
-        // Reduce node sizes by 70% on mobile (was 40%, but still too large)
+        // Reduce node sizes by 85% on mobile for better mobile experience
         nodes.forEach((node) => {
-          node.r = node.r * 0.3;
+          node.r = node.r * 0.15;
         });
       }
 
@@ -228,7 +228,7 @@ export const IconCloudContent: React.FC = () => {
         name: "Experience Display",
         icon: "experience",
         url: "",
-        r: maxNodeRadius * (isMobile ? 1.1 : 1.5), // Much smaller on mobile
+        r: maxNodeRadius * (isMobile ? 0.9 : 1.5), // Smaller on mobile
         scaleLevel: EXPERIENCE_NODE_SCALE_LEVEL,
         x: centerX,
         y: centerY,
@@ -557,26 +557,26 @@ export const IconCloudContent: React.FC = () => {
         .attr("width", (d) => {
           // Calculate size based on scale level to match CSS classes
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          const baseSizeMultiplier = isMobile ? 1.8 : 2.8; // Reduce size on mobile
-          const minSize = isMobile ? 70 : 120;
+          const baseSizeMultiplier = isMobile ? 1.2 : 2.8; // Smaller size on mobile
+          const minSize = isMobile ? 50 : 120;
           return Math.max(35 * scaleFactor * baseSizeMultiplier, minSize);
         })
         .attr("height", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
-          const minSize = isMobile ? 70 : 120;
+          const baseSizeMultiplier = isMobile ? 1.2 : 2.8;
+          const minSize = isMobile ? 50 : 120;
           return Math.max(35 * scaleFactor * baseSizeMultiplier, minSize);
         })
         .attr("x", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
-          const minSize = isMobile ? 70 : 120;
+          const baseSizeMultiplier = isMobile ? 1.2 : 2.8;
+          const minSize = isMobile ? 50 : 120;
           return -Math.max(35 * scaleFactor * baseSizeMultiplier, minSize) / 2;
         })
         .attr("y", (d) => {
           const scaleFactor = getScaleFactor(d.scaleLevel);
-          const baseSizeMultiplier = isMobile ? 1.8 : 2.8;
-          const minSize = isMobile ? 70 : 120;
+          const baseSizeMultiplier = isMobile ? 1.2 : 2.8;
+          const minSize = isMobile ? 50 : 120;
           return -Math.max(35 * scaleFactor * baseSizeMultiplier, minSize) / 2;
         })
         .attr("class", (d) => `node-scale-${d.scaleLevel}`)
