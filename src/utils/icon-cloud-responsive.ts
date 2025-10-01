@@ -64,21 +64,24 @@ export function getViewportDimensions(): ViewportDimensions {
 }
 
 /**
- * Calculates optimal base node radius based on viewport size and number of nodes
+ * Calculates optimal base node radius based on SVG dimensions and number of nodes
  * Uses circle packing efficiency formula: area = π * r²
  *
+ * IMPORTANT: Should use SVG viewBox dimensions, not actual viewport dimensions,
+ * since D3 positions nodes in the SVG coordinate system.
+ *
  * @param nodeCount - Total number of nodes in the simulation
- * @param viewportWidth - Width of the viewport
- * @param viewportHeight - Height of the viewport
- * @returns Optimal base radius for nodes
+ * @param svgWidth - Width of the SVG viewBox (not viewport)
+ * @param svgHeight - Height of the SVG viewBox (not viewport)
+ * @returns Optimal base radius for nodes in SVG coordinate space
  */
 export function calculateBaseNodeRadius(
   nodeCount: number,
-  viewportWidth: number,
-  viewportHeight: number,
+  svgWidth: number,
+  svgHeight: number,
 ): number {
-  // Calculate available area (use 70% of viewport to leave breathing room)
-  const availableArea = viewportWidth * viewportHeight * 0.7;
+  // Calculate available area (use 70% of SVG space to leave breathing room)
+  const availableArea = svgWidth * svgHeight * 0.7;
 
   // Calculate area per node
   const areaPerNode = availableArea / nodeCount;
@@ -86,7 +89,7 @@ export function calculateBaseNodeRadius(
   // Calculate radius from area: r = sqrt(area / π)
   const baseRadius = Math.sqrt(areaPerNode / Math.PI);
 
-  // Apply device-specific scale factors
+  // Apply device-specific scale factors based on actual viewport
   const viewport = getViewportDimensions();
   let scaleFactor = 1.0;
 

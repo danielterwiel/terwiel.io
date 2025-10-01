@@ -123,11 +123,13 @@ export function updateNodeDOMClasses(
 }
 
 /**
- * Calculates responsive node sizing based on viewport, node count, and node state
+ * Calculates responsive node sizing based on SVG dimensions, node count, and node state
  * This acts as the main sizing state machine for icon cloud nodes
  *
  * @param node - The icon node to calculate sizing for
  * @param nodeCount - Total number of nodes in the simulation
+ * @param svgWidth - Width of the SVG viewBox (not viewport)
+ * @param svgHeight - Height of the SVG viewBox (not viewport)
  * @param state - Current state of the node (hover, selected, etc.)
  * @param useExistingRadius - If true, use the node's existing radius instead of recalculating
  * @returns Complete sizing information for the node
@@ -135,17 +137,13 @@ export function updateNodeDOMClasses(
 export function calculateNodeSizing(
   node: IconNode,
   nodeCount: number,
+  svgWidth: number,
+  svgHeight: number,
   state: NodeState,
   useExistingRadius = false,
 ): NodeSizing {
-  const viewport = getViewportDimensions();
-
-  // Calculate base radius for all nodes based on viewport and node count
-  const baseRadius = calculateBaseNodeRadius(
-    nodeCount,
-    viewport.width,
-    viewport.height,
-  );
+  // Calculate base radius for all nodes based on SVG viewBox dimensions and node count
+  const baseRadius = calculateBaseNodeRadius(nodeCount, svgWidth, svgHeight);
 
   let radius: number;
   let scaleFactor: number;

@@ -215,6 +215,8 @@ export const IconCloudContent: React.FC = () => {
                 const sizing = calculateNodeSizing(
                   d,
                   nodesRef.current.length,
+                  newDimensions.width,
+                  newDimensions.height,
                   nodeState,
                   useExistingRadius,
                 );
@@ -253,7 +255,13 @@ export const IconCloudContent: React.FC = () => {
           isSelected: false,
           isActive: false,
         };
-        const sizing = calculateNodeSizing(node, nodes.length + 1, nodeState);
+        const sizing = calculateNodeSizing(
+          node,
+          nodes.length + 1,
+          width,
+          height,
+          nodeState,
+        );
         node.r = sizing.radius;
       });
 
@@ -301,6 +309,8 @@ export const IconCloudContent: React.FC = () => {
               const sizing = calculateNodeSizing(
                 d,
                 nodes.length,
+                width,
+                height,
                 nodeState,
                 useExistingRadius,
               );
@@ -325,6 +335,8 @@ export const IconCloudContent: React.FC = () => {
             const sizing = calculateNodeSizing(
               node,
               nodes.length,
+              width,
+              height,
               nodeState,
               useExistingRadius,
             );
@@ -604,7 +616,7 @@ export const IconCloudContent: React.FC = () => {
       const foreignObjects = nodeGroups
         .append("foreignObject")
         .attr("width", (d) => {
-          // Calculate responsive size based on viewport, node count, and node state
+          // Calculate responsive size based on SVG dimensions, node count, and node state
           const nodeState: NodeState = {
             isHovered: false,
             isSelected: false,
@@ -615,6 +627,8 @@ export const IconCloudContent: React.FC = () => {
           const sizing = calculateNodeSizing(
             d,
             nodes.length,
+            width,
+            height,
             nodeState,
             useExistingRadius,
           );
@@ -630,6 +644,8 @@ export const IconCloudContent: React.FC = () => {
           const sizing = calculateNodeSizing(
             d,
             nodes.length,
+            width,
+            height,
             nodeState,
             useExistingRadius,
           );
@@ -645,6 +661,8 @@ export const IconCloudContent: React.FC = () => {
           const sizing = calculateNodeSizing(
             d,
             nodes.length,
+            width,
+            height,
             nodeState,
             useExistingRadius,
           );
@@ -660,6 +678,8 @@ export const IconCloudContent: React.FC = () => {
           const sizing = calculateNodeSizing(
             d,
             nodes.length,
+            width,
+            height,
             nodeState,
             useExistingRadius,
           );
