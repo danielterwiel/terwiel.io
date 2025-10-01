@@ -2,7 +2,7 @@ import Contact from "~/components/contact";
 import Experience from "~/components/experience";
 import Footer from "~/components/footer";
 import { IconCloud } from "~/components/icon-cloud";
-import { SearchInput } from "~/components/search";
+import { SearchInput } from "~/components/search-input";
 
 export default function HomePage() {
   return (

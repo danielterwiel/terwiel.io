@@ -32,12 +32,12 @@ export function getIconClasses({ node, state }: NodeClassConfig): {
     hover: clsx(
       baseClasses,
       iconColorClass || defaultColorClasses,
-      "scale-150"
+      "scale-150",
     ),
     selected: clsx(
       baseClasses,
       iconColorClass || defaultColorClasses,
-      "scale-125"
+      "scale-125",
     ),
   };
 
@@ -48,27 +48,6 @@ export function getIconClasses({ node, state }: NodeClassConfig): {
   if (state.isSelected) current = classes.selected;
 
   return { ...classes, current };
-}
-
-/**
- * Generate magnetic container classes based on node state
- * Selected state takes priority over hover to prevent conflicts
- */
-export function getMagneticContainerClasses(state: NodeState): string {
-  return clsx({
-    "magnetic-hover": state.isHovered && !state.isSelected, // Only hover if not selected
-    "magnetic-selected": state.isSelected, // Selected always takes priority
-    "magnetic-active": state.isActive && !state.isHovered && !state.isSelected,
-  });
-}
-
-/**
- * Generate foreign object classes based on node state
- */
-export function getForeignObjectClasses(state: NodeState): string {
-  return clsx({
-    "node-selected": state.isSelected,
-  });
 }
 
 /**
@@ -92,10 +71,10 @@ export function getIconTargetColor(node: IconNode, state: NodeState): string {
 export function updateNodeDOMClasses(
   element: HTMLElement,
   _node: IconNode,
-  state: NodeState
+  state: NodeState,
 ): void {
   const magneticContainer = element.querySelector(
-    ".magnetic-base"
+    ".magnetic-base",
   ) as HTMLElement;
   const foreignObject = element.closest("foreignObject") as Element;
 
@@ -104,27 +83,27 @@ export function updateNodeDOMClasses(
     magneticContainer.classList.remove(
       "magnetic-hover",
       "magnetic-active",
-      "magnetic-selected"
+      "magnetic-selected",
     );
 
     // Add current state classes
-    const magneticClasses = getMagneticContainerClasses(state);
-    if (magneticClasses) {
-      magneticContainer.classList.add(
-        ...magneticClasses.split(" ").filter(Boolean)
-      );
+    if (state.isHovered && !state.isSelected) {
+      magneticContainer.classList.add("magnetic-hover");
+    }
+    if (state.isSelected) {
+      magneticContainer.classList.add("magnetic-selected");
+    }
+    if (state.isActive && !state.isHovered && !state.isSelected) {
+      magneticContainer.classList.add("magnetic-active");
     }
   }
 
   if (foreignObject) {
-    const foreignObjectClasses = getForeignObjectClasses(state);
     // Remove existing classes
     foreignObject.classList.remove("node-selected");
     // Add new classes
-    if (foreignObjectClasses) {
-      foreignObject.classList.add(
-        ...foreignObjectClasses.split(" ").filter(Boolean)
-      );
+    if (state.isSelected) {
+      foreignObject.classList.add("node-selected");
     }
   }
 }

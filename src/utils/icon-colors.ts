@@ -7,12 +7,7 @@ type IconName = keyof typeof ICON_COLORS;
 
 // Create a Zod enum from the ICON_COLORS keys for runtime validation
 const iconColorKeys = Object.keys(ICON_COLORS) as [IconName, ...IconName[]];
-export const IconNameSchema = z.enum(iconColorKeys);
-
-// Type guard function for runtime validation
-export function isValidIconName(icon: string): icon is IconName {
-  return IconNameSchema.safeParse(icon).success;
-}
+const IconNameSchema = z.enum(iconColorKeys);
 
 // Safe function that validates input and returns undefined for invalid icons
 export function validateIconName(icon: string): IconName | undefined {
@@ -30,30 +25,6 @@ export function getIconColorClass(iconName: string): string {
 
   const colorKey = iconNameToColorKey(validatedIcon);
   return `text-${colorKey}`;
-}
-
-/**
- * Get the Tailwind CSS hover color class for an icon
- * Returns undefined for invalid icon names
- */
-export function getIconHoverColorClass(iconName: string): string | undefined {
-  const validatedIcon = validateIconName(iconName);
-  if (!validatedIcon) return undefined;
-
-  const colorKey = iconNameToColorKey(validatedIcon);
-  return `sm:group-hover:text-${colorKey}`;
-}
-
-/**
- * Get the Tailwind CSS decoration color class for links
- * Returns a fallback class for invalid icon names
- */
-export function getIconDecorationColorClass(iconName: string): string {
-  const validatedIcon = validateIconName(iconName);
-  if (!validatedIcon) return "hover:decoration-slate-400"; // fallback color
-
-  const colorKey = iconNameToColorKey(validatedIcon);
-  return `hover:decoration-${colorKey}`;
 }
 
 /**
@@ -82,7 +53,7 @@ export function getMagneticClasses(
     isFocused?: boolean;
     hasQuery?: boolean;
     withRing?: boolean;
-  } = {}
+  } = {},
 ): string {
   const {
     variant,
@@ -149,45 +120,8 @@ export function getMagneticClasses(
       // Ring effect addon
       "magnetic-with-ring": finalWithRing,
     },
-    className
+    className,
   );
-}
-
-/**
- * Get magnetic effect classes with custom color
- * Returns CSS variables for dynamic color theming
- */
-export function getMagneticClassesWithColor(
-  iconName: string,
-  options: {
-    variant?: "base" | "hover" | "active" | "selected";
-    shape?: "rounded-lg" | "rounded-full";
-    className?: string;
-  } = {}
-): { classes: string; style: React.CSSProperties } {
-  const classes = getMagneticClasses(iconName, options);
-  const hexColor = getIconHexColor(iconName);
-
-  // Convert hex to RGB for alpha transparency
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result?.[1] && result[2] && result[3]
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : { r: 0, g: 47, b: 167 }; // fallback to klein blue
-  };
-
-  const rgb = hexToRgb(hexColor);
-
-  const style: React.CSSProperties = {
-    "--magnetic-color": `${rgb.r}, ${rgb.g}, ${rgb.b}`,
-    background: `linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.03))`,
-  } as React.CSSProperties;
-
-  return { classes, style };
 }
 
 /**
@@ -246,7 +180,7 @@ function iconNameToColorKey(iconName: IconName): string {
 
   // Convert camelCase to kebab-case and add icon- prefix
   const kebabCase = name.replace(/([A-Z])/g, (_match, letter, index) =>
-    index === 0 ? letter.toLowerCase() : `-${letter.toLowerCase()}`
+    index === 0 ? letter.toLowerCase() : `-${letter.toLowerCase()}`,
   );
 
   // Handle special cases

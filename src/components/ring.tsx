@@ -47,7 +47,7 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
       "motion-safe:animation-ring": isVisible,
       "opacity-0": !isVisible,
       "print:opacity-100": !isVisible,
-    }
+    },
   );
 
   return (

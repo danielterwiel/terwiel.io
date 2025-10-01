@@ -19,8 +19,15 @@ import type { IconNode } from "../types/icon-node";
 import { ExperienceDisplayNode } from "~/components/experience-display-node";
 import { Icon } from "~/components/icon";
 import { PROJECTS } from "~/data/projects";
-import { getDomainGlow, getDomainGlowHover } from "~/utils/domain-colors";
+import { getDomainGlow } from "~/utils/domain-colors";
 import { extractUniqueIcons } from "~/utils/extract-unique-icons";
+import { updateCollisionForce } from "~/utils/icon-cloud-collision";
+import { updateNodeGlows } from "~/utils/icon-cloud-glow";
+import {
+  EXPERIENCE_NODE_SCALE_LEVEL,
+  getScaleFactor,
+} from "~/utils/icon-cloud-scale";
+import { updateNodeVisualStyling } from "~/utils/icon-cloud-styling";
 import { getIconHexColor, getMagneticClasses } from "~/utils/icon-colors";
 import {
   getIconClasses,
@@ -28,15 +35,6 @@ import {
   type NodeState,
   updateNodeDOMClasses,
 } from "~/utils/node-styling";
-
-// Experience display node configuration
-const EXPERIENCE_NODE_SCALE_LEVEL = 11; // Scale level 11 (3.75x) - 25% larger than level 10 for prominent display
-
-function getScaleFactor(scaleLevel: number): number {
-  // Level 11 is special: 25% larger than level 10
-  if (scaleLevel === 11) return 3.0 * 1.25;
-  return 1.0 + ((scaleLevel - 1) / 9) * 2.0;
-}
 
 export const IconCloudContent: React.FC = () => {
   const searchParams = useSearchParams();
@@ -79,37 +77,12 @@ export const IconCloudContent: React.FC = () => {
 
       router.replace(url.toString(), { scroll: false });
     },
-    [router]
+    [router],
   );
 
   // Helper function to update node glows based on hovered domain
-  const updateNodeGlows = useCallback((hoveredDomain: Domain | null) => {
-    if (!svgRef.current) return;
-
-    const svg = d3.select(svgRef.current);
-    const nodeGroups = svg.selectAll<SVGGElement, IconNode>("g.node");
-
-    nodeGroups.each(function (d) {
-      const foreignObject = d3.select(this).select("foreignObject");
-      const magneticContainer = foreignObject
-        .select("div.node-magnetic")
-        .node() as HTMLElement;
-
-      if (magneticContainer && d.domain) {
-        const isMatchingDomain = hoveredDomain === d.domain;
-        const glowColor = isMatchingDomain
-          ? getDomainGlowHover(d.domain)
-          : getDomainGlow(d.domain);
-
-        // Apply enhanced glow with transition
-        if (isMatchingDomain) {
-          magneticContainer.style.boxShadow = `0 0 30px ${glowColor}, 0 0 60px ${glowColor}, 0 0 90px ${glowColor}`;
-        } else {
-          magneticContainer.style.boxShadow = `0 0 20px ${glowColor}, 0 0 40px ${glowColor}`;
-        }
-        magneticContainer.style.transition = "box-shadow 0.3s ease-out";
-      }
-    });
+  const handleUpdateNodeGlows = useCallback((hoveredDomain: Domain | null) => {
+    updateNodeGlows(svgRef.current, hoveredDomain);
   }, []);
 
   // Helper function to re-render the experience display node
@@ -122,131 +95,25 @@ export const IconCloudContent: React.FC = () => {
             hoveredNode={hoveredNode}
             onDomainHover={setHoveredDomain}
           />
-        </div>
+        </div>,
       );
     }
   }, [selectedNode, hoveredNode]);
 
   // Helper function to smoothly update collision force radius
-  const updateCollisionForce = useCallback(
+  const handleUpdateCollisionForce = useCallback(
     (hoveredNode: IconNode | null, selectedNode: IconNode | null) => {
-      if (!simulationRef.current) return;
-
-      // Create a gentle radius function that gradually expands around hovered/selected nodes
-      const radiusFunction = (node: IconNode) => {
-        const baseRadius = node.r + 12;
-        const minRadius = Math.max(baseRadius, 50);
-
-        // If this is the hovered node, give it more space but less aggressive
-        if (hoveredNode && node.id === hoveredNode.id) {
-          return Math.max(baseRadius * 1.4, 75); // Much gentler expansion for hovered
-        }
-
-        // If this is the selected node (and not hovered), give it subtle space
-        if (
-          selectedNode &&
-          node.id === selectedNode.id &&
-          (!hoveredNode || node.id !== hoveredNode.id)
-        ) {
-          return Math.max(baseRadius * 1.2, 60); // Very subtle space for selected
-        }
-
-        // For other nodes, check distance to hovered/selected nodes
-        const activeNode = hoveredNode || selectedNode;
-        if (activeNode && activeNode.id !== node.id) {
-          const dx = (node.x || 0) - (activeNode.x || 0);
-          const dy = (node.y || 0) - (activeNode.y || 0);
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          // Very gradual influence with larger radius for smoother transitions
-          const influenceRadius = hoveredNode ? 200 : 160; // Larger influence area
-          const influenceFactor = Math.max(0, 1 - distance / influenceRadius);
-          const expansionMultiplier = hoveredNode ? 1.08 : 1.05; // Much gentler expansion
-
-          return Math.max(
-            baseRadius * (1 + influenceFactor * (expansionMultiplier - 1)),
-            minRadius
-          );
-        }
-
-        return minRadius;
-      };
-
-      // Update collision force with very gentle transition
-      simulationRef.current
-        .force(
-          "collision",
-          d3
-            .forceCollide<IconNode>()
-            .radius(radiusFunction)
-            .strength(0.3) // Much gentler strength for calmer movement
-            .iterations(1) // Fewer iterations for more natural, less rigid behavior
-        )
-        .alphaTarget(0.02) // Ultra-low energy for very calm, slow movement
-        .restart();
-
-      // Very gradually reduce alpha target for ultra-smooth settling
-      setTimeout(() => {
-        if (simulationRef.current) {
-          simulationRef.current.alphaTarget(0.008);
-        }
-      }, 1200);
-
-      setTimeout(() => {
-        if (simulationRef.current) {
-          simulationRef.current.alphaTarget(0.003);
-        }
-      }, 3000);
-
-      setTimeout(() => {
-        if (simulationRef.current) {
-          simulationRef.current.alphaTarget(0);
-        }
-      }, 5000);
+      updateCollisionForce(simulationRef.current, hoveredNode, selectedNode);
     },
-    []
+    [],
   );
 
   // Helper function to update node visual styling without full rerender
-  const updateNodeVisualStyling = useCallback(
+  const handleUpdateNodeVisualStyling = useCallback(
     (targetNode: IconNode, isSelected: boolean) => {
-      if (!svgRef.current) return;
-
-      const svg = d3.select(svgRef.current);
-      const nodeGroups = svg.selectAll<SVGGElement, IconNode>("g.node");
-
-      nodeGroups.each(function (d) {
-        const foreignObject = d3.select(this).select("foreignObject");
-        const outerContainer = foreignObject
-          .select("div")
-          .node() as HTMLElement;
-
-        if (outerContainer) {
-          const shouldBeSelected = d.id === targetNode.id && isSelected;
-          const nodeState: NodeState = {
-            isHovered: d.isHovered || false,
-            isSelected: shouldBeSelected,
-            isActive: false,
-          };
-
-          // Update DOM classes using utility function
-          updateNodeDOMClasses(outerContainer, d, nodeState);
-
-          // Update icon color with smooth transition
-          const iconElement = outerContainer.querySelector("svg");
-          if (iconElement) {
-            const targetColor = getIconTargetColor(d, nodeState);
-            d3.select(iconElement)
-              .interrupt() // Cancel any ongoing transitions
-              .transition()
-              .duration(300)
-              .ease(d3.easeCubicInOut)
-              .style("color", targetColor);
-          }
-        }
-      });
+      updateNodeVisualStyling(svgRef.current, targetNode, isSelected);
     },
-    []
+    [],
   );
 
   useEffect(() => {
@@ -256,13 +123,13 @@ export const IconCloudContent: React.FC = () => {
       const decodedSearch =
         decodeURIComponent(currentSearchQuery).toLowerCase();
       const foundNode = nodesRef.current.find(
-        (node) => node.name.toLowerCase() === decodedSearch
+        (node) => node.name.toLowerCase() === decodedSearch,
       );
 
       if (foundNode) {
         // Clear previous selection styling if different node
         if (selectedNode && selectedNode.id !== foundNode.id) {
-          updateNodeVisualStyling(selectedNode, false);
+          handleUpdateNodeVisualStyling(selectedNode, false);
         }
 
         // Update state and ref
@@ -271,9 +138,9 @@ export const IconCloudContent: React.FC = () => {
 
         // Apply visual styling to new selection
         setTimeout(() => {
-          updateNodeVisualStyling(foundNode, true);
+          handleUpdateNodeVisualStyling(foundNode, true);
           // Update collision force for the newly selected node
-          updateCollisionForce(hoveredNode, foundNode);
+          handleUpdateCollisionForce(hoveredNode, foundNode);
         }, 0);
       }
     } else if (!currentSearchQuery) {
@@ -281,9 +148,9 @@ export const IconCloudContent: React.FC = () => {
       if (selectedNode) {
         // Remove visual styling from previously selected node
         setTimeout(() => {
-          updateNodeVisualStyling(selectedNode, false);
+          handleUpdateNodeVisualStyling(selectedNode, false);
           // Update collision force to reflect cleared selection
-          updateCollisionForce(hoveredNode, null);
+          handleUpdateCollisionForce(hoveredNode, null);
         }, 0);
       }
 
@@ -292,18 +159,18 @@ export const IconCloudContent: React.FC = () => {
     }
   }, [
     searchParams,
-    updateNodeVisualStyling,
+    handleUpdateNodeVisualStyling,
     hoveredNode,
-    updateCollisionForce,
+    handleUpdateCollisionForce,
     selectedNode,
   ]);
 
   // Effect to update collision forces when hover/select state changes
   useEffect(() => {
     if (simulationRef.current && nodesRef.current.length > 0) {
-      updateCollisionForce(hoveredNode, selectedNode);
+      handleUpdateCollisionForce(hoveredNode, selectedNode);
     }
-  }, [hoveredNode, selectedNode, updateCollisionForce]);
+  }, [hoveredNode, selectedNode, handleUpdateCollisionForce]);
 
   // Effect to update the experience display node when state changes
   useEffect(() => {
@@ -313,9 +180,9 @@ export const IconCloudContent: React.FC = () => {
   // Effect to update node glows when domain hover changes
   useEffect(() => {
     if (nodesRef.current.length > 0) {
-      updateNodeGlows(hoveredDomain);
+      handleUpdateNodeGlows(hoveredDomain);
     }
-  }, [hoveredDomain, updateNodeGlows]);
+  }, [hoveredDomain, handleUpdateNodeGlows]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: Intentionally empty deps to run simulation setup only once
   useLayoutEffect(() => {
@@ -362,7 +229,7 @@ export const IconCloudContent: React.FC = () => {
             .forceCollide<IconNode>()
             .radius((d) => Math.max(d.r + 12, 50))
             .strength(0.3) // Much gentler collision strength
-            .iterations(1) // Fewer iterations for more organic movement
+            .iterations(1), // Fewer iterations for more organic movement
         )
         .force("x", d3.forceX(centerX).strength(0.008)) // Ultra-gentle centering
         .force("y", d3.forceY(centerY).strength(0.008)) // Ultra-gentle centering
@@ -474,7 +341,7 @@ export const IconCloudContent: React.FC = () => {
               if (targetElement && targetElement instanceof Element) {
                 d3.select(targetElement).style("z-index", "auto");
               }
-            })
+            }),
         );
 
       // Circles removed - using water droplet effect instead
@@ -494,7 +361,7 @@ export const IconCloudContent: React.FC = () => {
           setHoveredNode(d);
 
           // Update collision force for smooth node spacing
-          updateCollisionForce(d, selectedNode);
+          updateCollisionForce(simulationRef.current, d, selectedNode);
 
           // Update node styling for hover state
           const foreignObject = d3.select(this).select("foreignObject");
@@ -546,7 +413,7 @@ export const IconCloudContent: React.FC = () => {
           setHoveredNode(null);
 
           // Reset collision force to normal state
-          updateCollisionForce(null, selectedNode);
+          updateCollisionForce(simulationRef.current, null, selectedNode);
 
           // Update node styling to preserve selected state while removing hover
           const foreignObject = d3.select(this).select("foreignObject");
@@ -664,8 +531,8 @@ export const IconCloudContent: React.FC = () => {
           clsx(
             "node-container flex items-center justify-center relative overflow-visible",
             // Experience display node needs pointer events for pie chart interaction
-            d.id !== "experience-display" && "pointer-events-none"
-          )
+            d.id !== "experience-display" && "pointer-events-none",
+          ),
         )
         .style("overflow", "visible");
 
@@ -686,7 +553,7 @@ export const IconCloudContent: React.FC = () => {
               withRing: true, // Explicitly enable ring for nodes
               variant: isSelectedFromUrl ? "selected" : "base",
             }),
-            "node-magnetic flex items-center justify-center transition-shadow duration-300 overflow-visible"
+            "node-magnetic flex items-center justify-center transition-shadow duration-300 overflow-visible",
           );
         })
         .style("overflow", "visible")
@@ -723,7 +590,7 @@ export const IconCloudContent: React.FC = () => {
                 selectedNode={selectedNode}
                 hoveredNode={hoveredNode}
               />
-            </div>
+            </div>,
           );
           return;
         }
@@ -741,7 +608,7 @@ export const IconCloudContent: React.FC = () => {
             decodeURIComponent(searchQuery).toLowerCase() ===
               d.name.toLowerCase();
           const shouldShowSelected = Boolean(
-            selectedNode?.id === d.id || isSelectedFromUrl
+            selectedNode?.id === d.id || isSelectedFromUrl,
           );
 
           const nodeState: NodeState = {
@@ -775,7 +642,7 @@ export const IconCloudContent: React.FC = () => {
                           svgElement.setAttribute("viewBox", "0 0 24 24");
                           svgElement.setAttribute(
                             "preserveAspectRatio",
-                            "xMidYMid"
+                            "xMidYMid",
                           );
                           return;
                         }
@@ -829,20 +696,20 @@ export const IconCloudContent: React.FC = () => {
 
                         svgElement.setAttribute(
                           "preserveAspectRatio",
-                          "xMidYMid"
+                          "xMidYMid",
                         );
                       } catch (error) {
                         console.warn(
                           "Error auto-centering icon:",
                           d.icon,
-                          error
+                          error,
                         );
                       }
                     }, 0);
                   }
                 }}
               />
-            </div>
+            </div>,
           );
         }
       });

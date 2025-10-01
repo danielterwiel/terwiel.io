@@ -6,7 +6,7 @@ import type { Domain } from "~/data/projects";
  *
  * These colors are also defined in tailwind.config.ts under theme.extend.colors.domain
  */
-export const DOMAIN_COLORS = {
+const DOMAIN_COLORS = {
   DevOps: {
     main: "#00acc1", // Cyan (domain.devops) - operational, systematic
     glow: "rgba(0, 172, 193, 0.15)", // Subtle glow

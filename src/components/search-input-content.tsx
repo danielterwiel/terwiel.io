@@ -2,39 +2,18 @@
 
 import * as Form from "@radix-ui/react-form";
 import { clsx } from "clsx";
-import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import React from "react";
 
-import type { Project } from "~/data/projects";
+import { Icon } from "~/components/icon";
+import { debounce } from "~/utils/debounce";
 import { getMagneticClasses } from "~/utils/icon-colors";
-import { Icon } from "./icon";
 
-function debounce<T extends (query: string) => unknown>(
-  func: T,
-  wait: number
-): (...funcArgs: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-
-  return function executedFunction(query: string) {
-    const later = () => {
-      timeout = null;
-      func(query);
-    };
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(later, wait);
-  };
-}
-
-const SearchInputContent = () => {
+export const SearchInputContent = () => {
   const searchParams = useSearchParams();
   const initialQuery = decodeURIComponent(
-    searchParams.get("search") ?? ""
+    searchParams.get("search") ?? "",
   ).trim();
   const router = useRouter();
   const pathname = usePathname();
@@ -150,57 +129,5 @@ const SearchInputContent = () => {
         </fieldset>
       </Form.Field>
     </Form.Root>
-  );
-};
-
-export function SearchInput() {
-  return (
-    <React.Suspense
-      fallback={<div className="print:hidden">Loading search...</div>}
-    >
-      <SearchInputContent />
-    </React.Suspense>
-  );
-}
-
-export const SearchSummary = ({
-  query,
-  items,
-}: {
-  query: string;
-  items: Project[];
-}) => {
-  const total = items.length;
-  const monthsDiff = new Set<number>();
-  for (const project of items) {
-    const dateFrom = parseISO(project.dateFrom);
-    const dateTo =
-      project.dateTo === "present"
-        ? parseISO(new Date().toISOString())
-        : parseISO(project.dateTo);
-    const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
-    monthsDiff.add(diffInMonths);
-  }
-  const monthsSum = Array.from(monthsDiff).reduce((acc, curr) => acc + curr, 0);
-  const years = Math.floor(monthsSum / 12);
-  const months = monthsSum % 12;
-
-  const duration = formatDuration({ months, years }, { delimiter: " and " });
-
-  return (
-    <div className="px-6 py-6 text-center text-klein print:hidden border-klein border-2 w-full">
-      {total === 0 ? (
-        <span>Your search did not return any projects</span>
-      ) : (
-        <div>
-          Your search for{" "}
-          <strong>
-            <mark className="bg-klein/10 px-1 rounded">{query}</mark>
-          </strong>{" "}
-          returned <strong>{total}</strong> projects with a total duration of{" "}
-          <strong>{duration}</strong>.
-        </div>
-      )}
-    </div>
   );
 };

@@ -11,7 +11,7 @@ export type StackItem = {
   url?: string;
 };
 
-export const STACK = {
+const STACK = {
   Effect: {
     domain: "Back-end",
     icon: STACK_ICONS.Effect,
@@ -157,7 +157,7 @@ export const STACK = {
   },
 } as const satisfies Record<StackName, Omit<StackItem, "name" | "url">>;
 
-export function createStackItem(name: StackName, url?: string): StackItem {
+function createStackItem(name: StackName, url?: string): StackItem {
   const stackConfig = STACK[name];
   return {
     name,
