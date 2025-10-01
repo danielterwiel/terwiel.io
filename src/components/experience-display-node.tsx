@@ -45,7 +45,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
   useEffect(() => {
     if (displayNode) {
       const experience = calculateStackExperience(PROJECTS).find(
-        (exp) => exp.name === displayNode.name
+        (exp) => exp.name === displayNode.name,
       );
 
       // Use parent name if available, otherwise use the node name
@@ -95,7 +95,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
 
   const experience = displayNode
     ? calculateStackExperience(PROJECTS).find(
-        (exp) => exp.name === displayNode.name
+        (exp) => exp.name === displayNode.name,
       )
     : null;
 
@@ -111,7 +111,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
           withRing: false,
           variant: "base",
         }),
-        className
+        className,
       )}
     >
       {/* Default State: Show Domain Pie Chart with Experience Overlay */}
@@ -129,7 +129,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
             className={clsx(
               "absolute inset-0 flex flex-col items-center justify-center pointer-events-none",
               "transition-opacity duration-300",
-              isHovered ? "opacity-0" : "opacity-100"
+              isHovered ? "opacity-0" : "opacity-100",
             )}
           >
             {/* Subtle semi-transparent background for readability */}
@@ -196,7 +196,7 @@ export const ExperienceDisplayNode: React.FC<ExperienceDisplayNodeProps> = ({
                 <IconComponent
                   className={clsx(
                     "w-6 h-6 mb-2 scale-150",
-                    getIconColorClass(displayNode.icon)
+                    getIconColorClass(displayNode.icon),
                   )}
                 />
               ) : null;

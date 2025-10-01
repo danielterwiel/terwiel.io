@@ -36,7 +36,19 @@
         "useConsistentArrayType": "off",
         "useForOf": "error",
         "useShorthandFunctionType": "error",
-        "useImportType": "error"
+        "useImportType": "error",
+        "useComponentExportOnlyModules": {
+          "level": "error",
+          "options": {
+            "allowConstantExport": true,
+            "allowExportNames": [
+              "metadata",
+              "viewport",
+              "generateMetadata",
+              "generateViewport"
+            ]
+          }
+        }
       },
       "suspicious": {
         "noRedeclare": "off",
@@ -58,7 +70,7 @@
     "formatter": {
       "quoteStyle": "double",
       "semicolons": "always",
-      "trailingCommas": "es5"
+      "trailingCommas": "all"
     }
   },
   "css": {
@@ -91,7 +103,7 @@
         "formatter": {
           "quoteStyle": "double",
           "semicolons": "always",
-          "trailingCommas": "es5"
+          "trailingCommas": "all"
         }
       }
     }

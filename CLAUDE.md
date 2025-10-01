@@ -10,8 +10,23 @@ This is a personal portfolio website built using Next.js 15 with TypeScript, bas
 
 - `npm run dev` - Start development server
 - `npm run build` - Build production version (includes profiling)
-- `npm run lint` - Run ESLint (Note: `next lint` is deprecated in Next.js 15+ and will be removed in Next.js 16)
+- `npm run lint` - Run Biome linter
+- `npm run knip` - Check for unused files, exports, and dependencies
 - `npm start` - Start production server
+
+### Post-Change Workflow
+
+After making changes to the codebase, run the following commands to ensure code quality:
+
+1. `npm run knip` - Detect and remove unused files, exports, and dependencies
+2. `npm run lint` - Check for linting issues
+3. `npm run build` - Verify the build succeeds
+
+**Note on Knip**: Knip finds unused files, dependencies, and exports. Some reports may be false positives (e.g., Next.js conventions like `layout.tsx`, `page.tsx`, config files). Always verify before removing reported items. Common false positives include:
+- Next.js App Router files (layout.tsx, page.tsx, not-found.tsx)
+- Configuration files (next.config.mjs, tailwind.config.ts, postcss.config.cjs)
+- Type-only dependencies used in TypeScript files
+- Dependencies used in config files
 
 ## Architecture
 

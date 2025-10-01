@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { Domain } from "~/data/projects";
 import { PROJECTS } from "~/data/projects";
 import { calculateDomainWeights } from "~/utils/calculate-domain-weights";
+import { createArcPath } from "~/utils/create-arc-path";
 import { getDomainColor } from "~/utils/domain-colors";
 
 type PieChartProps = {
@@ -34,45 +35,6 @@ export function DomainPieChart({ size = 200, onDomainHover }: PieChartProps) {
       sweepAngle,
     };
   });
-
-  // Helper to convert polar coordinates to cartesian
-  const polarToCartesian = (
-    centerX: number,
-    centerY: number,
-    radius: number,
-    angleInDegrees: number
-  ) => {
-    const angleInRadians = (angleInDegrees * Math.PI) / 180.0;
-    return {
-      x: centerX + radius * Math.cos(angleInRadians),
-      y: centerY + radius * Math.sin(angleInRadians),
-    };
-  };
-
-  // Helper to create SVG path for a pie slice
-  const createArcPath = (
-    centerX: number,
-    centerY: number,
-    radius: number,
-    startAngle: number,
-    endAngle: number,
-    isHovered: boolean
-  ) => {
-    // Add expansion for hovered sector
-    const effectiveRadius = isHovered ? radius * 1.15 : radius;
-
-    const start = polarToCartesian(centerX, centerY, effectiveRadius, endAngle);
-    const end = polarToCartesian(centerX, centerY, effectiveRadius, startAngle);
-
-    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
-
-    return [
-      `M ${centerX} ${centerY}`,
-      `L ${start.x} ${start.y}`,
-      `A ${effectiveRadius} ${effectiveRadius} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-      "Z",
-    ].join(" ");
-  };
 
   const centerX = size / 2;
   const centerY = size / 2;
@@ -133,7 +95,7 @@ export function DomainPieChart({ size = 200, onDomainHover }: PieChartProps) {
                   radius,
                   startAngle,
                   endAngle,
-                  isHovered
+                  isHovered,
                 )}
                 fill={`url(#gradient-${domain})`}
                 opacity={isHovered ? 1 : 0.95}
@@ -158,7 +120,7 @@ export function DomainPieChart({ size = 200, onDomainHover }: PieChartProps) {
                   radius,
                   startAngle,
                   endAngle,
-                  isHovered
+                  isHovered,
                 )}
                 fill="none"
                 stroke="rgba(255, 255, 255, 0.3)"

@@ -11,7 +11,7 @@ export type ExperienceDuration = {
 
 export function calculateProjectDuration(
   dateFrom: string,
-  dateTo: string
+  dateTo: string,
 ): ExperienceDuration {
   const isPresent = dateTo === "present";
   const from = parseISO(dateFrom);
@@ -39,14 +39,14 @@ export type StackExperience = {
 };
 
 export function calculateStackExperience(
-  projects: Project[]
+  projects: Project[],
 ): StackExperience[] {
   const stackMap = new Map<string, StackExperience>();
 
   projects.forEach((project) => {
     const projectDuration = calculateProjectDuration(
       project.dateFrom,
-      project.dateTo
+      project.dateTo,
     );
 
     project.stack.forEach((stackItem) => {
@@ -74,7 +74,7 @@ export function calculateStackExperience(
   }
 
   return Array.from(stackMap.values()).sort(
-    (a, b) => b.totalMonths - a.totalMonths
+    (a, b) => b.totalMonths - a.totalMonths,
   );
 }
 
@@ -91,15 +91,15 @@ export function calculateExperienceScale(
     minScale: 1.0,
     maxScale: 3.0, // 1-3 ratio as requested
     baseRadius: 35,
-  }
+  },
 ): number {
   if (allExperiences.length === 0) return config.baseRadius;
 
   const maxExperience = Math.max(
-    ...allExperiences.map((exp) => exp.totalMonths)
+    ...allExperiences.map((exp) => exp.totalMonths),
   );
   const minExperience = Math.min(
-    ...allExperiences.map((exp) => exp.totalMonths)
+    ...allExperiences.map((exp) => exp.totalMonths),
   );
 
   // Avoid division by zero
@@ -123,15 +123,15 @@ export function calculateExperienceScale(
  */
 export function calculateScaleLevel(
   totalMonths: number,
-  allExperiences: StackExperience[]
+  allExperiences: StackExperience[],
 ): number {
   if (allExperiences.length === 0) return 5; // Default middle scale
 
   const maxExperience = Math.max(
-    ...allExperiences.map((exp) => exp.totalMonths)
+    ...allExperiences.map((exp) => exp.totalMonths),
   );
   const minExperience = Math.min(
-    ...allExperiences.map((exp) => exp.totalMonths)
+    ...allExperiences.map((exp) => exp.totalMonths),
   );
 
   // Avoid division by zero
@@ -145,24 +145,4 @@ export function calculateScaleLevel(
   const scaleLevel = Math.round(1 + normalizedExperience * 9);
 
   return Math.max(1, Math.min(10, scaleLevel));
-}
-
-/**
- * Generate scale levels for all stack experiences
- * Returns a map of scale levels to the stack items that use them
- */
-export function generateScaleLevels(
-  allExperiences: StackExperience[]
-): Map<number, StackExperience[]> {
-  const scaleLevels = new Map<number, StackExperience[]>();
-
-  allExperiences.forEach((experience) => {
-    const level = calculateScaleLevel(experience.totalMonths, allExperiences);
-    if (!scaleLevels.has(level)) {
-      scaleLevels.set(level, []);
-    }
-    scaleLevels.get(level)?.push(experience);
-  });
-
-  return scaleLevels;
 }
