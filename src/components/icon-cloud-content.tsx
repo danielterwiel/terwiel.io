@@ -592,7 +592,9 @@ export const IconCloudContent: React.FC = () => {
             d.id !== "experience-display" && "pointer-events-none",
           ),
         )
-        .style("overflow", "visible");
+        .style("overflow", "visible")
+        .style("position", "fixed") // Fix Safari foreignObject positioning bug
+        .style("transform-origin", "0px 0px"); // Fix Safari foreignObject scale bug
 
       // Create magnetic inner containers with node-magnetic class for scaling
       const magneticContainers = outerContainers
