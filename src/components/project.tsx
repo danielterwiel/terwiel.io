@@ -1,13 +1,12 @@
 "use client";
 
-import { format, parseISO } from "date-fns";
-
 import type { Project as ProjectType } from "~/data/projects";
 import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { ProjectStack } from "~/components/project-stack";
 import { Ring } from "~/components/ring";
 import { calculateProjectDuration } from "~/utils/calculate-experience";
+import { formatProjectTimespan } from "~/utils/format-project-dates";
 
 export const Project = ({
   project,
@@ -18,20 +17,11 @@ export const Project = ({
   projectIdx: number;
   totalLength: number;
 }) => {
-  const isPresent = project.dateTo === "present";
-  const dateFrom = parseISO(project.dateFrom);
-  const dateTo = parseISO(
-    isPresent ? new Date().toISOString() : project.dateTo,
-  );
   const { duration } = calculateProjectDuration(
     project.dateFrom,
     project.dateTo,
   );
-  const from = format(dateFrom, "MMM yy");
-  const to = format(dateTo, "MMM yy");
-  const fromApos = from.replace(/\d+/g, "'$&");
-  const toApos = to.replace(/\d+/g, "'$&");
-  const timespan = `${fromApos} - ${isPresent ? "present" : toApos}`;
+  const timespan = formatProjectTimespan(project.dateFrom, project.dateTo);
 
   const IconProject =
     Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;

@@ -16,18 +16,6 @@ export function validateIconName(icon: string): IconName | undefined {
 }
 
 /**
- * Get the Tailwind CSS color class for an icon
- * Returns a fallback class for invalid icon names
- */
-export function getIconColorClass(iconName: string): string {
-  const validatedIcon = validateIconName(iconName);
-  if (!validatedIcon) return "text-slate-400"; // fallback color
-
-  const colorKey = iconNameToColorKey(validatedIcon);
-  return `text-${colorKey}`;
-}
-
-/**
  * Get the hex color value for an icon
  * Returns a fallback color for invalid icon names
  */
