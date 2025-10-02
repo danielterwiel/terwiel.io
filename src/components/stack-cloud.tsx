@@ -247,6 +247,8 @@ export function StackCloud() {
         measurements;
       const nodes = simulationRef.current.nodes();
 
+      const padding = 10;
+
       // Update root node
       const rootNode = nodes[0];
       if (rootNode) {
@@ -255,9 +257,24 @@ export function StackCloud() {
         rootNode.radius = rootRadius;
       }
 
-      // Update stack node radii
+      // Update stack nodes and immediately clamp positions to new bounds
       for (const node of nodes.slice(1)) {
         node.radius = stackRadius;
+
+        // Immediately clamp node positions to new bounds
+        if (node.x !== undefined && node.y !== undefined) {
+          const r = node.radius;
+          // Clamp x
+          node.x = Math.max(padding + r, Math.min(width - padding - r, node.x));
+          // Clamp y
+          node.y = Math.max(
+            padding + r,
+            Math.min(height - padding - r, node.y),
+          );
+          // Reset velocities to avoid momentum carrying nodes out
+          node.vx = 0;
+          node.vy = 0;
+        }
       }
 
       // Update forces
@@ -311,6 +328,7 @@ export function StackCloud() {
     const debouncedResize = debounce(() => {
       const measurements = measureContainer();
       if (measurements && simulationRef.current) {
+        setDimensions(measurements); // Update viewBox
         updateSimulation(measurements);
       }
     }, 100);
@@ -330,6 +348,7 @@ export function StackCloud() {
     const handleVisualViewportChange = debounce(() => {
       const measurements = measureContainer();
       if (measurements && simulationRef.current) {
+        setDimensions(measurements); // Update viewBox
         updateSimulation(measurements);
       }
     }, 50);
