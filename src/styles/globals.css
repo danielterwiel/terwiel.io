@@ -67,6 +67,22 @@
     object-fit: contain;
     display: block;
   }
+
+  /* StackCloud Component Styles */
+  .stack-cloud-wrapper {
+    width: 100%;
+    aspect-ratio: 1;
+    min-height: 400px;
+    max-height: 600px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stack-cloud-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
 }
 
 @keyframes animationRing {
