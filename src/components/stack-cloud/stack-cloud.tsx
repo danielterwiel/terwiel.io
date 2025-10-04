@@ -7,8 +7,8 @@ import { StackNode } from "~/components/stack-cloud/stack-node";
 import { PROJECTS } from "~/data/projects";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
-import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
+import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 
 /**
  * StackCloud Component
