@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 
 import { RootNode } from "~/components/stack-cloud/root-node";
 import { StackNode } from "~/components/stack-cloud/stack-node";
+import { DOMAIN_COLORS } from "~/constants/domain-colors";
 import { PROJECTS } from "~/data/projects";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
@@ -52,6 +53,26 @@ export function StackCloud() {
             transition: "opacity 0.6s ease-in-out",
           }}
         >
+          {/* SVG Radial Gradient Definitions for Glow Effects */}
+          <defs>
+            {Object.entries(DOMAIN_COLORS).map(([domain, color]) => (
+              <g key={domain}>
+                {/* Subtle glow for unselected state */}
+                <radialGradient id={`glow-${domain}-unselected`}>
+                  <stop offset="0%" stopColor={color} stopOpacity="0.6" />
+                  <stop offset="50%" stopColor={color} stopOpacity="0.3" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </radialGradient>
+                {/* Prominent glow for selected state */}
+                <radialGradient id={`glow-${domain}-selected`}>
+                  <stop offset="0%" stopColor={color} stopOpacity="0.7" />
+                  <stop offset="40%" stopColor={color} stopOpacity="0.4" />
+                  <stop offset="100%" stopColor={color} stopOpacity="0" />
+                </radialGradient>
+              </g>
+            ))}
+          </defs>
+
           <RootNode
             dimensions={dimensions}
             nodeRef={(el) => {
@@ -66,6 +87,7 @@ export function StackCloud() {
               stack={stack}
               dimensions={dimensions}
               sizeFactors={sizeFactors}
+              selected={false}
               nodeRef={(el) => {
                 if (el) nodesRef.current.set(stack.id, el);
                 else nodesRef.current.delete(stack.id);

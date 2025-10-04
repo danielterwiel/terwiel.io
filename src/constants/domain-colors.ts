@@ -11,11 +11,3 @@ export const DOMAIN_COLORS = {
   "Front-end": "#c98978", // Soft coral - warm, visible
   Design: "#c77894", // Soft rose - creative, aesthetic
 } as const satisfies Record<Domain, string>;
-
-/**
- * Get the hex color for a domain
- * Used for styling stack nodes based on their technical domain
- */
-export function getDomainColor(domain: Domain): string {
-  return DOMAIN_COLORS[domain];
-}

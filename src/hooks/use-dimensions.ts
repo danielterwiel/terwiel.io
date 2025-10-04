@@ -23,7 +23,7 @@ export function useDimensions(
       height: rect.height,
       centerX: rect.width / 2,
       centerY: rect.height / 2,
-      rootRadius: (vmin * 0.4) / 2,
+      rootRadius: (vmin * 0.25) / 1.25,
       stackRadius: vmin < 400 ? 22 : vmin < 600 ? 26 : 30,
     };
   }, [wrapperRef]);

@@ -21,7 +21,7 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
         r={dimensions.rootRadius}
         fill="white"
         stroke="#002FA7"
-        strokeWidth={3}
+        strokeWidth={0.5}
       />
       <text
         textAnchor="middle"
