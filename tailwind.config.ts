@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
+import { DOMAIN_COLORS } from "./src/constants/domain-colors";
 import {
   generateIconSafelist,
   generateTailwindIconColors,
@@ -34,10 +35,10 @@ export default {
         ...generateTailwindIconColors(),
         // Domain colors - muted glassmorphic palette harmonizing with Klein Blue
         domain: {
-          devops: "#5ba4ad", // Soft teal - operational, systematic
-          backend: "#8d7dae", // Soft lavender - deep, foundational
-          frontend: "#c98978", // Soft coral - warm, visible
-          design: "#c77894", // Soft rose - creative, aesthetic
+          devops: DOMAIN_COLORS.DevOps,
+          backend: DOMAIN_COLORS["Back-end"],
+          frontend: DOMAIN_COLORS["Front-end"],
+          design: DOMAIN_COLORS.Design,
         },
       },
       animation: {

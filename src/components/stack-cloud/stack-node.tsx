@@ -1,5 +1,7 @@
+import type { Domain } from "~/data/projects";
 import type { Dimensions } from "~/types/simulation";
 import { Icon } from "~/components/icon";
+import { getDomainColor } from "~/constants/domain-colors";
 
 interface StackNodeProps {
   stack: {
@@ -7,6 +9,7 @@ interface StackNodeProps {
     name: string;
     iconKey: string;
     color: string;
+    domain: Domain;
   };
   dimensions: Dimensions;
   sizeFactors: Map<string, number>;
@@ -35,6 +38,9 @@ export function StackNode({
   // Scale factor for SVG with 24x24 viewBox
   const scale = iconSize / 24;
 
+  // Get domain color for border
+  const borderColor = getDomainColor(stack.domain);
+
   return (
     <g
       ref={nodeRef}
@@ -44,7 +50,7 @@ export function StackNode({
       <circle
         r={nodeRadius}
         fill="white"
-        stroke="#002FA7"
+        stroke={borderColor}
         strokeWidth={2}
       />
       {IconComponent && (
