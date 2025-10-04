@@ -217,6 +217,7 @@ export function StackCloud() {
 
   // State
   const [dimensions, setDimensions] = useState<Dimensions | null>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   // Extract stacks once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
@@ -363,7 +364,6 @@ export function StackCloud() {
         measurements;
       const nodes = sim.nodes();
 
-      const padding = 10;
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
@@ -376,40 +376,10 @@ export function StackCloud() {
         rootNode.radius = rootRadius;
       }
 
-      const rootExcl = rootRadius * 1.3;
-
-      // Update stacks radii and clamp into bounds; keep out of root ring
+      // Update stack node radii only - let forces handle positioning
       for (const node of nodes.slice(1)) {
         const sizeFactor = sizeFactors.get(node.name) ?? 1.0;
         node.radius = stackRadius * sizeFactor;
-
-        if (node.x !== undefined && node.y !== undefined) {
-          const r = node.radius;
-          node.x = clamp(node.x, padding + r, width - padding - r);
-          node.y = clamp(node.y, padding + r, height - padding - r);
-
-          const dx = node.x - centerX;
-          const dy = node.y - centerY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const minDist = rootExcl + r + 2;
-          if (dist < minDist) {
-            const angle = Math.atan2(dy, dx);
-            node.x = clamp(
-              centerX + Math.cos(angle) * minDist,
-              padding + r,
-              width - padding - r,
-            );
-            node.y = clamp(
-              centerY + Math.sin(angle) * minDist,
-              padding + r,
-              height - padding - r,
-            );
-          }
-
-          // Reset velocities to avoid overshooting after resize/rotation
-          node.vx = 0;
-          node.vy = 0;
-        }
       }
 
       // Update center force
@@ -448,14 +418,21 @@ export function StackCloud() {
           makeRootExclusionForce(centerX, centerY, rootRadius),
         );
 
-      // Reheat (this is the "elegant spread" you see on resize/scroll)
+      // Gentle reheat using alphaTarget pattern (recommended for dynamic updates)
       if (prefersReducedMotion) {
         // Static, no animation
         sim.stop();
         sim.tick(40);
         handleTick();
       } else {
-        sim.alpha(0.3).restart();
+        // Use low alphaTarget to smoothly adjust to new dimensions
+        // This is the standard pattern for dynamic force layout updates
+        sim.alphaTarget(0.1).restart();
+
+        // Reset alphaTarget after brief period to allow cooling
+        setTimeout(() => {
+          if (sim) sim.alphaTarget(0);
+        }, 300);
       }
     },
     [sizeFactors, handleTick],
@@ -493,7 +470,7 @@ export function StackCloud() {
         setDimensions(measurements);
         updateSimulation(measurements);
       }
-    }, 100);
+    }, 150);
 
     const resizeObserver = new ResizeObserver(debouncedResize);
     resizeObserver.observe(wrapperRef.current);
@@ -513,7 +490,7 @@ export function StackCloud() {
         setDimensions(measurements);
         updateSimulation(measurements);
       }
-    }, 100);
+    }, 150);
 
     window.visualViewport.addEventListener(
       "resize",
@@ -579,6 +556,9 @@ export function StackCloud() {
           setTimeout(() => sim.alphaTarget(0), 200);
         }
       }
+
+      // Fade in after initial settlement
+      setTimeout(() => setIsVisible(true), prefersReducedMotion ? 0 : 400);
     };
 
     // Double RAF ensures DOM paint + iOS viewport settles before kick
@@ -601,6 +581,10 @@ export function StackCloud() {
           viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
           role="img"
           aria-label="Technology stack visualization"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            transition: "opacity 0.6s ease-in-out",
+          }}
         >
           {/* Root node */}
           <g
