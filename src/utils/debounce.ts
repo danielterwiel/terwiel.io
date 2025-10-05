@@ -1,19 +1,15 @@
-export function debounce<T extends (query: string) => unknown>(
-  func: T,
-  wait: number,
-): (...funcArgs: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout | null = null;
-
-  return function executedFunction(query: string) {
-    const later = () => {
-      timeout = null;
-      func(query);
-    };
-
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(later, wait);
-  };
+/**
+ * Debounce utility function
+ * Creates a debounced version of a function that delays invoking until after
+ * the specified delay has elapsed since the last time it was invoked
+ */
+export function debounce<T extends (...args: never[]) => unknown>(
+  fn: T,
+  delay: number,
+): T {
+  let timeoutId: NodeJS.Timeout;
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn(...args), delay);
+  }) as T;
 }

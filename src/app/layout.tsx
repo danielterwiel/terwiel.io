@@ -15,6 +15,13 @@ export const metadata = {
     name: "theme-color",
     content: "#d9723f",
   },
+  openGraph: {
+    title: "Daniël Terwiel - Developer",
+    description:
+      "An accomplished developer with a focus on the web, architecture, performance, accessibility",
+    type: "website",
+    locale: "en_US",
+  },
 };
 
 export default function RootLayout({

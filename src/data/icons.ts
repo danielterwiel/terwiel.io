@@ -21,8 +21,13 @@ export const ICON_COLORS = {
   BrandVite: "#646CFF",
   BrandVue: "#4FC08D",
   BrandXstate: "#2C5282",
+  ChartPie: "#8B5CF6",
+  CloudCog: "#0EA5E9",
+  Code: "#10B981",
   Components: "#384EF6",
   FileTypeDoc: "#2F6DB5",
+  Palette: "#F59E0B",
+  ServerCog: "#EC4899",
   Sql: "#F29111",
   Stack: "#68D391",
   Svg: "#FFB13B",
@@ -70,3 +75,10 @@ export const STACK_ICONS = {
 } as const satisfies Record<string, IconName>;
 
 export type StackName = keyof typeof STACK_ICONS;
+
+export const DOMAIN_ICONS = {
+  "Front-end": "Code",
+  Design: "Palette",
+  "Back-end": "ServerCog",
+  DevOps: "CloudCog",
+} as const satisfies Record<string, IconName>;

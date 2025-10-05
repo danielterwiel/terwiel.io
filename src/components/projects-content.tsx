@@ -8,11 +8,12 @@ import { Project } from "~/components/project";
 import { SearchSummary } from "~/components/search-summary";
 import { PROJECTS } from "~/data/projects";
 import { filterProjects } from "~/utils/filter-projects";
+import { getSearchQuery } from "~/utils/search-params";
 
 export const ProjectsContent = () => {
   const [filtered, setFiltered] = React.useState(PROJECTS);
   const searchParams = useSearchParams();
-  const query = decodeURI(searchParams.get("search") ?? "").trim();
+  const query = getSearchQuery(searchParams);
 
   React.useEffect(() => {
     const filteredProjects = filterProjects(PROJECTS, query);

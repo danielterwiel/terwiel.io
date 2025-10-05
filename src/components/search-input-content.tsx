@@ -40,7 +40,7 @@ export const SearchInputContent = () => {
     });
   }
 
-  const debouncedSetSearchParams = debounce(setSearchParams, 250);
+  const debouncedSetSearchParams = debounce(setSearchParams, 1000);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event?.target?.value;

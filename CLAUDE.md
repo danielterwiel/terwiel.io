@@ -23,6 +23,7 @@ After making changes to the codebase, run the following commands to ensure code 
 3. `npm run build` - Verify the build succeeds
 
 **Note on Knip**: Knip finds unused files, dependencies, and exports. Some reports may be false positives (e.g., Next.js conventions like `layout.tsx`, `page.tsx`, config files). Always verify before removing reported items. Common false positives include:
+
 - Next.js App Router files (layout.tsx, page.tsx, not-found.tsx)
 - Configuration files (next.config.mjs, tailwind.config.ts, postcss.config.cjs)
 - Type-only dependencies used in TypeScript files
@@ -55,7 +56,7 @@ The layout is controlled by a `LayoutToggle` component and state managed in the 
 
 ### Year
 
-The year is 2025. Use this year for your web searches when applicable.
+The year is 2025. Use this year for your web searches when applicable. Do not use 2024 for web searches unless I say so.
 
 ### Testing
 

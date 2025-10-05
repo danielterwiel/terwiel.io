@@ -1,82 +1,16 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
+import { DOMAIN_COLORS, KLEIN_BLUE } from "./src/constants/colors";
 import {
   generateIconSafelist,
   generateTailwindIconColors,
 } from "./src/utils/icon-colors";
 
-// Generate dynamic scale classes based on actual project data
-function generateNodeScaleClasses() {
-  const classes: Record<string, Record<string, string>> = {};
-
-  // Generate classes for each scale level (1-11)
-  // Level 11 is special: 25% larger than level 10 for experience display node
-  for (let level = 1; level <= 11; level++) {
-    // Base scale factor: level 1 = 1.0x, level 10 = 3.0x (1-3 ratio)
-    // Level 11 = 3.75x (25% larger than level 10)
-    const scaleFactor =
-      level <= 10 ? 1.0 + ((level - 1) / 9) * 2.0 : 3.0 * 1.25;
-
-    classes[`.node-scale-${level}`] = {
-      "--node-scale": scaleFactor.toFixed(2),
-    };
-
-    // Container sizing (foreignObject and magnetic container)
-    classes[`.node-scale-${level} .node-container`] = {
-      width: `${Math.max(35 * scaleFactor * 2.8, 120)}px`,
-      height: `${Math.max(35 * scaleFactor * 2.8, 120)}px`,
-    };
-
-    // Magnetic container sizing
-    classes[`.node-scale-${level} .node-magnetic`] = {
-      width: `${Math.max(35 * scaleFactor * 2, 80)}px`,
-      height: `${Math.max(35 * scaleFactor * 2, 80)}px`,
-    };
-
-    // Icon sizing
-    classes[`.node-scale-${level} .node-icon`] = {
-      width: `${35 * scaleFactor * 0.75}px`,
-      height: `${35 * scaleFactor * 0.75}px`,
-    };
-
-    // Hover scaling (proportional to base size)
-    const hoverScale =
-      scaleFactor > 2.5 ? 1.15 : scaleFactor > 2.0 ? 1.2 : 1.25;
-    classes[`.node-scale-${level}:hover .node-icon`] = {
-      transform: `scale(${hoverScale})`,
-    };
-
-    // Selected scaling (proportional to base size)
-    const selectedScale =
-      scaleFactor > 2.5 ? 1.08 : scaleFactor > 2.0 ? 1.12 : 1.15;
-    classes[`.node-scale-${level}.node-selected .node-icon`] = {
-      transform: `scale(${selectedScale})`,
-    };
-  }
-
-  return classes;
-}
-
-// Generate safelist for scale classes
-function generateNodeScaleSafelist(): string[] {
-  const classes: string[] = [];
-
-  for (let level = 1; level <= 11; level++) {
-    classes.push(`node-scale-${level}`);
-  }
-
-  // Add component classes
-  classes.push("node-container", "node-magnetic", "node-icon", "node-selected");
-
-  return classes;
-}
-
 export default {
   content: ["./src/**/*.tsx"],
   safelist: [
     ...generateIconSafelist(),
-    ...generateNodeScaleSafelist(),
     "magnetic-base",
     "magnetic-rounded-lg",
     "magnetic-rounded-full",
@@ -97,14 +31,14 @@ export default {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
       colors: {
-        klein: "#002FA7",
+        klein: KLEIN_BLUE,
         ...generateTailwindIconColors(),
         // Domain colors - muted glassmorphic palette harmonizing with Klein Blue
         domain: {
-          devops: "#5ba4ad", // Soft teal - operational, systematic
-          backend: "#8d7dae", // Soft lavender - deep, foundational
-          frontend: "#c98978", // Soft coral - warm, visible
-          design: "#c77894", // Soft rose - creative, aesthetic
+          devops: DOMAIN_COLORS.DevOps,
+          backend: DOMAIN_COLORS["Back-end"],
+          frontend: DOMAIN_COLORS["Front-end"],
+          design: DOMAIN_COLORS.Design,
         },
       },
       animation: {
@@ -134,9 +68,6 @@ export default {
       theme: (path: string) => string;
     }) => {
       addComponents({
-        // Node scale classes for dynamic sizing
-        ...generateNodeScaleClasses(),
-
         // Base magnetic effect - no pseudo-elements for maximum flexibility
         ".magnetic-base": {
           position: "relative",
