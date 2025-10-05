@@ -6,6 +6,7 @@ import type { Domain } from "~/data/projects";
  * Used in both Tailwind config and runtime styling (especially for SVG)
  */
 export const KLEIN_BLUE = "#002FA7" as const;
+export const PRIMARY_COLOR = "#0F172A" as const;
 
 export const DOMAIN_COLORS = {
   DevOps: "#5ba4ad", // Soft teal - operational, systematic

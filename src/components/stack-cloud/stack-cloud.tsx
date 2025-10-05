@@ -30,6 +30,15 @@ export function StackCloudContent() {
   // Hover state management
   const [hoveredStackId, setHoveredStackId] = useState<string | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+  const [hoveredStack, setHoveredStack] = useState<{
+    name: string;
+    iconKey: string;
+    color: string;
+    domain: Domain;
+  } | null>(null);
+
+  // Track active hover state without triggering effects
+  const isActivelyHoveringRef = useRef(false);
 
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
@@ -66,6 +75,45 @@ export function StackCloudContent() {
   useEffect(() => {
     updateNodeScaleFactors(scaleFactors);
   }, [scaleFactors, updateNodeScaleFactors]);
+
+  // Keep ref in sync with hover state
+  useEffect(() => {
+    isActivelyHoveringRef.current = hoveredStackId !== null;
+  }, [hoveredStackId]);
+
+  // Set initial hovered stack based on selected stack in search params
+  // But only if a domain is not selected
+  useEffect(() => {
+    // Don't override if actively hovering a node
+    if (isActivelyHoveringRef.current) return;
+
+    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
+
+    // Check if the search query is a domain name
+    const domains = ["DevOps", "Back-end", "Front-end", "Design"];
+    const isDomainSelected = domains.some(
+      (domain) => domain.toLowerCase() === searchQuery,
+    );
+
+    // Only set hovered stack if a domain is not selected
+    if (!isDomainSelected) {
+      const selectedStack = stacks.find((s) =>
+        isStackSelected(s, searchParams, PROJECTS),
+      );
+      setHoveredStack(
+        selectedStack
+          ? {
+              name: selectedStack.name,
+              iconKey: selectedStack.iconKey,
+              color: selectedStack.color,
+              domain: selectedStack.domain,
+            }
+          : null,
+      );
+    } else {
+      setHoveredStack(null);
+    }
+  }, [stacks, searchParams]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
@@ -138,6 +186,8 @@ export function StackCloudContent() {
               else nodesRef.current.delete("root");
             }}
             onDomainHover={setHoveredDomain}
+            hoveredStack={hoveredStack}
+            hoveredStackId={hoveredStackId}
           />
 
           {stacks.map((stack) => {
@@ -158,8 +208,43 @@ export function StackCloudContent() {
                   if (el) nodesRef.current.set(stack.id, el);
                   else nodesRef.current.delete(stack.id);
                 }}
-                onMouseEnter={() => setHoveredStackId(stack.id)}
-                onMouseLeave={() => setHoveredStackId(null)}
+                onMouseEnter={() => {
+                  setHoveredStackId(stack.id);
+                  setHoveredStack({
+                    name: stack.name,
+                    iconKey: stack.iconKey,
+                    color: stack.color,
+                    domain: stack.domain,
+                  });
+                }}
+                onMouseLeave={() => {
+                  setHoveredStackId(null);
+                  // Keep selected stack if exists (but not if a domain is selected)
+                  const searchQuery =
+                    searchParams.get("search")?.toLowerCase().trim() ?? "";
+                  const domains = ["DevOps", "Back-end", "Front-end", "Design"];
+                  const isDomainSelected = domains.some(
+                    (domain) => domain.toLowerCase() === searchQuery,
+                  );
+
+                  if (!isDomainSelected) {
+                    const selectedStack = stacks.find((s) =>
+                      isStackSelected(s, searchParams, PROJECTS),
+                    );
+                    setHoveredStack(
+                      selectedStack
+                        ? {
+                            name: selectedStack.name,
+                            iconKey: selectedStack.iconKey,
+                            color: selectedStack.color,
+                            domain: selectedStack.domain,
+                          }
+                        : null,
+                    );
+                  } else {
+                    setHoveredStack(null);
+                  }
+                }}
               />
             );
           })}

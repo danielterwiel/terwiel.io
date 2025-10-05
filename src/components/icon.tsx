@@ -27,6 +27,9 @@ import BuildingBank from "../images/icons/building-bank.svg";
 import BuildingFactory2 from "../images/icons/building-factory-2.svg";
 import BuildingWarehouse from "../images/icons/building-warehouse.svg";
 import Bulb from "../images/icons/bulb.svg";
+import ChartPie from "../images/icons/chart-pie.svg";
+import CloudCog from "../images/icons/cloud-cog.svg";
+import Code from "../images/icons/code.svg";
 import Components from "../images/icons/components.svg";
 import FileCv from "../images/icons/file-cv.svg";
 import FileTypeDoc from "../images/icons/file-type-doc.svg";
@@ -43,11 +46,13 @@ import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
 import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
+import Palette from "../images/icons/palette.svg";
 import Printer from "../images/icons/printer.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
 import ReceiptTax from "../images/icons/receipt-tax.svg";
 import Rocket from "../images/icons/rocket.svg";
 import Search from "../images/icons/search.svg";
+import ServerCog from "../images/icons/server-cog.svg";
 import ShieldLock from "../images/icons/shield-lock.svg";
 import Ship from "../images/icons/ship.svg";
 import Sql from "../images/icons/sql.svg";
@@ -90,6 +95,9 @@ const icons = {
   BuildingFactory2,
   BuildingWarehouse,
   Bulb,
+  ChartPie,
+  CloudCog,
+  Code,
   Components,
   Focus,
   FileCv,
@@ -107,11 +115,13 @@ const icons = {
   News,
   Ship,
   Package,
+  Palette,
   QuestionMark,
   ReceiptTax,
   Rocket,
   Printer,
   Search,
+  ServerCog,
   ShieldLock,
   Sql,
   Stack,

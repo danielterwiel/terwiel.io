@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Domain } from "~/data/projects";
 import type { Dimensions } from "~/types/simulation";
@@ -10,11 +10,19 @@ import { PROJECTS } from "~/data/projects";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
 import { matchesDomainName } from "~/utils/get-domain-names";
 import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
+import { RootNodeExperience } from "./root-node-experience";
 
 interface RootNodeProps {
   dimensions: Dimensions;
   nodeRef: (el: SVGGElement | null) => void;
   onDomainHover?: (domain: Domain | null) => void;
+  hoveredStack?: {
+    name: string;
+    iconKey: string;
+    color: string;
+    domain: Domain;
+  } | null;
+  hoveredStackId?: string | null;
 }
 
 interface PieSegmentData {
@@ -32,6 +40,8 @@ export function RootNode({
   dimensions,
   nodeRef,
   onDomainHover,
+  hoveredStack,
+  hoveredStackId,
 }: RootNodeProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -39,6 +49,7 @@ export function RootNode({
   const pieChartRef = useRef<SVGGElement>(null);
   const hasAnimatedRef = useRef(false);
   const matchedDomainRef = useRef<string | null>(null);
+  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
 
   const currentSearchQuery = getSearchQuery(searchParams);
 
@@ -60,6 +71,12 @@ export function RootNode({
   );
 
   const pieRadius = dimensions.rootRadius * 0.75; // 75% of root radius
+
+  // Set initial hovered domain based on selected domain in search params
+  useEffect(() => {
+    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    setHoveredDomain(matchedDomain);
+  }, [currentSearchQuery]);
 
   useEffect(() => {
     if (!pieChartRef.current) return;
@@ -185,6 +202,8 @@ export function RootNode({
             .attr("d", hoverArc(datum) ?? "");
           // Notify parent component of domain hover
           onDomainHover?.(datum.data.domain as Domain);
+          // Update local hover state for RootNodeExperience
+          setHoveredDomain(datum.data.domain as Domain);
         })
         .on("mouseleave", function () {
           const datum = d3
@@ -203,6 +222,8 @@ export function RootNode({
             );
           // Clear domain hover
           onDomainHover?.(null);
+          // Clear local hover state, but keep selected domain if exists
+          setHoveredDomain(isSelected ? (datum.data.domain as Domain) : null);
         })
         .on("click", function () {
           const datum = d3
@@ -262,20 +283,13 @@ export function RootNode({
         }}
       />
 
-      {/* Center text */}
-      <text
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={dimensions.rootRadius * 0.2}
-        fill={KLEIN_BLUE}
-        fontWeight="600"
-        style={{
-          animation: "fadeIn 0.4s ease-out 2s both",
-          pointerEvents: "none",
-        }}
-      >
-        Experience
-      </text>
+      {/* Center experience display */}
+      <RootNodeExperience
+        dimensions={dimensions}
+        hoveredStack={hoveredStack}
+        hoveredDomain={hoveredDomain}
+        hoveredStackId={hoveredStackId}
+      />
 
       <style jsx>{`
         @keyframes borderGrow {
