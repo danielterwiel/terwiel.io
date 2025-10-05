@@ -121,12 +121,6 @@ export function RootNode({
       .innerRadius(0)
       .outerRadius(pieRadius);
 
-    // Selected + hover arc: filled from center, slightly larger
-    const selectedHoverArc = d3
-      .arc<d3.PieArcDatum<PieSegmentData>>()
-      .innerRadius(0)
-      .outerRadius(pieRadius + RING_THICKNESS * 0.75);
-
     // Generate pie segments
     const arcs = pie(pieData);
 
@@ -187,9 +181,7 @@ export function RootNode({
       .attr("fill", (d) => d.data.color)
       .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
       .attr("cursor", "pointer")
-      .style("opacity", (d) =>
-        matchedDomain === d.data.domain ? "0.5" : "1.0",
-      )
+      .style("opacity", (d) => (matchedDomain === d.data.domain ? "0" : "1.0"))
       .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
       .attr("d", (d) =>
         matchedDomain === d.data.domain
@@ -209,13 +201,13 @@ export function RootNode({
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
           const isSelected = matchedDomainRef.current === datum.data.domain;
-          const targetArc = isSelected ? selectedHoverArc : hoverArc;
+          const targetArc = isSelected ? selectedArc : hoverArc;
 
           d3.select(this)
             .transition()
             .duration(200)
             .ease(d3.easeCubicOut)
-            .style("opacity", isSelected ? "0.3" : "0.7")
+            .style("opacity", isSelected ? "0.5" : "0.7")
             .attrTween("d", function () {
               const interpolate = d3.interpolate(
                 d3.select(this).attr("d"),
@@ -240,7 +232,7 @@ export function RootNode({
             .transition()
             .duration(200)
             .ease(d3.easeCubicOut)
-            .style("opacity", isSelected ? "0.3" : "0.6")
+            .style("opacity", isSelected ? "0" : "1.0")
             .attrTween("d", function () {
               const interpolate = d3.interpolate(
                 d3.select(this).attr("d"),
