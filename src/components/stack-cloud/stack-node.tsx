@@ -61,11 +61,19 @@ export function StackNode({
   // Get domain color for border
   const borderColor = DOMAIN_COLORS[stack.domain];
 
-  // Determine gradient based on selection state
-  const gradientId = `glow-${stack.domain}-${selected ? "selected" : "unselected"}`;
+  // Only apply glow filter and colored fill when selected or highlighted
+  let filterId: string | undefined;
+  let circleFill: string;
 
-  // Glow circle size based on selection state
-  const glowRadius = selected || highlighted ? nodeRadius * 1.5 : nodeRadius;
+  if (selected) {
+    filterId = `glow-${stack.domain}-selected`;
+    circleFill = "white";
+  } else if (highlighted) {
+    filterId = `glow-${stack.domain}-highlighted`;
+    circleFill = "white";
+  } else {
+    circleFill = "white";
+  }
 
   // Calculate icon color and opacity based on selected/highlighted state
   let iconColor: string;
@@ -103,15 +111,13 @@ export function StackNode({
         onMouseLeave={onMouseLeave}
         style={{ cursor: "pointer", transition: "transform 0.3s ease" }}
       >
-        {/* Glow circle behind the main node */}
-        <circle r={glowRadius} fill={`url(#${gradientId})`} />
-
-        {/* Main node circle */}
+        {/* Main node circle with conditional outer glow filter */}
         <circle
           r={nodeRadius}
-          fill="white"
+          fill={circleFill}
           stroke={borderColor}
-          strokeWidth={1}
+          strokeWidth={1.5}
+          filter={filterId ? `url(#${filterId})` : undefined}
         />
 
         {/* Icon */}

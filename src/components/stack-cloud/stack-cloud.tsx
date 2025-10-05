@@ -81,22 +81,52 @@ export function StackCloudContent() {
             transition: "opacity 0.6s ease-in-out",
           }}
         >
-          {/* SVG Radial Gradient Definitions for Glow Effects */}
+          {/* SVG Filter Definitions for Outer Glow Effects */}
           <defs>
+            {/* Outer glow filters for each domain color */}
             {Object.entries(DOMAIN_COLORS).map(([domain, color]) => (
               <g key={domain}>
-                {/* Subtle glow for unselected state */}
-                <radialGradient id={`glow-${domain}-unselected`}>
-                  <stop offset="0%" stopColor={color} stopOpacity="0.6" />
-                  <stop offset="50%" stopColor={color} stopOpacity="0.3" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </radialGradient>
-                {/* Prominent glow for selected state */}
-                <radialGradient id={`glow-${domain}-selected`}>
-                  <stop offset="0%" stopColor={color} stopOpacity="0.7" />
-                  <stop offset="40%" stopColor={color} stopOpacity="0.4" />
-                  <stop offset="100%" stopColor={color} stopOpacity="0" />
-                </radialGradient>
+                {/* Outer glow for highlighted state */}
+                <filter
+                  id={`glow-${domain}-highlighted`}
+                  x="-100%"
+                  y="-100%"
+                  width="300%"
+                  height="300%"
+                >
+                  <feGaussianBlur
+                    in="SourceAlpha"
+                    stdDeviation="5"
+                    result="blur"
+                  />
+                  <feFlood floodColor={color} floodOpacity="0.5" />
+                  <feComposite in2="blur" operator="in" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+
+                {/* Outer glow for selected state */}
+                <filter
+                  id={`glow-${domain}-selected`}
+                  x="-100%"
+                  y="-100%"
+                  width="300%"
+                  height="300%"
+                >
+                  <feGaussianBlur
+                    in="SourceAlpha"
+                    stdDeviation="8"
+                    result="blur"
+                  />
+                  <feFlood floodColor={color} floodOpacity="0.7" />
+                  <feComposite in2="blur" operator="in" result="coloredBlur" />
+                  <feMerge>
+                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
               </g>
             ))}
           </defs>
