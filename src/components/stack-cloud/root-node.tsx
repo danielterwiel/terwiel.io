@@ -100,17 +100,32 @@ export function RootNode({
       .value((d) => d.value)
       .sort(null); // Maintain order
 
-    // Create arc generator
+    // Define arc states for smooth transitions
+    const RING_THICKNESS = pieRadius * 0.15; // Thickness of the ring border
+
+    // Default arc: ring/donut style (hollow)
     const arc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(pieRadius - RING_THICKNESS)
+      .outerRadius(pieRadius);
+
+    // Hover arc: ring grows outward (1.75x thicker)
+    const hoverArc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(pieRadius - RING_THICKNESS)
+      .outerRadius(pieRadius + RING_THICKNESS * 0.75);
+
+    // Selected arc: filled from center
+    const selectedArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(0)
       .outerRadius(pieRadius);
 
-    // Create hover arc (slightly larger)
-    const hoverArc = d3
+    // Selected + hover arc: filled from center, slightly larger
+    const selectedHoverArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(0)
-      .outerRadius(pieRadius * 1.05);
+      .outerRadius(pieRadius + RING_THICKNESS * 0.75);
 
     // Generate pie segments
     const arcs = pie(pieData);
@@ -170,18 +185,16 @@ export function RootNode({
       .enter()
       .append("path")
       .attr("fill", (d) => d.data.color)
-      .attr(
-        "class",
-        (d) =>
-          `pie-segment magnetic-base magnetic-rounded-full${matchedDomain === d.data.domain ? " magnetic-hover" : ""}`,
-      )
+      .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
       .attr("cursor", "pointer")
       .style("opacity", (d) =>
-        matchedDomain === d.data.domain ? "0.7" : "0.4",
+        matchedDomain === d.data.domain ? "0.5" : "1.0",
       )
       .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
       .attr("d", (d) =>
-        matchedDomain === d.data.domain ? (hoverArc(d) ?? "") : (arc(d) ?? ""),
+        matchedDomain === d.data.domain
+          ? (selectedArc(d) ?? "")
+          : (arc(d) ?? ""),
       );
 
     // Title for accessibility
@@ -195,12 +208,21 @@ export function RootNode({
           const datum = d3
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
+          const isSelected = matchedDomainRef.current === datum.data.domain;
+          const targetArc = isSelected ? selectedHoverArc : hoverArc;
+
           d3.select(this)
-            .classed("magnetic-hover", true)
-            .style("opacity", "0.7")
             .transition()
             .duration(200)
-            .attr("d", hoverArc(datum) ?? "");
+            .ease(d3.easeCubicOut)
+            .style("opacity", isSelected ? "0.3" : "0.7")
+            .attrTween("d", function () {
+              const interpolate = d3.interpolate(
+                d3.select(this).attr("d"),
+                targetArc(datum) ?? "",
+              );
+              return (t) => interpolate(t);
+            });
           // Notify parent component of domain hover
           onDomainHover?.(datum.data.domain as Domain);
           // Update local hover state for RootNodeExperience
@@ -212,15 +234,20 @@ export function RootNode({
             .datum() as d3.PieArcDatum<PieSegmentData>;
           // Check if this segment's domain is selected (read from ref for current value)
           const isSelected = matchedDomainRef.current === datum.data.domain;
+          const targetArc = isSelected ? selectedArc : arc;
+
           d3.select(this)
-            .classed("magnetic-hover", isSelected)
-            .style("opacity", isSelected ? "0.7" : "0.4")
             .transition()
             .duration(200)
-            .attr(
-              "d",
-              isSelected ? (hoverArc(datum) ?? "") : (arc(datum) ?? ""),
-            );
+            .ease(d3.easeCubicOut)
+            .style("opacity", isSelected ? "0.3" : "0.6")
+            .attrTween("d", function () {
+              const interpolate = d3.interpolate(
+                d3.select(this).attr("d"),
+                targetArc(datum) ?? "",
+              );
+              return (t) => interpolate(t);
+            });
           // Clear domain hover
           onDomainHover?.(null);
           // Clear local hover state, but keep selected domain if exists
