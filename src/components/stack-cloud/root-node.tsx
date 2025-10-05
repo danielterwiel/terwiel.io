@@ -17,12 +17,13 @@ interface RootNodeProps {
   nodeRef: (el: SVGGElement | null) => void;
   onDomainHover?: (domain: Domain | null) => void;
   hoveredStack?: {
+    id: string;
     name: string;
     iconKey: string;
     color: string;
     domain: Domain;
   } | null;
-  hoveredStackId?: string | null;
+  isActiveHover?: boolean;
 }
 
 interface PieSegmentData {
@@ -41,7 +42,7 @@ export function RootNode({
   nodeRef,
   onDomainHover,
   hoveredStack,
-  hoveredStackId,
+  isActiveHover = false,
 }: RootNodeProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -288,7 +289,7 @@ export function RootNode({
         dimensions={dimensions}
         hoveredStack={hoveredStack}
         hoveredDomain={hoveredDomain}
-        hoveredStackId={hoveredStackId}
+        isActiveHover={isActiveHover}
       />
 
       <style jsx>{`

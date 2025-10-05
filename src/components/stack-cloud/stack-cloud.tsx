@@ -28,9 +28,9 @@ export function StackCloudContent() {
   const searchParams = useSearchParams();
 
   // Hover state management
-  const [hoveredStackId, setHoveredStackId] = useState<string | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
   const [hoveredStack, setHoveredStack] = useState<{
+    id: string;
     name: string;
     iconKey: string;
     color: string;
@@ -77,17 +77,36 @@ export function StackCloudContent() {
   }, [scaleFactors, updateNodeScaleFactors]);
 
   // Keep ref in sync with hover state
+  // Derive if actively hovering by checking if hoveredStack differs from selected stack
+  const selectedStack = useMemo(
+    () => stacks.find((s) => isStackSelected(s, searchParams, PROJECTS)),
+    [stacks, searchParams],
+  );
+
   useEffect(() => {
-    isActivelyHoveringRef.current = hoveredStackId !== null;
-  }, [hoveredStackId]);
+    isActivelyHoveringRef.current =
+      hoveredStack !== null &&
+      (selectedStack === undefined || hoveredStack.id !== selectedStack.id);
+  }, [hoveredStack, selectedStack]);
 
   // Set initial hovered stack based on selected stack in search params
   // But only if a domain is not selected
   useEffect(() => {
+    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
+
+    // On iOS Safari, touch events don't reliably trigger onMouseLeave
+    // So we need to clear hover state when search param is cleared, regardless of hover ref
+    const shouldClearHoverState = searchQuery === "";
+
+    // Clear all hover states when search param is empty (iOS Safari touch fix)
+    if (shouldClearHoverState) {
+      setHoveredStack(null);
+      setHoveredDomain(null);
+      return;
+    }
+
     // Don't override if actively hovering a node
     if (isActivelyHoveringRef.current) return;
-
-    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
 
     // Check if the search query is a domain name
     const domains = ["DevOps", "Back-end", "Front-end", "Design"];
@@ -96,24 +115,12 @@ export function StackCloudContent() {
     );
 
     // Only set hovered stack if a domain is not selected
-    if (!isDomainSelected) {
-      const selectedStack = stacks.find((s) =>
-        isStackSelected(s, searchParams, PROJECTS),
-      );
-      setHoveredStack(
-        selectedStack
-          ? {
-              name: selectedStack.name,
-              iconKey: selectedStack.iconKey,
-              color: selectedStack.color,
-              domain: selectedStack.domain,
-            }
-          : null,
-      );
+    if (!isDomainSelected && selectedStack) {
+      setHoveredStack(selectedStack);
     } else {
       setHoveredStack(null);
     }
-  }, [stacks, searchParams]);
+  }, [stacks, searchParams, selectedStack]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
@@ -187,13 +194,17 @@ export function StackCloudContent() {
             }}
             onDomainHover={setHoveredDomain}
             hoveredStack={hoveredStack}
-            hoveredStackId={hoveredStackId}
+            isActiveHover={
+              hoveredStack !== null &&
+              (selectedStack === undefined ||
+                hoveredStack.id !== selectedStack.id)
+            }
           />
 
           {stacks.map((stack) => {
             const selected = isStackSelected(stack, searchParams, PROJECTS);
             const highlighted =
-              hoveredStackId === stack.id ||
+              hoveredStack?.id === stack.id ||
               (hoveredDomain !== null && stack.domain === hoveredDomain);
 
             return (
@@ -208,17 +219,8 @@ export function StackCloudContent() {
                   if (el) nodesRef.current.set(stack.id, el);
                   else nodesRef.current.delete(stack.id);
                 }}
-                onMouseEnter={() => {
-                  setHoveredStackId(stack.id);
-                  setHoveredStack({
-                    name: stack.name,
-                    iconKey: stack.iconKey,
-                    color: stack.color,
-                    domain: stack.domain,
-                  });
-                }}
+                onMouseEnter={() => setHoveredStack(stack)}
                 onMouseLeave={() => {
-                  setHoveredStackId(null);
                   // Keep selected stack if exists (but not if a domain is selected)
                   const searchQuery =
                     searchParams.get("search")?.toLowerCase().trim() ?? "";
@@ -227,20 +229,8 @@ export function StackCloudContent() {
                     (domain) => domain.toLowerCase() === searchQuery,
                   );
 
-                  if (!isDomainSelected) {
-                    const selectedStack = stacks.find((s) =>
-                      isStackSelected(s, searchParams, PROJECTS),
-                    );
-                    setHoveredStack(
-                      selectedStack
-                        ? {
-                            name: selectedStack.name,
-                            iconKey: selectedStack.iconKey,
-                            color: selectedStack.color,
-                            domain: selectedStack.domain,
-                          }
-                        : null,
-                    );
+                  if (!isDomainSelected && selectedStack) {
+                    setHoveredStack(selectedStack);
                   } else {
                     setHoveredStack(null);
                   }

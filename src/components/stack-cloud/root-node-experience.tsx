@@ -16,13 +16,14 @@ import { ExperienceTicker } from "./experience-ticker";
 interface RootNodeExperienceProps {
   dimensions: Dimensions;
   hoveredStack?: {
+    id: string;
     name: string;
     iconKey: string;
     color: string;
     domain: Domain;
   } | null;
   hoveredDomain?: Domain | null;
-  hoveredStackId?: string | null;
+  isActiveHover?: boolean;
 }
 
 type DisplayMode = "default" | "stack" | "domain";
@@ -35,11 +36,11 @@ export function RootNodeExperience({
   dimensions,
   hoveredStack,
   hoveredDomain,
-  hoveredStackId,
+  isActiveHover = false,
 }: RootNodeExperienceProps) {
   // Determine display mode: active hover (stack or domain) overrides selected
   // Priority: active stack hover > domain hover > selected stack > default
-  const displayMode: DisplayMode = hoveredStackId
+  const displayMode: DisplayMode = isActiveHover
     ? "stack" // Actively hovering a stack
     : hoveredDomain
       ? "domain" // Hovering a domain segment
