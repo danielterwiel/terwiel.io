@@ -2,15 +2,37 @@ import * as d3 from "d3";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { Domain } from "~/data/projects";
 import type { Dimensions, SimulationNode } from "~/types/simulation";
+import {
+  BOUNDARY_PADDING,
+  CHARGE_STRENGTH,
+  COLLISION_ITERATIONS,
+  COLLISION_PADDING,
+  COLLISION_STRENGTH,
+  POSITIONING_FORCE_STRENGTH,
+  ROOT_EXCLUSION_FACTOR,
+} from "~/constants/stack-cloud-physics";
+import { PROJECTS } from "~/data/projects";
+import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
 import { makeBoundaryForce } from "~/utils/stack-cloud/boundary-force";
+import { calculateDomainAngles } from "~/utils/stack-cloud/calculate-domain-angles";
+import { arcAngleToMathAngle } from "~/utils/stack-cloud/convert-arc-angle";
+import { calculateNodeAngleInSegment } from "~/utils/stack-cloud/distribute-nodes-in-segment";
 import { makeRootExclusionForce } from "~/utils/stack-cloud/root-exclusion-force";
 import { seedPosition } from "~/utils/stack-cloud/seed-position";
 
 interface UseStackSimulationProps {
   dimensions: Dimensions | null;
-  stacks: Array<{ id: string; name: string; iconKey: string; color: string }>;
+  stacks: Array<{
+    id: string;
+    name: string;
+    iconKey: string;
+    color: string;
+    domain: Domain;
+  }>;
   sizeFactors: Map<string, number>;
+  scaleFactors: Map<string, number>; // Selection-based scaling (1.0 or STACK_SELECTION_SCALE)
 }
 
 /**
@@ -21,6 +43,7 @@ export function useStackSimulation({
   dimensions,
   stacks,
   sizeFactors,
+  scaleFactors,
 }: UseStackSimulationProps) {
   const simulationRef = useRef<d3.Simulation<SimulationNode, undefined> | null>(
     null,
@@ -70,30 +93,66 @@ export function useStackSimulation({
         fy: centerY,
       };
 
-      // Experience-based stack nodes with seeded positions
-      const rootExcl = rootRadius * 1.3;
-      const stackNodes: SimulationNode[] = stacks.map((stack) => {
-        const sizeFactor = sizeFactors.get(stack.name) ?? 1.0;
-        const r = stackRadius * sizeFactor;
-        const { x, y } = seedPosition(
-          centerX,
-          centerY,
-          width,
-          height,
-          r,
-          rootExcl,
-        );
-        return {
-          id: stack.id,
-          type: "stack",
-          name: stack.name,
-          radius: r,
-          iconKey: stack.iconKey,
-          color: stack.color,
-          x,
-          y,
-        };
-      });
+      // Calculate domain angles for positioning nodes at their domain segment midpoints
+      const domainExperiences = calculateDomainExperiences(PROJECTS);
+      const domainAngles = calculateDomainAngles(domainExperiences);
+
+      // Group stacks by domain for angular distribution
+      const stacksByDomain = new Map<Domain, typeof stacks>();
+      for (const stack of stacks) {
+        const domainStacks = stacksByDomain.get(stack.domain) ?? [];
+        domainStacks.push(stack);
+        stacksByDomain.set(stack.domain, domainStacks);
+      }
+
+      // Experience-based stack nodes with positions spread across domain segments
+      const rootExclusionRadius = rootRadius * ROOT_EXCLUSION_FACTOR;
+      const stackNodes: SimulationNode[] = [];
+
+      for (const [domain, domainStacks] of stacksByDomain) {
+        const angleRange = domainAngles.get(domain);
+        if (!angleRange) continue;
+
+        domainStacks.forEach((stack, index) => {
+          const sizeFactor = sizeFactors.get(stack.name) ?? 1.0;
+          const scaleFactor = scaleFactors.get(stack.id) ?? 1.0;
+          const baseRadius = stackRadius * sizeFactor;
+          const effectiveRadius = baseRadius * scaleFactor;
+
+          // Calculate angle for this stack within its domain segment
+          const arcAngle = calculateNodeAngleInSegment(
+            angleRange,
+            index,
+            domainStacks.length,
+          );
+
+          // Convert from d3.arc() angle to Math angle for positioning
+          const mathAngle = arcAngleToMathAngle(arcAngle);
+
+          const { x, y } = seedPosition(
+            centerX,
+            centerY,
+            width,
+            height,
+            effectiveRadius,
+            rootExclusionRadius,
+            BOUNDARY_PADDING,
+            mathAngle,
+          );
+
+          stackNodes.push({
+            id: stack.id,
+            type: "stack",
+            name: stack.name,
+            radius: baseRadius,
+            iconKey: stack.iconKey,
+            color: stack.color,
+            x,
+            y,
+            scaleFactor,
+          });
+        });
+      }
 
       const allNodes = [rootNode, ...stackNodes];
 
@@ -104,13 +163,15 @@ export function useStackSimulation({
       // Forces
       const collide = d3
         .forceCollide<SimulationNode>()
-        .radius((d) => d.radius + 6)
-        .strength(0.5)
-        .iterations(2);
+        .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
+        .strength(COLLISION_STRENGTH)
+        .iterations(COLLISION_ITERATIONS);
 
-      const charge = d3.forceManyBody<SimulationNode>().strength(-12);
+      const charge = d3
+        .forceManyBody<SimulationNode>()
+        .strength(CHARGE_STRENGTH);
 
-      const boundary = makeBoundaryForce(width, height, 10);
+      const boundary = makeBoundaryForce(width, height, BOUNDARY_PADDING);
       const rootExclusion = makeRootExclusionForce(
         centerX,
         centerY,
@@ -122,7 +183,8 @@ export function useStackSimulation({
 
       const simulation = d3
         .forceSimulation<SimulationNode>(allNodes)
-        .force("center", d3.forceCenter(centerX, centerY).strength(0.05))
+        .force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH))
+        .force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH))
         .force("collide", collide)
         .force("charge", charge)
         .force("boundary", boundary)
@@ -136,7 +198,7 @@ export function useStackSimulation({
       // Paint initial positions once
       handleTick();
     },
-    [stacks, sizeFactors, handleTick],
+    [stacks, sizeFactors, scaleFactors, handleTick],
   );
 
   /**
@@ -169,24 +231,28 @@ export function useStackSimulation({
         node.radius = stackRadius * sizeFactor;
       }
 
-      // Update center force
-      sim.force("center", d3.forceCenter(centerX, centerY).strength(0.05));
+      // Update position forces
+      sim.force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH));
+      sim.force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH));
 
       // Update collide radii
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
       if (collide?.radius) {
         collide
-          .radius((d: SimulationNode) => d.radius + 6)
-          .strength(0.5)
-          .iterations(2);
+          .radius(
+            (d: SimulationNode) =>
+              d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING,
+          )
+          .strength(COLLISION_STRENGTH)
+          .iterations(COLLISION_ITERATIONS);
       } else {
         sim.force(
           "collide",
           d3
             .forceCollide<SimulationNode>()
-            .radius((d) => d.radius + 6)
-            .strength(0.5)
-            .iterations(2),
+            .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
+            .strength(COLLISION_STRENGTH)
+            .iterations(COLLISION_ITERATIONS),
         );
       }
 
@@ -194,7 +260,7 @@ export function useStackSimulation({
       if (boundaryForceRef.current) {
         boundaryForceRef.current.update(width, height);
       } else {
-        const newBoundary = makeBoundaryForce(width, height, 10);
+        const newBoundary = makeBoundaryForce(width, height, BOUNDARY_PADDING);
         boundaryForceRef.current = newBoundary;
         sim.force("boundary", newBoundary);
       }
@@ -290,10 +356,67 @@ export function useStackSimulation({
     };
   }, [dimensions, updateSimulation]);
 
+  /**
+   * Update scale factors for nodes (e.g., when selection changes)
+   * Uses alphaTarget to avoid jitter
+   */
+  const updateNodeScaleFactors = useCallback(
+    (scaleFactorMap: Map<string, number>) => {
+      const sim = simulationRef.current;
+      if (!sim) return;
+
+      const nodes = sim.nodes();
+      let hasChanges = false;
+
+      for (const node of nodes) {
+        if (node.type === "stack") {
+          const newScaleFactor = scaleFactorMap.get(node.id) ?? 1.0;
+          if (node.scaleFactor !== newScaleFactor) {
+            node.scaleFactor = newScaleFactor;
+            hasChanges = true;
+          }
+        }
+      }
+
+      // Only reheat if there were actual changes
+      if (!hasChanges) return;
+
+      // Reinitialize collision force to pick up new radii
+      const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
+      if (collide) {
+        // Re-set the radius accessor to force re-evaluation
+        collide.radius(
+          (d: SimulationNode) => d.radius * (d.scaleFactor ?? 1) + 6,
+        );
+        // Explicitly reinitialize the force with current nodes
+        collide.initialize(nodes, Math.random);
+      }
+
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (prefersReducedMotion) {
+        // For reduced motion, just update positions without animation
+        sim.stop();
+        sim.tick(10);
+        handleTick();
+      } else {
+        // Gentle reheat with alphaTarget to avoid jitter
+        sim.alphaTarget(0.15).restart();
+        setTimeout(() => {
+          if (sim) sim.alphaTarget(0);
+        }, 300);
+      }
+    },
+    [handleTick],
+  );
+
   return {
     simulationRef,
     nodesRef,
     isVisible,
     updateSimulation,
+    updateNodeScaleFactors,
   };
 }

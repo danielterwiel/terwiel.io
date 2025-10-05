@@ -11,6 +11,7 @@ export interface SimulationNode extends SimulationNodeDatum {
   radius: number;
   iconKey?: string;
   color?: string;
+  scaleFactor?: number;
 }
 
 /**

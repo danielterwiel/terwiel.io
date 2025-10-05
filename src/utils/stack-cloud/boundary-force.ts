@@ -1,6 +1,7 @@
 import type { Force } from "d3";
 
 import type { SimulationNode } from "~/types/simulation";
+import { BOUNDARY_PADDING } from "~/constants/stack-cloud-physics";
 
 /**
  * Extended boundary force with update method
@@ -16,7 +17,7 @@ interface BoundaryForce extends Force<SimulationNode, undefined> {
 export function makeBoundaryForce(
   width: number,
   height: number,
-  padding = 10,
+  padding = BOUNDARY_PADDING,
 ): BoundaryForce {
   let nodes: SimulationNode[] = [];
   let currentWidth = width;
@@ -25,7 +26,8 @@ export function makeBoundaryForce(
   function force() {
     for (const node of nodes) {
       if (node.fx !== undefined && node.fx !== null) continue; // skip fixed nodes
-      const r = node.radius;
+      // Use effective radius accounting for scale factor
+      const r = node.radius * (node.scaleFactor ?? 1);
 
       if (node.x !== undefined) {
         if (node.x - r < padding) {

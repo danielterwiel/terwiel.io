@@ -1,6 +1,10 @@
 import type { Force } from "d3";
 
 import type { SimulationNode } from "~/types/simulation";
+import {
+  ROOT_EXCLUSION_FACTOR,
+  ROOT_EXCLUSION_STRENGTH,
+} from "~/constants/stack-cloud-physics";
 
 /**
  * Extended root exclusion force with update method
@@ -17,8 +21,8 @@ export function makeRootExclusionForce(
   centerX: number,
   centerY: number,
   rootRadius: number,
-  strength = 0.12,
-  factor = 1.3,
+  strength = ROOT_EXCLUSION_STRENGTH,
+  factor = ROOT_EXCLUSION_FACTOR,
 ): RootExclusionForce {
   let nodes: SimulationNode[] = [];
   let cx = centerX;
@@ -38,9 +42,12 @@ export function makeRootExclusionForce(
       const dy = node.y - cy;
       const distance = Math.sqrt(dx * dx + dy * dy);
 
+      // Use effective radius accounting for scale factor
+      const effectiveRadius = node.radius * (node.scaleFactor ?? 1);
+
       if (distance < exclusionRadius) {
         const angle = Math.atan2(dy, dx);
-        const target = exclusionRadius + node.radius;
+        const target = exclusionRadius + effectiveRadius;
         const f = (target - distance) * strength;
         node.vx = (node.vx ?? 0) + Math.cos(angle) * f;
         node.vy = (node.vy ?? 0) + Math.sin(angle) * f;

@@ -17,6 +17,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 ## Visual Behavior
 
 ### Root Node
+
 - **Position**: Exactly centered in the container at all times
 - **Size**: Diameter = `40vmin` of the current viewport (40% of `min(width, height)`)
   - Recomputed on every viewport resize or orientation change
@@ -29,6 +30,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 - **Anchoring**: Uses D3 `fx`/`fy` properties to pin position exactly at computed center
 
 ### Stack Nodes
+
 - **Generation**: One node per unique stack technology extracted from `data/projects.ts`
 - **Size**: Uniform radius scaled from viewport units for consistent touch targets
   - Minimum 44px diameter for iOS touch target guidelines
@@ -42,6 +44,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 - **Collision**: Must not overlap with each other or the root node
 
 ### Layout Rules
+
 - All nodes must remain within the container bounds
 - Stack nodes cannot overlap the root's "exclusion radius"
 - Smooth, organic movement with gentle forces (no violent jittering)
@@ -54,6 +57,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 ### Container Sizing Strategy
 
 #### CSS Approach (Primary)
+
 ```css
 .stack-cloud-container {
   /* Modern browsers with dynamic viewport support */
@@ -71,6 +75,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 ```
 
 #### JavaScript Measurement
+
 1. Use a wrapper `ref` to get exact dimensions via `getBoundingClientRect()`
 2. Compute drawing area accounting for padding/margins
 3. Derive center point: `{ x: width / 2, y: height / 2 }`
@@ -79,6 +84,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
 ### Dynamic Viewport Handling
 
 #### Listeners Required
+
 1. **ResizeObserver** on wrapper element
    - Detects container size changes
    - Triggers geometry recomputation
@@ -93,6 +99,7 @@ Create a responsive, iOS Safari-compatible D3 force-directed visualization that 
    - Triggers simulation reheat with new bounds
 
 #### Recomputation Flow
+
 ```
 Viewport change detected
   ↓
@@ -112,6 +119,7 @@ Simulation settles to new layout
 ```
 
 ### Portrait/Landscape Adaptation
+
 - **Portrait**: Nodes may arrange in tighter vertical distribution
 - **Landscape**: Nodes spread wider horizontally
 - **Transition**: Smooth animation as simulation reheats and settles
@@ -122,18 +130,21 @@ Simulation settles to new layout
 ## Accessibility
 
 ### Motion
+
 - **Respect `prefers-reduced-motion`**:
   - If true: Set `alphaDecay` very high (0.9+) so simulation settles almost instantly
   - Alternative: Pause simulation after initial layout, show static positions
   - No continuous animation or floating effect
 
 ### ARIA & Semantics
+
 - SVG has `role="img"` or `role="application"` with `aria-label="Technology stack visualization"`
 - Root node: `aria-label="Root node"`
 - Each stack node: `aria-label="[Stack Name] technology"` (e.g., "React technology")
 - Grouping: Use `<g role="list">` for nodes, `<g role="listitem">` for each node
 
 ### Keyboard Navigation (Future-Ready)
+
 - Structure allows for tab navigation through nodes
 - Focus rings on nodes when focused
 - Enter/Space to activate (if interactive features added)
@@ -144,6 +155,7 @@ Simulation settles to new layout
 ## Performance
 
 ### Rendering Strategy
+
 - **Single SVG element**: One `<svg>` container, no nested SVG elements
 - **Group-based nodes**: Each node is a `<g>` with `transform="translate(x, y)"`
 - **Ref-based updates**: Store node elements in refs, update `transform` directly on each tick
@@ -151,18 +163,21 @@ Simulation settles to new layout
 - **requestAnimationFrame**: D3 handles this internally via `simulation.on('tick', handler)`
 
 ### Transform Pattern
+
 ```tsx
 // On each tick (outside React render)
-nodeRef.current?.setAttribute('transform', `translate(${d.x}, ${d.y})`);
+nodeRef.current?.setAttribute("transform", `translate(${d.x}, ${d.y})`);
 ```
 
 ### Icon Rendering
+
 - Use inline SVG React components from `Icon` object
 - Size icons with `viewBox` scaling, not image decoding
 - Center icons in nested `<g>` with `transform="translate(-50%, -50%)"` equivalent
 - Set `pointer-events: none` on icons to avoid interfering with node interactions
 
 ### Optimization Targets
+
 - 60fps animation on iPhone 12+
 - Simulation cools within 2-3 seconds for ~35 nodes
 - No jank during orientation change
@@ -196,10 +211,11 @@ nodeRef.current?.setAttribute('transform', `translate(${d.x}, ${d.y})`);
 
 5. **Custom Root Exclusion Force**
    - Pushes stack nodes away from root if they enter its exclusion radius
-   - Exclusion radius = root.radius + minDistance (e.g., root.radius * 1.2)
+   - Exclusion radius = root.radius + minDistance (e.g., root.radius \* 1.2)
    - Applied as radial force outward from root center
 
 ### Root Node Anchoring
+
 ```javascript
 rootNode.fx = centerX; // Fixed x position
 rootNode.fy = centerY; // Fixed y position
@@ -207,23 +223,25 @@ rootNode.fy = centerY; // Fixed y position
 ```
 
 ### Node Data Structure
+
 ```typescript
 type SimulationNode = {
-  id: string;           // Unique stack slug
-  name: string;         // Display name
-  radius: number;       // Node radius in px
-  iconKey: string;      // Icon component key
-  color: string;        // Border color (hex)
-  x?: number;           // D3-managed
-  y?: number;           // D3-managed
-  vx?: number;          // D3-managed velocity
-  vy?: number;          // D3-managed velocity
-  fx?: number | null;   // Fixed x (for root only)
-  fy?: number | null;   // Fixed y (for root only)
+  id: string; // Unique stack slug
+  name: string; // Display name
+  radius: number; // Node radius in px
+  iconKey: string; // Icon component key
+  color: string; // Border color (hex)
+  x?: number; // D3-managed
+  y?: number; // D3-managed
+  vx?: number; // D3-managed velocity
+  vy?: number; // D3-managed velocity
+  fx?: number | null; // Fixed x (for root only)
+  fy?: number | null; // Fixed y (for root only)
 };
 ```
 
 ### Simulation Lifecycle
+
 1. **Initialization**: Create simulation with all forces, `alpha(1)`, `alphaDecay(0.02)`
 2. **Tick**: Update DOM transforms (not React state)
 3. **Cool**: Simulation naturally decays to rest (`alpha < alphaMin`)
@@ -238,17 +256,20 @@ type SimulationNode = {
 **Location**: `src/utils/extractStacks.ts`
 
 **Function Signature**:
+
 ```typescript
-export function extractUniqueStacks(projects: Project[]): Stack[]
+export function extractUniqueStacks(projects: Project[]): Stack[];
 ```
 
 **Process**:
+
 1. Iterate through all projects
 2. Extract `stack` array from each project
 3. Collect unique stack items by `name` (deduplicate)
 4. Transform to `Stack` schema with icon and color mapping
 
 **Schema Definitions**:
+
 ```typescript
 // Based on existing data/projects.ts shape
 type Project = {
@@ -259,19 +280,19 @@ type Project = {
 };
 
 type StackItem = {
-  name: StackName;  // e.g., "React", "TypeScript"
+  name: StackName; // e.g., "React", "TypeScript"
   domain: Domain;
-  icon: string;     // Icon key from STACK_ICONS
+  icon: string; // Icon key from STACK_ICONS
   url?: string;
 };
 
 // Output schema for simulation
 type Stack = {
-  id: string;       // Normalized slug (e.g., "react")
-  name: StackName;  // Display name (e.g., "React")
-  iconKey: string;  // Icon component key from Icon object
-  color: string;    // Hex color from ICON_COLORS
-  domain: Domain;   // For future filtering/grouping
+  id: string; // Normalized slug (e.g., "react")
+  name: StackName; // Display name (e.g., "React")
+  iconKey: string; // Icon component key from Icon object
+  color: string; // Hex color from ICON_COLORS
+  domain: Domain; // For future filtering/grouping
 };
 ```
 
@@ -284,34 +305,36 @@ type Stack = {
 ## Icon and Color Mapping
 
 ### Existing Infrastructure
+
 - **Icons**: `src/components/icon.tsx` exports `Icon` object with all SVG components
 - **Mapping**: `src/utils/icon-colors.ts` provides `STACK_ICONS` (name → icon key) and `ICON_COLORS` (icon key → hex)
 - **Helper**: `getIconHexColor(iconName)` retrieves color with fallback
 
 ### Node Rendering Pattern
+
 ```tsx
 <g transform={`translate(${x}, ${y})`} className="stack-node">
   {/* Border circle */}
-  <circle
-    r={radius}
-    fill="none"
-    stroke={color}
-    strokeWidth={2}
-  />
+  <circle r={radius} fill="none" stroke={color} strokeWidth={2} />
 
   {/* Icon centered */}
-  <g transform={`translate(${-iconSize/2}, ${-iconSize/2})`} pointerEvents="none">
+  <g
+    transform={`translate(${-iconSize / 2}, ${-iconSize / 2})`}
+    pointerEvents="none"
+  >
     <IconComponent width={iconSize} height={iconSize} />
   </g>
 </g>
 ```
 
 ### Sizing
+
 - Node radius: 28-44px (depending on viewport size)
 - Icon size: 60-70% of node diameter (e.g., 35px icon in 56px node)
 - Border width: 2px
 
 ### Color Application
+
 - Use hex colors directly in `stroke` attribute
 - No need for Tailwind classes on SVG elements inside D3-managed nodes
 - Maintain color consistency with existing project design
@@ -321,9 +344,11 @@ type Stack = {
 ## iOS Safari Specifics
 
 ### Dynamic Viewport Units
+
 ✅ **Supported**: `dvh`, `dvw`, `svh`, `lvh` are fully supported in Safari 15.4+ (iOS 15.4+, March 2022)
 
 **Implementation**:
+
 ```css
 /* Primary: Dynamic units */
 height: 100dvh;
@@ -339,14 +364,17 @@ width: 100dvw;
 **Safe Area**: If full-bleed needed, consider `padding: env(safe-area-inset-*)`
 
 ### VisualViewport API
+
 ✅ **Supported**: Widely available in Safari (iOS 13+)
 
 **Purpose**:
+
 - Detect iOS toolbar show/hide (address bar, tab bar)
 - Detect keyboard appearance
 - Get accurate viewport dimensions accounting for UI chrome
 
 **Implementation**:
+
 ```typescript
 useEffect(() => {
   const handleViewportChange = () => {
@@ -357,23 +385,25 @@ useEffect(() => {
     }
   };
 
-  window.visualViewport?.addEventListener('resize', handleViewportChange);
-  window.visualViewport?.addEventListener('scroll', handleViewportChange);
+  window.visualViewport?.addEventListener("resize", handleViewportChange);
+  window.visualViewport?.addEventListener("scroll", handleViewportChange);
 
   return () => {
-    window.visualViewport?.removeEventListener('resize', handleViewportChange);
-    window.visualViewport?.removeEventListener('scroll', handleViewportChange);
+    window.visualViewport?.removeEventListener("resize", handleViewportChange);
+    window.visualViewport?.removeEventListener("scroll", handleViewportChange);
   };
 }, []);
 ```
 
 ### Touch Handling
+
 - **touch-action**: Set `touch-action: none` on SVG ONLY if drag is enabled (not in v1)
 - **Passive listeners**: Use `{ passive: true }` for scroll/wheel events to avoid blocking
 - **Pointer events**: Prefer `pointerdown`/`pointermove` over touch events for unified handling
 - **No drag in v1**: Skip drag implementation to avoid touch-action conflicts with page scroll
 
 ### Avoiding Common Pitfalls
+
 1. **100vh jump**: Avoided by using `100dvh` which accounts for dynamic UI
 2. **Touch delay**: Not applicable (no drag in v1)
 3. **Pinch-zoom conflicts**: Not applicable (no drag in v1)
@@ -385,6 +415,7 @@ useEffect(() => {
 ## Acceptance Criteria
 
 ### Functional Requirements
+
 - ✅ Single root node always centered, size = 40vmin of current viewport
 - ✅ Root node does not drift or move during simulation
 - ✅ All unique stacks from projects.ts rendered as nodes
@@ -394,6 +425,7 @@ useEffect(() => {
 - ✅ Stack nodes do not overlap root node
 
 ### Responsiveness
+
 - ✅ Container uses `100dvh`/`100dvw` with `100vh`/`100vw` fallback
 - ✅ Layout adapts smoothly to portrait ↔ landscape rotation
 - ✅ Root re-centers and resizes correctly on orientation change
@@ -401,12 +433,14 @@ useEffect(() => {
 - ✅ No "100vh jump" on iOS Safari
 
 ### Accessibility
+
 - ✅ Respects `prefers-reduced-motion` (instant settle or no animation)
 - ✅ SVG has descriptive `aria-label`
 - ✅ All nodes have accessible names
 - ✅ Keyboard navigation structure in place
 
 ### Performance
+
 - ✅ 60fps animation on iPhone 12/14/15/16
 - ✅ Simulation settles within 2-3 seconds with ~35 nodes
 - ✅ No visible jank during orientation change or scroll
@@ -414,6 +448,7 @@ useEffect(() => {
 - ✅ No React re-renders on simulation tick
 
 ### Browser Compatibility
+
 - ✅ iOS Safari (15.4+): Full support with dvh/VisualViewport
 - ✅ iOS Safari (13-15.3): Graceful fallback to vh with VisualViewport
 - ✅ Safari macOS (latest): Full support
@@ -426,25 +461,27 @@ useEffect(() => {
 
 ### Devices & Browsers
 
-| Device | Browser | Priority | Scenarios |
-|--------|---------|----------|-----------|
-| iPhone 12 | Safari | **High** | Portrait, landscape, toolbar, rotation |
-| iPhone 14/15 | Safari | **High** | Portrait, landscape, toolbar, rotation |
-| iPhone 16 | Safari | **High** | Portrait, landscape, toolbar, rotation |
-| iPad (any) | Safari | Medium | Portrait, landscape, rotation |
-| MacBook | Safari | Medium | Resize window, zoom |
-| Desktop | Chrome | Medium | Resize, zoom |
-| Desktop | Firefox | Low | Resize, zoom |
+| Device       | Browser | Priority | Scenarios                              |
+| ------------ | ------- | -------- | -------------------------------------- |
+| iPhone 12    | Safari  | **High** | Portrait, landscape, toolbar, rotation |
+| iPhone 14/15 | Safari  | **High** | Portrait, landscape, toolbar, rotation |
+| iPhone 16    | Safari  | **High** | Portrait, landscape, toolbar, rotation |
+| iPad (any)   | Safari  | Medium   | Portrait, landscape, rotation          |
+| MacBook      | Safari  | Medium   | Resize window, zoom                    |
+| Desktop      | Chrome  | Medium   | Resize, zoom                           |
+| Desktop      | Firefox | Low      | Resize, zoom                           |
 
 ### Test Scenarios
 
 #### 1. Initial Load
+
 - ✅ Root node centered on first paint
 - ✅ All stack nodes appear and settle smoothly
 - ✅ No console errors or warnings
 - ✅ Correct number of nodes (1 root + unique stacks)
 
 #### 2. Portrait ↔ Landscape Rotation
+
 - ✅ Root re-centers immediately
 - ✅ Root resizes to 40% of new `min(width, height)`
 - ✅ Stack nodes rearrange smoothly
@@ -452,23 +489,27 @@ useEffect(() => {
 - ✅ No flickering or jumping
 
 #### 3. iOS Toolbar Show/Hide
+
 - ✅ Container height adjusts via dvh or VisualViewport
 - ✅ Root remains centered during transition
 - ✅ No layout shift or content jump
 - ✅ Smooth adaptation (no jank)
 
 #### 4. Reduced Motion
+
 - ✅ Simulation settles instantly or near-instantly
 - ✅ No continuous floating animation
 - ✅ Final layout still valid and collision-free
 
 #### 5. Window Resize (Desktop)
+
 - ✅ Container resizes with window
 - ✅ Root re-centers and resizes correctly
 - ✅ Nodes redistribute smoothly
 - ✅ No visual glitches
 
 #### 6. Many Nodes (Stress Test)
+
 - ✅ ~35 unique stacks render smoothly
 - ✅ No performance degradation
 - ✅ Simulation settles in reasonable time
@@ -483,22 +524,24 @@ useEffect(() => {
 **File**: `src/utils/extractStacks.ts` (NEW FILE)
 
 **What to build**:
+
 ```typescript
 // Export type for simulation nodes
 export type Stack = {
-  id: string;          // Normalized slug: "react", "typescript"
-  name: StackName;     // Display name: "React", "TypeScript"
-  iconKey: string;     // Icon key: "BrandReact", "BrandTypescript"
-  color: string;       // Hex: "#61DAFB", "#3178C6"
-  domain: Domain;      // "Front-end", "Back-end", "DevOps", "Design"
-  parent?: string;     // Optional parent (e.g., "Tanstack")
+  id: string; // Normalized slug: "react", "typescript"
+  name: StackName; // Display name: "React", "TypeScript"
+  iconKey: string; // Icon key: "BrandReact", "BrandTypescript"
+  color: string; // Hex: "#61DAFB", "#3178C6"
+  domain: Domain; // "Front-end", "Back-end", "DevOps", "Design"
+  parent?: string; // Optional parent (e.g., "Tanstack")
 };
 
 // Main extraction function
-export function extractUniqueStacks(projects: Project[]): Stack[]
+export function extractUniqueStacks(projects: Project[]): Stack[];
 ```
 
 **Implementation details**:
+
 1. Import types from `~/data/projects` (Project, StackItem, Domain, StackName)
 2. Import utilities from `~/utils/icon-colors` (STACK_ICONS, getIconHexColor)
 3. Flatten all project.stack arrays
@@ -508,12 +551,10 @@ export function extractUniqueStacks(projects: Project[]): Stack[]
 7. Return Stack[]
 
 **Helper function**:
+
 ```typescript
 function normalizeStackName(name: string): string {
-  return name.toLowerCase()
-    .replace(/\./g, '')
-    .replace(/\s+/g, '-')
-    .trim();
+  return name.toLowerCase().replace(/\./g, "").replace(/\s+/g, "-").trim();
 }
 ```
 
@@ -528,6 +569,7 @@ function normalizeStackName(name: string): string {
 **File**: `src/components/stack-cloud.tsx` (NEW FILE)
 
 **What to build**:
+
 ```typescript
 'use client';
 
@@ -583,6 +625,7 @@ export function StackCloud() {
 ```
 
 **CSS** (add to `src/styles/globals.css`):
+
 ```css
 .stack-cloud-wrapper {
   width: 100%;
@@ -625,7 +668,7 @@ const measureContainer = useCallback(() => {
     height: rect.height,
     centerX: rect.width / 2,
     centerY: rect.height / 2,
-    rootRadius: vmin * 0.4 / 2,
+    rootRadius: (vmin * 0.4) / 2,
     stackRadius: vmin < 400 ? 22 : vmin < 600 ? 26 : 30,
   };
 }, []);
@@ -649,7 +692,7 @@ useEffect(() => {
           updateSimulation(measurements);
         }
       }
-    }, 100)
+    }, 100),
   );
 
   resizeObserver.observe(wrapperRef.current);
@@ -658,10 +701,11 @@ useEffect(() => {
 ```
 
 **Helper**: Add debounce utility if not present, or inline:
+
 ```typescript
 function debounce<T extends (...args: any[]) => void>(
   fn: T,
-  delay: number
+  delay: number,
 ): (...args: Parameters<T>) => void {
   let timeoutId: NodeJS.Timeout;
   return (...args: Parameters<T>) => {
@@ -676,32 +720,37 @@ function debounce<T extends (...args: any[]) => void>(
 ### Phase 4: Root Node Only ✅ READY TO IMPLEMENT
 
 **Simulation initialization**:
+
 ```typescript
-const initializeSimulation = useCallback((measurements: NonNullable<typeof dimensions>) => {
-  if (!svgRef.current) return;
+const initializeSimulation = useCallback(
+  (measurements: NonNullable<typeof dimensions>) => {
+    if (!svgRef.current) return;
 
-  const { centerX, centerY, rootRadius } = measurements;
+    const { centerX, centerY, rootRadius } = measurements;
 
-  // Create root node
-  const rootNode: SimulationNode = {
-    id: 'root',
-    type: 'root',
-    name: 'root',
-    radius: rootRadius,
-    x: centerX,
-    y: centerY,
-    fx: centerX,
-    fy: centerY,
-  };
+    // Create root node
+    const rootNode: SimulationNode = {
+      id: "root",
+      type: "root",
+      name: "root",
+      radius: rootRadius,
+      x: centerX,
+      y: centerY,
+      fx: centerX,
+      fy: centerY,
+    };
 
-  // Create simulation
-  const simulation = d3.forceSimulation<SimulationNode>([rootNode])
-    .alphaDecay(0.5)
-    .velocityDecay(0.7)
-    .on('tick', handleTick);
+    // Create simulation
+    const simulation = d3
+      .forceSimulation<SimulationNode>([rootNode])
+      .alphaDecay(0.5)
+      .velocityDecay(0.7)
+      .on("tick", handleTick);
 
-  simulationRef.current = simulation;
-}, []);
+    simulationRef.current = simulation;
+  },
+  [],
+);
 
 const handleTick = useCallback(() => {
   if (!simulationRef.current) return;
@@ -709,7 +758,7 @@ const handleTick = useCallback(() => {
   simulationRef.current.nodes().forEach((node) => {
     const el = nodesRef.current.get(node.id);
     if (el && node.x !== undefined && node.y !== undefined) {
-      el.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+      el.setAttribute("transform", `translate(${node.x}, ${node.y})`);
     }
   });
 }, []);
@@ -726,6 +775,7 @@ useEffect(() => {
 ```
 
 **JSX for root node**:
+
 ```typescript
 return (
   <div ref={wrapperRef} className="stack-cloud-wrapper">
@@ -742,7 +792,7 @@ return (
             if (el) nodesRef.current.set('root', el);
             else nodesRef.current.delete('root');
           }}
-          className="node root-node"
+          className="node"
           aria-label="Root node"
         >
           <circle
@@ -774,55 +824,68 @@ return (
 ### Phase 5: Add Stack Nodes ✅ READY TO IMPLEMENT
 
 **Update simulation initialization**:
+
 ```typescript
-const initializeSimulation = useCallback((measurements: NonNullable<typeof dimensions>) => {
-  const { centerX, centerY, rootRadius, stackRadius, width, height } = measurements;
+const initializeSimulation = useCallback(
+  (measurements: NonNullable<typeof dimensions>) => {
+    const { centerX, centerY, rootRadius, stackRadius, width, height } =
+      measurements;
 
-  // Root node
-  const rootNode: SimulationNode = {
-    id: 'root',
-    type: 'root',
-    name: 'root',
-    radius: rootRadius,
-    x: centerX,
-    y: centerY,
-    fx: centerX,
-    fy: centerY,
-  };
+    // Root node
+    const rootNode: SimulationNode = {
+      id: "root",
+      type: "root",
+      name: "root",
+      radius: rootRadius,
+      x: centerX,
+      y: centerY,
+      fx: centerX,
+      fy: centerY,
+    };
 
-  // Stack nodes
-  const stackNodes: SimulationNode[] = stacks.map((stack) => ({
-    id: stack.id,
-    type: 'stack',
-    name: stack.name,
-    radius: stackRadius,
-    iconKey: stack.iconKey,
-    color: stack.color,
-    // Random initial position (not overlapping root)
-    x: centerX + (Math.random() - 0.5) * width * 0.6,
-    y: centerY + (Math.random() - 0.5) * height * 0.6,
-  }));
+    // Stack nodes
+    const stackNodes: SimulationNode[] = stacks.map((stack) => ({
+      id: stack.id,
+      type: "stack",
+      name: stack.name,
+      radius: stackRadius,
+      iconKey: stack.iconKey,
+      color: stack.color,
+      // Random initial position (not overlapping root)
+      x: centerX + (Math.random() - 0.5) * width * 0.6,
+      y: centerY + (Math.random() - 0.5) * height * 0.6,
+    }));
 
-  const allNodes = [rootNode, ...stackNodes];
+    const allNodes = [rootNode, ...stackNodes];
 
-  // Create simulation with forces
-  const simulation = d3.forceSimulation<SimulationNode>(allNodes)
-    .force('center', d3.forceCenter(centerX, centerY).strength(0.05))
-    .force('collide', d3.forceCollide<SimulationNode>()
-      .radius(d => d.radius + 4)
-      .iterations(2)
-    )
-    .force('boundary', createBoundaryForce(width, height))
-    .force('rootExclusion', createRootExclusionForce(centerX, centerY, rootRadius))
-    .alphaDecay(0.02)
-    .velocityDecay(0.4)
-    .on('tick', handleTick);
+    // Create simulation with forces
+    const simulation = d3
+      .forceSimulation<SimulationNode>(allNodes)
+      .force("center", d3.forceCenter(centerX, centerY).strength(0.05))
+      .force(
+        "collide",
+        d3
+          .forceCollide<SimulationNode>()
+          .radius((d) => d.radius + 4)
+          .iterations(2),
+      )
+      .force("boundary", createBoundaryForce(width, height))
+      .force(
+        "rootExclusion",
+        createRootExclusionForce(centerX, centerY, rootRadius),
+      )
+      .alphaDecay(0.02)
+      .velocityDecay(0.4)
+      .on("tick", handleTick);
 
-  simulationRef.current = simulation;
-}, [stacks]);
+    simulationRef.current = simulation;
+  },
+  [stacks],
+);
 ```
 
 **Custom forces**:
+
 ```typescript
 function createBoundaryForce(width: number, height: number) {
   const padding = 10;
@@ -863,7 +926,8 @@ function createRootExclusionForce(cx: number, cy: number, rootRadius: number) {
   return () => {
     const nodes = simulationRef.current?.nodes() ?? [];
     nodes.forEach((node: SimulationNode) => {
-      if (node.fx !== undefined || node.x === undefined || node.y === undefined) return;
+      if (node.fx !== undefined || node.x === undefined || node.y === undefined)
+        return;
 
       const dx = node.x - cx;
       const dy = node.y - cy;
@@ -883,6 +947,7 @@ function createRootExclusionForce(cx: number, cy: number, rootRadius: number) {
 ```
 
 **JSX for stack nodes** (add after root node):
+
 ```typescript
 {stacks.map((stack) => {
   const IconComponent = Icon[stack.iconKey as keyof typeof Icon];
@@ -895,7 +960,6 @@ function createRootExclusionForce(cx: number, cy: number, rootRadius: number) {
         if (el) nodesRef.current.set(stack.id, el);
         else nodesRef.current.delete(stack.id);
       }}
-      className="node stack-node"
       aria-label={`${stack.name} technology`}
     >
       <circle
@@ -924,6 +988,7 @@ function createRootExclusionForce(cx: number, cy: number, rootRadius: number) {
 ### Phase 6: Viewport Adaptation ✅ READY TO IMPLEMENT
 
 **Add VisualViewport listener**:
+
 ```typescript
 useEffect(() => {
   if (!window.visualViewport) return;
@@ -936,50 +1001,67 @@ useEffect(() => {
     }
   }, 50);
 
-  window.visualViewport.addEventListener('resize', handleVisualViewportChange);
-  window.visualViewport.addEventListener('scroll', handleVisualViewportChange);
+  window.visualViewport.addEventListener("resize", handleVisualViewportChange);
+  window.visualViewport.addEventListener("scroll", handleVisualViewportChange);
 
   return () => {
-    window.visualViewport.removeEventListener('resize', handleVisualViewportChange);
-    window.visualViewport.removeEventListener('scroll', handleVisualViewportChange);
+    window.visualViewport.removeEventListener(
+      "resize",
+      handleVisualViewportChange,
+    );
+    window.visualViewport.removeEventListener(
+      "scroll",
+      handleVisualViewportChange,
+    );
   };
 }, [measureContainer]);
 ```
 
 **Update simulation on resize**:
+
 ```typescript
-const updateSimulation = useCallback((measurements: NonNullable<typeof dimensions>) => {
-  if (!simulationRef.current) return;
+const updateSimulation = useCallback(
+  (measurements: NonNullable<typeof dimensions>) => {
+    if (!simulationRef.current) return;
 
-  const { centerX, centerY, rootRadius, stackRadius, width, height } = measurements;
-  const nodes = simulationRef.current.nodes();
+    const { centerX, centerY, rootRadius, stackRadius, width, height } =
+      measurements;
+    const nodes = simulationRef.current.nodes();
 
-  // Update root
-  const rootNode = nodes[0];
-  if (rootNode) {
-    rootNode.fx = centerX;
-    rootNode.fy = centerY;
-    rootNode.radius = rootRadius;
-  }
+    // Update root
+    const rootNode = nodes[0];
+    if (rootNode) {
+      rootNode.fx = centerX;
+      rootNode.fy = centerY;
+      rootNode.radius = rootRadius;
+    }
 
-  // Update stack nodes radii
-  nodes.slice(1).forEach(node => {
-    node.radius = stackRadius;
-  });
+    // Update stack nodes radii
+    nodes.slice(1).forEach((node) => {
+      node.radius = stackRadius;
+    });
 
-  // Update forces
-  simulationRef.current
-    .force('center', d3.forceCenter(centerX, centerY).strength(0.05))
-    .force('collide', d3.forceCollide<SimulationNode>()
-      .radius(d => d.radius + 4)
-      .iterations(2)
-    )
-    .force('boundary', createBoundaryForce(width, height))
-    .force('rootExclusion', createRootExclusionForce(centerX, centerY, rootRadius));
+    // Update forces
+    simulationRef.current
+      .force("center", d3.forceCenter(centerX, centerY).strength(0.05))
+      .force(
+        "collide",
+        d3
+          .forceCollide<SimulationNode>()
+          .radius((d) => d.radius + 4)
+          .iterations(2),
+      )
+      .force("boundary", createBoundaryForce(width, height))
+      .force(
+        "rootExclusion",
+        createRootExclusionForce(centerX, centerY, rootRadius),
+      );
 
-  // Reheat simulation
-  simulationRef.current.alpha(0.3).restart();
-}, []);
+    // Reheat simulation
+    simulationRef.current.alpha(0.3).restart();
+  },
+  [],
+);
 ```
 
 **Checkpoint**: Rotation and resize work smoothly, root stays centered
@@ -989,9 +1071,12 @@ const updateSimulation = useCallback((measurements: NonNullable<typeof dimension
 ### Phase 7: Accessibility ✅ READY TO IMPLEMENT
 
 **Add reduced motion support**:
+
 ```typescript
 useEffect(() => {
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)",
+  ).matches;
 
   if (prefersReducedMotion && simulationRef.current) {
     simulationRef.current.alphaDecay(0.9); // Instant settle
@@ -1000,6 +1085,7 @@ useEffect(() => {
 ```
 
 **Update ARIA** (already included in JSX above):
+
 - SVG: `role="img"` ✅
 - SVG: `aria-label="Technology stack visualization"` ✅
 - Root node: `aria-label="Root node"` ✅
@@ -1014,6 +1100,7 @@ useEffect(() => {
 **File**: `src/app/page.tsx`
 
 **Edit**:
+
 ```tsx
 import { StackCloud } from "~/components/stack-cloud";
 
@@ -1022,7 +1109,7 @@ export default function HomePage() {
     <div className="flex justify-center">
       <main className="flex min-h-screen max-w-xl p-4 flex-col print:m-0 a4-page prose w-full">
         <SearchInput />
-        <StackCloud />  {/* ADD THIS */}
+        <StackCloud /> {/* ADD THIS */}
         <Experience />
         <Contact />
         <Footer />
@@ -1039,22 +1126,26 @@ export default function HomePage() {
 ### Phase 9: Polish & Verification
 
 **Add to package.json** (if D3 not installed):
+
 ```bash
 npm install d3 @types/d3
 ```
 
 **Run checks**:
+
 1. `npm run lint` - Fix any linting issues
 2. `npm run build` - Ensure build succeeds
 3. `npm run dev` - Test in browser
 
 **Test matrix**:
+
 - ✅ Desktop: Resize window, verify layout adapts
 - ✅ Mobile: Rotate device, verify smooth adaptation
 - ✅ iOS Safari: Scroll to hide toolbar, verify centering
 - ✅ Reduced motion: Enable in system settings, verify instant settle
 
 **Final checklist**:
+
 - [ ] 36 nodes render (1 root + 35 stacks)
 - [ ] Root always centered
 - [ ] No node overlap
@@ -1070,39 +1161,41 @@ npm install d3 @types/d3
 
 ## iOS Safari Readiness Checklist
 
-| Requirement | Status | Implementation |
-|-------------|--------|----------------|
-| **Dynamic viewport units** | ✅ Specified | `100dvh`/`100dvw` with `@supports` fallback to `100vh`/`100vw` |
-| **VisualViewport API** | ✅ Specified | Event listeners for `resize` and `scroll` on `window.visualViewport` |
-| **Portrait/Landscape adaptation** | ✅ Specified | Media query + recompute on orientation change, reheat simulation |
-| **Touch handling** | ✅ Specified | Passive listeners, no drag in v1 (no `touch-action` conflicts) |
-| **Reduced motion** | ✅ Specified | High `alphaDecay` (0.9+) or instant settle when `prefers-reduced-motion` |
-| **Safe area insets** | 📋 Noted | Optional `padding: env(safe-area-inset-*)` if full-bleed container |
-| **No 100vh jump** | ✅ Specified | Solved by `100dvh` usage |
-| **Performance on mobile** | ✅ Specified | Single SVG, transform updates, ref-based, no React re-renders on tick |
+| Requirement                       | Status       | Implementation                                                           |
+| --------------------------------- | ------------ | ------------------------------------------------------------------------ |
+| **Dynamic viewport units**        | ✅ Specified | `100dvh`/`100dvw` with `@supports` fallback to `100vh`/`100vw`           |
+| **VisualViewport API**            | ✅ Specified | Event listeners for `resize` and `scroll` on `window.visualViewport`     |
+| **Portrait/Landscape adaptation** | ✅ Specified | Media query + recompute on orientation change, reheat simulation         |
+| **Touch handling**                | ✅ Specified | Passive listeners, no drag in v1 (no `touch-action` conflicts)           |
+| **Reduced motion**                | ✅ Specified | High `alphaDecay` (0.9+) or instant settle when `prefers-reduced-motion` |
+| **Safe area insets**              | 📋 Noted     | Optional `padding: env(safe-area-inset-*)` if full-bleed container       |
+| **No 100vh jump**                 | ✅ Specified | Solved by `100dvh` usage                                                 |
+| **Performance on mobile**         | ✅ Specified | Single SVG, transform updates, ref-based, no React re-renders on tick    |
 
 ---
 
 ## Open Questions & Risks
 
 ### Questions
+
 1. ✅ **Drag interactions**: Confirmed NO drag in v1 for iOS Safari robustness
 2. ✅ **Icon/color mapping**: Confirmed existing system covers all stacks
 3. 📋 **Interactive behaviors**: Should clicking a stack node filter projects or navigate? (For v2)
 4. 📋 **Animation duration**: Should simulation settle faster on mobile to save battery?
 
 ### Risks
+
 1. **Performance on older devices**: iPhone 8/X may struggle with 35+ nodes
-   - *Mitigation*: Test on older devices, reduce node count or force iterations if needed
+   - _Mitigation_: Test on older devices, reduce node count or force iterations if needed
 
 2. **Safari 13-15.3 without dvh**: Fallback to `vh` may cause minor toolbar jump
-   - *Mitigation*: VisualViewport listeners still adjust layout; acceptable degradation
+   - _Mitigation_: VisualViewport listeners still adjust layout; acceptable degradation
 
 3. **Icon rendering weight**: 35 inline SVGs may be heavy
-   - *Mitigation*: Icons are already optimized, use `pointer-events: none`, test memory usage
+   - _Mitigation_: Icons are already optimized, use `pointer-events: none`, test memory usage
 
 4. **Simulation stability edge cases**: Nodes may jitter if forces are imbalanced
-   - *Mitigation*: Tune force strengths during implementation, add velocity damping if needed
+   - _Mitigation_: Tune force strengths during implementation, add velocity damping if needed
 
 ---
 

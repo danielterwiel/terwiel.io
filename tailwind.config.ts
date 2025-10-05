@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 import { fontFamily } from "tailwindcss/defaultTheme";
 
-import { DOMAIN_COLORS } from "./src/constants/domain-colors";
+import { DOMAIN_COLORS, KLEIN_BLUE } from "./src/constants/colors";
 import {
   generateIconSafelist,
   generateTailwindIconColors,
@@ -31,7 +31,7 @@ export default {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
       colors: {
-        klein: "#002FA7",
+        klein: KLEIN_BLUE,
         ...generateTailwindIconColors(),
         // Domain colors - muted glassmorphic palette harmonizing with Klein Blue
         domain: {

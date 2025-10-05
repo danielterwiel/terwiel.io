@@ -1,15 +1,20 @@
 import * as d3 from "d3";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useEffect, useMemo, useRef } from "react";
 
+import type { Domain } from "~/data/projects";
 import type { Dimensions } from "~/types/simulation";
-import { DOMAIN_COLORS } from "~/constants/domain-colors";
+import { DOMAIN_COLORS, KLEIN_BLUE } from "~/constants/colors";
 import { PROJECTS } from "~/data/projects";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
+import { matchesDomainName } from "~/utils/get-domain-names";
+import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
 
 interface RootNodeProps {
   dimensions: Dimensions;
   nodeRef: (el: SVGGElement | null) => void;
+  onDomainHover?: (domain: Domain | null) => void;
 }
 
 interface PieSegmentData {
@@ -23,8 +28,19 @@ interface PieSegmentData {
  * Root node component for the stack visualization
  * Displays the centered "root" node with a domain pie chart using d3
  */
-export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
+export function RootNode({
+  dimensions,
+  nodeRef,
+  onDomainHover,
+}: RootNodeProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const pieChartRef = useRef<SVGGElement>(null);
+  const hasAnimatedRef = useRef(false);
+  const matchedDomainRef = useRef<string | null>(null);
+
+  const currentSearchQuery = getSearchQuery(searchParams);
 
   const domainExperiences = useMemo(
     () => calculateDomainExperiences(PROJECTS),
@@ -48,7 +64,14 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
   useEffect(() => {
     if (!pieChartRef.current) return;
 
+    // Clear hover state when recreating the pie chart
+    onDomainHover?.(null);
+
     const svg = d3.select(pieChartRef.current);
+
+    // Check if current search query matches a domain and store in ref
+    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    matchedDomainRef.current = matchedDomain;
 
     // Clear existing content
     svg.selectAll("*").remove();
@@ -74,33 +97,53 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
     // Generate pie segments
     const arcs = pie(pieData);
 
-    // Create clip path for radar sweep animation
-    const defs = svg.append("defs");
-    const clipPath = defs
-      .append("clipPath")
-      .attr("id", `radar-sweep-${Math.random().toString(36).substr(2, 9)}`);
+    // Determine if we should animate (only on first render)
+    const shouldAnimate = !hasAnimatedRef.current;
 
-    const clipPathId = clipPath.attr("id");
+    interface SweepDatum {
+      startAngle: number;
+      endAngle: number;
+      innerRadius: number;
+      outerRadius: number;
+    }
 
-    // Create sweep arc (a wedge that grows from 0° to 360°)
-    const sweepArc = d3
-      .arc()
-      .innerRadius(0)
-      .outerRadius(pieRadius * 1.5); // Larger than pie to ensure full coverage
+    let clipPathId: string | undefined;
+    let sweepPath:
+      | d3.Selection<SVGPathElement, SweepDatum, null, undefined>
+      | undefined;
+    let sweepArc: d3.Arc<unknown, SweepDatum> | undefined;
 
-    // Create the sweeping wedge path
-    const sweepPath = clipPath
-      .append("path")
-      .datum({
-        startAngle: 0,
-        endAngle: 0,
-        innerRadius: 0,
-        outerRadius: pieRadius * 1.5,
-      })
-      .attr("d", sweepArc as unknown as string);
+    if (shouldAnimate) {
+      // Create clip path for pie chart radar sweep animation
+      const defs = svg.append("defs");
+      const clipPath = defs
+        .append("clipPath")
+        .attr("id", `radar-sweep-${Math.random().toString(36).substr(2, 9)}`);
 
-    // Create a group for all pie segments with clip-path applied
-    const pieGroup = svg.append("g").attr("clip-path", `url(#${clipPathId})`);
+      clipPathId = clipPath.attr("id");
+
+      // Create sweep arc (a wedge that grows from 0° to 360°)
+      sweepArc = d3
+        .arc<SweepDatum>()
+        .innerRadius(0)
+        .outerRadius(pieRadius * 1.5); // Larger than pie to ensure full coverage
+
+      // Create the sweeping wedge path
+      sweepPath = clipPath
+        .append("path")
+        .datum<SweepDatum>({
+          startAngle: 0,
+          endAngle: 0,
+          innerRadius: 0,
+          outerRadius: pieRadius * 1.5,
+        })
+        .attr("d", sweepArc as unknown as string);
+    }
+
+    // Create a group for all pie segments
+    const pieGroup = svg
+      .append("g")
+      .attr("clip-path", shouldAnimate ? `url(#${clipPathId})` : null);
 
     // Create all pie segments (fully rendered)
     const paths = pieGroup
@@ -109,63 +152,98 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
       .enter()
       .append("path")
       .attr("fill", (d) => d.data.color)
-      .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
+      .attr(
+        "class",
+        (d) =>
+          `pie-segment magnetic-base magnetic-rounded-full${matchedDomain === d.data.domain ? " magnetic-hover" : ""}`,
+      )
       .attr("cursor", "pointer")
-      .style("opacity", "0.4")
+      .style("opacity", (d) =>
+        matchedDomain === d.data.domain ? "0.7" : "0.4",
+      )
       .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
-      .attr("d", arc);
+      .attr("d", (d) =>
+        matchedDomain === d.data.domain ? (hoverArc(d) ?? "") : (arc(d) ?? ""),
+      );
 
     // Title for accessibility
     paths.append("title").text((d) => {
       return `${d.data.domain}: ${d.data.percentage.toFixed(1)}%`;
     });
 
-    // Animate the sweep wedge from 0 to 2π
-    sweepPath
-      .transition()
-      .duration(1500)
-      .attrTween("d", (d) => {
-        const interpolate = d3.interpolate(0, Math.PI * 2);
-        return (t) => {
-          d.endAngle = interpolate(t);
-          return sweepArc(d) as string;
-        };
-      })
-      .on("end", () => {
-        // After sweep completes, remove clip-path and add hover interactions
-        pieGroup.attr("clip-path", null);
+    const setupHoverInteractions = () => {
+      paths
+        .on("mouseenter", function () {
+          const datum = d3
+            .select(this)
+            .datum() as d3.PieArcDatum<PieSegmentData>;
+          d3.select(this)
+            .classed("magnetic-hover", true)
+            .style("opacity", "0.7")
+            .transition()
+            .duration(200)
+            .attr("d", hoverArc(datum) ?? "");
+          // Notify parent component of domain hover
+          onDomainHover?.(datum.data.domain as Domain);
+        })
+        .on("mouseleave", function () {
+          const datum = d3
+            .select(this)
+            .datum() as d3.PieArcDatum<PieSegmentData>;
+          // Check if this segment's domain is selected (read from ref for current value)
+          const isSelected = matchedDomainRef.current === datum.data.domain;
+          d3.select(this)
+            .classed("magnetic-hover", isSelected)
+            .style("opacity", isSelected ? "0.7" : "0.4")
+            .transition()
+            .duration(200)
+            .attr(
+              "d",
+              isSelected ? (hoverArc(datum) ?? "") : (arc(datum) ?? ""),
+            );
+          // Clear domain hover
+          onDomainHover?.(null);
+        })
+        .on("click", function () {
+          const datum = d3
+            .select(this)
+            .datum() as d3.PieArcDatum<PieSegmentData>;
+          // Toggle URL search params with domain name
+          const queryString = toggleSearchParam(
+            currentSearchQuery,
+            datum.data.domain,
+          );
+          router.push(`${pathname}${queryString}`);
+        });
+    };
 
-        // Hover interactions
-        paths
-          .on("mouseenter", function () {
-            const datum = d3
-              .select(this)
-              .datum() as d3.PieArcDatum<PieSegmentData>;
-            d3.select(this)
-              .classed("magnetic-hover", true)
-              .style("opacity", "0.7")
-              .transition()
-              .duration(200)
-              .attr("d", hoverArc(datum) ?? "");
-          })
-          .on("mouseleave", function () {
-            const datum = d3
-              .select(this)
-              .datum() as d3.PieArcDatum<PieSegmentData>;
-            d3.select(this)
-              .classed("magnetic-hover", false)
-              .style("opacity", "0.4")
-              .transition()
-              .duration(200)
-              .attr("d", arc(datum) ?? "");
-          });
-      });
-  }, [pieData, pieRadius]);
+    if (shouldAnimate && sweepPath && sweepArc) {
+      // Animate the sweep wedge from 0 to 2π
+      sweepPath
+        .transition()
+        .duration(1500)
+        .attrTween("d", (d) => {
+          const interpolate = d3.interpolate(0, Math.PI * 2);
+          return (t) => {
+            d.endAngle = interpolate(t);
+            return (sweepArc?.(d) as string) ?? "";
+          };
+        })
+        .on("end", () => {
+          // After sweep completes, remove clip-path and add hover interactions
+          pieGroup.attr("clip-path", null);
+          hasAnimatedRef.current = true;
+          setupHoverInteractions();
+        });
+    } else {
+      // No animation, setup interactions immediately
+      setupHoverInteractions();
+    }
+  }, [pieData, pieRadius, onDomainHover, router, pathname, currentSearchQuery]);
 
   return (
     <g
       ref={nodeRef}
-      className="node root-node"
       aria-label="Root node with domain distribution"
       transform={`translate(${dimensions.centerX}, ${dimensions.centerY})`}
     >
@@ -176,7 +254,7 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
       <circle
         r={dimensions.rootRadius}
         fill="none"
-        stroke="#002FA7"
+        stroke={KLEIN_BLUE}
         strokeWidth={0.1}
         className="magnetic-base magnetic-rounded-full"
         style={{
@@ -189,7 +267,7 @@ export function RootNode({ dimensions, nodeRef }: RootNodeProps) {
         textAnchor="middle"
         dominantBaseline="central"
         fontSize={dimensions.rootRadius * 0.2}
-        fill="#002FA7"
+        fill={KLEIN_BLUE}
         fontWeight="600"
         style={{
           animation: "fadeIn 0.4s ease-out 2s both",
