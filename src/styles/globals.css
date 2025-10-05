@@ -53,6 +53,11 @@
 }
 
 @layer components {
+  /* Remove default focus outline from SVG interactive elements */
+  svg [role="button"]:focus {
+    outline: none;
+  }
+
   .icon-container {
     display: flex;
     align-items: center;
