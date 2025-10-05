@@ -181,7 +181,9 @@ export function RootNode({
       .attr("fill", (d) => d.data.color)
       .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
       .attr("cursor", "pointer")
-      .style("opacity", (d) => (matchedDomain === d.data.domain ? "0" : "1.0"))
+      .style("opacity", (d) =>
+        matchedDomain === d.data.domain ? "0.5" : "1.0",
+      )
       .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
       .attr("d", (d) =>
         matchedDomain === d.data.domain
@@ -207,7 +209,7 @@ export function RootNode({
             .transition()
             .duration(200)
             .ease(d3.easeCubicOut)
-            .style("opacity", isSelected ? "0.5" : "0.7")
+            .style("opacity", "1.0")
             .attrTween("d", function () {
               const interpolate = d3.interpolate(
                 d3.select(this).attr("d"),
@@ -232,7 +234,7 @@ export function RootNode({
             .transition()
             .duration(200)
             .ease(d3.easeCubicOut)
-            .style("opacity", isSelected ? "0" : "1.0")
+            .style("opacity", isSelected ? "0.5" : "1.0")
             .attrTween("d", function () {
               const interpolate = d3.interpolate(
                 d3.select(this).attr("d"),
