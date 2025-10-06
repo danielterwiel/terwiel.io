@@ -1,5 +1,6 @@
 import "~/styles/globals.css";
 
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
@@ -7,14 +8,10 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Daniël Terwiel - Developer",
   description:
     "An accomplished developer with a focus on the web, architecture, performance, accessibility",
-  visualViewport: {
-    name: "theme-color",
-    content: "#d9723f",
-  },
   openGraph: {
     title: "Daniël Terwiel - Developer",
     description:

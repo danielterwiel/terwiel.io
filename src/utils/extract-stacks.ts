@@ -64,14 +64,7 @@ export function extractUniqueStacks(projects: Project[]): Stack[] {
     }
   }
 
-  // Second pass: add children arrays to parent stacks
   const stacks = Array.from(stackMap.values());
-  for (const stack of stacks) {
-    const children = parentChildrenMap.get(stack.name);
-    if (children && children.size > 0) {
-      stack.children = Array.from(children).sort();
-    }
-  }
 
   // Sort alphabetically by name
   return stacks.sort((a, b) => a.name.localeCompare(b.name));
