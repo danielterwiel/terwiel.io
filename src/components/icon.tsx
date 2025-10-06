@@ -17,6 +17,7 @@ import BrandSpeedtest from "../images/icons/brand-speedtest.svg";
 import BrandTailwind from "../images/icons/brand-tailwind.svg";
 import BrandTanstack from "../images/icons/brand-tanstack.svg";
 import BrandTypescript from "../images/icons/brand-typescript.svg";
+import BrandPowershell from "../images/icons/brand-powershell.svg";
 import BrandVercel from "../images/icons/brand-vercel.svg";
 import BrandVisualStudio from "../images/icons/brand-visual-studio.svg";
 import BrandVite from "../images/icons/brand-vite.svg";
@@ -91,6 +92,7 @@ const icons = {
   BrandVitest,
   BrandVue,
   BrandXstate,
+  BrandPowershell,
   BuildingBank,
   BuildingFactory2,
   BuildingWarehouse,

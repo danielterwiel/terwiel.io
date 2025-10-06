@@ -1,9 +1,11 @@
 import type { Project } from "~/data/projects";
+import { getStackParent } from "~/utils/get-stack-parent";
 
 let cachedStackNames: string[] | null = null;
 
 /**
  * Get all unique stack names from projects (memoized)
+ * Returns effective names (parent if exists, otherwise stack name)
  */
 export function getAllStackNames(projects: Project[]): string[] {
   if (cachedStackNames) return cachedStackNames;
@@ -12,7 +14,8 @@ export function getAllStackNames(projects: Project[]): string[] {
 
   for (const project of projects) {
     for (const stackItem of project.stack) {
-      stackNames.add(stackItem.name);
+      // Use parent name if it exists, otherwise use the stack name
+      stackNames.add(getStackParent(stackItem));
     }
   }
 
@@ -21,8 +24,8 @@ export function getAllStackNames(projects: Project[]): string[] {
 }
 
 /**
- * Check if a search query matches any stack name (case-insensitive, word start match)
- * Returns true if the query matches the start of any stack name
+ * Check if a search query matches any stack name (case-insensitive, exact match)
+ * Returns true if the query matches any stack name or parent name
  */
 export function matchesAnyStackName(
   query: string,

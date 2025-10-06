@@ -120,7 +120,7 @@ export function StackCloudContent() {
     } else {
       setHoveredStack(null);
     }
-  }, [stacks, searchParams, selectedStack]);
+  }, [searchParams, selectedStack]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">

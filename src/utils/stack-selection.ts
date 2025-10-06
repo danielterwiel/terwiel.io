@@ -4,6 +4,7 @@ import type { Project } from "~/data/projects";
 import type { Stack } from "~/utils/extract-stacks";
 import { filterProjects } from "~/utils/filter-projects";
 import { matchesDomainName } from "~/utils/get-domain-names";
+import { matchesParent } from "~/utils/get-stack-parent";
 import { matchesAnyStackName } from "~/utils/matches-stack-name";
 import { getSearchQuery } from "~/utils/search-params";
 
@@ -60,9 +61,12 @@ export function isStackSelected(
   // check if this stack is used in filtered projects
   const filteredProjects = filterProjects(projects, searchQuery);
   const stackUsedInFilteredProjects = filteredProjects.some((project) =>
-    project.stack.some(
-      (s) => normalizeStackName(s.name) === normalizeStackName(stack.name),
-    ),
+    project.stack.some((s) => {
+      // Match by parent or name
+      if (matchesParent(s, stack.name)) return true;
+      // Also match by normalized name for backwards compatibility
+      return normalizeStackName(s.name) === normalizeStackName(stack.name);
+    }),
   );
 
   return stackUsedInFilteredProjects;
