@@ -9,8 +9,6 @@ import { PROJECTS } from "~/data/projects";
 import { calculateDomainExperience } from "~/utils/calculate-domain-experience";
 import { calculateStackExperience } from "~/utils/calculate-stack-experience";
 import { calculateTotalExperience } from "~/utils/calculate-total-experience";
-import { countProjectsByDomain } from "~/utils/count-projects-by-domain";
-import { countProjectsByStack } from "~/utils/count-projects-by-stack";
 import { ExperienceTicker } from "./experience-ticker";
 
 interface RootNodeExperienceProps {
@@ -24,6 +22,7 @@ interface RootNodeExperienceProps {
   } | null;
   hoveredDomain?: Domain | null;
   isActiveHover?: boolean;
+  isInitialAnimating?: boolean;
 }
 
 type DisplayMode = "default" | "stack" | "domain";
@@ -37,6 +36,7 @@ export function RootNodeExperience({
   hoveredStack,
   hoveredDomain,
   isActiveHover = false,
+  isInitialAnimating = false,
 }: RootNodeExperienceProps) {
   // Determine display mode: active hover (stack or domain) overrides selected
   // Priority: active stack hover > domain hover > selected stack > default
@@ -63,17 +63,6 @@ export function RootNodeExperience({
     return calculateDomainExperience(PROJECTS, hoveredDomain);
   }, [hoveredDomain]);
 
-  // Count projects
-  const projectCount = useMemo(() => {
-    if (hoveredStack) {
-      return countProjectsByStack(PROJECTS, hoveredStack.name);
-    }
-    if (hoveredDomain) {
-      return countProjectsByDomain(PROJECTS, hoveredDomain);
-    }
-    return 0;
-  }, [hoveredStack, hoveredDomain]);
-
   // Mobile-first font sizing with minimum threshold - reduced by 20%
   const baseFontSize = Math.max(9.6, dimensions.rootRadius * 0.144);
   const iconSize = Math.max(16, dimensions.rootRadius * 0.24);
@@ -93,15 +82,14 @@ export function RootNodeExperience({
         className="flex h-full w-full flex-col items-center justify-center gap-1"
         style={{
           fontSize: baseFontSize,
-          textShadow: "0 1px 3px rgba(0, 0, 0, 0.4)",
           position: "fixed",
         }}
       >
         {/* Container 1: Title/Icon */}
         <div
-          className="flex w-full flex-col items-center justify-center transition-all duration-300"
+          className="flex w-full flex-col items-center justify-start transition-all duration-150"
           style={{
-            minHeight: iconSize * 1.5,
+            minHeight: iconSize * 2,
             maxWidth: "100%",
             color,
           }}
@@ -113,7 +101,6 @@ export function RootNodeExperience({
                   width: iconSize,
                   height: iconSize,
                   color,
-                  filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
                 }}
               >
                 <Icon.ChartPie
@@ -125,9 +112,8 @@ export function RootNodeExperience({
               <div
                 className="text-center font-semibold leading-tight"
                 style={{
-                  fontSize: "0.76em",
+                  fontSize: "1em",
                   marginTop: "0.25em",
-                  textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
                 }}
               >
                 Experience
@@ -143,7 +129,6 @@ export function RootNodeExperience({
                     width: iconSize,
                     height: iconSize,
                     color,
-                    filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
                   }}
                 >
                   {(() => {
@@ -162,9 +147,8 @@ export function RootNodeExperience({
               <div
                 className="text-center font-semibold leading-tight"
                 style={{
-                  fontSize: "0.76em",
+                  fontSize: "1em",
                   marginTop: "0.25em",
-                  textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -185,7 +169,6 @@ export function RootNodeExperience({
                       width: iconSize,
                       height: iconSize,
                       color,
-                      filter: "drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5))",
                     }}
                   >
                     {(() => {
@@ -204,9 +187,8 @@ export function RootNodeExperience({
               <div
                 className="text-center font-semibold leading-tight"
                 style={{
-                  fontSize: "0.76em",
+                  fontSize: "1em",
                   marginTop: "0.25em",
-                  textShadow: "0 2px 4px rgba(0, 0, 0, 0.5)",
                 }}
               >
                 {hoveredDomain}
@@ -219,7 +201,7 @@ export function RootNodeExperience({
         <div
           className="flex w-full items-center justify-center transition-all duration-300"
           style={{
-            minHeight: baseFontSize * 2.2,
+            minHeight: baseFontSize * 2.95,
             maxWidth: "100%",
           }}
         >
@@ -228,6 +210,7 @@ export function RootNodeExperience({
               years={totalExperience.years}
               months={totalExperience.months}
               color={color}
+              isInitialAnimating={isInitialAnimating}
             />
           )}
 
@@ -245,30 +228,6 @@ export function RootNodeExperience({
               months={domainExperience.months}
               color={color}
             />
-          )}
-        </div>
-
-        {/* Container 3: Project count (muted) */}
-        <div
-          className="flex w-full items-center justify-center transition-all duration-300"
-          style={{
-            minHeight: baseFontSize * 1.5,
-            maxWidth: "100%",
-            opacity: displayMode !== "default" ? 0.5 : 0,
-            color,
-          }}
-        >
-          {displayMode !== "default" && (
-            <div
-              className="text-center leading-tight"
-              style={{
-                fontSize: "0.75em",
-                textShadow: "0 1px 2px rgba(0, 0, 0, 0.4)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {projectCount} {projectCount === 1 ? "project" : "projects"}
-            </div>
           )}
         </div>
       </div>
