@@ -4,6 +4,7 @@ interface ExperienceTickerProps {
   years: number;
   months: number;
   color?: string;
+  isInitialAnimating?: boolean;
 }
 
 /**
@@ -14,38 +15,78 @@ export function ExperienceTicker({
   years,
   months,
   color = "#002FA7",
+  isInitialAnimating = false,
 }: ExperienceTickerProps) {
   const [isAnimating, setIsAnimating] = useState(false);
-  const [displayYears, setDisplayYears] = useState(years);
-  const [displayMonths, setDisplayMonths] = useState(months);
+  const [displayYears, setDisplayYears] = useState(
+    isInitialAnimating ? 0 : years,
+  );
+  const [displayMonths, setDisplayMonths] = useState(
+    isInitialAnimating ? 0 : months,
+  );
   const prevYearsRef = useRef(years);
   const prevMonthsRef = useRef(months);
+  const hasCountedUpRef = useRef(!isInitialAnimating);
+
+  // Handle initial count-up animation
+  useEffect(() => {
+    if (isInitialAnimating && !hasCountedUpRef.current) {
+      // Count up animation from 0 to target values over 1500ms
+      const duration = 1500;
+      const startTime = performance.now();
+      const targetYears = years;
+      const targetMonths = months;
+
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Linear progression - equal time for each step
+        setDisplayYears(Math.floor(targetYears * progress));
+        setDisplayMonths(Math.floor(targetMonths * progress));
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          // Ensure we end exactly on target values
+          setDisplayYears(targetYears);
+          setDisplayMonths(targetMonths);
+          hasCountedUpRef.current = true;
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+  }, [isInitialAnimating, years, months]);
 
   useEffect(() => {
-    // Check if values actually changed
-    if (years !== prevYearsRef.current || months !== prevMonthsRef.current) {
-      // Start animation
-      setIsAnimating(true);
+    // Only do slide animation after initial count-up is complete
+    if (!isInitialAnimating && hasCountedUpRef.current) {
+      // Check if values actually changed
+      if (years !== prevYearsRef.current || months !== prevMonthsRef.current) {
+        // Start animation
+        setIsAnimating(true);
 
-      // After exit animation, update values
-      const updateTimer = setTimeout(() => {
-        setDisplayYears(years);
-        setDisplayMonths(months);
-      }, 150); // Half of animation duration for exit
+        // After exit animation, update values
+        const updateTimer = setTimeout(() => {
+          setDisplayYears(years);
+          setDisplayMonths(months);
+        }, 150); // Half of animation duration for exit
 
-      // Reset animation state
-      const resetTimer = setTimeout(() => {
-        setIsAnimating(false);
-        prevYearsRef.current = years;
-        prevMonthsRef.current = months;
-      }, 300); // Full animation duration
+        // Reset animation state
+        const resetTimer = setTimeout(() => {
+          setIsAnimating(false);
+          prevYearsRef.current = years;
+          prevMonthsRef.current = months;
+        }, 300); // Full animation duration
 
-      return () => {
-        clearTimeout(updateTimer);
-        clearTimeout(resetTimer);
-      };
+        return () => {
+          clearTimeout(updateTimer);
+          clearTimeout(resetTimer);
+        };
+      }
     }
-  }, [years, months]);
+  }, [years, months, isInitialAnimating]);
 
   // Safeguard against NaN
   const safeYears = Number.isNaN(displayYears) ? 0 : displayYears;

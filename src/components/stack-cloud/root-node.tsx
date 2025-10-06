@@ -51,6 +51,7 @@ export function RootNode({
   const hasAnimatedRef = useRef(false);
   const matchedDomainRef = useRef<string | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+  const [isAnimating, setIsAnimating] = useState(true);
 
   const currentSearchQuery = getSearchQuery(searchParams);
 
@@ -100,23 +101,35 @@ export function RootNode({
       .value((d) => d.value)
       .sort(null); // Maintain order
 
-    // Define arc states for smooth transitions
-    const RING_THICKNESS = pieRadius * 0.15; // Thickness of the ring border
+    // Define arc states
+    const RING_THICKNESS = pieRadius * 0.1; // Thickness of the ring border
 
-    // Default arc: ring/donut style (hollow)
+    // Default arc: ring/donut style (hollow) - idle state
     const arc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(pieRadius - RING_THICKNESS)
       .outerRadius(pieRadius);
 
-    // Hover arc: ring grows outward (1.75x thicker)
+    // Hover arc: filled from center
     const hoverArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
-      .innerRadius(pieRadius - RING_THICKNESS)
-      .outerRadius(pieRadius + RING_THICKNESS * 0.75);
+      .innerRadius(0)
+      .outerRadius(pieRadius);
 
-    // Selected arc: filled from center
+    // Selected arc: double-thickness ring growing outward (2x the size)
     const selectedArc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(pieRadius - RING_THICKNESS)
+      .outerRadius(pieRadius + RING_THICKNESS);
+
+    // Selected + hover arc: filled from center, growing outward
+    const selectedHoverArc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(0)
+      .outerRadius(pieRadius + RING_THICKNESS);
+
+    // Invisible hit area arc: always full segment for better mobile interaction
+    const hitAreaArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(0)
       .outerRadius(pieRadius);
@@ -172,51 +185,64 @@ export function RootNode({
       .append("g")
       .attr("clip-path", shouldAnimate ? `url(#${clipPathId})` : null);
 
-    // Create all pie segments (fully rendered)
-    const paths = pieGroup
-      .selectAll("path")
+    // Create groups for each segment (visible path + invisible hit area)
+    const segmentGroups = pieGroup
+      .selectAll("g.segment-group")
       .data(arcs)
       .enter()
+      .append("g")
+      .attr("class", "segment-group");
+
+    // Create visible pie segments
+    segmentGroups
       .append("path")
       .attr("fill", (d) => d.data.color)
       .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
-      .attr("cursor", "pointer")
       .style("opacity", (d) =>
-        matchedDomain === d.data.domain ? "0.5" : "1.0",
+        matchedDomain === d.data.domain ? "1.0" : "0.7",
       )
       .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
+      .style("pointer-events", "none") // Disable pointer events on visible paths
       .attr("d", (d) =>
         matchedDomain === d.data.domain
           ? (selectedArc(d) ?? "")
           : (arc(d) ?? ""),
       );
 
+    // Create invisible hit areas (always full segments for better touch targets)
+    const hitAreas = segmentGroups
+      .append("path")
+      .attr("class", "pie-segment-hit-area")
+      .attr("fill", "transparent")
+      .attr("cursor", "pointer")
+      .attr("d", (d) => hitAreaArc(d) ?? "");
+
     // Title for accessibility
-    paths.append("title").text((d) => {
+    hitAreas.append("title").text((d) => {
       return `${d.data.domain}: ${d.data.percentage.toFixed(1)}%`;
     });
 
     const setupHoverInteractions = () => {
-      paths
+      hitAreas
         .on("mouseenter", function () {
           const datum = d3
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
           const isSelected = matchedDomainRef.current === datum.data.domain;
-          const targetArc = isSelected ? selectedArc : hoverArc;
 
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .ease(d3.easeCubicOut)
-            .style("opacity", "1.0")
-            .attrTween("d", function () {
-              const interpolate = d3.interpolate(
-                d3.select(this).attr("d"),
-                targetArc(datum) ?? "",
-              );
-              return (t) => interpolate(t);
-            });
+          // Selected + hover: full segment with double-thickness
+          // Not selected + hover: full segment
+          const targetArc = isSelected ? selectedHoverArc : hoverArc;
+          const targetOpacity = isSelected ? "0.6" : "1.0";
+
+          // Get the corresponding visible path element (previous sibling)
+          const visiblePath = d3.select(this.previousSibling as SVGPathElement);
+
+          // No animation, just instant state change
+          visiblePath
+            .style("opacity", targetOpacity)
+            .attr("d", targetArc(datum) ?? "");
+
           // Notify parent component of domain hover
           onDomainHover?.(datum.data.domain as Domain);
           // Update local hover state for RootNodeExperience
@@ -228,20 +254,20 @@ export function RootNode({
             .datum() as d3.PieArcDatum<PieSegmentData>;
           // Check if this segment's domain is selected (read from ref for current value)
           const isSelected = matchedDomainRef.current === datum.data.domain;
-          const targetArc = isSelected ? selectedArc : arc;
 
-          d3.select(this)
-            .transition()
-            .duration(200)
-            .ease(d3.easeCubicOut)
-            .style("opacity", isSelected ? "0.5" : "1.0")
-            .attrTween("d", function () {
-              const interpolate = d3.interpolate(
-                d3.select(this).attr("d"),
-                targetArc(datum) ?? "",
-              );
-              return (t) => interpolate(t);
-            });
+          // Selected: double-thickness ring
+          // Not selected: normal ring with reduced opacity
+          const targetArc = isSelected ? selectedArc : arc;
+          const targetOpacity = isSelected ? "1.0" : "0.7";
+
+          // Get the corresponding visible path element (previous sibling)
+          const visiblePath = d3.select(this.previousSibling as SVGPathElement);
+
+          // No animation, just instant state change
+          visiblePath
+            .style("opacity", targetOpacity)
+            .attr("d", targetArc(datum) ?? "");
+
           // Clear domain hover
           onDomainHover?.(null);
           // Clear local hover state, but keep selected domain if exists
@@ -276,10 +302,12 @@ export function RootNode({
           // After sweep completes, remove clip-path and add hover interactions
           pieGroup.attr("clip-path", null);
           hasAnimatedRef.current = true;
+          setIsAnimating(false);
           setupHoverInteractions();
         });
     } else {
-      // No animation, setup interactions immediately
+      // No animation, setup interactions immediately and turn off animation state
+      setIsAnimating(false);
       setupHoverInteractions();
     }
   }, [pieData, pieRadius, onDomainHover, router, pathname, currentSearchQuery]);
@@ -311,6 +339,7 @@ export function RootNode({
         hoveredStack={hoveredStack}
         hoveredDomain={hoveredDomain}
         isActiveHover={isActiveHover}
+        isInitialAnimating={isAnimating}
       />
 
       <style jsx>{`
