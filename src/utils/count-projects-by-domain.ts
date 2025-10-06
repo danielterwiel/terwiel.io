@@ -1,4 +1,4 @@
-import type { Domain, Project } from "~/data/projects";
+import type { Domain, Project } from "~/types";
 
 /**
  * Count the number of projects that use a specific domain

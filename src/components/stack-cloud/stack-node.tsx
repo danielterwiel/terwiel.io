@@ -1,7 +1,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import type { Domain } from "~/data/projects";
-import type { Dimensions } from "~/types/simulation";
+import type { Dimensions, Domain } from "~/types";
+
 import { Icon } from "~/components/icon";
 import { DOMAIN_COLORS } from "~/constants/colors";
 import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";

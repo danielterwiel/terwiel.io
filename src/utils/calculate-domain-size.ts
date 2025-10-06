@@ -1,12 +1,6 @@
 import { differenceInMonths, parseISO } from "date-fns";
 
-import type { Domain, Project } from "~/data/projects";
-
-export type DomainExperience = {
-  domain: Domain;
-  totalMonths: number;
-  percentage: number;
-};
+import type { Domain, DomainExperience, Project } from "~/types";
 
 /**
  * Calculate project duration in months

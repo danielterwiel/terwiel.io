@@ -1,6 +1,9 @@
+import type { Domain, IconName, StackName } from "~/types";
+
 export const ICON_COLORS = {
   Assembly: "#624FE8",
   BrandCss3: "#1572B6",
+  BrandDocker: "#2496ED",
   BrandGithub: "#181717",
   BrandGoogle: "#4285F4",
   BrandGraphql: "#E10098",
@@ -26,6 +29,7 @@ export const ICON_COLORS = {
   CloudCog: "#0EA5E9",
   Code: "#10B981",
   Components: "#384EF6",
+  Effect: "#09090B",
   FileTypeDoc: "#2F6DB5",
   Palette: "#F59E0B",
   ServerCog: "#EC4899",
@@ -33,9 +37,8 @@ export const ICON_COLORS = {
   Stack: "#68D391",
   Svg: "#FFB13B",
   TestPipe: "#83664B",
-} as const;
-
-export type IconName = keyof typeof ICON_COLORS;
+  Webpack: "#8ED5FA",
+} as const satisfies Record<IconName, string>;
 
 export const STACK_ICONS = {
   "GitHub Actions": "BrandGithub",
@@ -51,7 +54,8 @@ export const STACK_ICONS = {
   "Tanstack Start": "BrandTanstack",
   "Visual Basic.NET": "BrandVisualStudio",
   CSS: "BrandCss3",
-  Effect: "Stack",
+  Docker: "BrandDocker",
+  Effect: "Effect",
   FlowType: "BrandJavascript",
   GraphQL: "BrandGraphql",
   HTML: "BrandHtml5",
@@ -75,15 +79,13 @@ export const STACK_ICONS = {
   Vite: "BrandVite",
   Vitest: "BrandVite",
   Vue: "BrandVue",
-  Webpack: "BrandJavascript",
   XState: "BrandXstate",
-} as const satisfies Record<string, IconName>;
-
-export type StackName = keyof typeof STACK_ICONS;
+  Webpack: "Webpack",
+} as const satisfies Record<StackName, IconName>;
 
 export const DOMAIN_ICONS = {
   "Front-end": "Code",
   Design: "Palette",
   "Back-end": "ServerCog",
   DevOps: "CloudCog",
-} as const satisfies Record<string, IconName>;
+} as const satisfies Record<Domain, IconName>;

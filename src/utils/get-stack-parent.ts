@@ -1,4 +1,4 @@
-import type { StackItem } from "~/data/projects";
+import type { StackItem } from "~/types";
 
 /**
  * Get the effective name for a stack item (parent if exists, otherwise the stack name)

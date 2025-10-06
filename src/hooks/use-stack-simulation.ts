@@ -2,8 +2,8 @@ import * as d3 from "d3";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import type { Domain } from "~/data/projects";
-import type { Dimensions, SimulationNode } from "~/types/simulation";
+import type { Dimensions, Domain, SimulationNode } from "~/types";
+
 import {
   BOUNDARY_PADDING,
   CHARGE_STRENGTH,

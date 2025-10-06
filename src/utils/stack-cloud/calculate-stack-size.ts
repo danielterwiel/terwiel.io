@@ -1,6 +1,7 @@
 import { differenceInMonths, parseISO } from "date-fns";
 
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
+
 import { getStackParent } from "~/utils/get-stack-parent";
 
 type StackExperience = {

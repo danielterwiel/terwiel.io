@@ -1,4 +1,4 @@
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
 
 const PROJECT_KEY_DISALLOWED = ["stack"];
 

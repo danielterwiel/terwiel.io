@@ -1,4 +1,5 @@
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
+
 import { getStackParent } from "~/utils/get-stack-parent";
 
 let cachedStackNames: string[] | null = null;

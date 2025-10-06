@@ -1,6 +1,7 @@
 "use client";
 
-import type { Project as ProjectType } from "~/data/projects";
+import type { Project as ProjectType } from "~/types";
+
 import { HighlightedText } from "~/components/highlighted";
 import { Icon } from "~/components/icon";
 import { ProjectStack } from "~/components/project-stack";

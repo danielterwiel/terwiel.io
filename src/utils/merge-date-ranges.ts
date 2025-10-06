@@ -1,15 +1,6 @@
 import { differenceInMonths, max, min, parseISO } from "date-fns";
 
-export type DateRange = {
-  from: string;
-  to: string;
-};
-
-export type MergedExperience = {
-  totalMonths: number;
-  years: number;
-  months: number;
-};
+import type { DateRange, MergedExperience } from "~/types";
 
 /**
  * Merges overlapping date ranges and calculates total experience

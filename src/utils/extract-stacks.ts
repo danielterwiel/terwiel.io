@@ -1,17 +1,7 @@
-import type { StackName } from "~/data/icons";
-import type { Domain, Project } from "~/data/projects";
+import type { Project, Stack, StackName } from "~/types";
+
 import { getStackParent } from "~/utils/get-stack-parent";
 import { getIconHexColor } from "~/utils/icon-colors";
-
-export type Stack = {
-  id: string; // Normalized slug: "react", "typescript", "tanstack"
-  name: StackName; // Display name: "React", "TypeScript", "Tanstack"
-  iconKey: string; // Icon key: "BrandReact", "BrandTypescript"
-  color: string; // Hex: "#61DAFB", "#3178C6"
-  domain: Domain; // "Front-end", "Back-end", "DevOps", "Design"
-  parent?: string; // Optional parent (e.g., "Tanstack")
-  children?: string[]; // Child stack names if this is a parent
-};
 
 /**
  * Normalize stack name to a URL-friendly slug

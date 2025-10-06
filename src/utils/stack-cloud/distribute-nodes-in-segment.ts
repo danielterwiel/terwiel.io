@@ -1,4 +1,5 @@
-import type { DomainAngleRange } from "./calculate-domain-angles";
+import type { DomainAngleRange } from "~/types";
+
 import { SEGMENT_PADDING_FACTOR } from "~/constants/stack-cloud-physics";
 
 /**

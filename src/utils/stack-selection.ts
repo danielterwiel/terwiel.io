@@ -1,7 +1,7 @@
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
-import type { Project } from "~/data/projects";
-import type { Stack } from "~/utils/extract-stacks";
+import type { Project, Stack } from "~/types";
+
 import { filterProjects } from "~/utils/filter-projects";
 import { matchesDomainName } from "~/utils/get-domain-names";
 import { matchesParent } from "~/utils/get-stack-parent";

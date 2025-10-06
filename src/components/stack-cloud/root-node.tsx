@@ -3,8 +3,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import type { Domain } from "~/data/projects";
-import type { Dimensions } from "~/types/simulation";
+import type { Dimensions, Domain } from "~/types";
+
 import { DOMAIN_COLORS, KLEIN_BLUE } from "~/constants/colors";
 import { PROJECTS } from "~/data/projects";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";

@@ -1,12 +1,7 @@
-import type { Project } from "~/data/projects";
+import type { Project, StackExperience } from "~/types";
+
 import { matchesParent } from "~/utils/get-stack-parent";
 import { mergeDateRanges } from "./merge-date-ranges";
-
-export type StackExperience = {
-  totalMonths: number;
-  years: number;
-  months: number;
-};
 
 /**
  * Calculate total experience for a specific stack or parent

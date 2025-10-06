@@ -1,4 +1,4 @@
-import type { Domain } from "~/data/projects";
+import type { Domain } from "~/types";
 
 /**
  * Klein Blue color constant - single source of truth

@@ -1,4 +1,5 @@
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
+
 import { matchesParent } from "~/utils/get-stack-parent";
 
 /**

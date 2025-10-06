@@ -1,13 +1,6 @@
 import * as d3 from "d3";
 
-import type { Domain } from "~/data/projects";
-import type { DomainExperience } from "~/utils/calculate-domain-size";
-
-export interface DomainAngleRange {
-  startAngle: number;
-  endAngle: number;
-  midAngle: number;
-}
+import type { Domain, DomainAngleRange, DomainExperience } from "~/types";
 
 /**
  * Calculate the angular range for each domain segment in the pie chart
