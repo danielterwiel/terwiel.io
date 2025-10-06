@@ -1,6 +1,8 @@
 import { differenceInMonths, parseISO } from "date-fns";
 
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
+
+import { getStackParent } from "~/utils/get-stack-parent";
 
 type StackExperience = {
   name: string;
@@ -11,6 +13,8 @@ type StackExperience = {
 
 /**
  * Calculate total experience duration for each stack across all projects
+ * Groups child stacks with their parent (e.g., "Tanstack Query" + "Tanstack Router" -> "Tanstack")
+ * Deduplicates within each project to avoid double-counting when both parent and child exist
  */
 function calculateStackExperiences(
   projects: Project[],
@@ -23,16 +27,23 @@ function calculateStackExperiences(
     const to = parseISO(isPresent ? new Date().toISOString() : project.dateTo);
     const months = differenceInMonths(to, from) + 1;
 
+    // Deduplicate stacks within this project by effective name (parent or self)
+    const uniqueStacksInProject = new Set<string>();
     for (const stackItem of project.stack) {
-      const existing = experienceMap.get(stackItem.name);
+      uniqueStacksInProject.add(getStackParent(stackItem));
+    }
+
+    // Add experience for each unique stack in this project
+    for (const effectiveName of uniqueStacksInProject) {
+      const existing = experienceMap.get(effectiveName);
       if (existing) {
         existing.totalMonths += months;
         existing.firstUsed =
           existing.firstUsed < from ? existing.firstUsed : from;
         existing.lastUsed = existing.lastUsed > to ? existing.lastUsed : to;
       } else {
-        experienceMap.set(stackItem.name, {
-          name: stackItem.name,
+        experienceMap.set(effectiveName, {
+          name: effectiveName,
           totalMonths: months,
           firstUsed: from,
           lastUsed: to,

@@ -4,7 +4,8 @@ import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 
-import type { Domain } from "~/data/projects";
+import type { Domain } from "~/types";
+
 import { RootNode } from "~/components/stack-cloud/root-node";
 import { StackNode } from "~/components/stack-cloud/stack-node";
 import { DOMAIN_COLORS } from "~/constants/colors";
@@ -120,7 +121,7 @@ export function StackCloudContent() {
     } else {
       setHoveredStack(null);
     }
-  }, [stacks, searchParams, selectedStack]);
+  }, [searchParams, selectedStack]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">

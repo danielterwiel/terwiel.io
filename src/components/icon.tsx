@@ -2,6 +2,7 @@ import Accessible from "../images/icons/accessible.svg";
 import Assembly from "../images/icons/assembly.svg";
 import At from "../images/icons/at.svg";
 import BrandCss3 from "../images/icons/brand-css3.svg";
+import BrandDocker from "../images/icons/brand-docker.svg";
 import BrandGithub from "../images/icons/brand-github.svg";
 import BrandGoogle from "../images/icons/brand-google.svg";
 import BrandGraphql from "../images/icons/brand-graphql.svg";
@@ -9,6 +10,7 @@ import BrandHtml5 from "../images/icons/brand-html5.svg";
 import BrandJavascript from "../images/icons/brand-javascript.svg";
 import BrandLinkedin from "../images/icons/brand-linkedin.svg";
 import BrandPhp from "../images/icons/brand-php.svg";
+import BrandPowerShell from "../images/icons/brand-powershell.svg";
 import BrandReact from "../images/icons/brand-react.svg";
 import BrandRedux from "../images/icons/brand-redux.svg";
 import BrandRust from "../images/icons/brand-rust.svg";
@@ -31,6 +33,7 @@ import ChartPie from "../images/icons/chart-pie.svg";
 import CloudCog from "../images/icons/cloud-cog.svg";
 import Code from "../images/icons/code.svg";
 import Components from "../images/icons/components.svg";
+import Effect from "../images/icons/effect.svg";
 import FileCv from "../images/icons/file-cv.svg";
 import FileTypeDoc from "../images/icons/file-type-doc.svg";
 import Focus from "../images/icons/focus.svg";
@@ -63,6 +66,7 @@ import Svg from "../images/icons/svg.svg";
 import TestPipe from "../images/icons/test-pipe.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
+import Webpack from "../images/icons/webpack.svg";
 import X from "../images/icons/x.svg";
 
 const icons = {
@@ -71,19 +75,21 @@ const icons = {
   At,
   BrandCss3,
   BrandGithub,
+  BrandDocker,
   BrandGoogle,
   BrandGraphql,
   BrandHtml5,
   BrandJavascript,
   BrandLinkedin,
   BrandPhp,
+  BrandPowerShell,
   BrandReact,
   BrandRedux,
   BrandRust,
   BrandSass,
-  BrandTanstack,
   BrandSpeedtest,
   BrandTailwind,
+  BrandTanstack,
   BrandTypescript,
   BrandVercel,
   BrandVisualStudio,
@@ -99,6 +105,7 @@ const icons = {
   CloudCog,
   Code,
   Components,
+  Effect,
   Focus,
   FileCv,
   Geometry,
@@ -132,6 +139,7 @@ const icons = {
   User,
   UsersGroup,
   X,
+  Webpack,
 } satisfies Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>>;
 
 export const Icon = icons;

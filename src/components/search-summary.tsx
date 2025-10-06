@@ -2,7 +2,7 @@
 
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 
-import type { Project } from "~/data/projects";
+import type { Project } from "~/types";
 
 export const SearchSummary = ({
   query,

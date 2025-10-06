@@ -1,11 +1,6 @@
-import type { Project } from "~/data/projects";
-import { mergeDateRanges } from "./merge-date-ranges";
+import type { Project, TotalExperience } from "~/types";
 
-export type TotalExperience = {
-  totalMonths: number;
-  years: number;
-  months: number;
-};
+import { mergeDateRanges } from "./merge-date-ranges";
 
 /**
  * Calculate total experience across all projects

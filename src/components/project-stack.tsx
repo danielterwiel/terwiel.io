@@ -2,13 +2,9 @@
 
 import { clsx } from "clsx";
 
-import { Badge } from "~/components/badge";
+import type { StackItem } from "~/types";
 
-export type StackItem = {
-  name: string;
-  icon: string;
-  url?: string;
-};
+import { Badge } from "~/components/badge";
 
 type ProjectStackProps = {
   items: StackItem[];

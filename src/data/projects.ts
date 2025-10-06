@@ -1,161 +1,7 @@
+import type { Project, StackItem, StackName } from "~/types";
+
 import { generateStackUrl } from "~/utils/generate-stack-url";
-import { STACK_ICONS, type StackName } from "./icons";
-
-export type Domain = "DevOps" | "Back-end" | "Front-end" | "Design";
-
-export type StackItem = {
-  name: string;
-  parent?: string;
-  domain: Domain;
-  icon: string;
-  url?: string;
-};
-
-const STACK = {
-  Effect: {
-    domain: "Back-end",
-    icon: STACK_ICONS.Effect,
-  },
-  JavaScript: {
-    domain: "Front-end",
-    icon: STACK_ICONS.JavaScript,
-  },
-  TypeScript: {
-    domain: "Front-end",
-    icon: STACK_ICONS.TypeScript,
-  },
-  React: {
-    domain: "Front-end",
-    icon: STACK_ICONS.React,
-  },
-  Tailwind: {
-    domain: "Design",
-    icon: STACK_ICONS.Tailwind,
-  },
-  XState: {
-    domain: "Front-end",
-    icon: STACK_ICONS.XState,
-  },
-  "Tanstack Start": {
-    parent: "Tanstack",
-    domain: "Front-end",
-    icon: STACK_ICONS["Tanstack Start"],
-  },
-  "Tanstack Router": {
-    parent: "Tanstack",
-    domain: "Front-end",
-    icon: STACK_ICONS["Tanstack Router"],
-  },
-  "Tanstack Query": {
-    parent: "Tanstack",
-    domain: "Front-end",
-    icon: STACK_ICONS["Tanstack Query"],
-  },
-  Rust: {
-    domain: "Back-end",
-    icon: STACK_ICONS.Rust,
-  },
-  Vue: {
-    domain: "Front-end",
-    icon: STACK_ICONS.Vue,
-  },
-  "Next.js": {
-    domain: "Front-end",
-    icon: STACK_ICONS["Next.js"],
-  },
-  Vite: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Vite,
-  },
-  Vitest: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Vitest,
-  },
-  HTML: {
-    domain: "Front-end",
-    icon: STACK_ICONS.HTML,
-  },
-  CSS: {
-    domain: "Design",
-    icon: STACK_ICONS.CSS,
-  },
-  SCSS: {
-    domain: "Design",
-    icon: STACK_ICONS.SCSS,
-  },
-  GraphQL: {
-    domain: "Back-end",
-    icon: STACK_ICONS.GraphQL,
-  },
-  Lit: {
-    domain: "Front-end",
-    icon: STACK_ICONS.Lit,
-  },
-  JSDoc: {
-    domain: "Back-end",
-    icon: STACK_ICONS.JSDoc,
-  },
-  Mocha: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Mocha,
-  },
-  Redux: {
-    domain: "Front-end",
-    icon: STACK_ICONS.Redux,
-  },
-  "Redux-saga": {
-    domain: "Front-end",
-    icon: STACK_ICONS["Redux-saga"],
-  },
-  FlowType: {
-    domain: "Front-end",
-    icon: STACK_ICONS.FlowType,
-  },
-  "Material UI": {
-    domain: "Design",
-    icon: STACK_ICONS["Material UI"],
-  },
-  "Knockout.js": {
-    domain: "Front-end",
-    icon: STACK_ICONS["Knockout.js"],
-  },
-  SVG: {
-    domain: "Design",
-    icon: STACK_ICONS.SVG,
-  },
-  SQL: {
-    domain: "Back-end",
-    icon: STACK_ICONS.SQL,
-  },
-  "SQL Server": {
-    domain: "Back-end",
-    icon: STACK_ICONS["SQL Server"],
-  },
-  "Visual Basic.NET": {
-    domain: "Back-end",
-    icon: STACK_ICONS["Visual Basic.NET"],
-  },
-  PHP: {
-    domain: "Back-end",
-    icon: STACK_ICONS.PHP,
-  },
-  Webpack: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Webpack,
-  },
-  Jest: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Jest,
-  },
-  Puppeteer: {
-    domain: "DevOps",
-    icon: STACK_ICONS.Puppeteer,
-  },
-  Preact: {
-    domain: "Front-end",
-    icon: STACK_ICONS.Preact,
-  },
-} as const satisfies Record<StackName, Omit<StackItem, "name" | "url">>;
+import { STACK } from "./stack";
 
 function createStackItem(name: StackName, url?: string): StackItem {
   const stackConfig = STACK[name];
@@ -170,20 +16,6 @@ function createStackItem(name: StackName, url?: string): StackItem {
   };
 }
 
-export type Project = {
-  id: string;
-  company: string;
-  role: string;
-  teamSize: number;
-  industry: string;
-  location: string;
-  dateFrom: string;
-  dateTo: string;
-  description: string;
-  stack: StackItem[];
-  icon: string;
-};
-
 export const PROJECTS: Project[] = [
   {
     id: "PROJECT_10",
@@ -195,12 +27,16 @@ export const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "When I discovered Effect.TS, I felt like I found my TypeScript equivalent of Rust. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building Permatrust, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
+      "When I discovered Effect.TS, I saw the potential when I discovered all the benefits it offers that othern of my favorite languages have, but TypeScript lacks. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building my previous project, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
     stack: [
       createStackItem("Effect"),
       createStackItem("JavaScript"),
+      createStackItem("GitHub Actions"),
       createStackItem("Tanstack Start", "/?search=Tanstack#projects"),
       createStackItem("Tanstack Router", "/?search=Tanstack#projects"),
+      createStackItem("Tanstack DB", "/?search=Tanstack#projects"),
+      createStackItem("Docker"),
+      createStackItem("Shell Script"),
       createStackItem("TypeScript"),
       createStackItem("React"),
       createStackItem("Tailwind"),
@@ -221,6 +57,8 @@ export const PROJECTS: Project[] = [
       "In my personal time, I am developing a ransomware-resilient QMS using Rust and XState on the Internet Computer. This initiative serves to master these technologies and a terminal-centric workflow, with the goal of creating robust, secure applications for vulnerable SMBs in nowadays rapidly evolving threat landscape.",
     stack: [
       createStackItem("Rust"),
+      createStackItem("Shell Script"),
+      createStackItem("GitHub Actions"),
       createStackItem("JavaScript"),
       createStackItem("Tanstack Router", "/?search=Tanstack#projects"),
       createStackItem("Tanstack Query", "/?search=Tanstack#projects"),
@@ -260,9 +98,10 @@ export const PROJECTS: Project[] = [
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
-      "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI and setting up the release and publishing flow using Rust. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
+      "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI written in Rust and setting up the release and publishing flow. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
     stack: [
       createStackItem("Rust"),
+      createStackItem("GitHub Actions"),
       createStackItem("JavaScript"),
       createStackItem("TypeScript"),
       createStackItem("Vue"),

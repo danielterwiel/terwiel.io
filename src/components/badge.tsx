@@ -3,17 +3,14 @@
 import { clsx } from "clsx";
 import Link from "next/link";
 
+import type { BadgeProps } from "~/types";
+
 import { Icon } from "~/components/icon";
 import {
   getIconHexColor,
   getMagneticClasses,
   validateIconName,
 } from "~/utils/icon-colors";
-
-export type BadgeProps = {
-  icon: string;
-  name: string;
-};
 
 export const Badge = ({ icon, name }: BadgeProps) => {
   const validatedIcon = validateIconName(icon);

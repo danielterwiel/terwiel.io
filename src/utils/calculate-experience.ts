@@ -1,11 +1,6 @@
 import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 
-export type ExperienceDuration = {
-  totalMonths: number;
-  years: number;
-  months: number;
-  duration: string;
-};
+import type { ExperienceDuration } from "~/types";
 
 export function calculateProjectDuration(
   dateFrom: string,

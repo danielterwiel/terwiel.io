@@ -1,11 +1,6 @@
-import type { Domain, Project } from "~/data/projects";
-import { mergeDateRanges } from "./merge-date-ranges";
+import type { Domain, DomainExperienceSimple, Project } from "~/types";
 
-export type DomainExperience = {
-  totalMonths: number;
-  years: number;
-  months: number;
-};
+import { mergeDateRanges } from "./merge-date-ranges";
 
 /**
  * Calculate total experience for a specific domain
@@ -14,7 +9,7 @@ export type DomainExperience = {
 export function calculateDomainExperience(
   projects: Project[],
   domain: Domain,
-): DomainExperience {
+): DomainExperienceSimple {
   // Filter projects that use this domain and collect their date ranges
   const ranges = projects
     .filter((project) => project.stack.some((item) => item.domain === domain))

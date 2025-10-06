@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import type { Domain } from "~/data/projects";
-import type { Dimensions } from "~/types/simulation";
+import type { Dimensions, Domain } from "~/types";
+
 import { Icon } from "~/components/icon";
 import { PRIMARY_COLOR } from "~/constants/colors";
 import { DOMAIN_ICONS } from "~/data/icons";
