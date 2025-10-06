@@ -106,17 +106,23 @@ export function StackCloudContent() {
       return;
     }
 
-    // Don't override if actively hovering a node
-    if (isActivelyHoveringRef.current) return;
-
     // Check if the search query is a domain name
     const domains = ["DevOps", "Back-end", "Front-end", "Design"];
     const isDomainSelected = domains.some(
       (domain) => domain.toLowerCase() === searchQuery,
     );
 
-    // Only set hovered stack if a domain is not selected
-    if (!isDomainSelected && selectedStack) {
+    // Clear hovered stack when a domain is selected
+    if (isDomainSelected) {
+      setHoveredStack(null);
+      return;
+    }
+
+    // Don't override if actively hovering a node
+    if (isActivelyHoveringRef.current) return;
+
+    // Set hovered stack when a stack is selected
+    if (selectedStack) {
       setHoveredStack(selectedStack);
     } else {
       setHoveredStack(null);
