@@ -14,6 +14,11 @@ import { PROJECTS } from "~/data/projects";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
+import { matchesDomainName } from "~/utils/get-domain-names";
+import {
+  getInitialSelectedDomain,
+  getInitialSelectedStack,
+} from "~/utils/get-initial-selection";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { isStackSelected } from "~/utils/stack-selection";
 
@@ -28,22 +33,24 @@ export function StackCloudContent() {
   const svgRef = useRef<SVGSVGElement>(null);
   const searchParams = useSearchParams();
 
-  // Hover state management
-  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+  // Extract stacks and calculate size factors once
+  const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
+  const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
+
+  // Hover state management - initialize with selected domain/stack if present
+  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(() =>
+    getInitialSelectedDomain(searchParams, PROJECTS),
+  );
   const [hoveredStack, setHoveredStack] = useState<{
     id: string;
     name: string;
     iconKey: string;
     color: string;
     domain: Domain;
-  } | null>(null);
+  } | null>(() => getInitialSelectedStack(searchParams, stacks, PROJECTS));
 
   // Track active hover state without triggering effects
   const isActivelyHoveringRef = useRef(false);
-
-  // Extract stacks and calculate size factors once
-  const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
-  const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
 
   // Calculate scale factors based on selection state
   const scaleFactors = useMemo(() => {
@@ -107,10 +114,7 @@ export function StackCloudContent() {
     }
 
     // Check if the search query is a domain name
-    const domains = ["DevOps", "Back-end", "Front-end", "Design"];
-    const isDomainSelected = domains.some(
-      (domain) => domain.toLowerCase() === searchQuery,
-    );
+    const isDomainSelected = matchesDomainName(searchQuery, PROJECTS) !== null;
 
     // Clear hovered stack when a domain is selected
     if (isDomainSelected) {
@@ -231,10 +235,8 @@ export function StackCloudContent() {
                   // Keep selected stack if exists (but not if a domain is selected)
                   const searchQuery =
                     searchParams.get("search")?.toLowerCase().trim() ?? "";
-                  const domains = ["DevOps", "Back-end", "Front-end", "Design"];
-                  const isDomainSelected = domains.some(
-                    (domain) => domain.toLowerCase() === searchQuery,
-                  );
+                  const isDomainSelected =
+                    matchesDomainName(searchQuery, PROJECTS) !== null;
 
                   if (!isDomainSelected && selectedStack) {
                     setHoveredStack(selectedStack);

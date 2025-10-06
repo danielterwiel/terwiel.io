@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -47,6 +47,17 @@ export function RootNodeExperience({
       : hoveredStack
         ? "stack" // Selected stack (not actively hovered)
         : "default";
+
+  // Track the initial display mode to know which ticker should animate on first render
+  const initialDisplayModeRef = useRef<DisplayMode | null>(null);
+  if (initialDisplayModeRef.current === null && isInitialAnimating) {
+    initialDisplayModeRef.current = displayMode;
+  }
+
+  // Determine if we should show initial animation for current display mode
+  // Animate if: pie is animating AND current mode matches the initial mode
+  const shouldAnimateInitially =
+    isInitialAnimating && displayMode === initialDisplayModeRef.current;
 
   // Calculate total experience
   const totalExperience = useMemo(() => calculateTotalExperience(PROJECTS), []);
@@ -210,7 +221,7 @@ export function RootNodeExperience({
               years={totalExperience.years}
               months={totalExperience.months}
               color={color}
-              isInitialAnimating={isInitialAnimating}
+              isInitialAnimating={shouldAnimateInitially}
             />
           )}
 
@@ -219,6 +230,7 @@ export function RootNodeExperience({
               years={stackExperience.years}
               months={stackExperience.months}
               color={color}
+              isInitialAnimating={shouldAnimateInitially}
             />
           )}
 
@@ -227,6 +239,7 @@ export function RootNodeExperience({
               years={domainExperience.years}
               months={domainExperience.months}
               color={color}
+              isInitialAnimating={shouldAnimateInitially}
             />
           )}
         </div>
