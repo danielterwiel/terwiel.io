@@ -218,6 +218,7 @@ export function RootNodeExperience({
         >
           {displayMode === "default" && (
             <ExperienceTicker
+              key="default"
               years={totalExperience.years}
               months={totalExperience.months}
               color={color}
@@ -227,6 +228,7 @@ export function RootNodeExperience({
 
           {displayMode === "stack" && stackExperience && (
             <ExperienceTicker
+              key={`stack-${hoveredStack?.id ?? "unknown"}`}
               years={stackExperience.years}
               months={stackExperience.months}
               color={color}
@@ -236,6 +238,7 @@ export function RootNodeExperience({
 
           {displayMode === "domain" && domainExperience && (
             <ExperienceTicker
+              key={`domain-${hoveredDomain}`}
               years={domainExperience.years}
               months={domainExperience.months}
               color={color}

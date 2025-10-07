@@ -14,11 +14,14 @@ import { PROJECTS } from "~/data/projects";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
-import { matchesDomainName } from "~/utils/get-domain-names";
 import {
   getInitialSelectedDomain,
   getInitialSelectedStack,
 } from "~/utils/get-initial-selection";
+import {
+  getHoverStackOnLeave,
+  isActiveStackHover,
+} from "~/utils/hover-state-manager";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { isStackSelected } from "~/utils/stack-selection";
 
@@ -48,9 +51,6 @@ export function StackCloudContent() {
     color: string;
     domain: Domain;
   } | null>(() => getInitialSelectedStack(searchParams, stacks, PROJECTS));
-
-  // Track active hover state without triggering effects
-  const isActivelyHoveringRef = useRef(false);
 
   // Calculate scale factors based on selection state
   const scaleFactors = useMemo(() => {
@@ -84,54 +84,31 @@ export function StackCloudContent() {
     updateNodeScaleFactors(scaleFactors);
   }, [scaleFactors, updateNodeScaleFactors]);
 
-  // Keep ref in sync with hover state
   // Derive if actively hovering by checking if hoveredStack differs from selected stack
-  const selectedStack = useMemo(
-    () => stacks.find((s) => isStackSelected(s, searchParams, PROJECTS)),
-    [stacks, searchParams],
+  const isActiveHover = useMemo(
+    () => isActiveStackHover(hoveredStack, searchParams, stacks, PROJECTS),
+    [hoveredStack, searchParams, stacks],
   );
 
-  useEffect(() => {
-    isActivelyHoveringRef.current =
-      hoveredStack !== null &&
-      (selectedStack === undefined || hoveredStack.id !== selectedStack.id);
-  }, [hoveredStack, selectedStack]);
-
-  // Set initial hovered stack based on selected stack in search params
-  // But only if a domain is not selected
+  // Sync hover state with search params (selected stack/domain)
   useEffect(() => {
     const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
 
-    // On iOS Safari, touch events don't reliably trigger onMouseLeave
-    // So we need to clear hover state when search param is cleared, regardless of hover ref
-    const shouldClearHoverState = searchQuery === "";
-
     // Clear all hover states when search param is empty (iOS Safari touch fix)
-    if (shouldClearHoverState) {
+    if (searchQuery === "") {
       setHoveredStack(null);
       setHoveredDomain(null);
       return;
     }
 
-    // Check if the search query is a domain name
-    const isDomainSelected = matchesDomainName(searchQuery, PROJECTS) !== null;
+    // Get the appropriate hover state based on current selection
+    const hoverStack = getInitialSelectedStack(searchParams, stacks, PROJECTS);
+    const hoverDomain = getInitialSelectedDomain(searchParams, PROJECTS);
 
-    // Clear hovered stack when a domain is selected
-    if (isDomainSelected) {
-      setHoveredStack(null);
-      return;
-    }
-
-    // Don't override if actively hovering a node
-    if (isActivelyHoveringRef.current) return;
-
-    // Set hovered stack when a stack is selected
-    if (selectedStack) {
-      setHoveredStack(selectedStack);
-    } else {
-      setHoveredStack(null);
-    }
-  }, [searchParams, selectedStack]);
+    // Update hover states
+    setHoveredStack(hoverStack);
+    setHoveredDomain(hoverDomain);
+  }, [searchParams, stacks]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
@@ -205,11 +182,7 @@ export function StackCloudContent() {
             }}
             onDomainHover={setHoveredDomain}
             hoveredStack={hoveredStack}
-            isActiveHover={
-              hoveredStack !== null &&
-              (selectedStack === undefined ||
-                hoveredStack.id !== selectedStack.id)
-            }
+            isActiveHover={isActiveHover}
           />
 
           {stacks.map((stack) => {
@@ -232,17 +205,13 @@ export function StackCloudContent() {
                 }}
                 onMouseEnter={() => setHoveredStack(stack)}
                 onMouseLeave={() => {
-                  // Keep selected stack if exists (but not if a domain is selected)
-                  const searchQuery =
-                    searchParams.get("search")?.toLowerCase().trim() ?? "";
-                  const isDomainSelected =
-                    matchesDomainName(searchQuery, PROJECTS) !== null;
-
-                  if (!isDomainSelected && selectedStack) {
-                    setHoveredStack(selectedStack);
-                  } else {
-                    setHoveredStack(null);
-                  }
+                  // Restore the appropriate hover state when mouse leaves
+                  const hoverStack = getHoverStackOnLeave(
+                    searchParams,
+                    stacks,
+                    PROJECTS,
+                  );
+                  setHoveredStack(hoverStack);
                 }}
               />
             );
