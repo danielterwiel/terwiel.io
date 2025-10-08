@@ -28,7 +28,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans: [
+          "Bahnschrift",
+          "DIN Alternate",
+          "Franklin Gothic Medium",
+          "Nimbus Sans Narrow",
+          "sans-serif-condensed",
+          "sans-serif",
+        ],
       },
       colors: {
         klein: KLEIN_BLUE,

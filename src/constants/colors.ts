@@ -9,8 +9,8 @@ export const KLEIN_BLUE = "#002FA7" as const;
 export const PRIMARY_COLOR = "#0F172A" as const;
 
 export const DOMAIN_COLORS = {
-  DevOps: "#5ba4ad", // Soft teal - operational, systematic
-  "Back-end": "#c77894", // Soft rose - deep, foundational
-  "Front-end": "#f6a97b", // Pastel tangerine - warm, visible
-  Design: "#8d7dae", // Lavender-purple - creative, aesthetic
+  DevOps: "#B6BDDB",
+  "Back-end": "#D7E0A5",
+  "Front-end": "#F5E496",
+  Design: "#FABEAF",
 } as const satisfies Record<Domain, string>;
