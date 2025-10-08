@@ -94,12 +94,9 @@ export function ExperienceTicker({
   const safeYears = Number.isNaN(displayYears) ? 0 : displayYears;
   const safeMonths = Number.isNaN(displayMonths) ? 0 : displayMonths;
 
-  // When years is 0, only show months with larger font size
-  const showOnlyMonths = safeYears === 0 && safeMonths > 0;
-
   return (
     <div
-      className="flex w-full flex-col items-center justify-center"
+      className="flex w-full flex-col items-center justify-start"
       style={{
         color,
         minHeight: "3.5em", // Fixed height to prevent jumping
@@ -111,50 +108,35 @@ export function ExperienceTicker({
           willChange: "transform, opacity",
         }}
       >
-        {showOnlyMonths ? (
-          /* Only months (with large font when years is 0) */
-          <div className="text-center">
+        {/* Years or Months (primary display) */}
+        <div className="text-center">
+          <div
+            className="font-bold leading-tight"
+            style={{
+              fontSize: "1.44em",
+              textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
+            }}
+          >
+            {safeYears > 0
+              ? `${safeYears} ${safeYears === 1 ? "year" : "years"}`
+              : `${safeMonths} ${safeMonths === 1 ? "month" : "months"}`}
+          </div>
+        </div>
+
+        {/* Additional months (only show if both years and months > 0) */}
+        {safeYears > 0 && safeMonths > 0 && (
+          <div className="text-center" style={{ marginTop: "0.25em" }}>
             <div
               className="font-bold leading-tight"
               style={{
-                fontSize: "1.44em",
+                fontSize: "0.88em",
+                opacity: 0.9,
                 textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
               }}
             >
               {safeMonths} {safeMonths === 1 ? "month" : "months"}
             </div>
           </div>
-        ) : (
-          <>
-            {/* Years */}
-            <div className="text-center">
-              <div
-                className="font-bold leading-tight"
-                style={{
-                  fontSize: "1.44em",
-                  textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
-                }}
-              >
-                {safeYears} {safeYears === 1 ? "year" : "years"}
-              </div>
-            </div>
-
-            {/* Months (only show if > 0) */}
-            {safeMonths > 0 && (
-              <div className="text-center" style={{ marginTop: "0.25em" }}>
-                <div
-                  className="font-bold leading-tight"
-                  style={{
-                    fontSize: "0.88em",
-                    opacity: 0.9,
-                    textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
-                  }}
-                >
-                  {safeMonths} {safeMonths === 1 ? "month" : "months"}
-                </div>
-              </div>
-            )}
-          </>
         )}
       </div>
 
