@@ -87,7 +87,7 @@ export function StackNode({
     iconOpacity = 0.5;
   } else {
     iconColor = borderColor;
-    iconOpacity = 0.2;
+    iconOpacity = 0.35;
   }
 
   // Handle click to toggle URL search params
