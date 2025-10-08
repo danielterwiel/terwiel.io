@@ -199,9 +199,8 @@ export function RootNode({
       .attr("fill", (d) => d.data.color)
       .attr("class", "pie-segment magnetic-base magnetic-rounded-full")
       .style("opacity", (d) =>
-        matchedDomain === d.data.domain ? "1.0" : "0.7",
+        matchedDomain === d.data.domain ? "1.0" : "0.6",
       )
-      .style("filter", "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))")
       .style("pointer-events", "none") // Disable pointer events on visible paths
       .attr("d", (d) =>
         matchedDomain === d.data.domain
@@ -209,11 +208,12 @@ export function RootNode({
           : (arc(d) ?? ""),
       );
 
-    // Create invisible hit areas (always full segments for better touch targets)
+    // Create hit areas (always full segments for better touch targets)
     const hitAreas = segmentGroups
       .append("path")
       .attr("class", "pie-segment-hit-area")
-      .attr("fill", "transparent")
+      .attr("fill", (d) => d.data.color)
+      .attr("fill-opacity", 0.2)
       .attr("cursor", "pointer")
       .attr("d", (d) => hitAreaArc(d) ?? "");
 
@@ -230,18 +230,11 @@ export function RootNode({
             .datum() as d3.PieArcDatum<PieSegmentData>;
           const isSelected = matchedDomainRef.current === datum.data.domain;
 
-          // Selected + hover: full segment with double-thickness
-          // Not selected + hover: full segment
-          const targetArc = isSelected ? selectedHoverArc : hoverArc;
-          const targetOpacity = isSelected ? "0.6" : "1.0";
-
           // Get the corresponding visible path element (previous sibling)
           const visiblePath = d3.select(this.previousSibling as SVGPathElement);
 
-          // No animation, just instant state change
-          visiblePath
-            .style("opacity", targetOpacity)
-            .attr("d", targetArc(datum) ?? "");
+          // Hovered state: full segment, less opaque than default (0.4)
+          visiblePath.style("opacity", "0.4").attr("d", hoverArc(datum) ?? "");
 
           // Notify parent component of domain hover
           onDomainHover?.(datum.data.domain as Domain);
@@ -255,18 +248,19 @@ export function RootNode({
           // Check if this segment's domain is selected (read from ref for current value)
           const isSelected = matchedDomainRef.current === datum.data.domain;
 
-          // Selected: double-thickness ring
-          // Not selected: normal ring with reduced opacity
-          const targetArc = isSelected ? selectedArc : arc;
-          const targetOpacity = isSelected ? "1.0" : "0.7";
-
           // Get the corresponding visible path element (previous sibling)
           const visiblePath = d3.select(this.previousSibling as SVGPathElement);
 
-          // No animation, just instant state change
-          visiblePath
-            .style("opacity", targetOpacity)
-            .attr("d", targetArc(datum) ?? "");
+          // Return to default or selected state
+          if (isSelected) {
+            // Selected state: double-thickness ring, full opacity
+            visiblePath
+              .style("opacity", "1.0")
+              .attr("d", selectedArc(datum) ?? "");
+          } else {
+            // Default state: normal ring, reduced opacity
+            visiblePath.style("opacity", "0.6").attr("d", arc(datum) ?? "");
+          }
 
           // Clear domain hover
           onDomainHover?.(null);
