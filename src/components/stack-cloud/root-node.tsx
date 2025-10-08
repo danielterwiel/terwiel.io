@@ -122,12 +122,6 @@ export function RootNode({
       .innerRadius(pieRadius - RING_THICKNESS)
       .outerRadius(pieRadius + RING_THICKNESS);
 
-    // Selected + hover arc: filled from center, growing outward
-    const selectedHoverArc = d3
-      .arc<d3.PieArcDatum<PieSegmentData>>()
-      .innerRadius(0)
-      .outerRadius(pieRadius + RING_THICKNESS);
-
     // Invisible hit area arc: always full segment for better mobile interaction
     const hitAreaArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
@@ -228,7 +222,6 @@ export function RootNode({
           const datum = d3
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
-          const isSelected = matchedDomainRef.current === datum.data.domain;
 
           // Get the corresponding visible path element (previous sibling)
           const visiblePath = d3.select(this.previousSibling as SVGPathElement);

@@ -31,9 +31,7 @@ export default function RootLayout({
         />
       </head>
 
-      <body
-        className="font-sans selection:bg-klein selection:text-white print:max-w-full"
-      >
+      <body className="font-sans selection:bg-klein selection:text-white print:max-w-full">
         {children}
       </body>
     </html>

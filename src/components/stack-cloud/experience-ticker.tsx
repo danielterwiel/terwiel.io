@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
+import { KLEIN_BLUE } from "~/constants/colors";
+
 interface ExperienceTickerProps {
   years: number;
   months: number;
@@ -14,7 +16,7 @@ interface ExperienceTickerProps {
 export function ExperienceTicker({
   years,
   months,
-  color = "#002FA7",
+  color = KLEIN_BLUE,
   isInitialAnimating = false,
 }: ExperienceTickerProps) {
   const [isAnimating, setIsAnimating] = useState(false);
@@ -116,7 +118,7 @@ export function ExperienceTicker({
               className="font-bold leading-tight"
               style={{
                 fontSize: "1.44em",
-                textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
               }}
             >
               {safeMonths} {safeMonths === 1 ? "month" : "months"}
@@ -130,7 +132,7 @@ export function ExperienceTicker({
                 className="font-bold leading-tight"
                 style={{
                   fontSize: "1.44em",
-                  textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                  textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
                 }}
               >
                 {safeYears} {safeYears === 1 ? "year" : "years"}
@@ -145,7 +147,7 @@ export function ExperienceTicker({
                   style={{
                     fontSize: "0.88em",
                     opacity: 0.9,
-                    textShadow: "0 1px 3px rgba(0, 0, 0, 0.3)",
+                    textShadow: "0 1px 3px oklch(0% 0 0 / 0.3)",
                   }}
                 >
                   {safeMonths} {safeMonths === 1 ? "month" : "months"}

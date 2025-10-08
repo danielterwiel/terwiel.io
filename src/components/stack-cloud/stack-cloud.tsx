@@ -129,44 +129,80 @@ export function StackCloudContent() {
             {/* Outer glow filters for each domain color */}
             {Object.entries(DOMAIN_COLORS).map(([domain, color]) => (
               <g key={domain}>
-                {/* Outer glow for highlighted state */}
+                {/* Outer glow for highlighted state - Multi-layer for depth */}
                 <filter
                   id={`glow-${domain}-highlighted`}
-                  x="-100%"
-                  y="-100%"
-                  width="300%"
-                  height="300%"
+                  x="-150%"
+                  y="-150%"
+                  width="400%"
+                  height="400%"
+                  colorInterpolationFilters="sRGB"
                 >
+                  {/* Outer soft glow */}
                   <feGaussianBlur
                     in="SourceAlpha"
-                    stdDeviation="5"
-                    result="blur"
+                    stdDeviation="8"
+                    result="blur1"
                   />
-                  <feFlood floodColor={color} floodOpacity="0.5" />
-                  <feComposite in2="blur" operator="in" result="coloredBlur" />
+                  <feFlood floodColor={color} floodOpacity="0.4" />
+                  <feComposite in2="blur1" operator="in" result="glow1" />
+
+                  {/* Inner stronger glow */}
+                  <feGaussianBlur
+                    in="SourceAlpha"
+                    stdDeviation="3"
+                    result="blur2"
+                  />
+                  <feFlood floodColor={color} floodOpacity="0.6" />
+                  <feComposite in2="blur2" operator="in" result="glow2" />
+
                   <feMerge>
-                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="glow1" />
+                    <feMergeNode in="glow2" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
 
-                {/* Outer glow for selected state */}
+                {/* Outer glow for selected state - Stronger multi-layer glow */}
                 <filter
                   id={`glow-${domain}-selected`}
-                  x="-100%"
-                  y="-100%"
-                  width="300%"
-                  height="300%"
+                  x="-150%"
+                  y="-150%"
+                  width="400%"
+                  height="400%"
+                  colorInterpolationFilters="sRGB"
                 >
+                  {/* Outer soft glow */}
                   <feGaussianBlur
                     in="SourceAlpha"
-                    stdDeviation="8"
-                    result="blur"
+                    stdDeviation="12"
+                    result="blur1"
+                  />
+                  <feFlood floodColor={color} floodOpacity="0.5" />
+                  <feComposite in2="blur1" operator="in" result="glow1" />
+
+                  {/* Middle glow */}
+                  <feGaussianBlur
+                    in="SourceAlpha"
+                    stdDeviation="6"
+                    result="blur2"
                   />
                   <feFlood floodColor={color} floodOpacity="0.7" />
-                  <feComposite in2="blur" operator="in" result="coloredBlur" />
+                  <feComposite in2="blur2" operator="in" result="glow2" />
+
+                  {/* Inner strong glow */}
+                  <feGaussianBlur
+                    in="SourceAlpha"
+                    stdDeviation="2"
+                    result="blur3"
+                  />
+                  <feFlood floodColor={color} floodOpacity="0.8" />
+                  <feComposite in2="blur3" operator="in" result="glow3" />
+
                   <feMerge>
-                    <feMergeNode in="coloredBlur" />
+                    <feMergeNode in="glow1" />
+                    <feMergeNode in="glow2" />
+                    <feMergeNode in="glow3" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
