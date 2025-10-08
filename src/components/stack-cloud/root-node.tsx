@@ -222,6 +222,7 @@ export function RootNode({
           const datum = d3
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
+          const isSelected = matchedDomainRef.current === datum.data.domain;
 
           // Get the corresponding visible path element (previous sibling)
           const visiblePath = d3.select(this.previousSibling as SVGPathElement);
@@ -240,6 +241,8 @@ export function RootNode({
             .datum() as d3.PieArcDatum<PieSegmentData>;
           // Check if this segment's domain is selected (read from ref for current value)
           const isSelected = matchedDomainRef.current === datum.data.domain;
+          // When leaving any segment, restore the selected domain if one exists
+          const restoreDomain = matchedDomainRef.current ? (matchedDomainRef.current as Domain) : null;
 
           // Get the corresponding visible path element (previous sibling)
           const visiblePath = d3.select(this.previousSibling as SVGPathElement);
@@ -255,10 +258,10 @@ export function RootNode({
             visiblePath.style("opacity", "0.6").attr("d", arc(datum) ?? "");
           }
 
-          // Clear domain hover
-          onDomainHover?.(null);
-          // Clear local hover state, but keep selected domain if exists
-          setHoveredDomain(isSelected ? (datum.data.domain as Domain) : null);
+          // Notify parent of domain hover state (restore selected domain if exists)
+          onDomainHover?.(restoreDomain);
+          // Update local hover state to match
+          setHoveredDomain(restoreDomain);
         })
         .on("click", function () {
           const datum = d3
