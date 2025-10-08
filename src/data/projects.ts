@@ -42,7 +42,7 @@ export const PROJECTS: Project[] = [
       createStackItem("Tailwind"),
       createStackItem("XState"),
     ],
-    icon: "ShieldLock",
+    icon: "Ripple",
   },
   {
     id: "PROJECT_9",
