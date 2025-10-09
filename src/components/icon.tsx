@@ -53,6 +53,7 @@ import Palette from "../images/icons/palette.svg";
 import Printer from "../images/icons/printer.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
 import ReceiptTax from "../images/icons/receipt-tax.svg";
+import Ripple from "../images/icons/ripple.svg";
 import Rocket from "../images/icons/rocket.svg";
 import Search from "../images/icons/search.svg";
 import ServerCog from "../images/icons/server-cog.svg";
@@ -126,6 +127,7 @@ const icons = {
   QuestionMark,
   ReceiptTax,
   Rocket,
+  Ripple,
   Printer,
   Search,
   ServerCog,

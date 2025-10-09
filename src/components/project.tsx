@@ -52,9 +52,6 @@ export const Project = ({
             <div className="order-2 col-span-1">
               <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 md:grid-cols-[12rem_1fr] print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch">
                 <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
-                  <span className="text-slate-500/50">
-                    <Icon.User aria-hidden="true" focusable="false" />
-                  </span>
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
@@ -62,9 +59,6 @@ export const Project = ({
                 </dd>
 
                 <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
-                  <span className=" text-slate-500/50">
-                    <Icon.UsersGroup aria-hidden="true" focusable="false" />
-                  </span>
                   <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
@@ -77,21 +71,12 @@ export const Project = ({
                   developer{project.teamSize > 1 && "s"}
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
-                  <span className="text-slate-500/50">
-                    <Icon.BuildingFactory2
-                      aria-hidden="true"
-                      focusable="false"
-                    />
-                  </span>
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.industry}</HighlightedText>
                 </dd>
                 <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
-                  <span className="text-slate-500/50">
-                    <Icon.MapPin aria-hidden="true" focusable="false" />
-                  </span>
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">

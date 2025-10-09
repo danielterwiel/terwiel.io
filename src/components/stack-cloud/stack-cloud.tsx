@@ -8,9 +8,9 @@ import type { Domain } from "~/types";
 
 import { RootNode } from "~/components/stack-cloud/root-node";
 import { StackNode } from "~/components/stack-cloud/stack-node";
-import { DOMAIN_COLORS } from "~/constants/colors";
 import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
 import { PROJECTS } from "~/data/projects";
+import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
@@ -35,6 +35,8 @@ export function StackCloudContent() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const searchParams = useSearchParams();
+
+  const a11y = useAccessibility();
 
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
@@ -118,61 +120,15 @@ export function StackCloudContent() {
           className="stack-cloud-svg"
           viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
           role="img"
-          aria-label="Technology stack visualization"
+          aria-label="Technology stack visualization - interactive buttons to filter by technology"
           style={{
             opacity: isVisible ? 1 : 0,
-            transition: "opacity 0.6s ease-in-out",
+            transition: a11y.prefersReducedMotion
+              ? "none"
+              : "opacity 0.6s ease-in-out",
           }}
         >
-          {/* SVG Filter Definitions for Outer Glow Effects */}
-          <defs>
-            {/* Outer glow filters for each domain color */}
-            {Object.entries(DOMAIN_COLORS).map(([domain, color]) => (
-              <g key={domain}>
-                {/* Outer glow for highlighted state */}
-                <filter
-                  id={`glow-${domain}-highlighted`}
-                  x="-100%"
-                  y="-100%"
-                  width="300%"
-                  height="300%"
-                >
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="5"
-                    result="blur"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.5" />
-                  <feComposite in2="blur" operator="in" result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-
-                {/* Outer glow for selected state */}
-                <filter
-                  id={`glow-${domain}-selected`}
-                  x="-100%"
-                  y="-100%"
-                  width="300%"
-                  height="300%"
-                >
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="8"
-                    result="blur"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.7" />
-                  <feComposite in2="blur" operator="in" result="coloredBlur" />
-                  <feMerge>
-                    <feMergeNode in="coloredBlur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </g>
-            ))}
-          </defs>
+          {/* No SVG filters - using CSS drop-shadow for better performance */}
 
           <RootNode
             dimensions={dimensions}
@@ -187,8 +143,9 @@ export function StackCloudContent() {
 
           {stacks.map((stack) => {
             const selected = isStackSelected(stack, searchParams, PROJECTS);
+            const isDirectlyHovered = hoveredStack?.id === stack.id;
             const highlighted =
-              hoveredStack?.id === stack.id ||
+              isDirectlyHovered ||
               (hoveredDomain !== null && stack.domain === hoveredDomain);
 
             return (
@@ -199,6 +156,7 @@ export function StackCloudContent() {
                 sizeFactors={sizeFactors}
                 selected={selected}
                 highlighted={highlighted}
+                isDirectlyHovered={isDirectlyHovered}
                 nodeRef={(el) => {
                   if (el) nodesRef.current.set(stack.id, el);
                   else nodesRef.current.delete(stack.id);
