@@ -8,9 +8,9 @@ import type { Domain } from "~/types";
 
 import { RootNode } from "~/components/stack-cloud/root-node";
 import { StackNode } from "~/components/stack-cloud/stack-node";
-import { DOMAIN_COLORS } from "~/constants/colors";
 import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
 import { PROJECTS } from "~/data/projects";
+import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
@@ -35,6 +35,8 @@ export function StackCloudContent() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const searchParams = useSearchParams();
+
+  const a11y = useAccessibility();
 
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
@@ -118,97 +120,15 @@ export function StackCloudContent() {
           className="stack-cloud-svg"
           viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
           role="img"
-          aria-label="Technology stack visualization"
+          aria-label="Technology stack visualization - interactive buttons to filter by technology"
           style={{
             opacity: isVisible ? 1 : 0,
-            transition: "opacity 0.6s ease-in-out",
+            transition: a11y.prefersReducedMotion
+              ? "none"
+              : "opacity 0.6s ease-in-out",
           }}
         >
-          {/* SVG Filter Definitions for Outer Glow Effects */}
-          <defs>
-            {/* Outer glow filters for each domain color */}
-            {Object.entries(DOMAIN_COLORS).map(([domain, color]) => (
-              <g key={domain}>
-                {/* Outer glow for highlighted state - Multi-layer for depth */}
-                <filter
-                  id={`glow-${domain}-highlighted`}
-                  x="-150%"
-                  y="-150%"
-                  width="400%"
-                  height="400%"
-                  colorInterpolationFilters="sRGB"
-                >
-                  {/* Outer soft glow */}
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="8"
-                    result="blur1"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.4" />
-                  <feComposite in2="blur1" operator="in" result="glow1" />
-
-                  {/* Inner stronger glow */}
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="3"
-                    result="blur2"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.6" />
-                  <feComposite in2="blur2" operator="in" result="glow2" />
-
-                  <feMerge>
-                    <feMergeNode in="glow1" />
-                    <feMergeNode in="glow2" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-
-                {/* Outer glow for selected state - Stronger multi-layer glow */}
-                <filter
-                  id={`glow-${domain}-selected`}
-                  x="-150%"
-                  y="-150%"
-                  width="400%"
-                  height="400%"
-                  colorInterpolationFilters="sRGB"
-                >
-                  {/* Outer soft glow */}
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="12"
-                    result="blur1"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.5" />
-                  <feComposite in2="blur1" operator="in" result="glow1" />
-
-                  {/* Middle glow */}
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="6"
-                    result="blur2"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.7" />
-                  <feComposite in2="blur2" operator="in" result="glow2" />
-
-                  {/* Inner strong glow */}
-                  <feGaussianBlur
-                    in="SourceAlpha"
-                    stdDeviation="2"
-                    result="blur3"
-                  />
-                  <feFlood floodColor={color} floodOpacity="0.8" />
-                  <feComposite in2="blur3" operator="in" result="glow3" />
-
-                  <feMerge>
-                    <feMergeNode in="glow1" />
-                    <feMergeNode in="glow2" />
-                    <feMergeNode in="glow3" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </g>
-            ))}
-          </defs>
+          {/* No SVG filters - using CSS drop-shadow for better performance */}
 
           <RootNode
             dimensions={dimensions}
@@ -223,8 +143,9 @@ export function StackCloudContent() {
 
           {stacks.map((stack) => {
             const selected = isStackSelected(stack, searchParams, PROJECTS);
+            const isDirectlyHovered = hoveredStack?.id === stack.id;
             const highlighted =
-              hoveredStack?.id === stack.id ||
+              isDirectlyHovered ||
               (hoveredDomain !== null && stack.domain === hoveredDomain);
 
             return (
@@ -235,6 +156,7 @@ export function StackCloudContent() {
                 sizeFactors={sizeFactors}
                 selected={selected}
                 highlighted={highlighted}
+                isDirectlyHovered={isDirectlyHovered}
                 nodeRef={(el) => {
                   if (el) nodesRef.current.set(stack.id, el);
                   else nodesRef.current.delete(stack.id);

@@ -20,7 +20,8 @@ After making changes to the codebase, run the following commands to ensure code 
 
 1. `npm run knip` - Detect and remove unused files, exports, and dependencies
 2. `npm run lint` - Check for linting issues
-3. `npm run build` - Verify the build succeeds
+
+NOTE: do not rebuild the project. We got a dev server running.
 
 **Note on Knip**: Knip finds unused files, dependencies, and exports. Some reports may be false positives (e.g., Next.js conventions like `layout.tsx`, `page.tsx`, config files). Always verify before removing reported items. Common false positives include:
 

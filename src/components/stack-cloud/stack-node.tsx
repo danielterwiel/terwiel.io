@@ -3,8 +3,9 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Dimensions, Domain } from "~/types";
 
 import { Icon } from "~/components/icon";
-import { DOMAIN_COLORS } from "~/constants/colors";
 import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
+import { useAccessibility } from "~/hooks/use-accessibility";
+import { getIconHexColor } from "~/utils/icon-colors";
 import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
 
 interface StackNodeProps {
@@ -19,6 +20,7 @@ interface StackNodeProps {
   sizeFactors: Map<string, number>;
   selected?: boolean;
   highlighted?: boolean;
+  isDirectlyHovered?: boolean;
   nodeRef: (el: SVGGElement | null) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -34,6 +36,7 @@ export function StackNode({
   sizeFactors,
   selected = false,
   highlighted = false,
+  isDirectlyHovered = false,
   nodeRef,
   onMouseEnter,
   onMouseLeave,
@@ -42,6 +45,9 @@ export function StackNode({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const IconComponent = Icon[stack.iconKey as keyof typeof Icon];
+
+  // Unified accessibility hook
+  const a11y = useAccessibility();
 
   const currentSearchQuery = getSearchQuery(searchParams);
 
@@ -58,37 +64,43 @@ export function StackNode({
   // Grow when selected (applied via transform scale)
   const groupScale = selected ? STACK_SELECTION_SCALE : 1;
 
-  // Get domain color for border
-  const borderColor = DOMAIN_COLORS[stack.domain];
+  // Determine state for styling
+  const state = selected ? "selected" : highlighted ? "highlighted" : "default";
 
-  // Only apply glow filter and colored fill when selected or highlighted
-  let filterId: string | undefined;
-  let circleFill: string;
+  // Get colors and styles from accessibility hook
+  const borderColor = a11y.getBorderColor(
+    stack.domain,
+    selected || highlighted,
+  );
+  const borderWidth = a11y.getBorderWidth(state);
+  const fillColor = a11y.getFillColor();
+  const iconStyle = a11y.getIconStyle(stack.domain, state);
+  const focusColor = a11y.getFocusColor();
 
-  if (selected) {
-    filterId = `glow-${stack.domain}-selected`;
-    circleFill = "white";
-  } else if (highlighted) {
-    filterId = `glow-${stack.domain}-highlighted`;
-    circleFill = "white";
-  } else {
-    circleFill = "white";
-  }
+  // CSS drop-shadow for glow effect (much better performance than SVG filters)
+  // Highlighted: subtle glow (2px blur), Selected: stronger glow (4px blur)
+  const getDropShadow = () => {
+    if (!a11y.shouldShowGlow || state === "default") return "none";
 
-  // Calculate icon color and opacity based on selected/highlighted state
-  let iconColor: string;
-  let iconOpacity: number;
+    const color = borderColor;
+    if (state === "highlighted") {
+      // Subtle glow for hover
+      return `drop-shadow(0 0 2px ${color})`;
+    }
+    // Stronger glow for selected (2x the highlighted)
+    return `drop-shadow(0 0 4px ${color}) drop-shadow(0 0 2px ${color})`;
+  };
 
-  if (selected) {
-    iconColor = stack.color;
-    iconOpacity = 1;
-  } else if (highlighted) {
-    iconColor = stack.color;
-    iconOpacity = 0.5;
-  } else {
-    iconColor = borderColor;
-    iconOpacity = 0.35;
-  }
+  // Get icon-specific color for hover override
+  const iconSpecificColor = getIconHexColor(stack.iconKey);
+
+  // Determine final icon color: use specific color ONLY on direct hover (not on selection or domain highlight)
+  const finalIconColor = isDirectlyHovered
+    ? iconSpecificColor
+    : iconStyle.color;
+
+  // Transition duration respecting accessibility preferences
+  const transitionDuration = a11y.getTransitionDuration(300);
 
   // Handle click to toggle URL search params
   const handleClick = () => {
@@ -96,36 +108,86 @@ export function StackNode({
     router.push(`${pathname}${queryString}`);
   };
 
+  // Handle keyboard interaction
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleClick();
+    }
+  };
+
+  // Get CSS classes
+  const nodeClasses = `stack-node ${a11y.getStateClasses({ selected, highlighted })}`;
+  const circleClasses = `stack-node-circle ${a11y.getStateClasses({ selected, highlighted })}`;
+  const iconClasses = `stack-node-icon ${a11y.getStateClasses({ selected, highlighted })}`;
+  const focusRingClasses = `stack-node-focus-ring ${a11y.getStateClasses({})}`;
+
   return (
     // Outer group: controlled by D3 for positioning (translate)
     <g ref={nodeRef}>
       {/* Inner group: controlled by React for scaling */}
       {/* biome-ignore lint/a11y/useSemanticElements: SVG elements cannot use semantic HTML elements */}
       <g
+        className={nodeClasses}
         transform={`scale(${groupScale})`}
         role="button"
         tabIndex={0}
         aria-label={`${stack.name} technology`}
+        aria-pressed={selected}
         onClick={handleClick}
+        onKeyDown={handleKeyDown}
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
-        style={{ cursor: "pointer", transition: "transform 0.3s ease" }}
+        style={{
+          filter: getDropShadow(),
+          transition:
+            transitionDuration > 0
+              ? `filter ${transitionDuration}ms ease-in-out`
+              : "none",
+        }}
       >
-        {/* Main node circle with conditional outer glow filter */}
+        {/* Main node circle */}
         <circle
+          className={circleClasses}
           r={nodeRadius}
-          fill={circleFill}
+          fill={fillColor}
           stroke={borderColor}
-          strokeWidth={1.5}
-          filter={filterId ? `url(#${filterId})` : undefined}
+          strokeWidth={borderWidth}
+          shapeRendering="geometricPrecision"
+        />
+
+        {/* Inner fill for selected state - subtle glow effect */}
+        {selected && a11y.shouldShowSelectionIndicator && (
+          <circle
+            r={nodeRadius * 0.85}
+            fill={borderColor}
+            opacity={0.08}
+            style={{ pointerEvents: "none" }}
+          />
+        )}
+
+        {/* Focus ring - visible only on keyboard focus */}
+        <circle
+          className={focusRingClasses}
+          r={nodeRadius + 4}
+          fill="none"
+          stroke={focusColor}
+          strokeWidth={3}
         />
 
         {/* Icon */}
         {IconComponent && (
           <g
+            className={iconClasses}
             transform={`translate(${-iconSize / 2},${-iconSize / 2}) scale(${iconScale})`}
-            style={{ pointerEvents: "none", color: iconColor }}
-            opacity={iconOpacity}
+            style={{
+              color: finalIconColor,
+              transition:
+                transitionDuration > 0
+                  ? `color ${transitionDuration}ms ease-in-out`
+                  : "none",
+            }}
+            opacity={iconStyle.opacity}
           >
             <IconComponent width={24} height={24} viewBox="0 0 24 24" />
           </g>

@@ -88,6 +88,99 @@
     display: block;
     overflow: visible;
   }
+
+  /* Stack Node States - use CSS classes instead of inline styles for performance */
+  .stack-node {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+  }
+
+  .stack-node.prefers-reduced-motion {
+    transition: none;
+  }
+
+  .stack-node-circle {
+    transition:
+      stroke-width 0.3s ease,
+      stroke 0.3s ease,
+      filter 0.3s ease;
+  }
+
+  .stack-node-circle.prefers-reduced-motion {
+    transition: none;
+  }
+
+  /* Subtle elevation on hover/selection for depth perception (dual encoding) */
+  .stack-node-circle.is-highlighted:not(.forced-colors) {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
+
+  .stack-node-circle.is-selected:not(.forced-colors) {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+  }
+
+  /* Remove drop shadows for reduced motion and forced colors */
+  .stack-node-circle.prefers-reduced-motion,
+  .stack-node-circle.forced-colors {
+    filter: none !important;
+  }
+
+  .stack-node-icon {
+    pointer-events: none;
+    transition:
+      opacity 0.3s ease,
+      color 0.3s ease;
+  }
+
+  .stack-node-icon.prefers-reduced-motion {
+    transition: none;
+  }
+
+  .stack-node-focus-ring {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .stack-node-focus-ring.prefers-reduced-motion {
+    transition: none;
+  }
+
+  .stack-node:focus-visible .stack-node-focus-ring {
+    opacity: 1;
+  }
+
+  /* Pie segment states */
+  .pie-segment {
+    transition:
+      opacity 0.2s ease,
+      d 0.2s ease;
+  }
+
+  .pie-segment.prefers-reduced-motion {
+    transition: none;
+  }
+
+  .pie-segment-hit-area {
+    cursor: pointer;
+  }
+
+  .pie-segment-hit-area:focus-visible {
+    outline: 3px solid oklch(45% 0.15 260);
+    outline-offset: 2px;
+  }
+
+  .pie-segment-hit-area.forced-colors:focus-visible {
+    outline-color: CanvasText;
+  }
+
+  /* Forced colors mode adjustments */
+  @media (forced-colors: active) {
+    .stack-node-circle,
+    .pie-segment-hit-area {
+      forced-color-adjust: auto;
+    }
+  }
 }
 
 @keyframes animationRing {
