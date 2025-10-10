@@ -181,6 +181,27 @@
       forced-color-adjust: auto;
     }
   }
+
+  /* Loading Spinner Animations */
+  .spinner-ring-container {
+    transform-origin: 50px 50px;
+    animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  .spinner-ring-segment {
+    /* Individual segments grow and shrink for fluid motion */
+    animation: spinner-segment-pulse 2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spinner-ring-container {
+      animation: spinner-rotate-smooth 5s linear infinite;
+    }
+
+    .spinner-ring-segment {
+      animation: none;
+    }
+  }
 }
 
 @keyframes animationRing {
@@ -221,6 +242,27 @@
   }
   50% {
     transform: translateY(-2px);
+  }
+}
+
+@keyframes spinner-rotate-smooth {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinner-segment-pulse {
+  0%,
+  100% {
+    stroke-dasharray: var(--dash-base) var(--dash-gap);
+    opacity: 0.85;
+  }
+  50% {
+    stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
+    opacity: 1;
   }
 }
 

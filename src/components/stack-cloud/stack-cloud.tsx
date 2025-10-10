@@ -1,193 +1,74 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import dynamic from "next/dynamic";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-import type { Domain } from "~/types";
-
-import { RootNode } from "~/components/stack-cloud/root-node";
-import { StackNode } from "~/components/stack-cloud/stack-node";
-import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
-import { PROJECTS } from "~/data/projects";
-import { useAccessibility } from "~/hooks/use-accessibility";
-import { useDimensions } from "~/hooks/use-dimensions";
-import { useStackSimulation } from "~/hooks/use-stack-simulation";
-import { extractUniqueStacks } from "~/utils/extract-stacks";
-import {
-  getInitialSelectedDomain,
-  getInitialSelectedStack,
-} from "~/utils/get-initial-selection";
-import {
-  getHoverStackOnLeave,
-  isActiveStackHover,
-} from "~/utils/hover-state-manager";
-import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
-import { isStackSelected } from "~/utils/stack-selection";
+import { StackCloudLoader } from "./stack-cloud-loader";
 
 /**
- * StackCloudContent Component
- * A responsive D3 force-directed visualization of technology stacks
- * Optimized for iOS Safari with dynamic viewport handling
- * Uses useSearchParams() so must be wrapped in Suspense
+ * Main StackCloud component with dynamic loading
+ * Splits d3.js (290.4kB) into separate bundle and shows loader during load
+ * Cross-fades between loader and content with minimum display time
  */
-export function StackCloudContent() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
-  const searchParams = useSearchParams();
+const StackCloudContent = dynamic(
+  () =>
+    import("./stack-cloud-content").then((mod) => ({
+      default: mod.StackCloudContent,
+    })),
+  {
+    ssr: false,
+  },
+);
 
-  const a11y = useAccessibility();
+const MIN_LOADING_TIME = 800;
 
-  // Extract stacks and calculate size factors once
-  const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
-  const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
+export function StackCloud() {
+  const [mounted, setMounted] = useState(false);
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
+  const [showContent, setShowContent] = useState(false);
 
-  // Hover state management - initialize with selected domain/stack if present
-  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(() =>
-    getInitialSelectedDomain(searchParams, PROJECTS),
-  );
-  const [hoveredStack, setHoveredStack] = useState<{
-    id: string;
-    name: string;
-    iconKey: string;
-    color: string;
-    domain: Domain;
-  } | null>(() => getInitialSelectedStack(searchParams, stacks, PROJECTS));
-
-  // Calculate scale factors based on selection state
-  const scaleFactors = useMemo(() => {
-    const scaleFactorMap = new Map<string, number>();
-    for (const stack of stacks) {
-      const selected = isStackSelected(stack, searchParams, PROJECTS);
-      scaleFactorMap.set(stack.id, selected ? STACK_SELECTION_SCALE : 1.0);
-    }
-    return scaleFactorMap;
-  }, [stacks, searchParams]);
-
-  // Custom hooks for dimensions and simulation
-  const { dimensions } = useDimensions(wrapperRef);
-  const { nodesRef, isVisible, updateSimulation, updateNodeScaleFactors } =
-    useStackSimulation({
-      dimensions,
-      stacks,
-      sizeFactors,
-      scaleFactors,
-    });
-
-  // Update simulation when dimensions change
   useEffect(() => {
-    if (dimensions) {
-      updateSimulation(dimensions);
-    }
-  }, [dimensions, updateSimulation]);
+    setMounted(true);
+    const timer = setTimeout(() => {
+      setMinTimeElapsed(true);
+    }, MIN_LOADING_TIME);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Update node scale factors when selection changes (after initial setup)
   useEffect(() => {
-    updateNodeScaleFactors(scaleFactors);
-  }, [scaleFactors, updateNodeScaleFactors]);
-
-  // Derive if actively hovering by checking if hoveredStack differs from selected stack
-  const isActiveHover = useMemo(
-    () => isActiveStackHover(hoveredStack, searchParams, stacks, PROJECTS),
-    [hoveredStack, searchParams, stacks],
-  );
-
-  // Sync hover state with search params (selected stack/domain)
-  useEffect(() => {
-    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
-
-    // Clear all hover states when search param is empty (iOS Safari touch fix)
-    if (searchQuery === "") {
-      setHoveredStack(null);
-      setHoveredDomain(null);
-      return;
+    if (mounted && minTimeElapsed) {
+      const fadeTimer = setTimeout(() => {
+        setShowContent(true);
+      }, 50);
+      return () => clearTimeout(fadeTimer);
     }
-
-    // Get the appropriate hover state based on current selection
-    const hoverStack = getInitialSelectedStack(searchParams, stacks, PROJECTS);
-    const hoverDomain = getInitialSelectedDomain(searchParams, PROJECTS);
-
-    // Update hover states
-    setHoveredStack(hoverStack);
-    setHoveredDomain(hoverDomain);
-  }, [searchParams, stacks]);
+  }, [mounted, minTimeElapsed]);
 
   return (
-    <div ref={wrapperRef} className="stack-cloud-wrapper">
-      {!dimensions ? null : (
-        <svg
-          ref={svgRef}
-          className="stack-cloud-svg"
-          viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-          role="img"
-          aria-label="Technology stack visualization - interactive buttons to filter by technology"
+    <div className="stack-cloud-wrapper" style={{ position: "relative" }}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: showContent ? 0 : 1,
+          transition: "opacity 0.6s ease-in-out",
+          pointerEvents: showContent ? "none" : "auto",
+        }}
+      >
+        <StackCloudLoader />
+      </div>
+
+      {mounted && (
+        <div
           style={{
-            opacity: isVisible ? 1 : 0,
-            transition: a11y.prefersReducedMotion
-              ? "none"
-              : "opacity 0.6s ease-in-out",
+            opacity: showContent ? 1 : 0,
+            transition: "opacity 0.6s ease-in-out",
           }}
         >
-          {/* No SVG filters - using CSS drop-shadow for better performance */}
-
-          <RootNode
-            dimensions={dimensions}
-            nodeRef={(el) => {
-              if (el) nodesRef.current.set("root", el);
-              else nodesRef.current.delete("root");
-            }}
-            onDomainHover={setHoveredDomain}
-            hoveredStack={hoveredStack}
-            isActiveHover={isActiveHover}
-          />
-
-          {stacks.map((stack) => {
-            const selected = isStackSelected(stack, searchParams, PROJECTS);
-            const isDirectlyHovered = hoveredStack?.id === stack.id;
-            const highlighted =
-              isDirectlyHovered ||
-              (hoveredDomain !== null && stack.domain === hoveredDomain);
-
-            return (
-              <StackNode
-                key={stack.id}
-                stack={stack}
-                dimensions={dimensions}
-                sizeFactors={sizeFactors}
-                selected={selected}
-                highlighted={highlighted}
-                isDirectlyHovered={isDirectlyHovered}
-                nodeRef={(el) => {
-                  if (el) nodesRef.current.set(stack.id, el);
-                  else nodesRef.current.delete(stack.id);
-                }}
-                onMouseEnter={() => setHoveredStack(stack)}
-                onMouseLeave={() => {
-                  // Restore the appropriate hover state when mouse leaves
-                  const hoverStack = getHoverStackOnLeave(
-                    searchParams,
-                    stacks,
-                    PROJECTS,
-                  );
-                  setHoveredStack(hoverStack);
-                }}
-              />
-            );
-          })}
-        </svg>
+          <StackCloudContent />
+        </div>
       )}
     </div>
-  );
-}
-
-/**
- * StackCloud Wrapper Component
- * Wraps StackCloudContent in Suspense for Next.js 15 compatibility
- */
-export function StackCloud() {
-  return (
-    <Suspense fallback={<div className="stack-cloud-wrapper" />}>
-      <StackCloudContent />
-    </Suspense>
   );
 }

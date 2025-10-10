@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { Dimensions } from "~/types/simulation";
+import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 import { debounce } from "~/utils/debounce";
 
 /**
@@ -18,13 +19,21 @@ export function useDimensions(
     const rect = wrapperRef.current.getBoundingClientRect();
     const vmin = Math.min(rect.width, rect.height);
 
+    // Determine stack radius based on breakpoints
+    let stackRadius: number = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_LARGE;
+    if (vmin < STACK_CLOUD_BREAKPOINTS.SMALL) {
+      stackRadius = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_SMALL;
+    } else if (vmin < STACK_CLOUD_BREAKPOINTS.MEDIUM) {
+      stackRadius = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_MEDIUM;
+    }
+
     return {
       width: rect.width,
       height: rect.height,
       centerX: rect.width / 2,
       centerY: rect.height / 2,
-      rootRadius: (vmin * 0.25) / 1.25,
-      stackRadius: vmin < 400 ? 22 : vmin < 600 ? 26 : 30,
+      rootRadius: vmin * STACK_CLOUD_BREAKPOINTS.ROOT_RADIUS_SCALE,
+      stackRadius,
     };
   }, [wrapperRef]);
 
