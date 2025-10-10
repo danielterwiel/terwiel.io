@@ -59,18 +59,49 @@ export function useStackSimulation({
 
   const [isVisible, setIsVisible] = useState(false);
 
+  // RAF throttle flag to prevent excessive transform updates
+  const rafIdRef = useRef<number | null>(null);
+  const lastTickTimeRef = useRef<number>(0);
+
   /**
    * Handle simulation tick - update DOM transforms
+   * Throttled via requestAnimationFrame to prevent jitter
    */
   const handleTick = useCallback(() => {
     if (!simulationRef.current) return;
 
-    for (const node of simulationRef.current.nodes()) {
-      const el = nodesRef.current.get(node.id);
-      if (el && node.x !== undefined && node.y !== undefined) {
-        el.setAttribute("transform", `translate(${node.x}, ${node.y})`);
-      }
+    // Cancel any pending RAF
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
     }
+
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null;
+      const now = performance.now();
+
+      // Throttle to ~60fps (16ms minimum between updates)
+      if (now - lastTickTimeRef.current < 16) return;
+      lastTickTimeRef.current = now;
+
+      if (!simulationRef.current) return;
+
+      for (const node of simulationRef.current.nodes()) {
+        const el = nodesRef.current.get(node.id);
+        if (el && node.x !== undefined && node.y !== undefined) {
+          // Apply both translate and scale in a single transform
+          // Scale from node center: translate(x,y) then scale from that point
+          const scale = node.scaleFactor ?? 1.0;
+          if (scale !== 1.0) {
+            el.setAttribute(
+              "transform",
+              `translate(${node.x}, ${node.y}) scale(${scale})`,
+            );
+          } else {
+            el.setAttribute("transform", `translate(${node.x}, ${node.y})`);
+          }
+        }
+      }
+    });
   }, []);
 
   /**
@@ -161,6 +192,8 @@ export function useStackSimulation({
       ).matches;
 
       // Forces
+      // Collision radius includes scaleFactor for physics-based repositioning
+      // When node scales up, it pushes neighbors away smoothly
       const collide = d3
         .forceCollide<SimulationNode>()
         .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
@@ -235,7 +268,7 @@ export function useStackSimulation({
       sim.force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH));
       sim.force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH));
 
-      // Update collide radii
+      // Update collide radii (includes scaleFactor for repositioning)
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
       if (collide?.radius) {
         collide
@@ -358,7 +391,6 @@ export function useStackSimulation({
 
   /**
    * Update scale factors for nodes (e.g., when selection changes)
-   * Uses alphaTarget to avoid jitter
    */
   const updateNodeScaleFactors = useCallback(
     (scaleFactorMap: Map<string, number>) => {
@@ -367,29 +399,40 @@ export function useStackSimulation({
 
       const nodes = sim.nodes();
       let hasChanges = false;
+      const nodesToFix: SimulationNode[] = [];
 
       for (const node of nodes) {
         if (node.type === "stack") {
           const newScaleFactor = scaleFactorMap.get(node.id) ?? 1.0;
-          if (node.scaleFactor !== newScaleFactor) {
+          const oldScaleFactor = node.scaleFactor ?? 1.0;
+
+          if (oldScaleFactor !== newScaleFactor) {
             node.scaleFactor = newScaleFactor;
             hasChanges = true;
+
+            // If node is being selected (scaling up), temporarily fix its position
+            if (newScaleFactor > oldScaleFactor && node.x && node.y) {
+              nodesToFix.push(node);
+              // Fix position during transition
+              node.fx = node.x;
+              node.fy = node.y;
+            }
           }
         }
       }
 
-      // Only reheat if there were actual changes
       if (!hasChanges) return;
 
-      // Reinitialize collision force to pick up new radii
+      // Only 2 iterations during selection transition (vs 8 at rest)
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
-      if (collide) {
-        // Re-set the radius accessor to force re-evaluation
-        collide.radius(
-          (d: SimulationNode) => d.radius * (d.scaleFactor ?? 1) + 6,
-        );
-        // Explicitly reinitialize the force with current nodes
-        collide.initialize(nodes, Math.random);
+      if (collide?.radius) {
+        collide
+          .radius(
+            (d: SimulationNode) =>
+              d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING,
+          )
+          .strength(COLLISION_STRENGTH)
+          .iterations(2); // Reduced from 8 to 2 during selection
       }
 
       const prefersReducedMotion = window.matchMedia(
@@ -397,16 +440,46 @@ export function useStackSimulation({
       ).matches;
 
       if (prefersReducedMotion) {
-        // For reduced motion, just update positions without animation
+        // For reduced motion, update instantly without animation
         sim.stop();
-        sim.tick(10);
+        sim.tick(30);
         handleTick();
+
+        // Unfix nodes immediately and restore collision iterations
+        for (const node of nodesToFix) {
+          node.fx = null;
+          node.fy = null;
+        }
+        if (collide?.iterations) {
+          collide.iterations(COLLISION_ITERATIONS);
+        }
       } else {
-        // Gentle reheat with alphaTarget to avoid jitter
-        sim.alphaTarget(0.15).restart();
+        const currentAlpha = sim.alpha();
+
+        // Very gentle warmup
+        if (currentAlpha < 0.01) {
+          sim.alpha(0.03);
+        }
+
+        // Extremely low alphaTarget for smooth repositioning
+        sim.alphaTarget(0.01).restart();
+
         setTimeout(() => {
-          if (sim) sim.alphaTarget(0);
-        }, 300);
+          for (const node of nodesToFix) {
+            node.fx = null;
+            node.fy = null;
+          }
+        }, 100);
+
+        setTimeout(() => {
+          if (sim) {
+            sim.alphaTarget(0);
+            // Restore full collision iterations after selection animation
+            if (collide?.iterations) {
+              collide.iterations(COLLISION_ITERATIONS);
+            }
+          }
+        }, 400);
       }
     },
     [handleTick],

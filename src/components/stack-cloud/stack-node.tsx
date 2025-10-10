@@ -3,7 +3,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Dimensions, Domain } from "~/types";
 
 import { Icon } from "~/components/icon";
-import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { getIconHexColor } from "~/utils/icon-colors";
 import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
@@ -61,9 +60,6 @@ export function StackNode({
   // Scale factor for SVG with 24x24 viewBox
   const iconScale = iconSize / 24;
 
-  // Grow when selected (applied via transform scale)
-  const groupScale = selected ? STACK_SELECTION_SCALE : 1;
-
   // Determine state for styling
   const state = selected ? "selected" : highlighted ? "highlighted" : "default";
 
@@ -99,8 +95,7 @@ export function StackNode({
     ? iconSpecificColor
     : iconStyle.color;
 
-  // Transition duration respecting accessibility preferences
-  const transitionDuration = a11y.getTransitionDuration(300);
+  const transitionDuration = a11y.getTransitionDuration(200);
 
   // Handle click to toggle URL search params
   const handleClick = () => {
@@ -123,76 +118,73 @@ export function StackNode({
   const focusRingClasses = `stack-node-focus-ring ${a11y.getStateClasses({})}`;
 
   return (
-    // Outer group: controlled by D3 for positioning (translate)
-    <g ref={nodeRef}>
-      {/* Inner group: controlled by React for scaling */}
-      {/* biome-ignore lint/a11y/useSemanticElements: SVG elements cannot use semantic HTML elements */}
-      <g
-        className={nodeClasses}
-        transform={`scale(${groupScale})`}
-        role="button"
-        tabIndex={0}
-        aria-label={`${stack.name} technology`}
-        aria-pressed={selected}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        style={{
-          filter: getDropShadow(),
-          transition:
-            transitionDuration > 0
-              ? `filter ${transitionDuration}ms ease-in-out`
-              : "none",
-        }}
-      >
-        {/* Main node circle */}
+    // Single group: D3 controls translate, React adds scale to the same transform
+    // biome-ignore lint/a11y/useSemanticElements: SVG elements cannot use semantic HTML elements
+    <g
+      ref={nodeRef}
+      className={nodeClasses}
+      role="button"
+      tabIndex={0}
+      aria-label={`${stack.name} technology`}
+      aria-pressed={selected}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={{
+        filter: getDropShadow(),
+        transition:
+          transitionDuration > 0
+            ? `filter ${transitionDuration}ms ease-in-out`
+            : "none",
+      }}
+    >
+      {/* Main node circle */}
+      <circle
+        className={circleClasses}
+        r={nodeRadius}
+        fill={fillColor}
+        stroke={borderColor}
+        strokeWidth={borderWidth}
+        shapeRendering="geometricPrecision"
+      />
+
+      {/* Inner fill for selected state - subtle glow effect */}
+      {selected && a11y.shouldShowSelectionIndicator && (
         <circle
-          className={circleClasses}
-          r={nodeRadius}
-          fill={fillColor}
-          stroke={borderColor}
-          strokeWidth={borderWidth}
-          shapeRendering="geometricPrecision"
+          r={nodeRadius * 0.85}
+          fill={borderColor}
+          opacity={0.08}
+          style={{ pointerEvents: "none" }}
         />
+      )}
 
-        {/* Inner fill for selected state - subtle glow effect */}
-        {selected && a11y.shouldShowSelectionIndicator && (
-          <circle
-            r={nodeRadius * 0.85}
-            fill={borderColor}
-            opacity={0.08}
-            style={{ pointerEvents: "none" }}
-          />
-        )}
+      {/* Focus ring - visible only on keyboard focus */}
+      <circle
+        className={focusRingClasses}
+        r={nodeRadius + 4}
+        fill="none"
+        stroke={focusColor}
+        strokeWidth={3}
+      />
 
-        {/* Focus ring - visible only on keyboard focus */}
-        <circle
-          className={focusRingClasses}
-          r={nodeRadius + 4}
-          fill="none"
-          stroke={focusColor}
-          strokeWidth={3}
-        />
-
-        {/* Icon */}
-        {IconComponent && (
-          <g
-            className={iconClasses}
-            transform={`translate(${-iconSize / 2},${-iconSize / 2}) scale(${iconScale})`}
-            style={{
-              color: finalIconColor,
-              transition:
-                transitionDuration > 0
-                  ? `color ${transitionDuration}ms ease-in-out`
-                  : "none",
-            }}
-            opacity={iconStyle.opacity}
-          >
-            <IconComponent width={24} height={24} viewBox="0 0 24 24" />
-          </g>
-        )}
-      </g>
+      {/* Icon */}
+      {IconComponent && (
+        <g
+          className={iconClasses}
+          transform={`translate(${-iconSize / 2},${-iconSize / 2}) scale(${iconScale})`}
+          style={{
+            color: finalIconColor,
+            transition:
+              transitionDuration > 0
+                ? `color ${transitionDuration}ms ease-in-out`
+                : "none",
+          }}
+          opacity={iconStyle.opacity}
+        >
+          <IconComponent width={24} height={24} viewBox="0 0 24 24" />
+        </g>
+      )}
     </g>
   );
 }

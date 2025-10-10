@@ -29,7 +29,12 @@ export const SearchSummary = ({
   const duration = formatDuration({ months, years }, { delimiter: " and " });
 
   return (
-    <div className="px-6 py-6 text-center text-klein print:hidden border-klein border-2 w-full">
+    <div
+      className="px-6 py-6 text-center text-klein print:hidden border-klein border-2 w-full"
+      style={{
+        animation: "animationFadeIn 0.4s ease-out 0.15s both",
+      }}
+    >
       {total === 0 ? (
         <span>Your search did not return any projects</span>
       ) : (

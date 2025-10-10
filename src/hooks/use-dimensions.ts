@@ -50,7 +50,7 @@ export function useDimensions(
     const debouncedResize = debounce(() => {
       const measurements = measureContainer();
       if (measurements) setDimensions(measurements);
-    }, 150);
+    }, 100);
 
     const resizeObserver = new ResizeObserver(debouncedResize);
     resizeObserver.observe(wrapperRef.current);
@@ -65,7 +65,7 @@ export function useDimensions(
     const handleVisualViewportChange = debounce(() => {
       const measurements = measureContainer();
       if (measurements) setDimensions(measurements);
-    }, 150);
+    }, 100);
 
     window.visualViewport.addEventListener(
       "resize",
