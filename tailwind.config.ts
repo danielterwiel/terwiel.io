@@ -80,7 +80,7 @@ export default {
           position: "relative",
           background: `linear-gradient(135deg, oklch(100% 0 0 / 0.08), oklch(37.85% 0.1954 263.23 / 0.03))`,
           boxShadow: "0 2px 12px oklch(0% 0 0 / 0.08)",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
         },
 
         // Ring effect addon - only applied when explicitly requested
@@ -94,7 +94,7 @@ export default {
           border: `2px solid oklch(37.85% 0.1954 263.23 / 0.3)`,
           opacity: "0",
           transform: "translate(-50%, -50%) scale(0.8)",
-          transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+          transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
           zIndex: "-1",
           pointerEvents: "none",
         },

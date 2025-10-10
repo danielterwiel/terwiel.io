@@ -21,11 +21,11 @@ export const ARC_TO_MATH_ANGLE_OFFSET = Math.PI / 2;
 /** Collision force padding in pixels between nodes */
 export const COLLISION_PADDING = 6 as const;
 
-/** Collision force strength (0.5 = moderate) */
-export const COLLISION_STRENGTH = 0.5 as const;
+/** Collision force strength (1.0 = maximum rigidity, prevents all overlap) */
+export const COLLISION_STRENGTH = 1.0 as const;
 
-/** Collision force iterations for stability */
-export const COLLISION_ITERATIONS = 2 as const;
+/** Collision force iterations for stability (higher = more rigid, prevents overlap) */
+export const COLLISION_ITERATIONS = 8 as const;
 
 /** Many-body charge strength (negative = repulsion) */
 export const CHARGE_STRENGTH = -12 as const;

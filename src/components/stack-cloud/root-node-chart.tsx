@@ -46,6 +46,42 @@ export function RootNodeChart({
   const a11y = useAccessibility();
   const currentSearchQuery = getSearchQuery(searchParams);
 
+  // Track selection state in refs to avoid expensive re-renders
+  const currentSearchQueryRef = useRef(currentSearchQuery);
+  currentSearchQueryRef.current = currentSearchQuery;
+
+  // Update visual states without re-rendering entire chart
+  useEffect(() => {
+    if (!pieChartRef.current || !hasAnimatedRef.current) return;
+
+    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    matchedDomainRef.current = matchedDomain;
+
+    const svg = d3.select(pieChartRef.current);
+    const transitionDuration = a11y.getTransitionDuration(150);
+
+    // Update visual states of existing segments
+    svg
+      .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
+        "path.pie-segment",
+      )
+      .transition()
+      .duration(transitionDuration)
+      .attr("opacity", (d) =>
+        matchedDomain === d.data.domain ? "1.0" : "0.6",
+      );
+
+    // Update ARIA states
+    svg
+      .selectAll<
+        SVGPathElement,
+        d3.PieArcDatum<PieSegmentData>
+      >(".pie-segment-hit-area")
+      .attr("aria-pressed", (d) =>
+        matchedDomain === d.data.domain ? "true" : "false",
+      );
+  }, [currentSearchQuery, a11y]);
+
   useEffect(() => {
     if (!pieChartRef.current) return;
 
@@ -54,8 +90,11 @@ export function RootNodeChart({
 
     const svg = d3.select(pieChartRef.current);
 
-    // Check if current search query matches a domain and store in ref
-    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    // Read from ref to get latest value without retriggering effect
+    const matchedDomain = matchesDomainName(
+      currentSearchQueryRef.current,
+      PROJECTS,
+    );
     matchedDomainRef.current = matchedDomain;
 
     // Clear existing content
@@ -200,7 +239,7 @@ export function RootNodeChart({
     });
 
     const setupHoverInteractions = () => {
-      const transitionDuration = a11y.getTransitionDuration(200);
+      const transitionDuration = a11y.getTransitionDuration(150);
       const hoverOffset = 8; // Distance to translate on hover
 
       hitAreas
@@ -275,9 +314,8 @@ export function RootNodeChart({
           const datum = d3
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
-          // Toggle URL search params with domain name
           const queryString = toggleSearchParam(
-            currentSearchQuery,
+            currentSearchQueryRef.current,
             datum.data.domain,
           );
           router.push(`${pathname}${queryString}`);
@@ -289,7 +327,7 @@ export function RootNodeChart({
               .select(this)
               .datum() as d3.PieArcDatum<PieSegmentData>;
             const queryString = toggleSearchParam(
-              currentSearchQuery,
+              currentSearchQueryRef.current,
               datum.data.domain,
             );
             router.push(`${pathname}${queryString}`);
@@ -329,7 +367,6 @@ export function RootNodeChart({
     setHoveredDomain,
     router,
     pathname,
-    currentSearchQuery,
     a11y,
   ]);
 
