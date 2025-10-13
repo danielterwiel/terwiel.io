@@ -377,12 +377,11 @@ export function RootNodeChart({
         .on("touchcancel", () => {
           touchWasClick = false;
         })
-        .on("click", function (event: MouseEvent) {
-          // Only handle click for non-touch devices (mouse/trackpad)
-          // Touch devices will use touchend handler instead
-          if (event.pointerType !== "touch") {
-            handleClick.call(this);
-          }
+        .on("click", function () {
+          // This will only fire for mouse/trackpad clicks
+          // Touch devices use touchend handler which calls preventDefault()
+          // preventing the click event from firing
+          handleClick.call(this);
         })
         .on("keydown", function (event: KeyboardEvent) {
           if (event.key === "Enter" || event.key === " ") {
