@@ -9,6 +9,7 @@ import BrandGraphql from "../images/icons/brand-graphql.svg";
 import BrandHtml5 from "../images/icons/brand-html5.svg";
 import BrandJavascript from "../images/icons/brand-javascript.svg";
 import BrandLinkedin from "../images/icons/brand-linkedin.svg";
+import BrandFigma from "../images/icons/brand-figma.svg";
 import BrandPhp from "../images/icons/brand-php.svg";
 import BrandPowerShell from "../images/icons/brand-powershell.svg";
 import BrandReact from "../images/icons/brand-react.svg";
@@ -77,6 +78,7 @@ const icons = {
   BrandCss3,
   BrandGithub,
   BrandDocker,
+  BrandFigma,
   BrandGoogle,
   BrandGraphql,
   BrandHtml5,

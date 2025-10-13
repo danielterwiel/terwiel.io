@@ -9,8 +9,10 @@ export const ICON_COLORS = {
   BrandGraphql: "#E10098",
   BrandHtml5: "#E34F26",
   BrandJavascript: "#F7DF1E",
+  BrandFigma: "A259FF",
   BrandLinkedin: "#0A66C2",
   BrandPhp: "#777BB4",
+  BrandPowerShell: "#000000",
   BrandReact: "#61DAFB",
   BrandRedux: "#764ABC",
   BrandRust: "#E36F39",
@@ -21,7 +23,6 @@ export const ICON_COLORS = {
   BrandTypescript: "#3178C6",
   BrandVercel: "#000000",
   BrandVisualStudio: "#5C2D91",
-  BrandPowerShell: "#000000",
   BrandVite: "#646CFF",
   BrandVue: "#4FC08D",
   BrandXstate: "#4D4F60",
@@ -46,8 +47,8 @@ export const STACK_ICONS = {
   "Material UI": "BrandGoogle",
   "Next.js": "BrandVercel",
   "Redux-saga": "BrandRedux",
-  "Shell Script": "BrandPowerShell",
   "SQL Server": "Sql",
+  "Shell Script": "BrandPowerShell",
   "Tanstack DB": "BrandTanstack",
   "Tanstack Query": "BrandTanstack",
   "Tanstack Router": "BrandTanstack",
@@ -56,6 +57,7 @@ export const STACK_ICONS = {
   CSS: "BrandCss3",
   Docker: "BrandDocker",
   Effect: "Effect",
+  Figma: "BrandFigma",
   FlowType: "BrandJavascript",
   GraphQL: "BrandGraphql",
   HTML: "BrandHtml5",
@@ -79,8 +81,8 @@ export const STACK_ICONS = {
   Vite: "BrandVite",
   Vitest: "BrandVite",
   Vue: "BrandVue",
-  XState: "BrandXstate",
   Webpack: "Webpack",
+  XState: "BrandXstate",
 } as const satisfies Record<StackName, IconName>;
 
 export const DOMAIN_ICONS = {
@@ -88,4 +90,5 @@ export const DOMAIN_ICONS = {
   Design: "Palette",
   "Back-end": "ServerCog",
   DevOps: "CloudCog",
+  QA: "TestPipe",
 } as const satisfies Record<Domain, IconName>;

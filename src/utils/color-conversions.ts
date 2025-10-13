@@ -141,28 +141,6 @@ export const toHighContrast = (color: Oklch): string => {
 };
 
 /**
- * Generate all color variations from a base OKLCH color
- */
-export const generateColorVariations = (baseColor: Oklch) => {
-  return {
-    oklch: toOklchString(baseColor),
-    hex: oklchToHex(baseColor),
-    subtle: toSubtleBorder(baseColor),
-    subtleHex: oklchToHex({
-      ...baseColor,
-      l: 0.92,
-      c: Math.max(0.015, baseColor.c * 0.08),
-    }),
-    highContrast: toHighContrast(baseColor),
-    highContrastHex: oklchToHex({
-      ...baseColor,
-      l: Math.max(0.4, baseColor.l - 0.25),
-      c: baseColor.c * 0.95,
-    }),
-  };
-};
-
-/**
  * Generate all domain color variations from OKLCH definitions
  */
 export const generateDomainColors = (domainColors: Record<Domain, Oklch>) => {
