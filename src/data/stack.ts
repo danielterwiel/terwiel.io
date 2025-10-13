@@ -68,7 +68,7 @@ export const STACK = {
     icon: STACK_ICONS.Vite,
   },
   Vitest: {
-    domain: "Front-end",
+    domain: "QA",
     icon: STACK_ICONS.Vitest,
   },
   HTML: {
@@ -91,12 +91,16 @@ export const STACK = {
     domain: "Front-end",
     icon: STACK_ICONS.Lit,
   },
+  Figma: {
+    domain: "Design",
+    icon: STACK_ICONS.Figma,
+  },
   JSDoc: {
     domain: "Front-end",
     icon: STACK_ICONS.JSDoc,
   },
   Mocha: {
-    domain: "Front-end",
+    domain: "QA",
     icon: STACK_ICONS.Mocha,
   },
   Redux: {
@@ -146,11 +150,11 @@ export const STACK = {
     icon: STACK_ICONS.Webpack,
   },
   Jest: {
-    domain: "Front-end",
+    domain: "QA",
     icon: STACK_ICONS.Jest,
   },
   Puppeteer: {
-    domain: "Front-end",
+    domain: "QA",
     icon: STACK_ICONS.Puppeteer,
   },
   Preact: {
@@ -173,7 +177,7 @@ export const STACK = {
 } as const satisfies Record<
   StackName,
   {
-    domain: "DevOps" | "Back-end" | "Front-end" | "Design";
+    domain: "DevOps" | "Back-end" | "Front-end" | "Design" | "QA";
     icon: string;
     parent?: string;
   }

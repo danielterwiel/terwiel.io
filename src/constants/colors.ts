@@ -26,15 +26,26 @@ export const PRIMARY_COLOR_OKLCH = {
   h: 265.75,
 } as const satisfies Oklch;
 
-// Domain colors - subtle, muted palette
-// Lightness: 0.63-0.86 (ranging from moderate to very light)
-// Chroma: 0.025-0.072 (low saturation for subtle, sophisticated appearance)
-// Strategy: Higher lightness + lower chroma = soft, elegant colors suitable for backgrounds and borders
+// Domain colors — muted but clearly separable for 1px lines
+// Strategy:
+// - Δh ≈ 15° steps across a mauve/violet arc (290→350)
+// - Staggered L: 0.68 / 0.74 / 0.80 / 0.84 / 0.88
+// - Low-to-moderate chroma to stay sophisticated but distinct
 export const DOMAIN_COLORS_OKLCH = {
-  DevOps: { l: 0.8638, c: 0.0343745408613079, h: 289.3318671204764 }, // Light purple - soft and ethereal (#D1CFE8)
-  "Back-end": { l: 0.8045, c: 0.02517033354917079, h: 267.88260378865596 }, // Light blue-gray - calm and neutral (#B8BFD0)
-  "Front-end": { l: 0.6323, c: 0.07158434611533575, h: 288.9480766560252 }, // Medium purple - slightly more saturated (#8883B3)
-  Design: { l: 0.7408, c: 0.042065152899940124, h: 343.11533854640993 }, // Light mauve - warm and soft (#BFA1B2)
+  // Blue‑gray violet (darker anchor)
+  "Back-end": { l: 0.68, c: 0.072, h: 290 },
+
+  // Warm mauve (lighter than Back-end, warmer hue)
+  Design: { l: 0.84, c: 0.056, h: 305 },
+
+  // Light purple (soft, ethereal)
+  DevOps: { l: 0.88, c: 0.052, h: 320 },
+
+  // Medium purple (slightly stronger presence)
+  "Front-end": { l: 0.8, c: 0.068, h: 335 },
+
+  // Violet‑red (most reddish; good tail color in the set)
+  QA: { l: 0.74, c: 0.065, h: 350 },
 } as const satisfies Record<Domain, Oklch>;
 
 // Neutral ink for default borders
@@ -63,11 +74,9 @@ export const PRIMARY_COLOR = toOklchString(PRIMARY_COLOR_OKLCH);
 export const PRIMARY_COLOR_HEX = oklchToHex(PRIMARY_COLOR_OKLCH);
 
 // Neutral ink
-export const NEUTRAL_INK = toOklchString(NEUTRAL_INK_OKLCH);
 export const NEUTRAL_INK_HEX = oklchToHex(NEUTRAL_INK_OKLCH);
 
 // Focus color
-export const FOCUS_COLOR = toOklchString(FOCUS_COLOR_OKLCH);
 export const FOCUS_COLOR_HEX = oklchToHex(FOCUS_COLOR_OKLCH);
 
 // Domain colors - all variations generated from OKLCH
@@ -75,8 +84,6 @@ const domainColorVariations = generateDomainColors(DOMAIN_COLORS_OKLCH);
 
 export const DOMAIN_COLORS = domainColorVariations.colors;
 export const DOMAIN_COLORS_HEX = domainColorVariations.colorsHex;
-export const DOMAIN_BORDERS_SUBTLE = domainColorVariations.bordersSubtle;
 export const DOMAIN_BORDERS_SUBTLE_HEX = domainColorVariations.bordersSubtleHex;
-export const DOMAIN_COLORS_HIGH_CONTRAST = domainColorVariations.highContrast;
 export const DOMAIN_COLORS_HIGH_CONTRAST_HEX =
   domainColorVariations.highContrastHex;

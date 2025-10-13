@@ -1,4 +1,4 @@
-export type Domain = "DevOps" | "Back-end" | "Front-end" | "Design";
+export type Domain = "DevOps" | "Back-end" | "Front-end" | "Design" | "QA";
 
 export type StackItem = {
   name: string;
