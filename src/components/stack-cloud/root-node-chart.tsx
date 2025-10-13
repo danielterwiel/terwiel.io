@@ -217,6 +217,7 @@ export function RootNodeChart({
       })
       .attr("opacity", (d) => (matchedDomain === d.data.domain ? "1.0" : "0.6"))
       .attr("pointer-events", "none")
+      .style("-webkit-backface-visibility", "hidden")
       .attr("d", (d) =>
         matchedDomain === d.data.domain
           ? (selectedArc(d) ?? "")
@@ -234,6 +235,7 @@ export function RootNodeChart({
       .attr("fill", "transparent")
       .attr("pointer-events", "all")
       .style("cursor", "pointer")
+      .style("-webkit-transform", "translateZ(0)")
       .style("-webkit-tap-highlight-color", "transparent")
       .attr("d", (d) => hitAreaArc(d) ?? "");
 
