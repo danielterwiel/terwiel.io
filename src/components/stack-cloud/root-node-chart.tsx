@@ -60,27 +60,42 @@ export function RootNodeChart({
     const svg = d3.select(pieChartRef.current);
     const transitionDuration = a11y.getTransitionDuration(150);
 
-    // Update visual states of existing segments
+    const RING_THICKNESS = pieRadius * 0.1;
+    const arc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(pieRadius - RING_THICKNESS)
+      .outerRadius(pieRadius);
+
+    const selectedArc = d3
+      .arc<d3.PieArcDatum<PieSegmentData>>()
+      .innerRadius(pieRadius - RING_THICKNESS)
+      .outerRadius(pieRadius + RING_THICKNESS);
+
+    // Reset any transforms and update arc shapes
     svg
-      .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
-        "path.pie-segment",
+      .selectAll<SVGGElement, d3.PieArcDatum<PieSegmentData>>(
+        "g.segment-visual",
       )
+      .attr("transform", "translate(0, 0)")
+      .select<SVGPathElement>("path.pie-segment")
       .transition()
       .duration(transitionDuration)
-      .attr("opacity", (d) =>
-        matchedDomain === d.data.domain ? "1.0" : "0.6",
+      .attr("opacity", (d) => (matchedDomain === d.data.domain ? "1.0" : "0.6"))
+      .attr("d", (d) =>
+        matchedDomain === d.data.domain
+          ? (selectedArc(d) ?? "")
+          : (arc(d) ?? ""),
       );
 
     // Update ARIA states
     svg
-      .selectAll<
-        SVGPathElement,
-        d3.PieArcDatum<PieSegmentData>
-      >(".pie-segment-hit-area")
+      .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
+        ".pie-segment-hit-area",
+      )
       .attr("aria-pressed", (d) =>
         matchedDomain === d.data.domain ? "true" : "false",
       );
-  }, [currentSearchQuery, a11y]);
+  }, [currentSearchQuery, a11y, pieRadius]);
 
   useEffect(() => {
     if (!pieChartRef.current) return;
@@ -216,10 +231,10 @@ export function RootNodeChart({
         const stateClasses = a11y.getStateClasses({});
         return `${baseClass} ${stateClasses}`;
       })
-      .attr("fill", (d) => d.data.color)
-      .attr("fill-opacity", 0.2)
+      .attr("fill", "transparent")
       .attr("pointer-events", "all")
       .style("cursor", "pointer")
+      .style("-webkit-tap-highlight-color", "transparent")
       .attr("d", (d) => hitAreaArc(d) ?? "");
 
     // Add ARIA attributes for accessibility
@@ -240,97 +255,88 @@ export function RootNodeChart({
 
     const setupHoverInteractions = () => {
       const transitionDuration = a11y.getTransitionDuration(150);
-      const hoverOffset = 8; // Distance to translate on hover
+
+      // Hover arc: slightly larger than selected arc for hover effect
+      const hoverArc = d3
+        .arc<d3.PieArcDatum<PieSegmentData>>()
+        .innerRadius(pieRadius - RING_THICKNESS)
+        .outerRadius(pieRadius + RING_THICKNESS * 1.5);
+
+      const handleHoverStart = function (this: SVGPathElement) {
+        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+
+        // Get the corresponding visible segment path
+        const visiblePath = d3
+          .select(this.previousSibling as SVGGElement)
+          .select<SVGPathElement>("path.pie-segment");
+
+        // Animate to hover state
+        visiblePath
+          .transition()
+          .duration(transitionDuration)
+          .attr("d", hoverArc(datum) ?? "")
+          .attr("opacity", "0.85");
+
+        // Notify parent component of domain hover
+        onDomainHover?.(datum.data.domain as Domain);
+        setHoveredDomain(datum.data.domain as Domain);
+      };
+
+      const handleHoverEnd = function (this: SVGPathElement) {
+        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+
+        // Check if this segment's domain is selected
+        const isSelected = matchedDomainRef.current === datum.data.domain;
+
+        // When leaving any segment, restore the selected domain if one exists
+        const restoreDomain = matchedDomainRef.current
+          ? (matchedDomainRef.current as Domain)
+          : null;
+
+        // Get the corresponding visible segment path
+        const visiblePath = d3
+          .select(this.previousSibling as SVGGElement)
+          .select<SVGPathElement>("path.pie-segment");
+
+        // Animate back to default or selected state
+        const targetArc = isSelected ? selectedArc : arc;
+        visiblePath
+          .transition()
+          .duration(transitionDuration)
+          .attr("d", targetArc(datum) ?? "")
+          .attr("opacity", isSelected ? "1.0" : "0.6");
+
+        // Notify parent of domain hover state (restore selected domain if exists)
+        onDomainHover?.(restoreDomain);
+        setHoveredDomain(restoreDomain);
+      };
+
+      const handleClick = function (this: SVGPathElement) {
+        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        const queryString = toggleSearchParam(
+          currentSearchQueryRef.current,
+          datum.data.domain,
+        );
+        router.push(`${pathname}${queryString}`);
+      };
 
       hitAreas
-        .on("mouseenter", function () {
-          const datum = d3
-            .select(this)
-            .datum() as d3.PieArcDatum<PieSegmentData>;
-
-          // Get the corresponding visible segment group (previous sibling)
-          const visibleGroup = d3.select(
-            this.previousSibling as SVGGElement,
-          ) as d3.Selection<
-            SVGGElement,
-            d3.PieArcDatum<PieSegmentData>,
-            null,
-            undefined
-          >;
-
-          // Calculate centroid for smooth translation from center
-          const centroid = arc.centroid(datum);
-          const x = (centroid[0] / pieRadius) * hoverOffset;
-          const y = (centroid[1] / pieRadius) * hoverOffset;
-
-          // Hovered state: translate outward and reduce opacity
-          visibleGroup
-            .transition()
-            .duration(transitionDuration)
-            .attr("transform", `translate(${x}, ${y})`)
-            .select("path")
-            .attr("opacity", "0.85");
-
-          // Notify parent component of domain hover
-          onDomainHover?.(datum.data.domain as Domain);
-          // Update local hover state for RootNodeExperience
-          setHoveredDomain(datum.data.domain as Domain);
+        .on("mouseenter", handleHoverStart)
+        .on("mouseleave", handleHoverEnd)
+        // Touch events for iOS - ensure hover state is cleared on touch end
+        .on("touchstart", handleHoverStart)
+        .on("touchend", function () {
+          // Small delay to allow click to fire first
+          setTimeout(() => {
+            handleHoverEnd.call(this);
+          }, 100);
         })
-        .on("mouseleave", function () {
-          const datum = d3
-            .select(this)
-            .datum() as d3.PieArcDatum<PieSegmentData>;
-          // Check if this segment's domain is selected (read from ref for current value)
-          const isSelected = matchedDomainRef.current === datum.data.domain;
-          // When leaving any segment, restore the selected domain if one exists
-          const restoreDomain = matchedDomainRef.current
-            ? (matchedDomainRef.current as Domain)
-            : null;
-
-          // Get the corresponding visible segment group (previous sibling)
-          const visibleGroup = d3.select(
-            this.previousSibling as SVGGElement,
-          ) as d3.Selection<
-            SVGGElement,
-            d3.PieArcDatum<PieSegmentData>,
-            null,
-            undefined
-          >;
-
-          // Return to default or selected state
-          visibleGroup
-            .transition()
-            .duration(transitionDuration)
-            .attr("transform", "translate(0, 0)")
-            .select("path")
-            .attr("opacity", isSelected ? "1.0" : "0.6");
-
-          // Notify parent of domain hover state (restore selected domain if exists)
-          onDomainHover?.(restoreDomain);
-          // Update local hover state to match
-          setHoveredDomain(restoreDomain);
-        })
-        .on("click", function () {
-          const datum = d3
-            .select(this)
-            .datum() as d3.PieArcDatum<PieSegmentData>;
-          const queryString = toggleSearchParam(
-            currentSearchQueryRef.current,
-            datum.data.domain,
-          );
-          router.push(`${pathname}${queryString}`);
-        })
+        .on("touchcancel", handleHoverEnd)
+        .on("click", handleClick)
         .on("keydown", function (event: KeyboardEvent) {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
-            const datum = d3
-              .select(this)
-              .datum() as d3.PieArcDatum<PieSegmentData>;
-            const queryString = toggleSearchParam(
-              currentSearchQueryRef.current,
-              datum.data.domain,
-            );
-            router.push(`${pathname}${queryString}`);
+            handleClick.call(this);
           }
         });
     };
