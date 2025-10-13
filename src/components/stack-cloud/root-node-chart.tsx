@@ -42,6 +42,7 @@ export function RootNodeChart({
   const pieChartRef = useRef<SVGGElement>(null);
   const hasAnimatedRef = useRef(false);
   const matchedDomainRef = useRef<string | null>(null);
+  const isTransitioningRef = useRef(false);
 
   const a11y = useAccessibility();
   const currentSearchQuery = getSearchQuery(searchParams);
@@ -53,6 +54,9 @@ export function RootNodeChart({
   // Update visual states without re-rendering entire chart
   useEffect(() => {
     if (!pieChartRef.current || !hasAnimatedRef.current) return;
+
+    // Prevent double-firing on iOS Safari during router navigation
+    if (isTransitioningRef.current) return;
 
     const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
     matchedDomainRef.current = matchedDomain;
@@ -71,6 +75,9 @@ export function RootNodeChart({
       .innerRadius(pieRadius - RING_THICKNESS)
       .outerRadius(pieRadius + RING_THICKNESS);
 
+    // Mark transition as in progress
+    isTransitioningRef.current = true;
+
     // Reset any transforms and update arc shapes
     svg
       .selectAll<SVGGElement, d3.PieArcDatum<PieSegmentData>>(
@@ -85,7 +92,11 @@ export function RootNodeChart({
         matchedDomain === d.data.domain
           ? (selectedArc(d) ?? "")
           : (arc(d) ?? ""),
-      );
+      )
+      .on("end", () => {
+        // Clear transition lock after animation completes
+        isTransitioningRef.current = false;
+      });
 
     // Update ARIA states
     svg
@@ -217,7 +228,6 @@ export function RootNodeChart({
       })
       .attr("opacity", (d) => (matchedDomain === d.data.domain ? "1.0" : "0.6"))
       .attr("pointer-events", "none")
-      .style("-webkit-backface-visibility", "hidden")
       .attr("d", (d) =>
         matchedDomain === d.data.domain
           ? (selectedArc(d) ?? "")
@@ -235,7 +245,6 @@ export function RootNodeChart({
       .attr("fill", "transparent")
       .attr("pointer-events", "all")
       .style("cursor", "pointer")
-      .style("-webkit-transform", "translateZ(0)")
       .style("-webkit-tap-highlight-color", "transparent")
       .attr("d", (d) => hitAreaArc(d) ?? "");
 
@@ -263,6 +272,9 @@ export function RootNodeChart({
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
         .outerRadius(pieRadius + RING_THICKNESS * 1.5);
+
+      // Track if a touch is intended as a click (vs scroll/pan)
+      let touchWasClick = false;
 
       const handleHoverStart = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
@@ -315,6 +327,23 @@ export function RootNodeChart({
 
       const handleClick = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+
+        // Get the corresponding visible segment path
+        const visiblePath = d3
+          .select(this.previousSibling as SVGGElement)
+          .select<SVGPathElement>("path.pie-segment");
+
+        // Immediately interrupt any ongoing transitions to prevent conflicts
+        visiblePath.interrupt();
+
+        // Pre-emptively update the matched domain ref to prevent race conditions
+        const willBeSelected = matchedDomainRef.current !== datum.data.domain;
+        if (willBeSelected) {
+          matchedDomainRef.current = datum.data.domain;
+        } else {
+          matchedDomainRef.current = null;
+        }
+
         const queryString = toggleSearchParam(
           currentSearchQueryRef.current,
           datum.data.domain,
@@ -325,16 +354,36 @@ export function RootNodeChart({
       hitAreas
         .on("mouseenter", handleHoverStart)
         .on("mouseleave", handleHoverEnd)
-        // Touch events for iOS - ensure hover state is cleared on touch end
-        .on("touchstart", handleHoverStart)
-        .on("touchend", function () {
-          // Small delay to allow click to fire first
-          setTimeout(() => {
-            handleHoverEnd.call(this);
-          }, 100);
+        // Touch events for iOS
+        .on("touchstart", (event: TouchEvent) => {
+          // Mark this as a potential click
+          touchWasClick = true;
+          // Don't trigger hover animation on touch - wait to see if it's a click or scroll
+          event.preventDefault();
         })
-        .on("touchcancel", handleHoverEnd)
-        .on("click", handleClick)
+        .on("touchmove", () => {
+          // If user moves finger, it's a scroll/pan, not a click
+          touchWasClick = false;
+        })
+        .on("touchend", function (event: TouchEvent) {
+          if (touchWasClick) {
+            // This was a tap/click, trigger the click handler directly
+            // Skip hover animations entirely to avoid conflicts
+            event.preventDefault();
+            handleClick.call(this);
+            touchWasClick = false;
+          }
+        })
+        .on("touchcancel", () => {
+          touchWasClick = false;
+        })
+        .on("click", function (event: MouseEvent) {
+          // Only handle click for non-touch devices (mouse/trackpad)
+          // Touch devices will use touchend handler instead
+          if (event.pointerType !== "touch") {
+            handleClick.call(this);
+          }
+        })
         .on("keydown", function (event: KeyboardEvent) {
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
