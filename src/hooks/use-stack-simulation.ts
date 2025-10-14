@@ -191,6 +191,14 @@ export function useStackSimulation({
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
+      // Adaptive parameters based on viewport size
+      // Larger viewports need higher velocity decay to dampen jitter
+      const vmin = Math.min(width, height);
+      const isLargeViewport = vmin >= 600;
+      const velocityDecayValue = isLargeViewport ? 0.6 : 0.4; // Higher friction on large screens
+      const alphaDecayValue = isLargeViewport ? 0.04 : 0.03; // Faster cooling on large screens
+      const chargeStrengthValue = isLargeViewport ? -8 : CHARGE_STRENGTH; // Weaker repulsion on large screens
+
       // Forces
       // Collision radius includes scaleFactor for physics-based repositioning
       // When node scales up, it pushes neighbors away smoothly
@@ -202,7 +210,7 @@ export function useStackSimulation({
 
       const charge = d3
         .forceManyBody<SimulationNode>()
-        .strength(CHARGE_STRENGTH);
+        .strength(chargeStrengthValue);
 
       const boundary = makeBoundaryForce(width, height, BOUNDARY_PADDING);
       const rootExclusion = makeRootExclusionForce(
@@ -222,8 +230,8 @@ export function useStackSimulation({
         .force("charge", charge)
         .force("boundary", boundary)
         .force("rootExclusion", rootExclusion)
-        .alphaDecay(prefersReducedMotion ? 0.9 : 0.03)
-        .velocityDecay(0.4)
+        .alphaDecay(prefersReducedMotion ? 0.9 : alphaDecayValue)
+        .velocityDecay(velocityDecayValue)
         .on("tick", handleTick);
 
       simulationRef.current = simulation;
@@ -264,9 +272,25 @@ export function useStackSimulation({
         node.radius = stackRadius * sizeFactor;
       }
 
+      // Update simulation parameters based on new viewport size
+      const vmin = Math.min(width, height);
+      const isLargeViewport = vmin >= 600;
+      const velocityDecayValue = isLargeViewport ? 0.6 : 0.4;
+      const alphaDecayValue = isLargeViewport ? 0.04 : 0.03;
+      const chargeStrengthValue = isLargeViewport ? -8 : CHARGE_STRENGTH;
+
+      sim.velocityDecay(velocityDecayValue);
+      sim.alphaDecay(alphaDecayValue);
+
       // Update position forces
       sim.force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH));
       sim.force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH));
+
+      // Update charge force
+      sim.force(
+        "charge",
+        d3.forceManyBody<SimulationNode>().strength(chargeStrengthValue),
+      );
 
       // Update collide radii (includes scaleFactor for repositioning)
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
@@ -278,15 +302,17 @@ export function useStackSimulation({
           )
           .strength(COLLISION_STRENGTH)
           .iterations(COLLISION_ITERATIONS);
+        // CRITICAL: Re-initialize collision force to re-evaluate radii after dimension changes
+        // Use simulation's own random source for deterministic behavior
+        collide.initialize(sim.nodes(), sim.randomSource());
       } else {
-        sim.force(
-          "collide",
-          d3
-            .forceCollide<SimulationNode>()
-            .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
-            .strength(COLLISION_STRENGTH)
-            .iterations(COLLISION_ITERATIONS),
-        );
+        const newCollide = d3
+          .forceCollide<SimulationNode>()
+          .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
+          .strength(COLLISION_STRENGTH)
+          .iterations(COLLISION_ITERATIONS);
+        sim.force("collide", newCollide);
+        newCollide.initialize(sim.nodes(), sim.randomSource());
       }
 
       // Update custom forces
@@ -399,7 +425,6 @@ export function useStackSimulation({
 
       const nodes = sim.nodes();
       let hasChanges = false;
-      const nodesToFix: SimulationNode[] = [];
 
       for (const node of nodes) {
         if (node.type === "stack") {
@@ -409,21 +434,13 @@ export function useStackSimulation({
           if (oldScaleFactor !== newScaleFactor) {
             node.scaleFactor = newScaleFactor;
             hasChanges = true;
-
-            // If node is being selected (scaling up), temporarily fix its position
-            if (newScaleFactor > oldScaleFactor && node.x && node.y) {
-              nodesToFix.push(node);
-              // Fix position during transition
-              node.fx = node.x;
-              node.fy = node.y;
-            }
           }
         }
       }
 
       if (!hasChanges) return;
 
-      // Only 2 iterations during selection transition (vs 8 at rest)
+      // Update collision force with new scale factors
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
       if (collide?.radius) {
         collide
@@ -432,7 +449,10 @@ export function useStackSimulation({
               d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING,
           )
           .strength(COLLISION_STRENGTH)
-          .iterations(2); // Reduced from 8 to 2 during selection
+          .iterations(COLLISION_ITERATIONS); // Keep full iterations for stability
+        // CRITICAL: Re-initialize collision force to re-evaluate radii after scaleFactor changes
+        // Use simulation's own random source for deterministic behavior
+        collide.initialize(sim.nodes(), sim.randomSource());
       }
 
       const prefersReducedMotion = window.matchMedia(
@@ -444,42 +464,23 @@ export function useStackSimulation({
         sim.stop();
         sim.tick(30);
         handleTick();
-
-        // Unfix nodes immediately and restore collision iterations
-        for (const node of nodesToFix) {
-          node.fx = null;
-          node.fy = null;
-        }
-        if (collide?.iterations) {
-          collide.iterations(COLLISION_ITERATIONS);
-        }
       } else {
         const currentAlpha = sim.alpha();
 
-        // Very gentle warmup
-        if (currentAlpha < 0.01) {
-          sim.alpha(0.03);
+        // Very gentle warmup - use very low alpha to minimize jitter
+        if (currentAlpha < 0.005) {
+          sim.alpha(0.005); // Ultra-low alpha for minimal disruption
         }
 
-        // Extremely low alphaTarget for smooth repositioning
-        sim.alphaTarget(0.01).restart();
-
-        setTimeout(() => {
-          for (const node of nodesToFix) {
-            node.fx = null;
-            node.fy = null;
-          }
-        }, 100);
+        // Ultra-low alphaTarget for extremely smooth repositioning
+        // This allows the simulation to gently redistribute nodes without violent corrections
+        sim.alphaTarget(0.002).restart(); // Reduced from 0.005 to minimize jitter
 
         setTimeout(() => {
           if (sim) {
             sim.alphaTarget(0);
-            // Restore full collision iterations after selection animation
-            if (collide?.iterations) {
-              collide.iterations(COLLISION_ITERATIONS);
-            }
           }
-        }, 400);
+        }, 800); // Extended from 500ms for more gradual settling
       }
     },
     [handleTick],

@@ -100,10 +100,9 @@ export function RootNodeChart({
 
     // Update ARIA states
     svg
-      .selectAll<
-        SVGPathElement,
-        d3.PieArcDatum<PieSegmentData>
-      >(".pie-segment-hit-area")
+      .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
+        ".pie-segment-hit-area",
+      )
       .attr("aria-pressed", (d) =>
         matchedDomain === d.data.domain ? "true" : "false",
       );
