@@ -18,17 +18,29 @@ export const SEGMENT_PADDING_FACTOR = 0.2 as const;
 /** D3 arc angle offset to convert to Math angle (0 = top → 0 = right) */
 export const ARC_TO_MATH_ANGLE_OFFSET = Math.PI / 2;
 
-/** Collision force padding in pixels between nodes */
-export const COLLISION_PADDING = 6 as const;
+/** Base collision force padding in pixels between nodes (will be scaled by viewport) */
+export const COLLISION_PADDING_BASE = 6 as const;
 
-/** Collision force strength (1.0 = maximum rigidity, prevents all overlap) */
+/** Collision force strength (1.0 = maximum rigidity to prevent overlap and jitter) */
 export const COLLISION_STRENGTH = 1.0 as const;
 
-/** Collision force iterations for stability (higher = more rigid, prevents overlap) */
-export const COLLISION_ITERATIONS = 8 as const;
+/** Collision force iterations for stability (12 = very high rigidity, prevents small node jitter) */
+export const COLLISION_ITERATIONS = 12 as const;
 
-/** Many-body charge strength (negative = repulsion) */
-export const CHARGE_STRENGTH = -12 as const;
+/** Barnes-Hut theta parameter for many-body force (lower = more accurate, 0.5 recommended for mixed sizes) */
+export const MANY_BODY_THETA = 0.5 as const;
 
-/** Positioning force strength (forceX/forceY) for gentle centering */
-export const POSITIONING_FORCE_STRENGTH = 0.05 as const;
+/** Minimum distance for many-body force to prevent instability (nodes too close = infinite force) */
+export const MANY_BODY_DISTANCE_MIN = 1 as const;
+
+/** Base charge strength for many-body repulsion force (mobile/default) */
+export const BASE_CHARGE_STRENGTH = -12 as const;
+
+/** Base dampening factor for mass-based velocity dampening (0-1, where 1 = instant stop) */
+export const MASS_DAMPEN_BASE = 0.08 as const;
+
+/** Initial animation alpha target for smooth startup (low value prevents jitter) */
+export const INITIAL_ALPHA_TARGET = 0.1 as const;
+
+/** Initial animation duration in milliseconds */
+export const INITIAL_ANIMATION_DURATION = 400 as const;
