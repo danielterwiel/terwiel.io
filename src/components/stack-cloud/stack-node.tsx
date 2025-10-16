@@ -88,17 +88,17 @@ const StackNodeComponent = (props: StackNodeProps) => {
   const focusColor = a11y.getFocusColor();
 
   // CSS drop-shadow for glow effect (much better performance than SVG filters)
-  // Highlighted: subtle glow (2px blur), Selected: stronger glow (4px blur)
+  // Balanced glow: subtle for hover, moderate for selected (WCAG 2.2 multi-modal feedback)
   const getDropShadow = () => {
     if (!a11y.shouldShowGlow || state === "default") return "none";
 
     const color = borderColor;
     if (state === "highlighted") {
       // Subtle glow for hover
-      return `drop-shadow(0 0 2px ${color})`;
+      return `drop-shadow(0 0 3px ${color})`;
     }
-    // Stronger glow for selected (2x the highlighted)
-    return `drop-shadow(0 0 4px ${color}) drop-shadow(0 0 2px ${color})`;
+    // Moderate glow for selected - visible but not overwhelming
+    return `drop-shadow(0 0 6px ${color})`;
   };
 
   // Get icon-specific color for hover override
@@ -161,12 +161,12 @@ const StackNodeComponent = (props: StackNodeProps) => {
         shapeRendering="geometricPrecision"
       />
 
-      {/* Inner fill for selected state - subtle glow effect */}
+      {/* Inner fill for selected state - subtle background tint for multi-modal feedback */}
       {isSelected && a11y.shouldShowSelectionIndicator && (
         <circle
-          r={nodeRadius * 0.85}
+          r={nodeRadius * 0.88}
           fill={borderColor}
-          opacity={0.08}
+          opacity={0.15}
           style={{ pointerEvents: "none" }}
         />
       )}

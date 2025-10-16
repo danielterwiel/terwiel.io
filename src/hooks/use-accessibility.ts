@@ -58,6 +58,8 @@ export function useAccessibility() {
     };
 
     // Get icon color and opacity
+    // Enhanced contrast for selected/highlighted states per WCAG 2.2 guidelines
+    // Balanced for aesthetics while maintaining accessibility
     const getIconStyle = (
       domain: Domain,
       state: "default" | "highlighted" | "selected",
@@ -72,19 +74,19 @@ export function useAccessibility() {
             color: prefersContrast
               ? DOMAIN_COLORS_HIGH_CONTRAST_HEX[domain]
               : DOMAIN_COLORS_HEX[domain],
-            opacity: 1, // Full opacity for selected
+            opacity: 1, // Full opacity for selected - maximum visibility
           };
         case "highlighted":
           return {
             color: prefersContrast
               ? DOMAIN_COLORS_HIGH_CONTRAST_HEX[domain]
               : DOMAIN_COLORS_HEX[domain],
-            opacity: 0.9,
+            opacity: 0.92, // High opacity for hover
           };
         default:
           return {
             color: prefersContrast ? NEUTRAL_INK_HEX : domainColors[domain],
-            opacity: prefersContrast ? 1 : 0.8,
+            opacity: prefersContrast ? 1 : 0.65, // Reduced for stronger contrast with selected
           };
       }
     };
