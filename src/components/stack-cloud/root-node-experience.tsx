@@ -28,6 +28,20 @@ interface RootNodeExperienceProps {
 type DisplayMode = "default" | "stack" | "domain";
 
 /**
+ * Adjusts experience display for values over 5 years:
+ * - Rounds up if months >= 6
+ * - Hides months entirely
+ */
+function adjustExperience(experience: { years: number; months: number }) {
+  if (experience.years > 5) {
+    const roundedYears =
+      experience.months >= 6 ? experience.years + 1 : experience.years;
+    return { years: roundedYears, months: 0 };
+  }
+  return experience;
+}
+
+/**
  * Component that displays dynamic experience information in the center of the root node
  * Shows different content based on hover state (stack, domain, or default)
  */
@@ -60,18 +74,23 @@ export function RootNodeExperience({
     isInitialAnimating && displayMode === initialDisplayModeRef.current;
 
   // Calculate total experience
-  const totalExperience = useMemo(() => calculateTotalExperience(PROJECTS), []);
+  const totalExperience = useMemo(
+    () => adjustExperience(calculateTotalExperience(PROJECTS)),
+    [],
+  );
 
   // Calculate stack-specific experience
   const stackExperience = useMemo(() => {
     if (!hoveredStack) return null;
-    return calculateStackExperience(PROJECTS, hoveredStack.name);
+    return adjustExperience(
+      calculateStackExperience(PROJECTS, hoveredStack.name),
+    );
   }, [hoveredStack]);
 
   // Calculate domain-specific experience
   const domainExperience = useMemo(() => {
     if (!hoveredDomain) return null;
-    return calculateDomainExperience(PROJECTS, hoveredDomain);
+    return adjustExperience(calculateDomainExperience(PROJECTS, hoveredDomain));
   }, [hoveredDomain]);
 
   // Mobile-first font sizing with minimum threshold - reduced by 20%
