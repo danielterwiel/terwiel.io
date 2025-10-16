@@ -12,7 +12,11 @@ import {
   validateIconName,
 } from "~/utils/icon-colors";
 
-export const Badge = ({ icon, name }: BadgeProps) => {
+export const Badge = ({
+  icon,
+  name,
+  isAnimating = false,
+}: BadgeProps & { isAnimating?: boolean }) => {
   const validatedIcon = validateIconName(icon);
   const IconComponent = Icon[icon as keyof typeof Icon];
   const colored = validatedIcon !== undefined;
@@ -40,19 +44,20 @@ export const Badge = ({ icon, name }: BadgeProps) => {
     component: "button",
     shape: "rounded-lg",
     className: clsx(
-      "inline-flex items-center gap-2 transition-all duration-300 ease-out",
+      "inline-flex items-center gap-2 transition-all duration-500 ease-out",
       "select-none cursor-pointer px-3 py-2 h-10",
     ),
   });
 
   const iconClasses = clsx(
-    "flex-shrink-0 w-6 h-6 text-slate-400 transition-colors duration-300 ease-out",
+    "flex-shrink-0 w-6 h-6 text-slate-400 transition-colors duration-500 ease-out",
+    isAnimating && colored && "[color:var(--badge-color)]",
     colored && "group-hover:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
     "text-sm font-medium text-slate-700 whitespace-nowrap",
-    "transition-all duration-300 ease-out",
+    "transition-all duration-500 ease-out",
     "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)]",
     !colored && "group-hover:[text-decoration-color:#94A3B8]",
   );
@@ -73,10 +78,12 @@ export const Badge = ({ icon, name }: BadgeProps) => {
       replace
       className={clsx(
         magneticClasses,
-        "group border-2 transition-all duration-300",
-        colored
-          ? "[border-color:rgba(var(--badge-rgb),0.3)] hover:[border-color:rgba(var(--badge-rgb),0.6)]"
-          : "border-slate-400/20 hover:border-slate-400/40",
+        "group border-2 transition-all duration-500",
+        isAnimating && colored
+          ? "[border-color:rgba(var(--badge-rgb),0.3)]"
+          : "border-slate-400/20",
+        "hover:border-slate-400/40",
+        colored && "hover:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}
       aria-label={`Filter by ${name}`}
