@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
 import type { Domain } from "~/types";
 
@@ -28,14 +28,17 @@ interface RootNodeChartProps {
 /**
  * Pie chart component for the root node visualization
  * Handles all d3 rendering and interactions for the domain distribution chart
+ * Memoized to prevent unnecessary re-renders of expensive d3 operations
  */
-export function RootNodeChart({
-  pieData,
-  pieRadius,
-  onDomainHover,
-  onAnimationComplete,
-  setHoveredDomain,
-}: RootNodeChartProps) {
+// biome-ignore lint/style/useComponentExportOnlyModules: Component is exported via memo wrapper
+const RootNodeChartComponent = (props: RootNodeChartProps) => {
+  const {
+    pieData,
+    pieRadius,
+    onDomainHover,
+    onAnimationComplete,
+    setHoveredDomain,
+  } = props;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -58,54 +61,68 @@ export function RootNodeChart({
     // Prevent double-firing on iOS Safari during router navigation
     if (isTransitioningRef.current) return;
 
-    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
-    matchedDomainRef.current = matchedDomain;
+    // Use requestAnimationFrame to batch visual updates for better performance
+    const rafId = requestAnimationFrame(() => {
+      if (!pieChartRef.current) return;
 
-    const svg = d3.select(pieChartRef.current);
-    const transitionDuration = a11y.getTransitionDuration(150);
+      const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+      matchedDomainRef.current = matchedDomain;
 
-    const RING_THICKNESS = pieRadius * 0.1;
-    const arc = d3
-      .arc<d3.PieArcDatum<PieSegmentData>>()
-      .innerRadius(pieRadius - RING_THICKNESS)
-      .outerRadius(pieRadius);
+      const svg = d3.select(pieChartRef.current);
+      const transitionDuration = a11y.getTransitionDuration(150);
 
-    const selectedArc = d3
-      .arc<d3.PieArcDatum<PieSegmentData>>()
-      .innerRadius(pieRadius - RING_THICKNESS)
-      .outerRadius(pieRadius + RING_THICKNESS);
+      const RING_THICKNESS = pieRadius * 0.1;
+      const arc = d3
+        .arc<d3.PieArcDatum<PieSegmentData>>()
+        .innerRadius(pieRadius - RING_THICKNESS)
+        .outerRadius(pieRadius);
 
-    // Mark transition as in progress
-    isTransitioningRef.current = true;
+      const selectedArc = d3
+        .arc<d3.PieArcDatum<PieSegmentData>>()
+        .innerRadius(pieRadius - RING_THICKNESS)
+        .outerRadius(pieRadius + RING_THICKNESS);
 
-    // Reset any transforms and update arc shapes
-    svg
-      .selectAll<SVGGElement, d3.PieArcDatum<PieSegmentData>>(
-        "g.segment-visual",
-      )
-      .attr("transform", "translate(0, 0)")
-      .select<SVGPathElement>("path.pie-segment")
-      .transition()
-      .duration(transitionDuration)
-      .attr("opacity", (d) => (matchedDomain === d.data.domain ? "1.0" : "0.6"))
-      .attr("d", (d) =>
-        matchedDomain === d.data.domain
-          ? (selectedArc(d) ?? "")
-          : (arc(d) ?? ""),
-      )
-      .on("end", () => {
-        // Clear transition lock after animation completes
-        isTransitioningRef.current = false;
-      });
+      // Mark transition as in progress
+      isTransitioningRef.current = true;
 
-    // Update ARIA states
-    svg
-      .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
-        ".pie-segment-hit-area",
-      )
-      .attr("aria-pressed", (d) =>
-        matchedDomain === d.data.domain ? "true" : "false",
-      );
+      // Batch DOM updates together
+      const segments = svg.selectAll<
+        SVGGElement,
+        d3.PieArcDatum<PieSegmentData>
+      >("g.segment-visual");
+
+      // Reset transforms first (batched)
+      segments.attr("transform", "translate(0, 0)");
+
+      // Update paths with transition (batched)
+      segments
+        .select<SVGPathElement>("path.pie-segment")
+        .transition()
+        .duration(transitionDuration)
+        .attr("opacity", (d) =>
+          matchedDomain === d.data.domain ? "1.0" : "0.6",
+        )
+        .attr("d", (d) =>
+          matchedDomain === d.data.domain
+            ? (selectedArc(d) ?? "")
+            : (arc(d) ?? ""),
+        )
+        .on("end", () => {
+          // Clear transition lock after animation completes
+          isTransitioningRef.current = false;
+        });
+
+      // Update ARIA states (batched)
+      svg
+        .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
+          ".pie-segment-hit-area",
+        )
+        .attr("aria-pressed", (d) =>
+          matchedDomain === d.data.domain ? "true" : "false",
+        );
+    });
+
+    return () => cancelAnimationFrame(rafId);
   }, [currentSearchQuery, a11y, pieRadius]);
 
   useEffect(() => {
@@ -427,4 +444,31 @@ export function RootNodeChart({
   ]);
 
   return <g ref={pieChartRef} className="pie-chart" />;
-}
+};
+
+// Memoize to prevent re-renders when pieData and pieRadius haven't changed
+export const RootNodeChart = memo(
+  RootNodeChartComponent,
+  (prevProps, nextProps) => {
+    // Deep comparison of pieData array
+    if (prevProps.pieData.length !== nextProps.pieData.length) return false;
+    if (prevProps.pieRadius !== nextProps.pieRadius) return false;
+
+    // Check if pie data values have changed
+    for (let i = 0; i < prevProps.pieData.length; i++) {
+      const prev = prevProps.pieData[i];
+      const next = nextProps.pieData[i];
+      if (
+        !prev ||
+        !next ||
+        prev.domain !== next.domain ||
+        prev.value !== next.value ||
+        prev.color !== next.color
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  },
+);

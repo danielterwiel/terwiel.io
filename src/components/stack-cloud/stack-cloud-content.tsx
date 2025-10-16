@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Domain } from "~/types";
 
@@ -111,6 +111,51 @@ export function StackCloudContent() {
     setHoveredDomain(hoverDomain);
   }, [searchParams, stacks]);
 
+  // Memoize callback for setting hovered domain
+  const handleSetHoveredDomain = useCallback((domain: Domain | null) => {
+    setHoveredDomain(domain);
+  }, []);
+
+  // Memoize root node ref callback
+  const handleRootNodeRef = useCallback(
+    (el: SVGGElement | null) => {
+      if (el) nodesRef.current.set("root", el);
+      else nodesRef.current.delete("root");
+    },
+    [nodesRef],
+  );
+
+  // Create memoized factory function for stack node ref callbacks
+  const createStackNodeRefCallback = useCallback(
+    (stackId: string) => (el: SVGGElement | null) => {
+      if (el) nodesRef.current.set(stackId, el);
+      else nodesRef.current.delete(stackId);
+    },
+    [nodesRef],
+  );
+
+  // Create memoized factory function for stack mouse enter callbacks
+  const createStackMouseEnterCallback = useCallback(
+    (stack: {
+      id: string;
+      name: string;
+      iconKey: string;
+      color: string;
+      domain: Domain;
+    }) =>
+      () => {
+        setHoveredStack(stack);
+      },
+    [],
+  );
+
+  // Create memoized mouse leave callback
+  const handleStackMouseLeave = useCallback(() => {
+    // Restore the appropriate hover state when mouse leaves
+    const hoverStack = getHoverStackOnLeave(searchParams, stacks, PROJECTS);
+    setHoveredStack(hoverStack);
+  }, [searchParams, stacks]);
+
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
       {!dimensions ? null : (
@@ -131,11 +176,8 @@ export function StackCloudContent() {
 
           <RootNode
             dimensions={dimensions}
-            nodeRef={(el) => {
-              if (el) nodesRef.current.set("root", el);
-              else nodesRef.current.delete("root");
-            }}
-            onDomainHover={setHoveredDomain}
+            nodeRef={handleRootNodeRef}
+            onDomainHover={handleSetHoveredDomain}
             hoveredStack={hoveredStack}
             isActiveHover={isActiveHover}
           />
@@ -156,20 +198,9 @@ export function StackCloudContent() {
                 selected={selected}
                 highlighted={highlighted}
                 isDirectlyHovered={isDirectlyHovered}
-                nodeRef={(el) => {
-                  if (el) nodesRef.current.set(stack.id, el);
-                  else nodesRef.current.delete(stack.id);
-                }}
-                onMouseEnter={() => setHoveredStack(stack)}
-                onMouseLeave={() => {
-                  // Restore the appropriate hover state when mouse leaves
-                  const hoverStack = getHoverStackOnLeave(
-                    searchParams,
-                    stacks,
-                    PROJECTS,
-                  );
-                  setHoveredStack(hoverStack);
-                }}
+                nodeRef={createStackNodeRefCallback(stack.id)}
+                onMouseEnter={createStackMouseEnterCallback(stack)}
+                onMouseLeave={handleStackMouseLeave}
               />
             );
           })}

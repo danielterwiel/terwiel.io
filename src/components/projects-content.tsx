@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import React, { useId } from "react";
+import { useDeferredValue, useId, useMemo } from "react";
 
 import { Project } from "~/components/project";
 import { SearchSummary } from "~/components/search-summary";
@@ -11,17 +11,22 @@ import { filterProjects } from "~/utils/filter-projects";
 import { getSearchQuery } from "~/utils/search-params";
 
 export const ProjectsContent = () => {
-  const [filtered, setFiltered] = React.useState(PROJECTS);
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);
 
-  React.useEffect(() => {
-    const filteredProjects = filterProjects(PROJECTS, query);
+  // Defer the query value to give priority to urgent UI updates (e.g., StackCloud animations)
+  const deferredQuery = useDeferredValue(query);
 
-    setFiltered(filteredProjects);
-  }, [query]);
+  // Memoize filtered projects computation - only recalculate when deferred query changes
+  const filtered = useMemo(
+    () => filterProjects(PROJECTS, deferredQuery),
+    [deferredQuery],
+  );
 
   const projectsId = useId();
+
+  // Show loading state when query is ahead of deferred query (user is actively filtering)
+  const isFiltering = query !== deferredQuery;
 
   return (
     <>
@@ -29,16 +34,23 @@ export const ProjectsContent = () => {
       <div className="flow-root space-y-4">
         {query ? <SearchSummary query={query} items={filtered} /> : null}
 
-        <ol className="ml-0 list-none pl-0">
-          {filtered.map((project, projectIdx) => (
-            <Project
-              key={project.company}
-              project={project}
-              projectIdx={projectIdx}
-              totalLength={PROJECTS.length}
-            />
-          ))}
-        </ol>
+        <div
+          style={{
+            opacity: isFiltering ? 0.6 : 1,
+            transition: "opacity 150ms ease-in-out",
+          }}
+        >
+          <ol className="ml-0 list-none pl-0">
+            {filtered.map((project, projectIdx) => (
+              <Project
+                key={project.company}
+                project={project}
+                projectIdx={projectIdx}
+                totalLength={PROJECTS.length}
+              />
+            ))}
+          </ol>
+        </div>
       </div>
     </>
   );

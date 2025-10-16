@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -37,19 +37,20 @@ interface PieSegmentData {
 /**
  * Root node component for the stack visualization
  * Displays the centered "root" node with a domain pie chart using d3
+ * Memoized to prevent unnecessary re-renders
  */
-export function RootNode({
-  dimensions,
-  nodeRef,
-  onDomainHover,
-  hoveredStack,
-  isActiveHover = false,
-}: RootNodeProps) {
+// biome-ignore lint/style/useComponentExportOnlyModules: Component is exported via memo wrapper
+const RootNodeComponent = (props: RootNodeProps) => {
+  const { dimensions, nodeRef, onDomainHover, hoveredStack, isActiveHover } =
+    props;
   const searchParams = useSearchParams();
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
   const [isAnimating, setIsAnimating] = useState(true);
 
   const a11y = useAccessibility();
+
+  // Apply default value for isActiveHover
+  const activeHover = isActiveHover ?? false;
 
   const currentSearchQuery = getSearchQuery(searchParams);
 
@@ -114,7 +115,7 @@ export function RootNode({
         dimensions={dimensions}
         hoveredStack={hoveredStack}
         hoveredDomain={hoveredDomain}
-        isActiveHover={isActiveHover}
+        isActiveHover={activeHover}
         isInitialAnimating={isAnimating}
       />
 
@@ -157,4 +158,15 @@ export function RootNode({
       `}</style>
     </g>
   );
-}
+};
+
+// Memoize to prevent re-renders when dimensions or hover state haven't changed
+export const RootNode = memo(RootNodeComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.dimensions.rootRadius === nextProps.dimensions.rootRadius &&
+    prevProps.dimensions.centerX === nextProps.dimensions.centerX &&
+    prevProps.dimensions.centerY === nextProps.dimensions.centerY &&
+    prevProps.hoveredStack?.id === nextProps.hoveredStack?.id &&
+    prevProps.isActiveHover === nextProps.isActiveHover
+  );
+});
