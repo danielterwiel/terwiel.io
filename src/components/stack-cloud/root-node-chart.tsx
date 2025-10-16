@@ -80,7 +80,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const selectedArc = d3
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
-        .outerRadius(pieRadius + RING_THICKNESS);
+        .outerRadius(pieRadius + RING_THICKNESS * 1.4);
 
       // Mark transition as in progress
       isTransitioningRef.current = true;
@@ -100,8 +100,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .transition()
         .duration(transitionDuration)
         .attr("opacity", (d) =>
-          matchedDomain === d.data.domain ? "1.0" : "0.6",
-        )
+          matchedDomain === d.data.domain ? "1.0" : "0.55",
+        ) // Moderate contrast for multiple selections
         .attr("d", (d) =>
           matchedDomain === d.data.domain
             ? (selectedArc(d) ?? "")
@@ -158,11 +158,11 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       .innerRadius(pieRadius - RING_THICKNESS)
       .outerRadius(pieRadius);
 
-    // Selected arc: double-thickness ring growing outward (2x the size)
+    // Selected arc: moderate growth outward for clear but balanced selection (WCAG 2.2)
     const selectedArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(pieRadius - RING_THICKNESS)
-      .outerRadius(pieRadius + RING_THICKNESS);
+      .outerRadius(pieRadius + RING_THICKNESS * 1.4);
 
     // Invisible hit area arc: always full segment for better mobile interaction
     const hitAreaArc = d3
@@ -243,7 +243,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         });
         return `${baseClasses} ${stateClasses}`;
       })
-      .attr("opacity", (d) => (matchedDomain === d.data.domain ? "1.0" : "0.6"))
+      .attr("opacity", (d) =>
+        matchedDomain === d.data.domain ? "1.0" : "0.55",
+      ) // Moderate contrast for multiple selections
       .attr("pointer-events", "none")
       .attr("d", (d) =>
         matchedDomain === d.data.domain
@@ -284,11 +286,11 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     const setupHoverInteractions = () => {
       const transitionDuration = a11y.getTransitionDuration(150);
 
-      // Hover arc: slightly larger than selected arc for hover effect
+      // Hover arc: slightly larger than default but smaller than selected for clear hierarchy
       const hoverArc = d3
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
-        .outerRadius(pieRadius + RING_THICKNESS * 1.5);
+        .outerRadius(pieRadius + RING_THICKNESS * 1.2);
 
       // Track if a touch is intended as a click (vs scroll/pan)
       let touchWasClick = false;
@@ -301,12 +303,12 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .select(this.previousSibling as SVGGElement)
           .select<SVGPathElement>("path.pie-segment");
 
-        // Animate to hover state
+        // Animate to hover state - clear hierarchy: default (0.55) → hover (0.8) → selected (1.0)
         visiblePath
           .transition()
           .duration(transitionDuration)
           .attr("d", hoverArc(datum) ?? "")
-          .attr("opacity", "0.85");
+          .attr("opacity", "0.8");
 
         // Notify parent component of domain hover
         onDomainHover?.(datum.data.domain as Domain);
@@ -335,7 +337,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .transition()
           .duration(transitionDuration)
           .attr("d", targetArc(datum) ?? "")
-          .attr("opacity", isSelected ? "1.0" : "0.6");
+          .attr("opacity", isSelected ? "1.0" : "0.55"); // Moderate contrast for multiple selections
 
         // Notify parent of domain hover state (restore selected domain if exists)
         onDomainHover?.(restoreDomain);

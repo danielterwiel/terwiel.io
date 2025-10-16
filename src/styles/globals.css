@@ -116,13 +116,13 @@
     transition: none;
   }
 
-  /* Subtle elevation on hover/selection for depth perception (dual encoding) */
+  /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
   .stack-node-circle.is-highlighted:not(.forced-colors) {
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
   }
 
   .stack-node-circle.is-selected:not(.forced-colors) {
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
   }
 
   /* Remove drop shadows for reduced motion and forced colors */
