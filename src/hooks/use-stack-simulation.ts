@@ -4,22 +4,33 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { Dimensions, Domain, SimulationNode } from "~/types";
 
+import type { makeBoundaryForce } from "~/utils/stack-cloud/boundary-force";
+import type { makeRootExclusionForce } from "~/utils/stack-cloud/root-exclusion-force";
 import {
+  BASE_CHARGE_STRENGTH,
   BOUNDARY_PADDING,
-  CHARGE_STRENGTH,
-  COLLISION_ITERATIONS,
-  COLLISION_PADDING,
-  COLLISION_STRENGTH,
-  POSITIONING_FORCE_STRENGTH,
+  INITIAL_ALPHA_TARGET,
+  INITIAL_ANIMATION_DURATION,
+  MANY_BODY_THETA,
   ROOT_EXCLUSION_FACTOR,
 } from "~/constants/stack-cloud-physics";
 import { PROJECTS } from "~/data/projects";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
-import { makeBoundaryForce } from "~/utils/stack-cloud/boundary-force";
+import {
+  calculateAdaptivePhysics,
+  calculateAlphaTarget,
+  calculateChangeMagnitude,
+  calculateNodeStats,
+  calculateSettlingTime,
+  calculateViewportMetrics,
+} from "~/utils/stack-cloud/adaptive-physics";
 import { calculateDomainAngles } from "~/utils/stack-cloud/calculate-domain-angles";
 import { arcAngleToMathAngle } from "~/utils/stack-cloud/convert-arc-angle";
+import {
+  createSimulationForces,
+  updateSimulationForces,
+} from "~/utils/stack-cloud/create-forces";
 import { calculateNodeAngleInSegment } from "~/utils/stack-cloud/distribute-nodes-in-segment";
-import { makeRootExclusionForce } from "~/utils/stack-cloud/root-exclusion-force";
 import { seedPosition } from "~/utils/stack-cloud/seed-position";
 
 interface UseStackSimulationProps {
@@ -191,47 +202,43 @@ export function useStackSimulation({
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      // Adaptive parameters based on viewport size
-      // Larger viewports need higher velocity decay to dampen jitter
-      const vmin = Math.min(width, height);
-      const isLargeViewport = vmin >= 600;
-      const velocityDecayValue = isLargeViewport ? 0.6 : 0.4; // Higher friction on large screens
-      const alphaDecayValue = isLargeViewport ? 0.04 : 0.03; // Faster cooling on large screens
-      const chargeStrengthValue = isLargeViewport ? -8 : CHARGE_STRENGTH; // Weaker repulsion on large screens
+      // Calculate viewport metrics and node statistics
+      const viewport = calculateViewportMetrics(width, height);
+      const nodeStats = calculateNodeStats(stackNodes, viewport.viewportArea);
 
-      // Forces
-      // Collision radius includes scaleFactor for physics-based repositioning
-      // When node scales up, it pushes neighbors away smoothly
-      const collide = d3
-        .forceCollide<SimulationNode>()
-        .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
-        .strength(COLLISION_STRENGTH)
-        .iterations(COLLISION_ITERATIONS);
-
-      const charge = d3
-        .forceManyBody<SimulationNode>()
-        .strength(chargeStrengthValue);
-
-      const boundary = makeBoundaryForce(width, height, BOUNDARY_PADDING);
-      const rootExclusion = makeRootExclusionForce(
-        centerX,
-        centerY,
-        rootRadius,
+      // Calculate adaptive physics parameters
+      const physics = calculateAdaptivePhysics(
+        viewport,
+        nodeStats,
+        BASE_CHARGE_STRENGTH,
+        MANY_BODY_THETA,
       );
 
-      boundaryForceRef.current = boundary;
-      rootExclusionForceRef.current = rootExclusion;
+      // Create all simulation forces
+      const forces = createSimulationForces({
+        centerX,
+        centerY,
+        width,
+        height,
+        rootRadius,
+        physics,
+        avgRadius: nodeStats.avgRadius,
+      });
+
+      boundaryForceRef.current = forces.boundary;
+      rootExclusionForceRef.current = forces.rootExclusion;
 
       const simulation = d3
         .forceSimulation<SimulationNode>(allNodes)
-        .force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH))
-        .force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH))
-        .force("collide", collide)
-        .force("charge", charge)
-        .force("boundary", boundary)
-        .force("rootExclusion", rootExclusion)
-        .alphaDecay(prefersReducedMotion ? 0.9 : alphaDecayValue)
-        .velocityDecay(velocityDecayValue)
+        .force("x", forces.forceX)
+        .force("y", forces.forceY)
+        .force("collide", forces.collide)
+        .force("charge", forces.charge)
+        .force("massDampen", forces.massDampen)
+        .force("boundary", forces.boundary)
+        .force("rootExclusion", forces.rootExclusion)
+        .alphaDecay(prefersReducedMotion ? 0.9 : physics.alphaDecay)
+        .velocityDecay(physics.velocityDecay)
         .on("tick", handleTick);
 
       simulationRef.current = simulation;
@@ -267,85 +274,62 @@ export function useStackSimulation({
       }
 
       // Update stack node radii
-      for (const node of nodes.slice(1)) {
+      const stackNodeList = nodes.slice(1); // Exclude root node
+      for (const node of stackNodeList) {
         const sizeFactor = sizeFactors.get(node.name) ?? 1.0;
         node.radius = stackRadius * sizeFactor;
       }
 
-      // Update simulation parameters based on new viewport size
-      const vmin = Math.min(width, height);
-      const isLargeViewport = vmin >= 600;
-      const velocityDecayValue = isLargeViewport ? 0.6 : 0.4;
-      const alphaDecayValue = isLargeViewport ? 0.04 : 0.03;
-      const chargeStrengthValue = isLargeViewport ? -8 : CHARGE_STRENGTH;
-
-      sim.velocityDecay(velocityDecayValue);
-      sim.alphaDecay(alphaDecayValue);
-
-      // Update position forces
-      sim.force("x", d3.forceX(centerX).strength(POSITIONING_FORCE_STRENGTH));
-      sim.force("y", d3.forceY(centerY).strength(POSITIONING_FORCE_STRENGTH));
-
-      // Update charge force
-      sim.force(
-        "charge",
-        d3.forceManyBody<SimulationNode>().strength(chargeStrengthValue),
+      // Calculate viewport metrics and node statistics
+      const viewport = calculateViewportMetrics(width, height);
+      const nodeStats = calculateNodeStats(
+        stackNodeList,
+        viewport.viewportArea,
       );
 
-      // Update collide radii (includes scaleFactor for repositioning)
-      const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
-      if (collide?.radius) {
-        collide
-          .radius(
-            (d: SimulationNode) =>
-              d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING,
-          )
-          .strength(COLLISION_STRENGTH)
-          .iterations(COLLISION_ITERATIONS);
-        // CRITICAL: Re-initialize collision force to re-evaluate radii after dimension changes
-        // Use simulation's own random source for deterministic behavior
-        collide.initialize(sim.nodes(), sim.randomSource());
-      } else {
-        const newCollide = d3
-          .forceCollide<SimulationNode>()
-          .radius((d) => d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING)
-          .strength(COLLISION_STRENGTH)
-          .iterations(COLLISION_ITERATIONS);
-        sim.force("collide", newCollide);
-        newCollide.initialize(sim.nodes(), sim.randomSource());
-      }
+      // Calculate adaptive physics parameters
+      const physics = calculateAdaptivePhysics(
+        viewport,
+        nodeStats,
+        BASE_CHARGE_STRENGTH,
+        MANY_BODY_THETA,
+      );
 
-      // Update custom forces
-      if (boundaryForceRef.current) {
-        boundaryForceRef.current.update(width, height);
-      } else {
-        const newBoundary = makeBoundaryForce(width, height, BOUNDARY_PADDING);
-        boundaryForceRef.current = newBoundary;
-        sim.force("boundary", newBoundary);
-      }
-
-      if (rootExclusionForceRef.current) {
-        rootExclusionForceRef.current.update(centerX, centerY, rootRadius);
-      } else {
-        const newRootExclusion = makeRootExclusionForce(
+      // Update all forces with new parameters
+      updateSimulationForces(
+        sim,
+        {
           centerX,
           centerY,
+          width,
+          height,
           rootRadius,
-        );
-        rootExclusionForceRef.current = newRootExclusion;
-        sim.force("rootExclusion", newRootExclusion);
-      }
+          physics,
+          avgRadius: nodeStats.avgRadius,
+        },
+        {
+          boundary: boundaryForceRef.current,
+          rootExclusion: rootExclusionForceRef.current,
+        },
+      );
 
-      // Gentle reheat
+      // Gentle reheat with viewport-adaptive alphaTarget
       if (prefersReducedMotion) {
         sim.stop();
         sim.tick(40);
         handleTick();
       } else {
-        sim.alphaTarget(0.1).restart();
+        const reheatAlphaTarget = calculateAlphaTarget(viewport.vmin);
+        sim.alphaTarget(reheatAlphaTarget).restart();
+
+        const settlingTime = calculateSettlingTime(
+          sim.alpha(),
+          physics.alphaDecay,
+        );
+
         setTimeout(() => {
           if (sim) sim.alphaTarget(0);
-        }, 300);
+        }, settlingTime);
       }
     },
     [sizeFactors, handleTick],
@@ -395,8 +379,8 @@ export function useStackSimulation({
       if (!prefersReducedMotion) {
         const sim = simulationRef.current;
         if (sim) {
-          sim.alphaTarget(0.2).restart();
-          setTimeout(() => sim.alphaTarget(0), 200);
+          sim.alphaTarget(INITIAL_ALPHA_TARGET).restart();
+          setTimeout(() => sim.alphaTarget(0), INITIAL_ANIMATION_DURATION);
         }
       }
 
@@ -440,18 +424,10 @@ export function useStackSimulation({
 
       if (!hasChanges) return;
 
-      // Update collision force with new scale factors
+      // CRITICAL: Must reinitialize collision force when radii change
+      // The collision quadtree only rebuilds when initialize() is called
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
-      if (collide?.radius) {
-        collide
-          .radius(
-            (d: SimulationNode) =>
-              d.radius * (d.scaleFactor ?? 1) + COLLISION_PADDING,
-          )
-          .strength(COLLISION_STRENGTH)
-          .iterations(COLLISION_ITERATIONS); // Keep full iterations for stability
-        // CRITICAL: Re-initialize collision force to re-evaluate radii after scaleFactor changes
-        // Use simulation's own random source for deterministic behavior
+      if (collide) {
         collide.initialize(sim.nodes(), sim.randomSource());
       }
 
@@ -465,25 +441,31 @@ export function useStackSimulation({
         sim.tick(30);
         handleTick();
       } else {
-        const currentAlpha = sim.alpha();
+        // Calculate viewport size and change magnitude for adaptive physics
+        const stackNodeList = nodes.filter((n) => n.type === "stack");
+        const changeMagnitude = calculateChangeMagnitude(stackNodeList);
 
-        // Very gentle warmup - use very low alpha to minimize jitter
-        if (currentAlpha < 0.005) {
-          sim.alpha(0.005); // Ultra-low alpha for minimal disruption
-        }
+        const vmin = dimensions
+          ? Math.min(dimensions.width, dimensions.height)
+          : 400;
 
-        // Ultra-low alphaTarget for extremely smooth repositioning
-        // This allows the simulation to gently redistribute nodes without violent corrections
-        sim.alphaTarget(0.002).restart(); // Reduced from 0.005 to minimize jitter
+        const alphaTarget = calculateAlphaTarget(vmin, changeMagnitude);
+
+        sim.alphaTarget(alphaTarget).restart();
+
+        const settlingTime = calculateSettlingTime(
+          sim.alpha(),
+          sim.alphaDecay(),
+        );
 
         setTimeout(() => {
           if (sim) {
             sim.alphaTarget(0);
           }
-        }, 800); // Extended from 500ms for more gradual settling
+        }, settlingTime);
       }
     },
-    [handleTick],
+    [handleTick, dimensions],
   );
 
   return {

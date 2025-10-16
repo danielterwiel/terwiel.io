@@ -1,5 +1,7 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { memo } from "react";
+
 import type { Dimensions, Domain } from "~/types";
 
 import { Icon } from "~/components/icon";
@@ -28,18 +30,21 @@ interface StackNodeProps {
 /**
  * Individual stack node component
  * Displays a technology stack icon with proper sizing based on experience
+ * Memoized to prevent unnecessary re-renders when other nodes update
  */
-export function StackNode({
-  stack,
-  dimensions,
-  sizeFactors,
-  selected = false,
-  highlighted = false,
-  isDirectlyHovered = false,
-  nodeRef,
-  onMouseEnter,
-  onMouseLeave,
-}: StackNodeProps) {
+// biome-ignore lint/style/useComponentExportOnlyModules: Component is exported via memo wrapper
+const StackNodeComponent = (props: StackNodeProps) => {
+  const {
+    stack,
+    dimensions,
+    sizeFactors,
+    selected,
+    highlighted,
+    isDirectlyHovered,
+    nodeRef,
+    onMouseEnter,
+    onMouseLeave,
+  } = props;
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -49,6 +54,11 @@ export function StackNode({
   const a11y = useAccessibility();
 
   const currentSearchQuery = getSearchQuery(searchParams);
+
+  // Apply default values
+  const isSelected = selected ?? false;
+  const isHighlighted = highlighted ?? false;
+  const isDirectHovered = isDirectlyHovered ?? false;
 
   // Get experience-based size factor (0.75-2.5x baseline)
   const sizeFactor = sizeFactors.get(stack.name) ?? 1.0;
@@ -61,12 +71,16 @@ export function StackNode({
   const iconScale = iconSize / 24;
 
   // Determine state for styling
-  const state = selected ? "selected" : highlighted ? "highlighted" : "default";
+  const state = isSelected
+    ? "selected"
+    : isHighlighted
+      ? "highlighted"
+      : "default";
 
   // Get colors and styles from accessibility hook
   const borderColor = a11y.getBorderColor(
     stack.domain,
-    selected || highlighted,
+    isSelected || isHighlighted,
   );
   const borderWidth = a11y.getBorderWidth(state);
   const fillColor = a11y.getFillColor();
@@ -91,9 +105,7 @@ export function StackNode({
   const iconSpecificColor = getIconHexColor(stack.iconKey);
 
   // Determine final icon color: use specific color ONLY on direct hover (not on selection or domain highlight)
-  const finalIconColor = isDirectlyHovered
-    ? iconSpecificColor
-    : iconStyle.color;
+  const finalIconColor = isDirectHovered ? iconSpecificColor : iconStyle.color;
 
   const transitionDuration = a11y.getTransitionDuration(200);
 
@@ -112,9 +124,9 @@ export function StackNode({
   };
 
   // Get CSS classes
-  const nodeClasses = `stack-node ${a11y.getStateClasses({ selected, highlighted })}`;
-  const circleClasses = `stack-node-circle ${a11y.getStateClasses({ selected, highlighted })}`;
-  const iconClasses = `stack-node-icon ${a11y.getStateClasses({ selected, highlighted })}`;
+  const nodeClasses = `stack-node ${a11y.getStateClasses({ selected: isSelected, highlighted: isHighlighted })}`;
+  const circleClasses = `stack-node-circle ${a11y.getStateClasses({ selected: isSelected, highlighted: isHighlighted })}`;
+  const iconClasses = `stack-node-icon ${a11y.getStateClasses({ selected: isSelected, highlighted: isHighlighted })}`;
   const focusRingClasses = `stack-node-focus-ring ${a11y.getStateClasses({})}`;
 
   return (
@@ -126,7 +138,7 @@ export function StackNode({
       role="button"
       tabIndex={0}
       aria-label={`${stack.name} technology`}
-      aria-pressed={selected}
+      aria-pressed={isSelected}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onMouseEnter={onMouseEnter}
@@ -150,7 +162,7 @@ export function StackNode({
       />
 
       {/* Inner fill for selected state - subtle glow effect */}
-      {selected && a11y.shouldShowSelectionIndicator && (
+      {isSelected && a11y.shouldShowSelectionIndicator && (
         <circle
           r={nodeRadius * 0.85}
           fill={borderColor}
@@ -187,4 +199,20 @@ export function StackNode({
       )}
     </g>
   );
-}
+};
+
+// Memoize with custom comparison to prevent re-renders when unrelated stacks change
+export const StackNode = memo(StackNodeComponent, (prevProps, nextProps) => {
+  // Only re-render if props that affect this specific node have changed
+  return (
+    prevProps.stack.id === nextProps.stack.id &&
+    prevProps.selected === nextProps.selected &&
+    prevProps.highlighted === nextProps.highlighted &&
+    prevProps.isDirectlyHovered === nextProps.isDirectlyHovered &&
+    prevProps.dimensions.stackRadius === nextProps.dimensions.stackRadius &&
+    prevProps.dimensions.width === nextProps.dimensions.width &&
+    prevProps.dimensions.height === nextProps.dimensions.height &&
+    prevProps.sizeFactors.get(prevProps.stack.name) ===
+      nextProps.sizeFactors.get(nextProps.stack.name)
+  );
+});

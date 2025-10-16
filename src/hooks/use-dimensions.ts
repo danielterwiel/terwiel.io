@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Dimensions } from "~/types/simulation";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 import { debounce } from "~/utils/debounce";
+import { calculateBaseStackRadius } from "~/utils/stack-cloud/calculate-base-radius";
 
 /**
  * Hook to measure and track container dimensions
@@ -19,20 +20,23 @@ export function useDimensions(
     const rect = wrapperRef.current.getBoundingClientRect();
     const vmin = Math.min(rect.width, rect.height);
 
-    // Determine stack radius based on breakpoints
-    let stackRadius: number = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_LARGE;
-    if (vmin < STACK_CLOUD_BREAKPOINTS.SMALL) {
-      stackRadius = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_SMALL;
-    } else if (vmin < STACK_CLOUD_BREAKPOINTS.MEDIUM) {
-      stackRadius = STACK_CLOUD_BREAKPOINTS.STACK_RADIUS_MEDIUM;
-    }
+    // Calculate root radius (scales with viewport)
+    const rootRadius = vmin * STACK_CLOUD_BREAKPOINTS.ROOT_RADIUS_SCALE;
+
+    // Calculate optimal base stack radius using circle packing algorithm
+    // Accounts for: viewport area, node count, size factor distribution
+    const stackRadius = calculateBaseStackRadius(
+      rect.width,
+      rect.height,
+      rootRadius,
+    );
 
     return {
       width: rect.width,
       height: rect.height,
       centerX: rect.width / 2,
       centerY: rect.height / 2,
-      rootRadius: vmin * STACK_CLOUD_BREAKPOINTS.ROOT_RADIUS_SCALE,
+      rootRadius,
       stackRadius,
     };
   }, [wrapperRef]);
