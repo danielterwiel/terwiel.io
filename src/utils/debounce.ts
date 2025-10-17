@@ -1,3 +1,8 @@
+interface DebouncedFunction<T extends (...args: never[]) => unknown> {
+  (...args: Parameters<T>): void;
+  cancel: () => void;
+}
+
 /**
  * Debounce utility function
  * Creates a debounced version of a function that delays invoking until after
@@ -6,10 +11,17 @@
 export function debounce<T extends (...args: never[]) => unknown>(
   fn: T,
   delay: number,
-): T {
+): DebouncedFunction<T> {
   let timeoutId: NodeJS.Timeout;
-  return ((...args: Parameters<T>) => {
+
+  const debounced = ((...args: Parameters<T>) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => fn(...args), delay);
-  }) as T;
+  }) as DebouncedFunction<T>;
+
+  debounced.cancel = () => {
+    clearTimeout(timeoutId);
+  };
+
+  return debounced;
 }

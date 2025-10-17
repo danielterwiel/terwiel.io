@@ -29,8 +29,10 @@ export const ProjectsContent = () => {
   const isFiltering = query !== deferredQuery;
 
   return (
-    <>
-      <h2 id={projectsId}>Projects</h2>
+    <article className="prose max-w-none">
+      <h2 id={projectsId} className="mb-6 text-2xl font-bold">
+        Projects
+      </h2>
       <div className="flow-root space-y-4">
         {query ? <SearchSummary query={query} items={filtered} /> : null}
 
@@ -46,12 +48,12 @@ export const ProjectsContent = () => {
                 key={project.company}
                 project={project}
                 projectIdx={projectIdx}
-                totalLength={PROJECTS.length}
+                totalLength={filtered.length}
               />
             ))}
           </ol>
         </div>
       </div>
-    </>
+    </article>
   );
 };
