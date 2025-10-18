@@ -30,7 +30,7 @@ export const ProjectsContent = () => {
 
   return (
     <article className="prose max-w-none">
-      <h2 id={projectsId} className="mb-6 text-2xl font-bold">
+      <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>
       <div className="flow-root space-y-4">

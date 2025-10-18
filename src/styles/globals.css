@@ -53,6 +53,11 @@
 }
 
 @layer components {
+  /* Mobile menu - ensure dropdown is visible above StackCloud */
+  .relative.z-50 {
+    /* Don't hide overflow for dropdowns inside z-50 container */
+  }
+
   /* Remove default focus outline from SVG interactive elements */
   svg [role="button"]:focus {
     outline: none;

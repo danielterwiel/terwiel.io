@@ -4,7 +4,9 @@ import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 
+import { ContactDropdown } from "~/components/contact-dropdown";
 import { Icon } from "~/components/icon";
+import { MobileMenu } from "~/components/mobile-menu";
 import { SearchInput } from "~/components/search-input";
 
 const HeaderContent = () => {
@@ -29,8 +31,8 @@ const HeaderContent = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
-      // Always show header if search is active
-      if (hasSearchQuery) {
+      // Always show header if search is active or search input is open
+      if (hasSearchQuery || showSearchInput) {
         setIsHeaderVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -67,12 +69,24 @@ const HeaderContent = () => {
 
     window.addEventListener("scroll", scrollListener);
     return () => window.removeEventListener("scroll", scrollListener);
-  }, [hasSearchQuery]);
+  }, [hasSearchQuery, showSearchInput]);
 
   const handleSearchIconClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+
+    // On desktop with existing query: focus input and select all
+    if (window.innerWidth >= 768 && hasSearchQuery) {
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }, 0);
+      return;
+    }
+
+    // Toggle search input
     isOpeningRef.current = true;
-    setShowSearchInput(true);
+    setShowSearchInput(!showSearchInput);
+
     // Focus the search input after it renders
     setTimeout(() => {
       searchInputRef.current?.focus();
@@ -84,6 +98,9 @@ const HeaderContent = () => {
     e.preventDefault();
     e.stopPropagation();
   };
+
+  const searchButtonLabel =
+    hasSearchQuery || showSearchInput ? "Edit search" : "Open search";
 
   // Click outside handler
   useEffect(() => {
@@ -148,7 +165,7 @@ const HeaderContent = () => {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 bg-white backdrop-blur-sm transition-transform duration-300 ${
+      className={`sticky top-0 z-40 bg-white backdrop-blur-sm transition-transform duration-300 ${
         isHeaderVisible ? "translate-y-0" : "-translate-y-full"
       } ${hasSearchQuery ? "md:sticky" : ""}`}
       style={{
@@ -157,7 +174,7 @@ const HeaderContent = () => {
         backdropFilter: "blur(0.5rem)",
       }}
     >
-      {/* Mobile: Switch between normal header and full-width search overlay */}
+      {/* Mobile: Full-width search overlay and normal header - choose one on mobile */}
       {showSearchInput || hasSearchQuery ? (
         <div className="md:hidden flex items-center px-4 py-10 w-full box-border h-[3.5rem]">
           <div ref={searchContainerRef} className="w-full">
@@ -168,60 +185,94 @@ const HeaderContent = () => {
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-[auto_1fr_auto] md:gap-6 md:px-6 md:py-4">
-          {/* Logo - always visible */}
-          <div className="flex-shrink-0">
-            <Icon.BrandReact className="h-8 w-8 text-klein md:h-10 md:w-10" />
+        <div className="flex items-center justify-between gap-4 p-4 md:hidden">
+          {/* Mobile: Logo - reserve space matching right menu width */}
+          <div className="flex items-center justify-start w-16">
+            <Icon.BrandReact className="h-8 w-8 text-klein" />
           </div>
 
-          {/* Title (name + subtitle) - always visible on desktop, hidden on mobile when needed */}
-          <div className="flex flex-col items-center md:hidden">
+          {/* Mobile: Title (name + subtitle) - perfectly centered */}
+          <div className="flex flex-col items-center flex-1">
             <h1 className="text-lg font-bold text-slate-900">Daniël Terwiel</h1>
             <p className="text-sm text-slate-600">Developer</p>
           </div>
 
-          {/* Title (name + subtitle) - always visible on desktop */}
-          <div className="hidden md:flex md:flex-col md:items-center">
-            <h1 className="text-xl font-bold text-slate-900">Daniël Terwiel</h1>
-            <p className="text-sm text-slate-600">Developer</p>
-          </div>
+          {/* Mobile: Menu icons (Hamburger + Search) */}
+          <div className="flex items-center justify-end gap-1 w-16">
+            {/* Mobile: Hamburger Menu */}
+            <MobileMenu />
 
-          {/* Search - magnifier icon or full search input (desktop only) */}
-          <div className="hidden md:flex md:flex-shrink-0 md:min-w-[300px]">
-            {hasSearchQuery ? (
-              <div ref={searchContainerRef} className="w-full">
-                <SearchInput
-                  ref={searchInputRef}
-                  onCloseEmpty={() => setShowSearchInput(false)}
-                />
-              </div>
-            ) : (
-              <button
-                ref={searchButtonRef}
-                type="button"
-                onMouseDown={handleSearchButtonMouseDown}
-                onClick={handleSearchIconClick}
-                className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-                aria-label="Open search"
-              >
-                <Icon.Search className="h-6 w-6" />
-              </button>
-            )}
+            {/* Mobile: Search button */}
+            <button
+              ref={searchButtonRef}
+              type="button"
+              onMouseDown={handleSearchButtonMouseDown}
+              onClick={handleSearchIconClick}
+              className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+              aria-label="Open search"
+            >
+              <Icon.Search className="h-6 w-6" />
+            </button>
           </div>
+        </div>
+      )}
 
-          {/* Mobile search button - only visible on mobile when search is not active */}
+      {/* Desktop: Asymmetric layout with logo on left, centered title, and menu on right */}
+      <div className="hidden md:grid md:grid-cols-3 md:items-center md:px-6 md:py-4 md:gap-6">
+        {/* Left column: Logo - matches width of right menu */}
+        <div className="flex items-center justify-start">
+          <div className="flex items-center justify-center h-10 w-10">
+            <Icon.BrandReact className="h-10 w-10 text-klein" />
+          </div>
+        </div>
+
+        {/* Center: Title or Search Input - perfectly centered, fixed height to prevent jump */}
+        <div className="flex flex-col items-center justify-center min-w-0 h-14">
+          {hasSearchQuery || showSearchInput ? (
+            <div ref={searchContainerRef} className="w-full max-w-md">
+              <SearchInput
+                ref={searchInputRef}
+                onCloseEmpty={() => setShowSearchInput(false)}
+              />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-xl font-bold text-slate-900">
+                Daniël Terwiel
+              </h1>
+              <p className="text-sm text-slate-600">Developer</p>
+            </>
+          )}
+        </div>
+
+        {/* Right column: Menu with three action buttons (Contact, PDF, Search) */}
+        <div className="flex items-center justify-end gap-1">
+          {/* Contact Dropdown */}
+          <ContactDropdown />
+
+          {/* PDF Download Button */}
+          <a
+            href="/resume.pdf"
+            download="Daniel-Terwiel-Resume.pdf"
+            className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            aria-label="Download resume as PDF"
+          >
+            <Icon.FileCv className="h-6 w-6" />
+          </a>
+
+          {/* Search Button */}
           <button
             ref={searchButtonRef}
             type="button"
             onMouseDown={handleSearchButtonMouseDown}
             onClick={handleSearchIconClick}
-            className="flex-shrink-0 md:hidden rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-            aria-label="Open search"
+            className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            aria-label={searchButtonLabel}
           >
             <Icon.Search className="h-6 w-6" />
           </button>
         </div>
-      )}
+      </div>
     </header>
   );
 };
@@ -231,17 +282,19 @@ export const Header = () => {
     <Suspense
       fallback={
         <header className="sticky top-0 bg-white/95 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-[auto_1fr_auto] md:gap-6 md:px-6 md:py-4">
-            <div className="flex-shrink-0">
-              <Icon.BrandReact className="h-8 w-8 text-klein md:h-10 md:w-10" />
+          <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-3 md:gap-6 md:px-6 md:py-4 md:items-center">
+            <div className="flex items-center justify-start">
+              <div className="flex items-center justify-center md:h-10 md:w-10">
+                <Icon.BrandReact className="h-8 w-8 text-klein md:h-10 md:w-10" />
+              </div>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col items-center">
               <h1 className="text-lg font-bold text-slate-900 md:text-xl">
                 Daniël Terwiel
               </h1>
               <p className="text-sm text-slate-600">Developer</p>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex items-center justify-end">
               <div className="h-10 w-10" />
             </div>
           </div>
