@@ -32,8 +32,9 @@ export const SearchInputContent = React.forwardRef<
   const [isFocused, setIsFocused] = React.useState(false);
 
   // Create debounced function once and persist it across renders
-  const debouncedSetSearchParamsRef =
-    React.useRef<ReturnType<typeof debounce>>();
+  const debouncedSetSearchParamsRef = React.useRef<
+    (((query: string) => void) & { cancel: () => void }) | null
+  >(null);
 
   React.useEffect(() => {
     // Initialize the debounced function only once
@@ -65,7 +66,9 @@ export const SearchInputContent = React.forwardRef<
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event?.target?.value;
     setQuery(value);
-    debouncedSetSearchParamsRef.current?.(value);
+    if (debouncedSetSearchParamsRef.current) {
+      debouncedSetSearchParamsRef.current(value);
+    }
   };
 
   const handleFocus = () => {
