@@ -37,8 +37,8 @@ export const Badge = ({
   const rgb = hexToRgb(hexColor);
   const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 
-  // Generate href with search parameter
-  const href = `/?search=${encodeURIComponent(name)}`;
+  // Generate href with query parameter
+  const href = `/?query=${encodeURIComponent(name)}`;
 
   const magneticClasses = getMagneticClasses(undefined, {
     component: "button",
@@ -75,7 +75,7 @@ export const Badge = ({
   return (
     <Link
       href={href}
-      replace
+      scroll={false}
       className={clsx(
         magneticClasses,
         "group border-2 transition-all duration-500",

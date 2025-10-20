@@ -14,125 +14,151 @@ interface SearchInputProps {
   onCloseEmpty?: () => void;
 }
 
-const SearchInputContent = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ onCloseEmpty }, forwardedRef) => {
-    const searchParams = useSearchParams();
-    const initialQuery = decodeURIComponent(
-      searchParams.get("search") ?? "",
-    ).trim();
-    const router = useRouter();
-    const pathname = usePathname();
-    const internalRef = React.useRef<HTMLInputElement>(null);
-    const inputRef = (forwardedRef ||
-      internalRef) as React.RefObject<HTMLInputElement>;
-    const [query, setQuery] = React.useState(initialQuery);
-    const [isHovered, setIsHovered] = React.useState(false);
-    const [isFocused, setIsFocused] = React.useState(false);
+export interface SearchInputHandle {
+  focus: (options?: FocusOptions) => void;
+  select: () => void;
+  triggerBounce: () => void;
+}
 
-    // Create debounced function once and persist it across renders
-    const debouncedSetSearchParamsRef = React.useRef<
-      (((query: string) => void) & { cancel: () => void }) | null
-    >(null);
+const SearchInputContent = React.forwardRef<
+  SearchInputHandle,
+  SearchInputProps
+>(({ onCloseEmpty }, forwardedRef) => {
+  const searchParams = useSearchParams();
+  const initialQuery = decodeURIComponent(
+    searchParams.get("query") ?? "",
+  ).trim();
+  const router = useRouter();
+  const pathname = usePathname();
+  const internalRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = (forwardedRef ||
+    internalRef) as React.RefObject<HTMLInputElement>;
+  const [query, setQuery] = React.useState(initialQuery);
+  const [isFocused, setIsFocused] = React.useState(false);
+  const [isBouncing, setIsBouncing] = React.useState(false);
 
-    React.useEffect(() => {
-      // Initialize the debounced function only once
-      if (!debouncedSetSearchParamsRef.current) {
-        debouncedSetSearchParamsRef.current = debounce((query: string) => {
-          const encodedValue = encodeURIComponent(query);
-          const url = encodedValue
-            ? `${pathname}?search=${encodedValue}`
-            : pathname;
-          router.replace(url, {
-            scroll: false,
-          });
-        }, 1000);
-      }
-    }, [pathname, router]);
+  // Create debounced function once and persist it across renders
+  const debouncedSetSearchParamsRef = React.useRef<
+    (((query: string) => void) & { cancel: () => void }) | null
+  >(null);
 
-    React.useEffect(() => {
-      const input =
-        "current" in inputRef
-          ? inputRef.current
-          : (inputRef as HTMLInputElement);
-      if (!input) {
-        return;
-      }
-
-      if (document.activeElement !== input) {
-        setQuery(initialQuery);
-      }
-    }, [initialQuery, inputRef]);
-
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event?.target?.value;
-      setQuery(value);
-      if (debouncedSetSearchParamsRef.current) {
-        debouncedSetSearchParamsRef.current(value);
-      }
-    };
-
-    const handleFocus = () => {
-      setIsFocused(true);
-    };
-
-    const handleBlur = () => {
-      setIsFocused(false);
-    };
-
-    const handleMouseEnter = () => {
-      setIsHovered(true);
-    };
-
-    const handleMouseLeave = () => {
-      setIsHovered(false);
-    };
-
-    const clear = () => {
-      if (query === "") {
-        // If query is already empty, close the search input
-        onCloseEmpty?.();
-      } else {
-        // If query has content, clear it
-        // Cancel any pending debounced update to prevent race condition
-        debouncedSetSearchParamsRef.current?.cancel();
-        setQuery("");
-        const encodedValue = encodeURIComponent("");
+  React.useEffect(() => {
+    // Initialize the debounced function only once
+    if (!debouncedSetSearchParamsRef.current) {
+      debouncedSetSearchParamsRef.current = debounce((query: string) => {
+        const encodedValue = encodeURIComponent(query);
         const url = encodedValue
-          ? `${pathname}?search=${encodedValue}`
+          ? `${pathname}?query=${encodedValue}`
           : pathname;
         router.replace(url, {
           scroll: false,
         });
-        const input =
-          "current" in inputRef
-            ? inputRef.current
-            : (inputRef as HTMLInputElement);
-        input?.focus();
-      }
+      }, 1000);
+    }
+  }, [pathname, router]);
+
+  React.useEffect(() => {
+    const input =
+      "current" in inputRef ? inputRef.current : (inputRef as HTMLInputElement);
+    if (!input) {
+      return;
+    }
+
+    if (document.activeElement !== input) {
+      setQuery(initialQuery);
+    }
+  }, [initialQuery, inputRef]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event?.target?.value;
+    setQuery(value);
+    if (debouncedSetSearchParamsRef.current) {
+      debouncedSetSearchParamsRef.current(value);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // Trigger bounce animation on focus
+    triggerBounceAnimation();
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
+  const triggerBounceAnimation = React.useCallback(() => {
+    setIsBouncing(true);
+    // Remove animation class after animation completes (0.4s)
+    const timeoutId = setTimeout(() => {
+      setIsBouncing(false);
+    }, 400);
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  // Expose focus, select, and triggerBounce methods to parent components
+  React.useImperativeHandle(forwardedRef, () => {
+    const input =
+      "current" in inputRef ? inputRef.current : (inputRef as HTMLInputElement);
+    return {
+      focus: (options?: FocusOptions) => {
+        input?.focus(options);
+      },
+      select: () => {
+        input?.select();
+      },
+      triggerBounce: () => {
+        triggerBounceAnimation();
+      },
     };
+  }, [inputRef, triggerBounceAnimation]);
 
-    const magneticClasses = getMagneticClasses(undefined, {
-      component: "input",
-      isHovered,
-      isFocused,
-      hasQuery: !!query,
-      withRing: false, // Explicitly disable ring for input to avoid border conflicts
-    });
+  const clear = () => {
+    if (query === "") {
+      // If query is already empty, close the search input
+      onCloseEmpty?.();
+    } else {
+      // If query has content, clear it
+      // Cancel any pending debounced update to prevent race condition
+      debouncedSetSearchParamsRef.current?.cancel();
+      setQuery("");
+      const encodedValue = encodeURIComponent("");
+      const url = encodedValue ? `${pathname}?query=${encodedValue}` : pathname;
+      router.replace(url, {
+        scroll: false,
+      });
+      const input =
+        "current" in inputRef
+          ? inputRef.current
+          : (inputRef as HTMLInputElement);
+      input?.focus();
+    }
+  };
 
-    return (
-      <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
-        <Form.Field name="query">
-          <div>
-            <Form.Label className="sr-only">Search query</Form.Label>
-            <Form.Message match="typeMismatch">
-              Please provide a your search query
-            </Form.Message>
-          </div>
-          <fieldset
-            className={clsx("group relative", magneticClasses)}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
+  const magneticClasses = getMagneticClasses(undefined, {
+    component: "input",
+    isFocused,
+    hasQuery: !!query,
+    withRing: false, // Explicitly disable ring for input to avoid border conflicts
+  });
+
+  return (
+    <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
+      <Form.Field name="query">
+        <div>
+          <Form.Label className="sr-only">Search query</Form.Label>
+          <Form.Message match="typeMismatch">
+            Please provide a your search query
+          </Form.Message>
+        </div>
+        <div
+          className={clsx(
+            "rounded-md overflow-hidden",
+            magneticClasses,
+            isBouncing && "animation-magnetic-bounce",
+          )}
+        >
+          <search className="group relative flex w-full items-center rounded-md bg-white">
             <Form.Control asChild>
               <input
                 ref={
@@ -152,17 +178,11 @@ const SearchInputContent = React.forwardRef<HTMLInputElement, SearchInputProps>(
                 onChange={handleInputChange}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
-                className="w-full rounded-md border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"
+                className="w-full border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"
               />
             </Form.Control>
             <Icon.Search
-              className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 ${
-                isFocused || query
-                  ? "text-klein"
-                  : isHovered
-                    ? "text-slate-600"
-                    : "text-slate-400"
-              }`}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isFocused || query ? "text-klein" : "text-slate-400"} group-hover:text-slate-600`}
               aria-hidden="true"
               focusable="false"
             />
@@ -177,25 +197,26 @@ const SearchInputContent = React.forwardRef<HTMLInputElement, SearchInputProps>(
                 {query ? "Clear search input" : "Close search"}
               </span>
             </button>
-          </fieldset>
-        </Form.Field>
-      </Form.Root>
-    );
-  },
-);
+          </search>
+        </div>
+      </Form.Field>
+    </Form.Root>
+  );
+});
 
 SearchInputContent.displayName = "SearchInputContent";
 
-export const SearchInput = React.forwardRef<HTMLInputElement, SearchInputProps>(
-  ({ onCloseEmpty }, ref) => {
-    return (
-      <React.Suspense
-        fallback={<div className="print:hidden">Loading search...</div>}
-      >
-        <SearchInputContent ref={ref} onCloseEmpty={onCloseEmpty} />
-      </React.Suspense>
-    );
-  },
-);
+export const SearchInput = React.forwardRef<
+  SearchInputHandle,
+  SearchInputProps
+>(({ onCloseEmpty }, ref) => {
+  return (
+    <React.Suspense
+      fallback={<div className="print:hidden">Loading search...</div>}
+    >
+      <SearchInputContent ref={ref} onCloseEmpty={onCloseEmpty} />
+    </React.Suspense>
+  );
+});
 
 SearchInput.displayName = "SearchInput";

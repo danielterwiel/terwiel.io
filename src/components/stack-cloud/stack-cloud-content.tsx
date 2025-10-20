@@ -93,7 +93,7 @@ export function StackCloudContent() {
 
   // Sync hover state with search params (selected stack/domain)
   useEffect(() => {
-    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
+    const searchQuery = searchParams.get("query")?.toLowerCase().trim() ?? "";
 
     // Clear all hover states when search param is empty (iOS Safari touch fix)
     if (searchQuery === "") {

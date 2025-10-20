@@ -2,6 +2,10 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 
+import { MultiToastContainer } from "~/components/multi-toast-container";
+import { ToastProvider } from "~/components/toast-provider";
+import { ToastContextProvider } from "~/context/toast-context";
+
 export const metadata: Metadata = {
   title: "Daniël Terwiel - Developer",
   description:
@@ -32,7 +36,12 @@ export default function RootLayout({
       </head>
 
       <body className="font-sans selection:bg-klein selection:text-white print:max-w-full">
-        {children}
+        <ToastProvider>
+          <ToastContextProvider>
+            {children}
+            <MultiToastContainer />
+          </ToastContextProvider>
+        </ToastProvider>
       </body>
     </html>
   );

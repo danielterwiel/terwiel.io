@@ -6,11 +6,11 @@ import type React from "react";
 import { Suspense, useDeferredValue, useId, useMemo, useRef } from "react";
 
 import { Project } from "~/components/project";
-import { SearchSummary } from "~/components/search-summary";
+import { SearchToastQueued } from "~/components/search-toast-queued";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
 import { filterProjects } from "~/utils/filter-projects";
-import { getSearchQuery } from "~/utils/search-params";
+import { getSearchDomain, getSearchQuery } from "~/utils/search-params";
 
 const ProjectsContent = () => {
   const searchParams = useSearchParams();
@@ -19,10 +19,13 @@ const ProjectsContent = () => {
   // Defer the query value to give priority to urgent UI updates (e.g., StackCloud animations)
   const deferredQuery = useDeferredValue(query);
 
-  // Memoize filtered projects computation - only recalculate when deferred query changes
+  // Extract domain filter from query (if query matches a domain name exactly)
+  const domain = getSearchDomain(deferredQuery, PROJECTS);
+
+  // Memoize filtered projects computation - only recalculate when deferred query or domain changes
   const filtered = useMemo(
-    () => filterProjects(PROJECTS, deferredQuery),
-    [deferredQuery],
+    () => filterProjects(PROJECTS, deferredQuery, domain ?? undefined),
+    [deferredQuery, domain],
   );
 
   const projectsId = useId();
@@ -36,7 +39,7 @@ const ProjectsContent = () => {
         Projects
       </h2>
       <div className="flow-root space-y-4">
-        {query ? <SearchSummary query={query} items={filtered} /> : null}
+        {query ? <SearchToastQueued query={query} items={filtered} /> : null}
 
         <div
           style={{

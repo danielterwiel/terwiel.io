@@ -78,6 +78,48 @@
     display: block;
   }
 
+  /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
+  /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
+  .magnetic-base {
+    /* Enable smooth transitions for magnetic effect */
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease-out,
+      background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Hint browser for transform optimization */
+    will-change: transform;
+    /* Always have a subtle blue glow as base state to avoid color transition artifacts */
+    filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
+  }
+
+  /* Magnetic hover creates illusion of being "pulled" toward cursor */
+  /* Use drop-shadow instead of box-shadow to properly respect border-radius */
+  /* Mobile-first: reduced glow on mobile (8px blur) */
+  .magnetic-base:hover:not(.magnetic-selected) {
+    transform: scale(1);
+    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+  }
+
+  /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
+  @media (min-width: 768px) {
+    .magnetic-base:hover:not(.magnetic-selected) {
+      transform: scale(1.05);
+      filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+    }
+  }
+
+  /* Input-specific hover styling */
+  .magnetic-input:hover:not(.magnetic-selected) {
+    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .magnetic-base {
+      transition: none;
+    }
+  }
+
   /* StackCloud Component Styles */
   .stack-cloud-wrapper {
     width: 100%;
@@ -281,6 +323,30 @@
   }
 }
 
+@keyframes magnetic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
+  }
+}
+
+@keyframes magnetic-bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;
@@ -297,11 +363,176 @@
   .animation-magnetic-pulse {
     animation: magnetic-pulse 2s ease-in-out infinite;
   }
+  /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
+  .animation-magnetic-bounce {
+    animation: none;
+  }
+
+  @media (min-width: 768px) {
+    .animation-magnetic-bounce {
+      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
 
   .svg-contain {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
+  }
+
+  /* Toast appearance animation with view transitions */
+  .toast-appear {
+    animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Toast dismiss animation - slides out to the right */
+  .toast-dismiss {
+    animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in-and-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fade-out-and-scale-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(400px) scale(0.98);
+  }
+}
+
+@keyframes fade-out-and-slide-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(400px) scale(0.98);
+  }
+}
+
+/* Multi-toast stacking depth effect CSS */
+@keyframes multiToastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) translateX(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+  }
+}
+
+@keyframes toastStackReveal {
+  from {
+    clip-path: inset(calc(100% - 12px) 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@layer components {
+  /* Multi-toast container - creates stacking context */
+  .multi-toast-stack-container {
+    position: relative;
+    width: 20rem;
+    /* Create stacking context for proper z-index handling */
+    isolation: isolate;
+  }
+
+  /* Multi-toast with proper z-index stacking */
+  .multi-toast {
+    animation: multiToastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Apply magnetic effect from base styles */
+    @apply magnetic-base magnetic-rounded-lg magnetic-card;
+
+    /* Position absolute to remove from flow and stack properly */
+    position: absolute;
+    bottom: calc(var(--toast-index, 0) * 8px);
+    left: 0;
+    right: 0;
+    width: 100%;
+
+    /* Stack effect: each toast scales slightly smaller */
+    --depth: var(--toast-index, 0);
+    --scale: calc(1 - var(--depth, 0) * 0.02);
+    transform: scale(var(--scale));
+    transform-origin: bottom center;
+
+    /* Reduce opacity for toasts further back */
+    opacity: calc(1 - var(--depth, 0) * 0.1);
+
+    /* Z-index: later toasts have higher z-index (front of stack) */
+    z-index: calc(var(--total-toasts, 1) - var(--toast-index, 0));
+
+    /* Drop shadow gets softer for toasts further back */
+    filter: drop-shadow(
+      0 4px 8px rgba(0, 0, 0, calc(0.12 - var(--depth, 0) * 0.02))
+    );
+  }
+
+  /* Hover state - bring to front and expand */
+  .multi-toast:hover {
+    z-index: 999;
+    transform: scale(1);
+    opacity: 1;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+  }
+
+  /* Dismiss animation uses the slideOut keyframes */
+  .multi-toast.toast-dismiss {
+    animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  /* Respect reduced motion for multi-toast */
+  @media (prefers-reduced-motion: reduce) {
+    .multi-toast {
+      animation: none;
+      transition: none;
+    }
+    .multi-toast:hover {
+      transform: scale(1);
+    }
   }
 }
