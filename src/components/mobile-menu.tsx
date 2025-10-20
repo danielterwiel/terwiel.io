@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import { Icon } from "~/components/icon";
 
@@ -37,102 +37,46 @@ const MENU_LINKS = [
 ];
 
 export const MobileMenu = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (
-        menuRef.current?.contains(target) ||
-        buttonRef.current?.contains(target)
-      ) {
-        return;
-      }
-      setIsOpen(false);
-    };
-
-    // Delay to avoid closing immediately on open click
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("mousedown", handleClickOutside);
-    }, 100);
-
-    return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isOpen]);
-
-  // Close menu on Escape key
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen]);
-
-  // Close menu when a link is clicked
-  const handleLinkClick = () => {
-    setIsOpen(false);
-  };
-
   return (
-    <div className="relative z-50">
-      {/* Hamburger Menu Button */}
-      <button
-        ref={buttonRef}
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-        aria-label="Menu"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-      >
-        {/* Hamburger Icon */}
-        <svg
-          className="h-6 w-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
+    <DropdownMenu.Root>
+      <DropdownMenu.Trigger asChild>
+        <button
+          type="button"
+          className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
           aria-label="Menu"
         >
-          <title>Menu</title>
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </button>
+          {/* Hamburger Icon */}
+          <svg
+            className="h-6 w-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            role="img"
+            aria-label="Menu"
+          >
+            <title>Menu</title>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </button>
+      </DropdownMenu.Trigger>
 
-      {/* Dropdown Menu - uses absolute positioning within relative parent with high z-index */}
-      {isOpen && (
-        <div
-          ref={menuRef}
-          className="absolute right-0 top-full mt-2 w-48 rounded-lg border border-slate-200 bg-white shadow-xl"
-          role="menu"
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          className="z-50 min-w-64 rounded-lg border border-slate-200 bg-white shadow-xl"
+          sideOffset={8}
+          align="end"
         >
-          <div className="py-2">
-            {MENU_LINKS.map((link) => {
-              const LinkIcon = link.icon;
-              return (
+          {MENU_LINKS.map((link) => {
+            const LinkIcon = link.icon;
+            return (
+              <DropdownMenu.Item key={link.id} asChild>
                 <a
-                  key={link.id}
                   href={link.href}
                   download={link.download}
                   target={link.href.startsWith("mailto") ? undefined : "_blank"}
@@ -141,19 +85,17 @@ export const MobileMenu = () => {
                       ? undefined
                       : "noopener noreferrer"
                   }
-                  onClick={handleLinkClick}
-                  className="flex items-center gap-3 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-50 hover:text-klein"
-                  role="menuitem"
+                  className="flex items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover:bg-slate-50 hover:text-klein focus:bg-slate-100 focus:text-klein"
                   aria-label={link.ariaLabel}
                 >
-                  <LinkIcon className="h-5 w-5" />
+                  <LinkIcon className="h-6 w-6 flex-shrink-0 stroke-[1.5]" />
                   <span className="text-sm font-medium">{link.label}</span>
                 </a>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
+              </DropdownMenu.Item>
+            );
+          })}
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
   );
 };

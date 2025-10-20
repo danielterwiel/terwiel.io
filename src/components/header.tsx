@@ -218,10 +218,10 @@ const HeaderContent = () => {
       )}
 
       {/* Desktop: Asymmetric layout with logo on left, centered title, and menu on right */}
-      <div className="hidden md:grid md:grid-cols-3 md:items-center md:px-6 md:py-4 md:gap-6">
+      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6">
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
-          <div className="flex items-center justify-center h-10 w-10">
+          <div className="flex items-center justify-center">
             <Icon.BrandReact className="h-10 w-10 text-klein" />
           </div>
         </div>
@@ -246,7 +246,7 @@ const HeaderContent = () => {
         </div>
 
         {/* Right column: Menu with three action buttons (Contact, PDF, Search) */}
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-2">
           {/* Contact Dropdown */}
           <ContactDropdown />
 
