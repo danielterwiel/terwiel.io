@@ -6,6 +6,7 @@ import type React from "react";
 import { Suspense, useDeferredValue, useId, useMemo, useRef } from "react";
 
 import { Project } from "~/components/project";
+import { ProjectsEmptyState } from "~/components/projects-empty-state";
 import { SearchToastQueued } from "~/components/search-toast-queued";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
@@ -47,16 +48,20 @@ const ProjectsContent = () => {
             transition: "opacity 150ms ease-in-out",
           }}
         >
-          <ol className="ml-0 list-none pl-0">
-            {filtered.map((project, projectIdx) => (
-              <Project
-                key={project.company}
-                project={project}
-                projectIdx={projectIdx}
-                totalLength={filtered.length}
-              />
-            ))}
-          </ol>
+          {filtered.length === 0 && query ? (
+            <ProjectsEmptyState query={query} />
+          ) : (
+            <ol className="ml-0 list-none pl-0">
+              {filtered.map((project, projectIdx) => (
+                <Project
+                  key={project.company}
+                  project={project}
+                  projectIdx={projectIdx}
+                  totalLength={filtered.length}
+                />
+              ))}
+            </ol>
+          )}
         </div>
       </div>
     </article>
