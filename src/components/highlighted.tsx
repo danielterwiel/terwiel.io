@@ -28,6 +28,8 @@ const HighlightedTextContent = ({ children }: { children: string }) => {
   );
 };
 
+HighlightedTextContent.displayName = "HighlightedTextContent";
+
 export const HighlightedText = ({ children }: { children: string }) => {
   return (
     <Suspense fallback={<span>{children}</span>}>
