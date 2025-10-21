@@ -272,6 +272,17 @@
   }
 }
 
+/* Ring component optimizations - prevents cascading reflows by batching visibility updates */
+.ring-element {
+  /* Use transform and opacity for smooth 60fps animations */
+  will-change: auto; /* Only enable when visible */
+}
+
+.ring-element.ring-is-visible {
+  animation: animationRing 1s ease-in-out forwards;
+  will-change: transform;
+}
+
 @keyframes animationFadeIn {
   from {
     opacity: 0;
