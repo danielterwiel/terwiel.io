@@ -366,6 +366,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         const queryString = toggleSearchParam(
           currentSearchQueryRef.current,
           datum.data.domain,
+          "domain",
         );
         router.push(`${pathname}${queryString}`);
       };

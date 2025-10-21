@@ -482,6 +482,12 @@
       filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.2));
     }
 
+    /* Limited toasts that exceed the max limit - hide and don't interact */
+    &[data-limited] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
     /* Entry animation - slide up from bottom */
     &[data-starting-style],
     &[data-transition-status="starting"] {
@@ -489,11 +495,12 @@
       opacity: 0;
     }
 
-    /* Exit animation - slide down and fade out */
+    /* Exit animation - slide right and fade out (default direction) */
     &[data-ending-style],
     &[data-transition-status="ending"] {
       opacity: 0;
-      transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--toast-swipe-movement-y));
     }
 
     /* Swipe exit animations */
@@ -512,14 +519,14 @@
     &[data-swipe-direction="left"] {
       &[data-ending-style] {
         transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
-          translateY(var(--offset-y));
+          translateY(var(--toast-swipe-movement-y));
       }
     }
 
     &[data-swipe-direction="right"] {
       &[data-ending-style] {
         transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-          translateY(var(--offset-y));
+          translateY(var(--toast-swipe-movement-y));
       }
     }
 

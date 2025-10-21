@@ -50,7 +50,7 @@ const SearchInputContent = React.forwardRef<
       debouncedSetSearchParamsRef.current = debounce((query: string) => {
         const encodedValue = encodeURIComponent(query);
         const url = encodedValue
-          ? `${pathname}?query=${encodedValue}`
+          ? `${pathname}?query=${encodedValue}&filterType=search`
           : pathname;
         router.replace(url, {
           scroll: false,
@@ -130,8 +130,7 @@ const SearchInputContent = React.forwardRef<
       // Cancel any pending debounced update to prevent race condition
       debouncedSetSearchParamsRef.current?.cancel();
       setQuery("");
-      const encodedValue = encodeURIComponent("");
-      const url = encodedValue ? `${pathname}?query=${encodedValue}` : pathname;
+      const url = pathname;
       router.replace(url, {
         scroll: false,
       });

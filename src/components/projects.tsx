@@ -13,11 +13,16 @@ import { SearchToastQueued } from "~/components/search-toast-queued";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
 import { filterProjects } from "~/utils/filter-projects";
-import { getSearchDomain, getSearchQuery } from "~/utils/search-params";
+import {
+  getFilterType,
+  getSearchDomain,
+  getSearchQuery,
+} from "~/utils/search-params";
 
 const ProjectsContent = () => {
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);
+  const filterType = getFilterType(searchParams);
 
   // Defer the query value to give priority to urgent UI updates (e.g., StackCloud animations)
   const deferredQuery = useDeferredValue(query);
@@ -39,10 +44,16 @@ const ProjectsContent = () => {
   return (
     <article className="prose max-w-none">
       <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
-        Projects
+        Work
       </h2>
       <div className="flow-root space-y-4">
-        {query ? <SearchToastQueued query={query} items={filtered} /> : null}
+        {query ? (
+          <SearchToastQueued
+            query={query}
+            items={filtered}
+            filterType={filterType}
+          />
+        ) : null}
 
         <div
           style={{

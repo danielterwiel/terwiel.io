@@ -66,7 +66,7 @@ function ToastViewportContent() {
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
-    <Toast.Provider timeout={6000}>
+    <Toast.Provider timeout={6000} limit={3}>
       <Toast.Portal>
         <Toast.Viewport className="base-toast-viewport">
           <ToastViewportContent />

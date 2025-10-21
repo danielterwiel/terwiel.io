@@ -6,11 +6,16 @@ import { useEffect, useRef } from "react";
 
 import type { Project } from "~/types";
 
+import { PROJECTS } from "~/data/projects";
 import { useToasts } from "~/hooks/use-toasts";
+import { adjustExperience } from "~/utils/adjust-experience";
+import { calculateDomainExperience } from "~/utils/calculate-domain-experience";
+import { calculateStackExperience } from "~/utils/calculate-stack-experience";
 
 interface SearchToastQueuedProps {
   query: string;
   items: Project[];
+  filterType?: "search" | "domain" | "tech" | "project" | null;
 }
 
 /**
@@ -20,6 +25,7 @@ interface SearchToastQueuedProps {
 export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
   query,
   items,
+  filterType,
 }) => {
   const toast = useToasts();
   const lastQueryRef = useRef<string>("");
@@ -30,43 +36,77 @@ export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
       lastQueryRef.current = query;
 
       const total = items.length;
-      const monthsDiff = new Set<number>();
 
-      for (const project of items) {
-        const dateFrom = parseISO(project.dateFrom);
-        const dateTo =
-          project.dateTo === "present"
-            ? parseISO(new Date().toISOString())
-            : parseISO(project.dateTo);
-        const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
-        monthsDiff.add(diffInMonths);
+      // Calculate experience based on filter type to match RootNodeExperience
+      let experience: { years: number; months: number };
+
+      if (filterType === "domain") {
+        // Use domain-specific experience calculation (accounts for overlaps)
+        experience = calculateDomainExperience(PROJECTS, query);
+      } else if (filterType === "tech") {
+        // Use stack-specific experience calculation (accounts for overlaps)
+        experience = calculateStackExperience(PROJECTS, query);
+      } else {
+        // For "project", "search", or null: calculate from filtered items
+        // This sums up individual project durations (may not account for overlaps)
+        let totalMonths = 0;
+        for (const project of items) {
+          const dateFrom = parseISO(project.dateFrom);
+          const dateTo =
+            project.dateTo === "present"
+              ? parseISO(new Date().toISOString())
+              : parseISO(project.dateTo);
+          const diffInMonths = differenceInMonths(dateTo, dateFrom) + 1;
+          totalMonths += diffInMonths;
+        }
+        const years = Math.floor(totalMonths / 12);
+        const months = totalMonths % 12;
+        experience = { years, months };
       }
 
-      const monthsSum = Array.from(monthsDiff).reduce(
-        (acc, curr) => acc + curr,
-        0,
-      );
-      const years = Math.floor(monthsSum / 12);
-      const months = monthsSum % 12;
+      // Apply the same adjustment logic as RootNodeExperience for consistent display
+      experience = adjustExperience(experience);
 
       const duration = formatDuration(
-        { months, years },
+        { years: experience.years, months: experience.months },
         { delimiter: " and " },
       );
 
+      // Determine the title and description based on filter type
+      let title: string;
+      let description: string;
+
       if (total === 0) {
-        toast.add({
-          title: "No results",
-          description: `Your search for "${query}" did not return any projects.`,
-        });
+        title = "No results";
+        description = `No projects match "${query}".`;
       } else {
-        toast.add({
-          title: "Search results",
-          description: `Your search for "${query}" returned ${total} project${total !== 1 ? "s" : ""} with a total duration of ${duration}.`,
-        });
+        // Generate context-aware title based on filter type
+        switch (filterType) {
+          case "domain":
+            title = `Showing projects in: ${query}`;
+            break;
+          case "tech":
+            title = `Showing work with: ${query}`;
+            break;
+          case "project":
+            title = `Projects tagged as: ${query}`;
+            break;
+          default:
+            title = `Results for: ${query}`;
+            break;
+        }
+
+        // Generate description with experience duration
+        const projectWord = total === 1 ? "project" : "projects";
+        description = `${total} ${projectWord} — ${duration}`;
       }
+
+      toast.add({
+        title,
+        description,
+      });
     }
-  }, [query, items, toast]);
+  }, [query, items, toast, filterType]);
 
   // This component doesn't render anything - it only triggers toast notifications
   return null;

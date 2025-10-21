@@ -15,7 +15,7 @@ export default function HomePage() {
           This aligns the project timeline with the centered header title
         */}
         {/* StackCloud - full width on mobile, adjusted width on desktop */}
-        <div className="w-full md:w-[calc(50%-1.75rem)] md:overflow-hidden md:flex md:flex-col md:pb-24 lg:pb-0">
+        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0">
           <StackCloud />
         </div>
 

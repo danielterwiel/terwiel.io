@@ -37,8 +37,8 @@ export const Badge = ({
   const rgb = hexToRgb(hexColor);
   const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 
-  // Generate href with query parameter
-  const href = `/?query=${encodeURIComponent(name)}`;
+  // Generate href with query parameter and filter type
+  const href = `/?query=${encodeURIComponent(name)}&filterType=project`;
 
   const magneticClasses = getMagneticClasses(undefined, {
     component: "button",
