@@ -1,12 +1,5 @@
-import { useContext } from "react";
+"use client";
 
-import type { UseToastQueueReturn } from "~/hooks/use-toast-queue";
-import { ToastContext } from "~/context/toast-context-internal";
+import { Toast } from "@base-ui-components/react";
 
-export const useToasts = (): UseToastQueueReturn => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error("useToasts must be used within ToastContextProvider");
-  }
-  return context;
-};
+export const useToasts = Toast.useToastManager;

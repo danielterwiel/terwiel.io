@@ -14,14 +14,14 @@ interface SearchToastQueuedProps {
 }
 
 /**
- * Search toast that uses the queue system for multiple simultaneous toasts
+ * Search toast that uses the Base UI toast system for multiple simultaneous toasts
  * Each search triggers a new toast that's added to the queue
  */
 export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
   query,
   items,
 }) => {
-  const { addToast } = useToasts();
+  const toast = useToasts();
   const lastQueryRef = useRef<string>("");
 
   useEffect(() => {
@@ -55,20 +55,18 @@ export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
       );
 
       if (total === 0) {
-        addToast(
-          "No results",
-          `Your search for "${query}" did not return any projects.`,
-          "default",
-        );
+        toast.add({
+          title: "No results",
+          description: `Your search for "${query}" did not return any projects.`,
+        });
       } else {
-        addToast(
-          "Search results",
-          `Your search for "${query}" returned ${total} project${total !== 1 ? "s" : ""} with a total duration of ${duration}.`,
-          "default",
-        );
+        toast.add({
+          title: "Search results",
+          description: `Your search for "${query}" returned ${total} project${total !== 1 ? "s" : ""} with a total duration of ${duration}.`,
+        });
       }
     }
-  }, [query, items, addToast]);
+  }, [query, items, toast]);
 
   // This component doesn't render anything - it only triggers toast notifications
   return null;
