@@ -4,7 +4,7 @@ import { differenceInMonths, formatDuration, parseISO } from "date-fns";
 
 import { useEffect, useRef } from "react";
 
-import type { Project } from "~/types";
+import type { Domain, Project } from "~/types";
 
 import { PROJECTS } from "~/data/projects";
 import { useToasts } from "~/hooks/use-toasts";
@@ -42,7 +42,7 @@ export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
 
       if (filterType === "domain") {
         // Use domain-specific experience calculation (accounts for overlaps)
-        experience = calculateDomainExperience(PROJECTS, query);
+        experience = calculateDomainExperience(PROJECTS, query as Domain);
       } else if (filterType === "tech") {
         // Use stack-specific experience calculation (accounts for overlaps)
         experience = calculateStackExperience(PROJECTS, query);
@@ -98,7 +98,7 @@ export const SearchToastQueued: React.FC<SearchToastQueuedProps> = ({
 
         // Generate description with experience duration
         const projectWord = total === 1 ? "project" : "projects";
-        description = `${total} ${projectWord} — ${duration}`;
+        description = `${total} ${projectWord} - ${duration}`;
       }
 
       toast.add({

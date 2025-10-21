@@ -3,608 +3,619 @@
 @tailwind utilities;
 
 @media print {
-  .a4-page {
-    width: 210mm;
-    height: 297mm;
-    overflow: hidden;
-  }
-  body {
-    margin: 0;
-    padding: 0;
-  }
+    .a4-page {
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
 
-  /* Enhanced print styles for one-pager */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
+    /* Enhanced print styles for one-pager */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
-  .print\\:break-inside-avoid {
-    break-inside: avoid;
-  }
+    .print\\:break-inside-avoid {
+        break-inside: avoid;
+    }
 
-  .print\\:page-break-before {
-    page-break-before: always;
-  }
+    .print\\:page-break-before {
+        page-break-before: always;
+    }
 
-  /* Ensure compact layout for one-pager */
-  .print\\:text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
+    /* Ensure compact layout for one-pager */
+    .print\\:text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
 
-  .print\\:text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
+    .print\\:text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
 
-  .print\\:p-4 {
-    padding: 1rem;
-  }
+    .print\\:p-4 {
+        padding: 1rem;
+    }
 
-  .print\\:max-w-none {
-    max-width: none;
-  }
+    .print\\:max-w-none {
+        max-width: none;
+    }
 
-  .print\\:mx-0 {
-    margin-left: 0;
-    margin-right: 0;
-  }
+    .print\\:mx-0 {
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 @layer components {
-  /* Mobile menu - ensure dropdown is visible above StackCloud */
-  .relative.z-50 {
-    /* Don't hide overflow for dropdowns inside z-50 container */
-  }
-
-  /* Remove default focus outline from SVG interactive elements */
-  svg [role="button"]:focus {
-    outline: none;
-  }
-
-  .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
-  .icon-container svg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
-  /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
-  .magnetic-base {
-    /* Enable smooth transitions for magnetic effect */
-    transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out,
-      background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Hint browser for transform optimization */
-    will-change: transform;
-    /* Always have a subtle blue glow as base state to avoid color transition artifacts */
-    filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
-  }
-
-  /* Magnetic hover creates illusion of being "pulled" toward cursor */
-  /* Use drop-shadow instead of box-shadow to properly respect border-radius */
-  /* Mobile-first: reduced glow on mobile (8px blur) */
-  .magnetic-base:hover:not(.magnetic-selected) {
-    transform: scale(1);
-    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
-  }
-
-  /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
-  @media (min-width: 768px) {
-    .magnetic-base:hover:not(.magnetic-selected) {
-      transform: scale(1.05);
-      filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+    /* Mobile menu - ensure dropdown is visible above StackCloud */
+    .relative.z-50 {
+        /* Don't hide overflow for dropdowns inside z-50 container */
     }
-  }
 
-  /* Input-specific hover styling */
-  .magnetic-input:hover:not(.magnetic-selected) {
-    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
-  }
+    /* Remove default focus outline from SVG interactive elements */
+    svg [role="button"]:focus {
+        outline: none;
+    }
 
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .icon-container svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
+    /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
     .magnetic-base {
-      transition: none;
+        /* Enable smooth transitions for magnetic effect */
+        transition:
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.2s ease-out,
+            background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Hint browser for transform optimization */
+        will-change: transform;
+        /* Always have a subtle blue glow as base state to avoid color transition artifacts */
+        filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
     }
-  }
 
-  /* StackCloud Component Styles */
-  .stack-cloud-wrapper {
-    width: 100%;
-    aspect-ratio: 1;
-    min-height: 400px;
-    max-height: 600px;
-    position: relative;
-  }
+    /* Magnetic hover creates illusion of being "pulled" toward cursor */
+    /* Use drop-shadow instead of box-shadow to properly respect border-radius */
+    /* Mobile-first: reduced glow on mobile (8px blur) */
+    .magnetic-base:hover:not(.magnetic-selected) {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+    }
 
-  .stack-cloud-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-    /* Hint browser for smooth opacity transitions */
-    will-change: opacity;
-  }
+    /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
+    @media (min-width: 768px) {
+        .magnetic-base:hover:not(.magnetic-selected) {
+            transform: scale(1.05);
+            filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+        }
+    }
 
-  /* Stack Node States - use CSS classes instead of inline styles for performance */
-  .stack-node {
-    cursor: pointer;
-    /* NO transition on transform - controlled by D3 simulation */
-    /* Hint browser to prepare for transform changes */
-    will-change: transform;
-  }
+    /* Input-specific hover styling */
+    .magnetic-input:hover:not(.magnetic-selected) {
+        border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+    }
 
-  .stack-node.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .magnetic-base {
+            transition: none;
+        }
+    }
 
-  .stack-node-circle {
-    transition:
-      stroke-width 0.2s ease-out,
-      stroke 0.2s ease-out,
-      filter 0.2s ease-out;
-    /* Hint browser for composite layers */
-    will-change: filter;
-  }
+    /* StackCloud Component Styles */
+    .stack-cloud-wrapper {
+        width: 100%;
+        aspect-ratio: 1;
+        min-height: 400px;
+        max-height: 600px;
+        position: relative;
+    }
 
-  .stack-node-circle.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-cloud-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+        /* Hint browser for smooth opacity transitions */
+        will-change: opacity;
+    }
 
-  /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
-  .stack-node-circle.is-highlighted:not(.forced-colors) {
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
-  }
+    /* Stack Node States - use CSS classes instead of inline styles for performance */
+    .stack-node {
+        cursor: pointer;
+        /* NO transition on transform - controlled by D3 simulation */
+        /* Hint browser to prepare for transform changes */
+        will-change: transform;
+    }
 
-  .stack-node-circle.is-selected:not(.forced-colors) {
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
-  }
+    .stack-node.prefers-reduced-motion {
+        transition: none;
+    }
 
-  /* Remove drop shadows for reduced motion and forced colors */
-  .stack-node-circle.prefers-reduced-motion,
-  .stack-node-circle.forced-colors {
-    filter: none !important;
-  }
+    .stack-node-circle {
+        transition:
+            stroke-width 0.2s ease-out,
+            stroke 0.2s ease-out,
+            filter 0.2s ease-out;
+        /* Hint browser for composite layers */
+        will-change: filter;
+    }
 
-  .stack-node-icon {
-    pointer-events: none;
-    transition:
-      opacity 0.2s ease-out,
-      color 0.2s ease-out;
-  }
+    .stack-node-circle.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .stack-node-icon.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
+    .stack-node-circle.is-highlighted:not(.forced-colors) {
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+    }
 
-  .stack-node-focus-ring {
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+    .stack-node-circle.is-selected:not(.forced-colors) {
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+    }
 
-  .stack-node-focus-ring.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Remove drop shadows for reduced motion and forced colors */
+    .stack-node-circle.prefers-reduced-motion,
+    .stack-node-circle.forced-colors {
+        filter: none !important;
+    }
 
-  .stack-node:focus-visible .stack-node-focus-ring {
-    opacity: 1;
-  }
+    .stack-node-icon {
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease-out,
+            color 0.2s ease-out;
+    }
 
-  /* Pie segment states */
-  .pie-segment {
-    transition:
-      opacity 0.2s ease,
-      d 0.2s ease;
-  }
+    .stack-node-icon.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-node-focus-ring {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
 
-  .pie-segment-hit-area {
-    cursor: pointer;
-  }
+    .stack-node-focus-ring.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment-hit-area:focus-visible {
-    outline: 3px solid oklch(45% 0.15 260);
-    outline-offset: 2px;
-  }
+    .stack-node:focus-visible .stack-node-focus-ring {
+        opacity: 1;
+    }
 
-  .pie-segment-hit-area.forced-colors:focus-visible {
-    outline-color: CanvasText;
-  }
+    /* Pie segment states */
+    .pie-segment {
+        transition:
+            opacity 0.2s ease,
+            d 0.2s ease;
+    }
 
-  /* Forced colors mode adjustments */
-  @media (forced-colors: active) {
-    .stack-node-circle,
+    .pie-segment.prefers-reduced-motion {
+        transition: none;
+    }
+
     .pie-segment-hit-area {
-      forced-color-adjust: auto;
+        cursor: pointer;
     }
-  }
 
-  /* Loading Spinner Animations */
-  .spinner-ring-container {
-    transform-origin: 50px 50px;
-    animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
+    .pie-segment-hit-area:focus-visible {
+        outline: 3px solid oklch(45% 0.15 260);
+        outline-offset: 2px;
+    }
 
-  .spinner-ring-segment {
-    /* Individual segments grow and shrink for fluid motion */
-    animation: spinner-segment-pulse 2s ease-in-out infinite;
-  }
+    .pie-segment-hit-area.forced-colors:focus-visible {
+        outline-color: CanvasText;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
+    /* Forced colors mode adjustments */
+    @media (forced-colors: active) {
+        .stack-node-circle,
+        .pie-segment-hit-area {
+            forced-color-adjust: auto;
+        }
+    }
+
+    /* Loading Spinner Animations */
     .spinner-ring-container {
-      animation: spinner-rotate-smooth 5s linear infinite;
+        transform-origin: 50px 50px;
+        animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1)
+            infinite;
     }
 
     .spinner-ring-segment {
-      animation: none;
+        /* Individual segments grow and shrink for fluid motion */
+        animation: spinner-segment-pulse 2s ease-in-out infinite;
     }
-  }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spinner-ring-container {
+            animation: spinner-rotate-smooth 5s linear infinite;
+        }
+
+        .spinner-ring-segment {
+            animation: none;
+        }
+    }
 }
 
 @keyframes animationRing {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  30% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    30% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 /* Ring component optimizations - prevents cascading reflows by batching visibility updates */
 .ring-element {
-  /* Use transform and opacity for smooth 60fps animations */
-  will-change: auto; /* Only enable when visible */
+    /* Use transform and opacity for smooth 60fps animations */
+    will-change: auto; /* Only enable when visible */
 }
 
 .ring-element.ring-is-visible {
-  animation: animationRing 1s ease-in-out forwards;
-  will-change: transform;
+    animation: animationRing 1s ease-in-out forwards;
+    will-change: transform;
 }
 
 @keyframes animationFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 100;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 100;
+    }
 }
 
 @keyframes animation-slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes float-subtle {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
 }
 
 @keyframes spinner-rotate-smooth {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes spinner-segment-pulse {
-  0%,
-  100% {
-    stroke-dasharray: var(--dash-base) var(--dash-gap);
-    opacity: 0.85;
-  }
-  50% {
-    stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
-    opacity: 1;
-  }
+    0%,
+    100% {
+        stroke-dasharray: var(--dash-base) var(--dash-gap);
+        opacity: 0.85;
+    }
+    50% {
+        stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
+        opacity: 1;
+    }
 }
 
 @keyframes magnetic-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
-  }
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
+    }
 }
 
 @keyframes magnetic-bounce {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @layer utilities {
-  .animation-ring {
-    animation: animationRing 1s ease-in-out;
-  }
-  .animation-fade-in {
-    animation: animationFadeIn 1s ease-out forwards;
-  }
-  .animation-slide-down {
-    animation: animationSlideDown 0.5s ease-in-out forwards;
-  }
-  .animation-float-subtle {
-    animation: float-subtle 4s ease-in-out infinite;
-  }
-  .animation-magnetic-pulse {
-    animation: magnetic-pulse 2s ease-in-out infinite;
-  }
-  /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
-  .animation-magnetic-bounce {
-    animation: none;
-  }
-
-  @media (min-width: 768px) {
+    .animation-ring {
+        animation: animationRing 1s ease-in-out;
+    }
+    .animation-fade-in {
+        animation: animationFadeIn 1s ease-out forwards;
+    }
+    .animation-slide-down {
+        animation: animationSlideDown 0.5s ease-in-out forwards;
+    }
+    .animation-float-subtle {
+        animation: float-subtle 4s ease-in-out infinite;
+    }
+    .animation-magnetic-pulse {
+        animation: magnetic-pulse 2s ease-in-out infinite;
+    }
+    /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
     .animation-magnetic-bounce {
-      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-  }
-
-  .svg-contain {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  /* Base UI Toast Styling */
-  .base-toast-viewport {
-    position: fixed;
-    z-index: 50;
-    width: 20rem;
-    bottom: 1rem;
-    right: 1rem;
-    left: auto;
-    top: auto;
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  .base-toast-root {
-    --gap: 0.75rem;
-    --peek: 0.5rem;
-    --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
-    --shrink: calc(1 - var(--scale));
-    --height: var(--toast-frontmost-height, var(--toast-height));
-    --offset-y: calc(
-      var(--toast-offset-y) *
-      -1 +
-      (var(--toast-index) * var(--gap) * -1) +
-      var(--toast-swipe-movement-y)
-    );
-
-    position: absolute;
-    right: 0;
-    margin: 0;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 1rem;
-    bottom: 0;
-    left: auto;
-    margin-right: 0;
-    pointer-events: auto;
-    user-select: none;
-    cursor: default;
-    z-index: calc(1000 - var(--toast-index));
-    height: var(--toast-frontmost-height, var(--toast-height));
-
-    /* Magnetic effect styling - white background with magnetic elevation */
-    background: white;
-    box-shadow: 0 4px 16px oklch(0% 0 0 / 0.1);
-    border-radius: 0.5rem;
-    border: 1px solid oklch(37.85% 0.1954 263.23 / 0.15);
-    transform-origin: bottom center;
-
-    /* Smooth transitions for stacking and animations */
-    transition:
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.5s,
-      height 0.15s,
-      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out;
-    will-change: transform;
-
-    /* Position with z-index stacking (older toasts peek from above) */
-    transform: translateX(var(--toast-swipe-movement-x))
-      translateY(
-        calc(
-          var(--toast-swipe-movement-y) -
-          (var(--toast-index) * (var(--height) - var(--peek)) * 0.5)
-        )
-      )
-      scale(var(--scale));
-
-    /* Expanded state - triggered on viewport hover, shows all toasts in full height */
-    &[data-expanded] {
-      transform: translateX(var(--toast-swipe-movement-x))
-        translateY(
-          calc(
-            var(--toast-swipe-movement-y) -
-            (var(--toast-index) * (var(--height) + var(--gap)))
-          )
-        )
-        scale(1);
-      height: var(--toast-frontmost-height, var(--toast-height));
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+        animation: none;
     }
 
-    /* Hover state on viewport triggers expanded for all toasts */
-    .base-toast-viewport:hover & {
-      transform: translateX(var(--toast-swipe-movement-x))
-        translateY(
-          calc(
-            var(--toast-swipe-movement-y) -
-            (var(--toast-index) * (var(--height) + var(--gap)))
-          )
-        )
-        scale(1);
-      height: var(--toast-frontmost-height, var(--toast-height));
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+    @media (min-width: 768px) {
+        .animation-magnetic-bounce {
+            animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
     }
 
-    /* Hover state - apply magnetic effect on individual toast hover */
-    &:hover {
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.3);
-      filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.2));
+    .svg-contain {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
     }
 
-    /* Limited toasts that exceed the max limit - hide and don't interact */
-    &[data-limited] {
-      opacity: 0;
-      pointer-events: none;
+    /* Base UI Toast Styling */
+    .base-toast-viewport {
+        position: fixed;
+        z-index: 50;
+        width: 20rem;
+        bottom: 1rem;
+        right: 1rem;
+        left: auto;
+        top: auto;
+        pointer-events: none;
+        overflow: visible;
     }
 
-    /* Entry animation - slide up from bottom */
-    &[data-starting-style],
-    &[data-transition-status="starting"] {
-      transform: translateY(150%);
-      opacity: 0;
+    .base-toast-root {
+        --gap: 0.75rem;
+        --peek: 0.5rem;
+        --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+        --shrink: calc(1 - var(--scale));
+        --height: var(--toast-frontmost-height, var(--toast-height));
+        --offset-y: calc(
+            var(--toast-offset-y) * -1 +
+                (var(--toast-index) * var(--gap) * -1) +
+                var(--toast-swipe-movement-y)
+        );
+
+        position: absolute;
+        right: 0;
+        margin: 0;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 1rem;
+        bottom: 0;
+        left: auto;
+        margin-right: 0;
+        pointer-events: auto;
+        user-select: none;
+        cursor: default;
+        z-index: calc(1000 - var(--toast-index));
+        height: var(--toast-frontmost-height, var(--toast-height));
+
+        /* Magnetic effect styling - white background with magnetic elevation */
+        background: white;
+        box-shadow: 0 4px 16px oklch(0% 0 0 / 0.1);
+        border-radius: 0.5rem;
+        border: 1px solid oklch(37.85% 0.1954 263.23 / 0.15);
+        transform-origin: bottom center;
+
+        /* Smooth transitions for stacking and animations */
+        transition:
+            transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.5s,
+            height 0.15s,
+            box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.2s ease-out;
+        will-change: transform;
+
+        /* Position with z-index stacking (older toasts peek from above) */
+        transform: translateX(var(--toast-swipe-movement-x))
+            translateY(
+                calc(
+                    var(--toast-swipe-movement-y) -
+                        (
+                            var(--toast-index) * (var(--height) - var(--peek)) *
+                                0.5
+                        )
+                )
+            )
+            scale(var(--scale));
+
+        /* Expanded state - triggered on viewport hover, shows all toasts in full height */
+        &[data-expanded] {
+            transform: translateX(var(--toast-swipe-movement-x))
+                translateY(
+                    calc(
+                        var(--toast-swipe-movement-y) -
+                            (var(--toast-index) * (var(--height) + var(--gap)))
+                    )
+                )
+                scale(1);
+            height: var(--toast-frontmost-height, var(--toast-height));
+            box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+        }
+
+        /* Hover state on viewport triggers expanded for all toasts */
+        .base-toast-viewport:hover & {
+            transform: translateX(var(--toast-swipe-movement-x))
+                translateY(
+                    calc(
+                        var(--toast-swipe-movement-y) -
+                            (var(--toast-index) * (var(--height) + var(--gap)))
+                    )
+                )
+                scale(1);
+            height: var(--toast-frontmost-height, var(--toast-height));
+            box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+        }
+
+        /* Hover state - apply magnetic effect on individual toast hover */
+        &:hover {
+            box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.3);
+            filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.2));
+        }
+
+        /* Limited toasts that exceed the max limit - hide and don't interact */
+        &[data-limited] {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Entry animation - slide up from bottom */
+        &[data-starting-style],
+        &[data-transition-status="starting"] {
+            transform: translateY(150%);
+            opacity: 0;
+        }
+
+        /* Exit animation - slide right and fade out (default direction) */
+        &[data-ending-style],
+        &[data-transition-status="ending"] {
+            opacity: 0;
+            transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+                translateY(var(--toast-swipe-movement-y));
+        }
+
+        /* Swipe exit animations */
+        &[data-swipe-direction="up"] {
+            &[data-ending-style] {
+                transform: translateY(
+                    calc(var(--toast-swipe-movement-y) - 150%)
+                );
+            }
+        }
+
+        &[data-swipe-direction="down"] {
+            &[data-ending-style] {
+                transform: translateY(
+                    calc(var(--toast-swipe-movement-y) + 150%)
+                );
+            }
+        }
+
+        &[data-swipe-direction="left"] {
+            &[data-ending-style] {
+                transform: translateX(
+                        calc(var(--toast-swipe-movement-x) - 150%)
+                    )
+                    translateY(var(--toast-swipe-movement-y));
+            }
+        }
+
+        &[data-swipe-direction="right"] {
+            &[data-ending-style] {
+                transform: translateX(
+                        calc(var(--toast-swipe-movement-x) + 150%)
+                    )
+                    translateY(var(--toast-swipe-movement-y));
+            }
+        }
+
+        /* Gap for stacking */
+        &::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            width: 100%;
+            left: 0;
+            height: calc(var(--gap) + 1px);
+        }
     }
 
-    /* Exit animation - slide right and fade out (default direction) */
-    &[data-ending-style],
-    &[data-transition-status="ending"] {
-      opacity: 0;
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-        translateY(var(--toast-swipe-movement-y));
+    .base-toast-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        position: relative;
+        padding-right: 2rem;
     }
 
-    /* Swipe exit animations */
-    &[data-swipe-direction="up"] {
-      &[data-ending-style] {
-        transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
-      }
+    .base-toast-title {
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: oklch(37.85% 0.1954 263.23);
+        margin: 0;
     }
 
-    &[data-swipe-direction="down"] {
-      &[data-ending-style] {
-        transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
-      }
+    .base-toast-description {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+        color: oklch(37.85% 0.1954 263.23 / 0.8);
+        margin: 0;
     }
 
-    &[data-swipe-direction="left"] {
-      &[data-ending-style] {
-        transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
-          translateY(var(--toast-swipe-movement-y));
-      }
+    .base-toast-close {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        padding: 0.25rem;
+        border: none;
+        background: transparent;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.25rem;
+        color: oklch(37.85% 0.1954 263.23 / 0.6);
+        cursor: pointer;
+        transition: all 0.2s ease-out;
+
+        &:hover {
+            background-color: oklch(37.85% 0.1954 263.23 / 0.08);
+            color: oklch(37.85% 0.1954 263.23);
+        }
+
+        &:focus-visible {
+            outline: 2px solid oklch(37.85% 0.1954 263.23);
+            outline-offset: -1px;
+        }
     }
 
-    &[data-swipe-direction="right"] {
-      &[data-ending-style] {
-        transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-          translateY(var(--toast-swipe-movement-y));
-      }
+    .base-toast-close-icon {
+        width: 1.25rem;
+        height: 1.25rem;
     }
-
-    /* Gap for stacking */
-    &::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      width: 100%;
-      left: 0;
-      height: calc(var(--gap) + 1px);
-    }
-  }
-
-  .base-toast-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    position: relative;
-    padding-right: 2rem;
-  }
-
-  .base-toast-title {
-    font-weight: 600;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(37.85% 0.1954 263.23);
-    margin: 0;
-  }
-
-  .base-toast-description {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(37.85% 0.1954 263.23 / 0.8);
-    margin: 0;
-  }
-
-  .base-toast-close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    padding: 0.25rem;
-    border: none;
-    background: transparent;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.25rem;
-    color: oklch(37.85% 0.1954 263.23 / 0.6);
-    cursor: pointer;
-    transition: all 0.2s ease-out;
-
-    &:hover {
-      background-color: oklch(37.85% 0.1954 263.23 / 0.08);
-      color: oklch(37.85% 0.1954 263.23);
-    }
-
-    &:focus-visible {
-      outline: 2px solid oklch(37.85% 0.1954 263.23);
-      outline-offset: -1px;
-    }
-  }
-
-  .base-toast-close-icon {
-    width: 1rem;
-    height: 1rem;
-  }
 }

@@ -1,12 +1,14 @@
 "use client";
 
 import { clsx } from "clsx";
+import { useSearchParams } from "next/navigation";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Suspense, useEffect, useRef, useState, useTransition } from "react";
 
 import type { StackItem } from "~/types";
 
 import { Badge } from "~/components/badge";
+import { getSearchQuery } from "~/utils/search-params";
 
 type ProjectStackProps = {
   items: StackItem[];
@@ -18,14 +20,26 @@ type ProjectStackProps = {
  * Uses useTransition to deprioritize animation logic, allowing urgent UI updates
  * to complete first, then triggers wave animation as a non-blocking update
  */
-export const ProjectStack = ({ items, className }: ProjectStackProps) => {
+const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   const stackRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const query = getSearchQuery(searchParams);
   const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
     new Set(),
   );
   const [hasAnimated, setHasAnimated] = useState(false);
   const [, startTransition] = useTransition();
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
+
+  // Check if a badge matches the current search query
+  const isBadgeMatched = (item: StackItem): boolean => {
+    if (!query) return false;
+    return (
+      item.name.toLowerCase() === query.toLowerCase() ||
+      item.domain.toLowerCase() === query.toLowerCase() ||
+      item.parent?.toLowerCase() === query.toLowerCase()
+    );
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -77,10 +91,15 @@ export const ProjectStack = ({ items, className }: ProjectStackProps) => {
       if (currentRef) {
         observer.unobserve(currentRef);
       }
-      // Clean up timeouts on unmount
-      timeoutIdsRef.current.forEach(clearTimeout);
     };
   }, [items, hasAnimated]);
+
+  // Separate effect to clean up timeouts only on unmount
+  useEffect(() => {
+    return () => {
+      timeoutIdsRef.current.forEach(clearTimeout);
+    };
+  }, []);
 
   return (
     <div
@@ -93,8 +112,23 @@ export const ProjectStack = ({ items, className }: ProjectStackProps) => {
           icon={item.icon}
           name={item.name}
           isAnimating={animatingIndices.has(index)}
+          isMatched={isBadgeMatched(item)}
         />
       ))}
     </div>
+  );
+};
+
+export const ProjectStack = (props: ProjectStackProps) => {
+  return (
+    <Suspense
+      fallback={
+        <div
+          className={clsx("flex flex-wrap items-center gap-2", props.className)}
+        />
+      }
+    >
+      <ProjectStackContent {...props} />
+    </Suspense>
   );
 };

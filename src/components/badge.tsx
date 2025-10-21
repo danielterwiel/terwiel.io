@@ -16,10 +16,11 @@ export const Badge = ({
   icon,
   name,
   isAnimating = false,
-}: BadgeProps & { isAnimating?: boolean }) => {
+  isMatched = false,
+}: BadgeProps & { isAnimating?: boolean; isMatched?: boolean }) => {
   const validatedIcon = validateIconName(icon);
   const IconComponent = Icon[icon as keyof typeof Icon];
-  const colored = validatedIcon !== undefined;
+  const colored = isMatched || validatedIcon !== undefined;
   const hexColor = colored ? getIconHexColor(icon) : "#94A3B8";
 
   // Convert hex to RGB for dynamic coloring
@@ -51,22 +52,25 @@ export const Badge = ({
 
   const iconClasses = clsx(
     "flex-shrink-0 w-6 h-6 text-slate-400 transition-colors duration-500 ease-out",
-    isAnimating && colored && "[color:var(--badge-color)]",
-    colored && "group-hover:[color:var(--badge-color)]",
+    (isAnimating || isMatched) && colored && "[color:var(--badge-color)]",
+    colored && !isMatched && "group-hover:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
     "text-sm font-medium text-slate-700 whitespace-nowrap",
     "transition-all duration-500 ease-out",
-    "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)]",
+    !isMatched &&
+      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)]",
     !colored && "group-hover:[text-decoration-color:#94A3B8]",
   );
 
-  // Set CSS custom properties for dynamic theming
-  const style: React.CSSProperties = {
-    "--badge-color": hexColor,
-    "--badge-rgb": rgbString,
-  } as React.CSSProperties;
+  // Set CSS custom properties for dynamic theming only when badge is colored
+  const style: React.CSSProperties & Record<string, string> = colored
+    ? {
+        "--badge-color": hexColor,
+        "--badge-rgb": rgbString,
+      }
+    : {};
 
   if (!IconComponent) {
     return null;
@@ -79,11 +83,13 @@ export const Badge = ({
       className={clsx(
         magneticClasses,
         "group border-2 transition-all duration-500",
-        isAnimating && colored
+        (isAnimating || isMatched) && colored
           ? "[border-color:rgba(var(--badge-rgb),0.3)]"
           : "border-slate-400/20",
-        "hover:border-slate-400/40",
-        colored && "hover:[border-color:rgba(var(--badge-rgb),0.6)]",
+        !isMatched && "hover:border-slate-400/40",
+        colored &&
+          !isMatched &&
+          "hover:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}
       aria-label={`Filter by ${name}`}

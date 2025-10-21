@@ -49,7 +49,7 @@ export function StackCloud() {
   }, []);
 
   return (
-    <div className="flex flex-col md:h-full md:overflow-hidden">
+    <div className="flex flex-col md:h-full">
       <h2 className="mb-6 hidden shrink-0 text-2xl font-bold md:block md:text-center">
         Stack
       </h2>
