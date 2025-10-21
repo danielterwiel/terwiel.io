@@ -6,9 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ToastItem } from "~/hooks/use-toast-queue";
 
-// DEBUGGING: Temporarily disabled auto-dismiss
-// const DEFAULT_DURATION = 6000;
-const _DEFAULT_DURATION = 6000;
+const DEFAULT_DURATION = 6000; // 6 seconds
 
 interface MultiToastProps {
   toastItem: ToastItem;
@@ -32,8 +30,7 @@ export const MultiToast: React.FC<MultiToastProps> = ({
   index,
   onDismiss,
   style,
-  // DEBUGGING: isHovered currently unused - kept for future state tracking
-  // isHovered,
+  isHovered,
   hoveredToastIndex,
   onMouseEnter,
   onMouseLeave,
@@ -53,8 +50,7 @@ export const MultiToast: React.FC<MultiToastProps> = ({
     }, 400);
   }, [toastItem.id, onDismiss]);
 
-  // DEBUGGING: Disabled auto-dismiss - marked with underscore
-  const _startTimer = useCallback(
+  const startTimer = useCallback(
     (remainingTime: number) => {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
@@ -66,16 +62,15 @@ export const MultiToast: React.FC<MultiToastProps> = ({
 
   useEffect(() => {
     // Auto-dismiss after duration, with pause/resume support
-    // DEBUGGING: Temporarily disabled auto-dismiss to test scaling issues
-    // if (!isHovered) {
-    //   const remainingTime = _DEFAULT_DURATION - elapsedTimeRef.current;
-    //   startTimer(remainingTime);
-    // }
+    if (!isHovered) {
+      const remainingTime = DEFAULT_DURATION - elapsedTimeRef.current;
+      startTimer(remainingTime);
+    }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [isHovered, startTimer]);
 
   const hoverDebounceRef = useRef<NodeJS.Timeout | null>(null);
 

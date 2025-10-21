@@ -42,7 +42,7 @@ export const useToastQueue = (): UseToastQueueReturn => {
         dismissable: true,
       };
 
-      setToasts((prevToasts) => [...prevToasts, newToast]);
+      setToasts((prevToasts) => [newToast, ...prevToasts]);
       return id;
     },
     [],
