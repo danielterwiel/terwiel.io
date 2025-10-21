@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import type React from "react";
 import { Suspense, useDeferredValue, useId, useMemo, useRef } from "react";
 
+import type { Domain } from "~/types";
+
 import { Project } from "~/components/project";
 import { ProjectsEmptyState } from "~/components/projects-empty-state";
 import { SearchToastQueued } from "~/components/search-toast-queued";
@@ -21,7 +23,7 @@ const ProjectsContent = () => {
   const deferredQuery = useDeferredValue(query);
 
   // Extract domain filter from query (if query matches a domain name exactly)
-  const domain = getSearchDomain(deferredQuery, PROJECTS);
+  const domain = getSearchDomain(deferredQuery, PROJECTS) as Domain | null;
 
   // Memoize filtered projects computation - only recalculate when deferred query or domain changes
   const filtered = useMemo(

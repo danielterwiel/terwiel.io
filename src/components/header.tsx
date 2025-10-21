@@ -4,13 +4,11 @@ import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useRef, useState } from "react";
 
+import type { SearchInputHandle } from "~/components/search-input";
 import { ContactDropdown } from "~/components/contact-dropdown";
 import { Icon } from "~/components/icon";
 import { MobileMenu } from "~/components/mobile-menu";
-import {
-  type SearchInputHandle,
-  SearchInputWrapper,
-} from "~/components/search-input-wrapper";
+import { SearchInputWrapper } from "~/components/search-input-wrapper";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 
 const HeaderContent = () => {

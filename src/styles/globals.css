@@ -475,36 +475,45 @@
     width: 20rem;
     /* Create stacking context for proper z-index handling */
     isolation: isolate;
+    /* Ensure children can receive pointer events even if parent has pointer-events-none */
+    pointer-events: auto;
   }
 
-  /* Multi-toast with proper z-index stacking */
+  /* Multi-toast with pyramid stacking effect */
   .multi-toast {
     animation: multiToastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
       opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Apply magnetic effect from base styles */
-    @apply magnetic-base magnetic-rounded-lg magnetic-card;
+      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease-out,
+      pointer-events 0s linear;
+    /* Apply base magnetic styling but override hover to avoid flickering */
+    @apply magnetic-rounded-lg magnetic-card pointer-events-auto;
+    /* Hardware acceleration to prevent flickering during z-index changes */
+    will-change: z-index;
+    transform: translateZ(0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
 
     /* Position absolute to remove from flow and stack properly */
     position: absolute;
-    bottom: calc(var(--toast-index, 0) * 8px);
+    bottom: calc(var(--toast-index, 0) * 16px);
     left: 0;
     right: 0;
-    width: 100%;
 
-    /* Stack effect: each toast scales slightly smaller */
-    --depth: var(--toast-index, 0);
-    --scale: calc(1 - var(--depth, 0) * 0.02);
-    transform: scale(var(--scale));
-    transform-origin: bottom center;
+    /* Stack effect: each toast gets narrower for depth perception */
+    --depth: calc(var(--total-toasts, 1) - var(--toast-index, 0) - 1);
+    --width-percent: calc(100% - var(--depth, 0) * 4%);
+    max-width: var(--width-percent);
+    margin: 0 auto;
 
     /* Reduce opacity for toasts further back */
     opacity: calc(1 - var(--depth, 0) * 0.1);
 
-    /* Z-index: later toasts have higher z-index (front of stack) */
-    z-index: calc(var(--total-toasts, 1) - var(--toast-index, 0));
+    /* Z-index: most recent toast (highest index) appears on top */
+    z-index: calc(var(--toast-index, 0) + 1);
 
     /* Drop shadow gets softer for toasts further back */
     filter: drop-shadow(
@@ -512,12 +521,44 @@
     );
   }
 
-  /* Hover state - bring to front and expand */
+  /* When hovering a toast, use calculated z-index for pyramid effect */
+  .multi-toast-stack-container:has(.multi-toast:hover) .multi-toast {
+    /* Use z-index calculated in JavaScript based on distance from hovered toast */
+    z-index: var(--z-index-during-hover, 1);
+    /* Prevent backface visibility issues during z-index transitions */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+
+    /* Apply scaling to toasts based on distance from hovered toast */
+    /* This creates the pyramid effect for toasts above the hovered one */
+    max-width: calc(100% - var(--distance-from-hovered, 0) * 4%);
+    opacity: calc(1 - var(--distance-from-hovered, 0) * 0.1);
+    filter: drop-shadow(
+      0 4px 8px
+        rgba(0, 0, 0, calc(0.12 - var(--distance-from-hovered, 0) * 0.02))
+    );
+    transition:
+      max-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease-out;
+  }
+
+  /* Non-hovered toasts get pointer-events disabled to prevent flickering */
+  .multi-toast-stack-container:has(.multi-toast:hover)
+  .multi-toast:not(:hover) {
+    pointer-events: none;
+  }
+
+  /* Hovered toast: bring to front with full width and opacity */
   .multi-toast:hover {
-    z-index: 999;
-    transform: scale(1);
-    opacity: 1;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+    pointer-events: auto;
+    z-index: 500 !important;
+    max-width: 100% !important;
+    margin: 0 auto;
+    opacity: 1 !important;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15)) !important;
+    /* Maintain hardware acceleration state during hover */
+    transform: translateZ(0);
   }
 
   /* Dismiss animation uses the slideOut keyframes */
@@ -530,9 +571,6 @@
     .multi-toast {
       animation: none;
       transition: none;
-    }
-    .multi-toast:hover {
-      transform: scale(1);
     }
   }
 }

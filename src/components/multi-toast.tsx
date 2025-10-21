@@ -14,20 +14,29 @@ interface MultiToastProps {
   totalToasts: number;
   onDismiss: (id: string) => void;
   style?: React.CSSProperties;
+  isHovered: boolean;
+  hoveredToastIndex: number | null;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }
 
 /**
- * Individual toast component with stacking depth effect
- * Each toast shows with a slight offset and scale based on its position in the stack
+ * Individual toast component with pyramid stacking effect
+ * When a toast is hovered, all toasts spread out to reveal a "pyramid" shape
+ * where you can see slices of all toasts both above and below the hovered one
  */
 export const MultiToast: React.FC<MultiToastProps> = ({
   toastItem,
+  index,
   onDismiss,
   style,
+  isHovered,
+  hoveredToastIndex,
+  onMouseEnter,
+  onMouseLeave,
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [isDismissing, setIsDismissing] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const elapsedTimeRef = useRef(0);
   const hoverTimeRef = useRef(0);
@@ -53,7 +62,7 @@ export const MultiToast: React.FC<MultiToastProps> = ({
 
   useEffect(() => {
     // Auto-dismiss after duration, with pause/resume support
-    if (!isHovering) {
+    if (!isHovered) {
       const remainingTime = DEFAULT_DURATION - elapsedTimeRef.current;
       startTimer(remainingTime);
     }
@@ -61,19 +70,27 @@ export const MultiToast: React.FC<MultiToastProps> = ({
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isHovering, startTimer]);
+  }, [isHovered, startTimer]);
+
+  const hoverDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
     hoverTimeRef.current = Date.now();
     if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
+    // Add small delay to prevent rapid re-triggering when z-index changes
+    if (hoverDebounceRef.current) clearTimeout(hoverDebounceRef.current);
+    hoverDebounceRef.current = setTimeout(() => {
+      onMouseEnter();
+    }, 10);
+  }, [onMouseEnter]);
 
   const handleMouseLeave = useCallback(() => {
     const hoverDuration = Date.now() - hoverTimeRef.current;
     elapsedTimeRef.current += hoverDuration;
-    setIsHovering(false);
-  }, []);
+    // Cancel pending hover if mouse leaves
+    if (hoverDebounceRef.current) clearTimeout(hoverDebounceRef.current);
+    onMouseLeave();
+  }, [onMouseLeave]);
 
   if (!isOpen) {
     return null;
@@ -86,6 +103,13 @@ export const MultiToast: React.FC<MultiToastProps> = ({
         isDismissing ? "toast-dismiss" : "toast-appear"
       }`}
       style={style}
+      data-toast-index={index}
+      data-hovered-index={hoveredToastIndex}
+      data-distance-from-hovered={
+        hoveredToastIndex !== null && hoveredToastIndex >= 0
+          ? Math.abs(index - hoveredToastIndex)
+          : 0
+      }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >

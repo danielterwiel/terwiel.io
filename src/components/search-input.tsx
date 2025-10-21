@@ -17,6 +17,8 @@ interface SearchInputProps {
 export interface SearchInputHandle {
   focus: (options?: FocusOptions) => void;
   select: () => void;
+  blur: () => void;
+  click: () => void;
   triggerBounce: () => void;
 }
 
@@ -96,7 +98,7 @@ const SearchInputContent = React.forwardRef<
     return () => clearTimeout(timeoutId);
   }, []);
 
-  // Expose focus, select, and triggerBounce methods to parent components
+  // Expose focus, select, blur, click, and triggerBounce methods to parent components
   React.useImperativeHandle(forwardedRef, () => {
     const input =
       "current" in inputRef ? inputRef.current : (inputRef as HTMLInputElement);
@@ -106,6 +108,12 @@ const SearchInputContent = React.forwardRef<
       },
       select: () => {
         input?.select();
+      },
+      blur: () => {
+        input?.blur();
+      },
+      click: () => {
+        input?.click();
       },
       triggerBounce: () => {
         triggerBounceAnimation();
