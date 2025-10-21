@@ -6,7 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import type { ToastItem } from "~/hooks/use-toast-queue";
 
-const DEFAULT_DURATION = 6000;
+// DEBUGGING: Temporarily disabled auto-dismiss
+// const DEFAULT_DURATION = 6000;
+const _DEFAULT_DURATION = 6000;
 
 interface MultiToastProps {
   toastItem: ToastItem;
@@ -30,7 +32,8 @@ export const MultiToast: React.FC<MultiToastProps> = ({
   index,
   onDismiss,
   style,
-  isHovered,
+  // DEBUGGING: isHovered currently unused - kept for future state tracking
+  // isHovered,
   hoveredToastIndex,
   onMouseEnter,
   onMouseLeave,
@@ -50,7 +53,8 @@ export const MultiToast: React.FC<MultiToastProps> = ({
     }, 400);
   }, [toastItem.id, onDismiss]);
 
-  const startTimer = useCallback(
+  // DEBUGGING: Disabled auto-dismiss - marked with underscore
+  const _startTimer = useCallback(
     (remainingTime: number) => {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
@@ -62,15 +66,16 @@ export const MultiToast: React.FC<MultiToastProps> = ({
 
   useEffect(() => {
     // Auto-dismiss after duration, with pause/resume support
-    if (!isHovered) {
-      const remainingTime = DEFAULT_DURATION - elapsedTimeRef.current;
-      startTimer(remainingTime);
-    }
+    // DEBUGGING: Temporarily disabled auto-dismiss to test scaling issues
+    // if (!isHovered) {
+    //   const remainingTime = _DEFAULT_DURATION - elapsedTimeRef.current;
+    //   startTimer(remainingTime);
+    // }
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isHovered, startTimer]);
+  }, []);
 
   const hoverDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -113,10 +118,14 @@ export const MultiToast: React.FC<MultiToastProps> = ({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="flex-1">
-        <p className="text-sm font-semibold text-klein">{toastItem.message}</p>
+      <div className="flex-1 min-w-0 space-y-1">
+        <p className="text-sm font-semibold text-klein line-clamp-2">
+          {toastItem.message}
+        </p>
         {toastItem.details && (
-          <p className="mt-1 text-xs text-klein/70">{toastItem.details}</p>
+          <p className="mt-1 text-xs text-klein/70 line-clamp-2">
+            {toastItem.details}
+          </p>
         )}
       </div>
 

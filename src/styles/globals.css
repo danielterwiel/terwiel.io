@@ -3,574 +3,571 @@
 @tailwind utilities;
 
 @media print {
-  .a4-page {
-    width: 210mm;
-    height: 297mm;
-    overflow: hidden;
-  }
-  body {
-    margin: 0;
-    padding: 0;
-  }
+    .a4-page {
+        width: 210mm;
+        height: 297mm;
+        overflow: hidden;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
 
-  /* Enhanced print styles for one-pager */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
+    /* Enhanced print styles for one-pager */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
 
-  .print\\:break-inside-avoid {
-    break-inside: avoid;
-  }
+    .print\\:break-inside-avoid {
+        break-inside: avoid;
+    }
 
-  .print\\:page-break-before {
-    page-break-before: always;
-  }
+    .print\\:page-break-before {
+        page-break-before: always;
+    }
 
-  /* Ensure compact layout for one-pager */
-  .print\\:text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
+    /* Ensure compact layout for one-pager */
+    .print\\:text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+    }
 
-  .print\\:text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
+    .print\\:text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+    }
 
-  .print\\:p-4 {
-    padding: 1rem;
-  }
+    .print\\:p-4 {
+        padding: 1rem;
+    }
 
-  .print\\:max-w-none {
-    max-width: none;
-  }
+    .print\\:max-w-none {
+        max-width: none;
+    }
 
-  .print\\:mx-0 {
-    margin-left: 0;
-    margin-right: 0;
-  }
+    .print\\:mx-0 {
+        margin-left: 0;
+        margin-right: 0;
+    }
 }
 
 @layer components {
-  /* Mobile menu - ensure dropdown is visible above StackCloud */
-  .relative.z-50 {
-    /* Don't hide overflow for dropdowns inside z-50 container */
-  }
-
-  /* Remove default focus outline from SVG interactive elements */
-  svg [role="button"]:focus {
-    outline: none;
-  }
-
-  .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
-  .icon-container svg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
-  /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
-  .magnetic-base {
-    /* Enable smooth transitions for magnetic effect */
-    transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out,
-      background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Hint browser for transform optimization */
-    will-change: transform;
-    /* Always have a subtle blue glow as base state to avoid color transition artifacts */
-    filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
-  }
-
-  /* Magnetic hover creates illusion of being "pulled" toward cursor */
-  /* Use drop-shadow instead of box-shadow to properly respect border-radius */
-  /* Mobile-first: reduced glow on mobile (8px blur) */
-  .magnetic-base:hover:not(.magnetic-selected) {
-    transform: scale(1);
-    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
-  }
-
-  /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
-  @media (min-width: 768px) {
-    .magnetic-base:hover:not(.magnetic-selected) {
-      transform: scale(1.05);
-      filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+    /* Mobile menu - ensure dropdown is visible above StackCloud */
+    .relative.z-50 {
+        /* Don't hide overflow for dropdowns inside z-50 container */
     }
-  }
 
-  /* Input-specific hover styling */
-  .magnetic-input:hover:not(.magnetic-selected) {
-    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
-  }
+    /* Remove default focus outline from SVG interactive elements */
+    svg [role="button"]:focus {
+        outline: none;
+    }
 
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .icon-container svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
+    /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
     .magnetic-base {
-      transition: none;
+        /* Enable smooth transitions for magnetic effect */
+        transition:
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.2s ease-out,
+            background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Hint browser for transform optimization */
+        will-change: transform;
+        /* Always have a subtle blue glow as base state to avoid color transition artifacts */
+        filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
     }
-  }
 
-  /* StackCloud Component Styles */
-  .stack-cloud-wrapper {
-    width: 100%;
-    aspect-ratio: 1;
-    min-height: 400px;
-    max-height: 600px;
-    position: relative;
-  }
+    /* Magnetic hover creates illusion of being "pulled" toward cursor */
+    /* Use drop-shadow instead of box-shadow to properly respect border-radius */
+    /* Mobile-first: reduced glow on mobile (8px blur) */
+    .magnetic-base:hover:not(.magnetic-selected) {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+    }
 
-  .stack-cloud-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-    /* Hint browser for smooth opacity transitions */
-    will-change: opacity;
-  }
+    /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
+    @media (min-width: 768px) {
+        .magnetic-base:hover:not(.magnetic-selected) {
+            transform: scale(1.05);
+            filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+        }
+    }
 
-  /* Stack Node States - use CSS classes instead of inline styles for performance */
-  .stack-node {
-    cursor: pointer;
-    /* NO transition on transform - controlled by D3 simulation */
-    /* Hint browser to prepare for transform changes */
-    will-change: transform;
-  }
+    /* Input-specific hover styling */
+    .magnetic-input:hover:not(.magnetic-selected) {
+        border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+    }
 
-  .stack-node.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .magnetic-base {
+            transition: none;
+        }
+    }
 
-  .stack-node-circle {
-    transition:
-      stroke-width 0.2s ease-out,
-      stroke 0.2s ease-out,
-      filter 0.2s ease-out;
-    /* Hint browser for composite layers */
-    will-change: filter;
-  }
+    /* StackCloud Component Styles */
+    .stack-cloud-wrapper {
+        width: 100%;
+        aspect-ratio: 1;
+        min-height: 400px;
+        max-height: 600px;
+        position: relative;
+    }
 
-  .stack-node-circle.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-cloud-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+        /* Hint browser for smooth opacity transitions */
+        will-change: opacity;
+    }
 
-  /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
-  .stack-node-circle.is-highlighted:not(.forced-colors) {
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
-  }
+    /* Stack Node States - use CSS classes instead of inline styles for performance */
+    .stack-node {
+        cursor: pointer;
+        /* NO transition on transform - controlled by D3 simulation */
+        /* Hint browser to prepare for transform changes */
+        will-change: transform;
+    }
 
-  .stack-node-circle.is-selected:not(.forced-colors) {
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
-  }
+    .stack-node.prefers-reduced-motion {
+        transition: none;
+    }
 
-  /* Remove drop shadows for reduced motion and forced colors */
-  .stack-node-circle.prefers-reduced-motion,
-  .stack-node-circle.forced-colors {
-    filter: none !important;
-  }
+    .stack-node-circle {
+        transition:
+            stroke-width 0.2s ease-out,
+            stroke 0.2s ease-out,
+            filter 0.2s ease-out;
+        /* Hint browser for composite layers */
+        will-change: filter;
+    }
 
-  .stack-node-icon {
-    pointer-events: none;
-    transition:
-      opacity 0.2s ease-out,
-      color 0.2s ease-out;
-  }
+    .stack-node-circle.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .stack-node-icon.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
+    .stack-node-circle.is-highlighted:not(.forced-colors) {
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+    }
 
-  .stack-node-focus-ring {
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+    .stack-node-circle.is-selected:not(.forced-colors) {
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+    }
 
-  .stack-node-focus-ring.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Remove drop shadows for reduced motion and forced colors */
+    .stack-node-circle.prefers-reduced-motion,
+    .stack-node-circle.forced-colors {
+        filter: none !important;
+    }
 
-  .stack-node:focus-visible .stack-node-focus-ring {
-    opacity: 1;
-  }
+    .stack-node-icon {
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease-out,
+            color 0.2s ease-out;
+    }
 
-  /* Pie segment states */
-  .pie-segment {
-    transition:
-      opacity 0.2s ease,
-      d 0.2s ease;
-  }
+    .stack-node-icon.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-node-focus-ring {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
 
-  .pie-segment-hit-area {
-    cursor: pointer;
-  }
+    .stack-node-focus-ring.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment-hit-area:focus-visible {
-    outline: 3px solid oklch(45% 0.15 260);
-    outline-offset: 2px;
-  }
+    .stack-node:focus-visible .stack-node-focus-ring {
+        opacity: 1;
+    }
 
-  .pie-segment-hit-area.forced-colors:focus-visible {
-    outline-color: CanvasText;
-  }
+    /* Pie segment states */
+    .pie-segment {
+        transition:
+            opacity 0.2s ease,
+            d 0.2s ease;
+    }
 
-  /* Forced colors mode adjustments */
-  @media (forced-colors: active) {
-    .stack-node-circle,
+    .pie-segment.prefers-reduced-motion {
+        transition: none;
+    }
+
     .pie-segment-hit-area {
-      forced-color-adjust: auto;
+        cursor: pointer;
     }
-  }
 
-  /* Loading Spinner Animations */
-  .spinner-ring-container {
-    transform-origin: 50px 50px;
-    animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
+    .pie-segment-hit-area:focus-visible {
+        outline: 3px solid oklch(45% 0.15 260);
+        outline-offset: 2px;
+    }
 
-  .spinner-ring-segment {
-    /* Individual segments grow and shrink for fluid motion */
-    animation: spinner-segment-pulse 2s ease-in-out infinite;
-  }
+    .pie-segment-hit-area.forced-colors:focus-visible {
+        outline-color: CanvasText;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
+    /* Forced colors mode adjustments */
+    @media (forced-colors: active) {
+        .stack-node-circle,
+        .pie-segment-hit-area {
+            forced-color-adjust: auto;
+        }
+    }
+
+    /* Loading Spinner Animations */
     .spinner-ring-container {
-      animation: spinner-rotate-smooth 5s linear infinite;
+        transform-origin: 50px 50px;
+        animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1)
+            infinite;
     }
 
     .spinner-ring-segment {
-      animation: none;
+        /* Individual segments grow and shrink for fluid motion */
+        animation: spinner-segment-pulse 2s ease-in-out infinite;
     }
-  }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spinner-ring-container {
+            animation: spinner-rotate-smooth 5s linear infinite;
+        }
+
+        .spinner-ring-segment {
+            animation: none;
+        }
+    }
 }
 
 @keyframes animationRing {
-  0% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  30% {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+    0% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    30% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 @keyframes animationFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 100;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 100;
+    }
 }
 
 @keyframes animation-slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes float-subtle {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
 }
 
 @keyframes spinner-rotate-smooth {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes spinner-segment-pulse {
-  0%,
-  100% {
-    stroke-dasharray: var(--dash-base) var(--dash-gap);
-    opacity: 0.85;
-  }
-  50% {
-    stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
-    opacity: 1;
-  }
+    0%,
+    100% {
+        stroke-dasharray: var(--dash-base) var(--dash-gap);
+        opacity: 0.85;
+    }
+    50% {
+        stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
+        opacity: 1;
+    }
 }
 
 @keyframes magnetic-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
-  }
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
+    }
 }
 
 @keyframes magnetic-bounce {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @layer utilities {
-  .animation-ring {
-    animation: animationRing 1s ease-in-out;
-  }
-  .animation-fade-in {
-    animation: animationFadeIn 1s ease-out forwards;
-  }
-  .animation-slide-down {
-    animation: animationSlideDown 0.5s ease-in-out forwards;
-  }
-  .animation-float-subtle {
-    animation: float-subtle 4s ease-in-out infinite;
-  }
-  .animation-magnetic-pulse {
-    animation: magnetic-pulse 2s ease-in-out infinite;
-  }
-  /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
-  .animation-magnetic-bounce {
-    animation: none;
-  }
-
-  @media (min-width: 768px) {
-    .animation-magnetic-bounce {
-      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    .animation-ring {
+        animation: animationRing 1s ease-in-out;
     }
-  }
+    .animation-fade-in {
+        animation: animationFadeIn 1s ease-out forwards;
+    }
+    .animation-slide-down {
+        animation: animationSlideDown 0.5s ease-in-out forwards;
+    }
+    .animation-float-subtle {
+        animation: float-subtle 4s ease-in-out infinite;
+    }
+    .animation-magnetic-pulse {
+        animation: magnetic-pulse 2s ease-in-out infinite;
+    }
+    /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
+    .animation-magnetic-bounce {
+        animation: none;
+    }
 
-  .svg-contain {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
+    @media (min-width: 768px) {
+        .animation-magnetic-bounce {
+            animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    }
 
-  /* Toast appearance animation with view transitions */
-  .toast-appear {
-    animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
+    .svg-contain {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
 
-  /* Toast dismiss animation - slides out to the right */
-  .toast-dismiss {
-    animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
+    /* Toast appearance animation with view transitions */
+    .toast-appear {
+        animation: toastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* Toast dismiss animation - slides out to the right */
+    .toast-dismiss {
+        animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
 }
 
 @keyframes toastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @keyframes fade-in-and-scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 @keyframes fade-out-and-scale-out {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.98);
-  }
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.98);
+    }
 }
 
 @keyframes toastSlideOut {
-  from {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(400px) scale(0.98);
-  }
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(400px) scale(0.98);
+    }
 }
 
 @keyframes fade-out-and-slide-out {
-  from {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(400px) scale(0.98);
-  }
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(400px) scale(0.98);
+    }
 }
 
 /* Multi-toast stacking depth effect CSS */
 @keyframes multiToastSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) translateX(12px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) translateX(0) scale(1);
-  }
+    from {
+        opacity: 0;
+        transform: translateY(12px) translateX(12px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) translateX(0) scale(1);
+    }
 }
 
 @keyframes toastStackReveal {
-  from {
-    clip-path: inset(calc(100% - 12px) 0 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
+    from {
+        clip-path: inset(calc(100% - 12px) 0 0 0);
+    }
+    to {
+        clip-path: inset(0 0 0 0);
+    }
 }
 
 @layer components {
-  /* Multi-toast container - creates stacking context */
-  .multi-toast-stack-container {
-    position: relative;
-    width: 20rem;
-    /* Create stacking context for proper z-index handling */
-    isolation: isolate;
-    /* Ensure children can receive pointer events even if parent has pointer-events-none */
-    pointer-events: auto;
-  }
+    /* Multi-toast container - creates stacking context */
+    .multi-toast-stack-container {
+        position: relative;
+        width: 20rem;
+        /* Create stacking context for proper z-index handling */
+        isolation: isolate;
+        /* Ensure children can receive pointer events even if parent has pointer-events-none */
+        pointer-events: auto;
 
-  /* Multi-toast with pyramid stacking effect */
-  .multi-toast {
-    animation: multiToastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-    transition:
-      opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out,
-      pointer-events 0s linear;
-    /* Apply base magnetic styling but override hover to avoid flickering */
-    @apply magnetic-rounded-lg magnetic-card pointer-events-auto;
-    /* Hardware acceleration to prevent flickering during z-index changes */
-    will-change: z-index;
-    transform: translateZ(0);
-    -webkit-transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-
-    /* Position absolute to remove from flow and stack properly */
-    position: absolute;
-    bottom: calc(var(--toast-index, 0) * 16px);
-    left: 0;
-    right: 0;
-
-    /* Stack effect: each toast gets narrower for depth perception */
-    --depth: calc(var(--total-toasts, 1) - var(--toast-index, 0) - 1);
-    --width-percent: calc(100% - var(--depth, 0) * 4%);
-    max-width: var(--width-percent);
-    margin: 0 auto;
-
-    /* Reduce opacity for toasts further back */
-    opacity: calc(1 - var(--depth, 0) * 0.1);
-
-    /* Z-index: most recent toast (highest index) appears on top */
-    z-index: calc(var(--toast-index, 0) + 1);
-
-    /* Drop shadow gets softer for toasts further back */
-    filter: drop-shadow(
-      0 4px 8px rgba(0, 0, 0, calc(0.12 - var(--depth, 0) * 0.02))
-    );
-  }
-
-  /* When hovering a toast, use calculated z-index for pyramid effect */
-  .multi-toast-stack-container:has(.multi-toast:hover) .multi-toast {
-    /* Use z-index calculated in JavaScript based on distance from hovered toast */
-    z-index: var(--z-index-during-hover, 1);
-    /* Prevent backface visibility issues during z-index transitions */
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-
-    /* Apply scaling to toasts based on distance from hovered toast */
-    /* This creates the pyramid effect for toasts above the hovered one */
-    max-width: calc(100% - var(--distance-from-hovered, 0) * 4%);
-    opacity: calc(1 - var(--distance-from-hovered, 0) * 0.1);
-    filter: drop-shadow(
-      0 4px 8px
-        rgba(0, 0, 0, calc(0.12 - var(--distance-from-hovered, 0) * 0.02))
-    );
-    transition:
-      max-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out;
-  }
-
-  /* Non-hovered toasts get pointer-events disabled to prevent flickering */
-  .multi-toast-stack-container:has(.multi-toast:hover)
-  .multi-toast:not(:hover) {
-    pointer-events: none;
-  }
-
-  /* Hovered toast: bring to front with full width and opacity */
-  .multi-toast:hover {
-    pointer-events: auto;
-    z-index: 500 !important;
-    max-width: 100% !important;
-    margin: 0 auto;
-    opacity: 1 !important;
-    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15)) !important;
-    /* Maintain hardware acceleration state during hover */
-    transform: translateZ(0);
-  }
-
-  /* Dismiss animation uses the slideOut keyframes */
-  .multi-toast.toast-dismiss {
-    animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-  }
-
-  /* Respect reduced motion for multi-toast */
-  @media (prefers-reduced-motion: reduce) {
-    .multi-toast {
-      animation: none;
-      transition: none;
+        /* DEBUGGING: Add visual grid to trace positioning */
+        /* background: linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+    background-size: 100% 16px; */
     }
-  }
+
+    /* Multi-toast with clean stacking implementation */
+    /* Based on web.dev research: simple position + z-index + transform approach */
+    .multi-toast {
+        animation: multiToastSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            max-width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            z-index 0.3s ease-out,
+            bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Apply base magnetic styling */
+        @apply magnetic-rounded-lg magnetic-card pointer-events-auto;
+
+        /* Position absolute with stacking offset to create accordion peek effect */
+        position: absolute;
+        bottom: calc(var(--toast-index, 0) * 16px);
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+
+        /* Z-index: managed entirely by JavaScript */
+        z-index: var(--z-index, 1);
+
+        /* Width scaling via maxWidth inline style (set by JavaScript) */
+        /* Default to full width, will be overridden by inline style */
+        width: 100%;
+
+        /* Transform: translateY handled via inline style for positioning */
+        transform-origin: bottom center;
+
+        /* Consistent drop shadow */
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+    }
+
+    /* Ensure pointer events work correctly during expansion */
+    .multi-toast-stack-container:has(.multi-toast:hover)
+        .multi-toast:not(:hover) {
+        pointer-events: none;
+    }
+
+    /* Hovered toast styling */
+    .multi-toast:hover {
+        pointer-events: auto;
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.15));
+    }
+
+    /* Dismiss animation uses the slideOut keyframes */
+    .multi-toast.toast-dismiss {
+        animation: toastSlideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* Respect reduced motion for multi-toast */
+    @media (prefers-reduced-motion: reduce) {
+        .multi-toast {
+            animation: none;
+            transition: none;
+        }
+    }
+
+    /* DEBUGGING: Visual debugging styles */
+    /* Uncomment to enable debugging visualization */
+    .multi-toast {
+        /* Show depth information */
+        /* position: relative; */
+        /* outline: 2px solid rgba(0, 47, 167, 0.3);
+    outline-offset: -2px; */
+    }
+
+    /* DEBUGGING: Add data attribute display for visual feedback */
+    .multi-toast::after {
+        content: attr(data-distance-from-hovered);
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: rgba(0, 47, 167, 0.5);
+        pointer-events: none;
+        display: none;
+        /* Uncomment to show debug info */
+        /* display: block; */
+    }
+
+    /* DEBUGGING: Log to browser console via CSS content */
+    .multi-toast[data-toast-index]::before {
+        content: "";
+        display: none;
+    }
 }
