@@ -10,7 +10,7 @@ import { getSearchQuery } from "~/utils/search-params";
 
 /**
  * Normalize stack name to a URL-friendly slug
- * Examples: "React" -> "react", "Next.js" -> "nextjs"
+ * Examples: "React" -> "react", "Next" -> "nextjs"
  */
 function normalizeStackName(name: string): string {
   return name.toLowerCase().replace(/\./g, "").replace(/\s+/g, "-").trim();

@@ -3,6 +3,14 @@ import type { StackName } from "~/types";
 import { STACK_ICONS } from "./icons";
 
 export const STACK = {
+  AntDesign: {
+    domain: "Front-end",
+    icon: STACK_ICONS.AntDesign,
+  },
+  Puppeteer: {
+    domain: "QA",
+    icon: STACK_ICONS.Puppeteer,
+  },
   Effect: {
     domain: "Back-end",
     icon: STACK_ICONS.Effect,
@@ -59,9 +67,9 @@ export const STACK = {
     domain: "Front-end",
     icon: STACK_ICONS.Vue,
   },
-  "Next.js": {
+  Next: {
     domain: "Front-end",
-    icon: STACK_ICONS["Next.js"],
+    icon: STACK_ICONS.Next,
   },
   Vite: {
     domain: "Front-end",
@@ -112,17 +120,17 @@ export const STACK = {
     domain: "Front-end",
     icon: STACK_ICONS["Redux-saga"],
   },
-  FlowType: {
+  Flow: {
     domain: "Front-end",
-    icon: STACK_ICONS.FlowType,
+    icon: STACK_ICONS.Flow,
   },
   "Material UI": {
     domain: "Design",
     icon: STACK_ICONS["Material UI"],
   },
-  "Knockout.js": {
+  Knockout: {
     domain: "Front-end",
-    icon: STACK_ICONS["Knockout.js"],
+    icon: STACK_ICONS.Knockout,
   },
   SVG: {
     domain: "Design",
@@ -153,18 +161,14 @@ export const STACK = {
     domain: "QA",
     icon: STACK_ICONS.Jest,
   },
-  Puppeteer: {
-    domain: "QA",
-    icon: STACK_ICONS.Puppeteer,
-  },
   Preact: {
     domain: "Front-end",
     parent: "React",
     icon: STACK_ICONS.Preact,
   },
-  "Shell Script": {
+  Bash: {
     domain: "DevOps",
-    icon: STACK_ICONS["Shell Script"],
+    icon: STACK_ICONS.Bash,
   },
   "GitHub Actions": {
     domain: "DevOps",

@@ -1,4 +1,5 @@
 import Accessible from "../images/icons/accessible.svg";
+import AntDesign from "../images/icons/ant-design.svg";
 import Assembly from "../images/icons/assembly.svg";
 import At from "../images/icons/at.svg";
 import BrandCss3 from "../images/icons/brand-css3.svg";
@@ -23,7 +24,6 @@ import BrandTypescript from "../images/icons/brand-typescript.svg";
 import BrandVercel from "../images/icons/brand-vercel.svg";
 import BrandVisualStudio from "../images/icons/brand-visual-studio.svg";
 import BrandVite from "../images/icons/brand-vite.svg";
-import BrandVitest from "../images/icons/brand-vitest.svg";
 import BrandVue from "../images/icons/brand-vue.svg";
 import BrandXstate from "../images/icons/brand-xstate.svg";
 import BuildingBank from "../images/icons/building-bank.svg";
@@ -34,24 +34,30 @@ import ChartPie from "../images/icons/chart-pie.svg";
 import CloudCog from "../images/icons/cloud-cog.svg";
 import Code from "../images/icons/code.svg";
 import Components from "../images/icons/components.svg";
+import DtfdLogo from "../images/icons/dtfd-logo.svg";
 import Effect from "../images/icons/effect.svg";
 import FileCv from "../images/icons/file-cv.svg";
 import FileTypeDoc from "../images/icons/file-type-doc.svg";
+import Flow from "../images/icons/flow.svg";
 import Focus from "../images/icons/focus.svg";
 import Geometry from "../images/icons/geometry.svg";
 import HealthRecognition from "../images/icons/health-recognition.svg";
 import HeartHandshake from "../images/icons/heart-handshake.svg";
 import HomeDollar from "../images/icons/home-dollar.svg";
 import HotelService from "../images/icons/hotel-service.svg";
+import Jest from "../images/icons/jest.svg";
+import Knockout from "../images/icons/knockout.svg";
 import Language from "../images/icons/language.svg";
 import Mail from "../images/icons/mail.svg";
 import MapPin from "../images/icons/map-pin.svg";
 import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
+import Mocha from "../images/icons/mocha.svg";
 import News from "../images/icons/news.svg";
 import Package from "../images/icons/package.svg";
 import Palette from "../images/icons/palette.svg";
 import Printer from "../images/icons/printer.svg";
+import Puppeteer from "../images/icons/puppeteer.svg";
 import QuestionMark from "../images/icons/question-mark.svg";
 import ReceiptTax from "../images/icons/receipt-tax.svg";
 import Ripple from "../images/icons/ripple.svg";
@@ -68,17 +74,19 @@ import Svg from "../images/icons/svg.svg";
 import TestPipe from "../images/icons/test-pipe.svg";
 import User from "../images/icons/user.svg";
 import UsersGroup from "../images/icons/users-group.svg";
+import Vitest from "../images/icons/vitest.svg";
 import Webpack from "../images/icons/webpack.svg";
 import X from "../images/icons/x.svg";
 
 const icons = {
   Accessible,
+  AntDesign,
   Assembly,
   At,
   BrandCss3,
-  BrandGithub,
   BrandDocker,
   BrandFigma,
+  BrandGithub,
   BrandGoogle,
   BrandGraphql,
   BrandHtml5,
@@ -97,7 +105,6 @@ const icons = {
   BrandVercel,
   BrandVisualStudio,
   BrandVite,
-  BrandVitest,
   BrandVue,
   BrandXstate,
   BuildingBank,
@@ -108,32 +115,38 @@ const icons = {
   CloudCog,
   Code,
   Components,
+  DtfdLogo,
   Effect,
-  Focus,
   FileCv,
-  Geometry,
   FileTypeDoc,
+  Flow,
+  Focus,
+  Geometry,
   HealthRecognition,
   HeartHandshake,
   HomeDollar,
   HotelService,
+  Jest,
+  Knockout,
   Language,
   Mail,
   MapPin,
   MessageCircleCode,
   Minus,
+  Mocha,
   News,
-  Ship,
   Package,
   Palette,
+  Printer,
+  Puppeteer,
   QuestionMark,
   ReceiptTax,
-  Rocket,
   Ripple,
-  Printer,
+  Rocket,
   Search,
   ServerCog,
   ShieldLock,
+  Ship,
   Sql,
   Stack,
   StackPop,
@@ -142,8 +155,9 @@ const icons = {
   TestPipe,
   User,
   UsersGroup,
-  X,
+  Vitest,
   Webpack,
+  X,
 } satisfies Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>>;
 
 export const Icon = icons;

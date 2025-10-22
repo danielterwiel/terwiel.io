@@ -275,7 +275,7 @@ const HeaderContent = () => {
         >
           {/* Mobile: Logo - reserve space matching right menu width */}
           <div className="flex items-center justify-start w-16">
-            <Icon.BrandReact className="h-8 w-8 text-klein" />
+            <Icon.DtfdLogo className="h-8 w-8 text-klein" />
           </div>
 
           {/* Mobile: Title (name + subtitle) - perfectly centered */}
@@ -309,7 +309,7 @@ const HeaderContent = () => {
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.BrandReact className="h-10 w-10 text-klein" />
+            <Icon.DtfdLogo className="h-10 w-10" />
           </div>
         </div>
 
