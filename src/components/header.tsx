@@ -7,7 +7,6 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import type { SearchInputHandle } from "~/components/search-input";
 import { ContactDropdown } from "~/components/contact-dropdown";
 import { Icon } from "~/components/icon";
-import { MobileMenu } from "~/components/mobile-menu";
 import { SearchInputWrapper } from "~/components/search-input-wrapper";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 
@@ -246,61 +245,70 @@ const HeaderContent = () => {
         backdropFilter: "blur(0.5rem)",
       }}
     >
-      {/* Mobile: Container for header sections - relative positioning for absolute search overlay */}
-      <div className="md:hidden relative">
-        {/* Mobile: Full-width search overlay - positioned absolutely to not reserve space */}
-        <div
-          className={`md:hidden absolute inset-x-0 top-0 flex items-center px-4 py-3 w-full box-border overflow-hidden transition-opacity duration-300 ${
-            showSearchInput || hasSearchQuery
-              ? "opacity-100"
-              : "opacity-0 pointer-events-none"
-          }`}
-        >
-          <div ref={searchContainerRef} className="w-full magnetic-base">
-            <SearchInputWrapper
-              ref={searchInputRef}
-              isMobileContainer
-              onCloseEmpty={() => setShowSearchInput(false)}
-            />
+      {/* Mobile: Full-width search overlay - positioned absolutely to not reserve space */}
+      <div
+        className={`md:hidden absolute inset-x-0 top-0 flex items-center px-4 py-3 w-full box-border overflow-hidden transition-opacity duration-300 ${
+          showSearchInput || hasSearchQuery
+            ? "opacity-100"
+            : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div ref={searchContainerRef} className="w-full magnetic-base">
+          <SearchInputWrapper
+            ref={searchInputRef}
+            isMobileContainer
+            onCloseEmpty={() => setShowSearchInput(false)}
+          />
+        </div>
+      </div>
+
+      {/* Mobile: Asymmetric layout matching desktop - kept mounted to prevent unmount animation flicker */}
+      <div
+        className={`md:hidden grid grid-cols-[1fr_2fr_1fr] items-center px-4 py-3 gap-4 transition-opacity duration-300 ${
+          showSearchInput || hasSearchQuery
+            ? "opacity-0 pointer-events-none"
+            : "opacity-100"
+        }`}
+      >
+        {/* Left column: Logo */}
+        <div className="flex items-center justify-start">
+          <div className="flex items-center justify-center">
+            <Icon.DtfdLogo className="h-8 w-8 text-klein" />
           </div>
         </div>
 
-        {/* Mobile: Normal header - kept mounted to prevent unmount animation flicker */}
-        <div
-          className={`flex items-center justify-between gap-4 p-4 transition-opacity duration-300 ${
-            showSearchInput || hasSearchQuery
-              ? "opacity-0 pointer-events-none"
-              : "opacity-100"
-          }`}
-        >
-          {/* Mobile: Logo - reserve space matching right menu width */}
-          <div className="flex items-center justify-start w-16">
-            <Icon.DtfdLogo className="h-8 w-8 text-klein" />
-          </div>
+        {/* Center: Title (name + subtitle) */}
+        <div className="flex flex-col items-center justify-center min-w-0">
+          <h1 className="text-lg font-bold text-slate-900">Daniël Terwiel</h1>
+          <p className="text-sm text-slate-600">Developer</p>
+        </div>
 
-          {/* Mobile: Title (name + subtitle) - perfectly centered */}
-          <div className="flex flex-col items-center flex-1">
-            <h1 className="text-lg font-bold text-slate-900">Daniël Terwiel</h1>
-            <p className="text-sm text-slate-600">Developer</p>
-          </div>
+        {/* Right column: Menu with three action buttons (Contact, PDF, Search) */}
+        <div className="flex items-center justify-end gap-2">
+          {/* Contact Dropdown */}
+          <ContactDropdown />
 
-          {/* Mobile: Menu icons (Hamburger + Search) */}
-          <div className="flex items-center justify-end gap-1 w-16">
-            {/* Mobile: Hamburger Menu */}
-            <MobileMenu />
+          {/* PDF Download Button */}
+          <a
+            href="/resume.pdf"
+            download="Daniel-Terwiel-Resume.pdf"
+            className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            aria-label="Download resume as PDF"
+          >
+            <Icon.FileCv className="h-6 w-6" />
+          </a>
 
-            {/* Mobile: Search button */}
-            <button
-              ref={searchButtonRef}
-              type="button"
-              onMouseDown={handleSearchButtonMouseDown}
-              onClick={handleSearchIconClick}
-              className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-              aria-label="Open search"
-            >
-              <Icon.Search className="h-6 w-6" />
-            </button>
-          </div>
+          {/* Search Button */}
+          <button
+            ref={searchButtonRef}
+            type="button"
+            onMouseDown={handleSearchButtonMouseDown}
+            onClick={handleSearchIconClick}
+            className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            aria-label={searchButtonLabel}
+          >
+            <Icon.Search className="h-6 w-6" />
+          </button>
         </div>
       </div>
 

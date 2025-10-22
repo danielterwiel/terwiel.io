@@ -20,6 +20,7 @@ import BrandSass from "../images/icons/brand-sass.svg";
 import BrandSpeedtest from "../images/icons/brand-speedtest.svg";
 import BrandTailwind from "../images/icons/brand-tailwind.svg";
 import BrandTanstack from "../images/icons/brand-tanstack.svg";
+import BrandTwitter from "../images/icons/brand-twitter.svg";
 import BrandTypescript from "../images/icons/brand-typescript.svg";
 import BrandVercel from "../images/icons/brand-vercel.svg";
 import BrandVisualStudio from "../images/icons/brand-visual-studio.svg";
@@ -102,6 +103,7 @@ const icons = {
   BrandTailwind,
   BrandTanstack,
   BrandTypescript,
+  BrandTwitter,
   BrandVercel,
   BrandVisualStudio,
   BrandVite,

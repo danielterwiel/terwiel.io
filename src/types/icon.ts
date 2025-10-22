@@ -19,6 +19,7 @@ export type IconName =
   | "BrandSpeedtest"
   | "BrandTailwind"
   | "BrandTanstack"
+  | "BrandTwitter"
   | "BrandTypescript"
   | "BrandVercel"
   | "BrandVisualStudio"
