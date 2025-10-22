@@ -1,8 +1,9 @@
-import type { Domain, DomainExperienceSimple, Project } from "~/types";
+import type { DomainExperienceSimple, Project } from "~/types";
 
 import { calculateDomainExperience } from "./calculate-domain-experience";
 import { calculateStackExperience } from "./calculate-stack-experience";
 import { extractUniqueStacks } from "./extract-stacks";
+import { getDomainNames } from "./get-domain-names";
 
 /**
  * Precomputed experience cache for instant lookups
@@ -14,7 +15,7 @@ import { extractUniqueStacks } from "./extract-stacks";
  */
 
 interface ExperienceCache {
-  domains: Map<Domain, DomainExperienceSimple>;
+  domains: Map<string, DomainExperienceSimple>;
   stacks: Map<string, DomainExperienceSimple>;
 }
 
@@ -27,10 +28,10 @@ let cache: ExperienceCache | null = null;
 export function buildExperienceCache(projects: Project[]): ExperienceCache {
   if (cache) return cache;
 
-  const domains: Domain[] = ["DevOps", "Back-end", "Front-end", "Design", "QA"];
+  const domains = getDomainNames(projects);
   const stacks = extractUniqueStacks(projects);
 
-  const domainCache = new Map<Domain, DomainExperienceSimple>();
+  const domainCache = new Map<string, DomainExperienceSimple>();
   const stackCache = new Map<string, DomainExperienceSimple>();
 
   // Precompute all domain experiences
@@ -57,7 +58,7 @@ export function buildExperienceCache(projects: Project[]): ExperienceCache {
  * Get cached domain experience (O(1) lookup)
  */
 export function getDomainExperience(
-  domain: Domain,
+  domain: string,
 ): DomainExperienceSimple | undefined {
   return cache?.domains.get(domain);
 }

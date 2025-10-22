@@ -1,5 +1,7 @@
 import type { Domain, Project } from "~/types";
 
+import { DOMAINS } from "~/constants/domains";
+
 /**
  * Selection index for O(1) lookups of:
  * - Which stacks belong to a domain
@@ -31,8 +33,7 @@ export function buildSelectionIndex(projects: Project[]): SelectionIndex {
   const domainToProjects = new Map<Domain, Set<string>>();
 
   // Initialize domain maps
-  const domains: Domain[] = ["DevOps", "Back-end", "Front-end", "Design", "QA"];
-  for (const domain of domains) {
+  for (const domain of DOMAINS) {
     domainToStacks.set(domain, new Set());
     domainToProjects.set(domain, new Set());
   }
