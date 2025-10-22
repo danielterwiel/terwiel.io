@@ -79,6 +79,13 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       // CRITICAL BUG FIX: Save previous state BEFORE updating ref
       // Compare NEW state (matchedDomain) with OLD state (matchedDomainRef.current)
       const stateIsChanging = matchedDomain !== matchedDomainRef.current;
+
+      // Early bailout: Skip update entirely if state hasn't changed
+      // This prevents unnecessary DOM operations and D3 transitions
+      if (!stateIsChanging) {
+        return;
+      }
+
       matchedDomainRef.current = matchedDomain;
 
       const svg = d3.select(pieChartRef.current);
@@ -100,16 +107,20 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         d3.PieArcDatum<PieSegmentData>
       >("g.segment-visual");
 
-      // Reset transforms first (batched)
+      // PERFORMANCE: Batch ALL DOM reads first (prevents layout thrashing)
+      const pathElements = segments.select<SVGPathElement>("path.pie-segment");
+      const hitAreas = svg.selectAll<
+        SVGPathElement,
+        d3.PieArcDatum<PieSegmentData>
+      >(".pie-segment-hit-area");
+
+      // Now batch ALL DOM writes together (prevents reflow/repaint churn)
       segments.attr("transform", "translate(0, 0)");
 
       const baseDuration = a11y.getTransitionDuration(150);
 
-      if (stateIsChanging) {
-        // Immediately interrupt ongoing animations only when selection changes
-        // This makes UI responsive to actual state changes
-        segments.select<SVGPathElement>("path.pie-segment").interrupt();
-      }
+      // Immediately interrupt ongoing animations for responsive feel
+      pathElements.interrupt();
 
       // Use shorter animation if we're in a "burst" of rapid updates
       // (detected by checking if an animation was already running)
@@ -121,8 +132,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const transitionDuration = isRapidBurst ? 0 : baseDuration;
 
       // Update paths with transition (batched)
-      segments
-        .select<SVGPathElement>("path.pie-segment")
+      // PERFORMANCE: Single transition for all segments is faster than individual ones
+      pathElements
         .transition()
         .duration(transitionDuration)
         .attr("opacity", (d) =>
@@ -138,14 +149,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           previouslyAnimatingRef.current = false;
         });
 
-      // Update ARIA states (batched)
-      svg
-        .selectAll<SVGPathElement, d3.PieArcDatum<PieSegmentData>>(
-          ".pie-segment-hit-area",
-        )
-        .attr("aria-pressed", (d) =>
-          matchedDomain === d.data.domain ? "true" : "false",
-        );
+      // Update ARIA states (batched, no transitions needed)
+      hitAreas.attr("aria-pressed", (d) =>
+        matchedDomain === d.data.domain ? "true" : "false",
+      );
     });
 
     return () => cancelAnimationFrame(rafId);

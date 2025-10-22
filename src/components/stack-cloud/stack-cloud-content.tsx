@@ -20,6 +20,7 @@ import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
+import { buildExperienceCache } from "~/utils/experience-cache";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import {
   getInitialSelectedDomain,
@@ -57,6 +58,11 @@ export function StackCloudContent() {
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
   const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
+
+  // Build experience cache once for instant toast lookups (O(1) instead of O(n))
+  // This precomputes all domain and stack experiences to eliminate expensive
+  // date parsing and overlap calculations during interactions
+  useMemo(() => buildExperienceCache(PROJECTS), []);
 
   // Build selection index once for O(1) stack selection checks
   const selectionIndex = useMemo(() => {
