@@ -395,14 +395,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         // This prevents breaking state on other segments
         visiblePath.interrupt();
 
-        // Pre-emptively update the matched domain ref to prevent race conditions
-        const willBeSelected = matchedDomainRef.current !== datum.data.domain;
-        if (willBeSelected) {
-          matchedDomainRef.current = datum.data.domain;
-        } else {
-          matchedDomainRef.current = null;
-        }
-
         const queryString = toggleSearchParam(
           currentSearchQueryRef.current,
           datum.data.domain,
