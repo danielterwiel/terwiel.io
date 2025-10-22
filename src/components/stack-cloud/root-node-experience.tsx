@@ -100,6 +100,10 @@ export function RootNodeExperience({
         style={{
           fontSize: baseFontSize,
           position: "fixed",
+          // Prevent text selection on rapid clicks while keeping keyboard focus accessible
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
         }}
       >
         {/* Container 1: Title/Icon */}

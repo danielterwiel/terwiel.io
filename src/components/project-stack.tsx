@@ -31,15 +31,36 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   const [, startTransition] = useTransition();
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
 
+  // Memoize badge matching results to avoid recalculating on every render
+  // Uses query as key to invalidate cache when query changes
+  const badgeMatchCache = useRef(new Map<string, boolean>());
+
   // Check if a badge matches the current search query
   const isBadgeMatched = (item: StackItem): boolean => {
     if (!query) return false;
-    return (
+
+    // Check cache first
+    const cacheKey = `${item.name}|${item.domain}|${item.parent ?? ""}`;
+    const cached = badgeMatchCache.current.get(cacheKey);
+    if (cached !== undefined) {
+      return cached;
+    }
+
+    // Calculate and cache
+    const matches =
       item.name.toLowerCase() === query.toLowerCase() ||
       item.domain.toLowerCase() === query.toLowerCase() ||
-      item.parent?.toLowerCase() === query.toLowerCase()
-    );
+      item.parent?.toLowerCase() === query.toLowerCase();
+
+    badgeMatchCache.current.set(cacheKey, matches);
+    return matches;
   };
+
+  // Clear cache when query changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: query dependency is needed to clear cache
+  useEffect(() => {
+    badgeMatchCache.current.clear();
+  }, [query]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(

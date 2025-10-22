@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -160,13 +160,6 @@ const RootNodeComponent = (props: RootNodeProps) => {
   );
 };
 
-// Memoize to prevent re-renders when dimensions or hover state haven't changed
-export const RootNode = memo(RootNodeComponent, (prevProps, nextProps) => {
-  return (
-    prevProps.dimensions.rootRadius === nextProps.dimensions.rootRadius &&
-    prevProps.dimensions.centerX === nextProps.dimensions.centerX &&
-    prevProps.dimensions.centerY === nextProps.dimensions.centerY &&
-    prevProps.hoveredStack?.id === nextProps.hoveredStack?.id &&
-    prevProps.isActiveHover === nextProps.isActiveHover
-  );
-});
+// Export component without memo to ensure RootNodeChart's useSearchParams() hook re-runs
+// The memo was preventing re-renders when URL changed, causing the D3 chart to not update
+export const RootNode = RootNodeComponent;

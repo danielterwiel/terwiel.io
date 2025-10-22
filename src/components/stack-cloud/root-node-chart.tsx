@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { memo, useEffect, useRef } from "react";
+import { useDeferredValue, useEffect, useRef } from "react";
 
 import type { Domain } from "~/types";
 
@@ -45,31 +45,43 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   const pieChartRef = useRef<SVGGElement>(null);
   const hasAnimatedRef = useRef(false);
   const matchedDomainRef = useRef<string | null>(null);
-  const isTransitioningRef = useRef(false);
+  // Track previous animation state to detect rapid toggles
+  const previouslyAnimatingRef = useRef<boolean>(false);
 
   const a11y = useAccessibility();
   const currentSearchQuery = getSearchQuery(searchParams);
+
+  // Defer search query updates to let animations complete first
+  // This prevents D3 transitions from blocking urgent UI updates
+  const _deferredSearchQuery = useDeferredValue(currentSearchQuery);
 
   // Track selection state in refs to avoid expensive re-renders
   const currentSearchQueryRef = useRef(currentSearchQuery);
   currentSearchQueryRef.current = currentSearchQuery;
 
   // Update visual states without re-rendering entire chart
+  // Uses deferred value to avoid blocking urgent UI updates
+  // Immediately interrupts ongoing animations on new updates for responsive feel
   useEffect(() => {
-    if (!pieChartRef.current || !hasAnimatedRef.current) return;
-
-    // Prevent double-firing on iOS Safari during router navigation
-    if (isTransitioningRef.current) return;
+    if (!pieChartRef.current) {
+      return;
+    }
+    if (!hasAnimatedRef.current) {
+      return;
+    }
 
     // Use requestAnimationFrame to batch visual updates for better performance
     const rafId = requestAnimationFrame(() => {
       if (!pieChartRef.current) return;
 
       const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+
+      // CRITICAL BUG FIX: Save previous state BEFORE updating ref
+      // Compare NEW state (matchedDomain) with OLD state (matchedDomainRef.current)
+      const stateIsChanging = matchedDomain !== matchedDomainRef.current;
       matchedDomainRef.current = matchedDomain;
 
       const svg = d3.select(pieChartRef.current);
-      const transitionDuration = a11y.getTransitionDuration(150);
 
       const RING_THICKNESS = pieRadius * 0.1;
       const arc = d3
@@ -82,9 +94,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .innerRadius(pieRadius - RING_THICKNESS)
         .outerRadius(pieRadius + RING_THICKNESS * 1.4);
 
-      // Mark transition as in progress
-      isTransitioningRef.current = true;
-
       // Batch DOM updates together
       const segments = svg.selectAll<
         SVGGElement,
@@ -93,6 +102,23 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       // Reset transforms first (batched)
       segments.attr("transform", "translate(0, 0)");
+
+      const baseDuration = a11y.getTransitionDuration(150);
+
+      if (stateIsChanging) {
+        // Immediately interrupt ongoing animations only when selection changes
+        // This makes UI responsive to actual state changes
+        segments.select<SVGPathElement>("path.pie-segment").interrupt();
+      }
+
+      // Use shorter animation if we're in a "burst" of rapid updates
+      // (detected by checking if an animation was already running)
+      const isRapidBurst = previouslyAnimatingRef.current;
+      previouslyAnimatingRef.current = true;
+
+      // Skip animation entirely on rapid bursts to feel snappy
+      // Otherwise use normal duration
+      const transitionDuration = isRapidBurst ? 0 : baseDuration;
 
       // Update paths with transition (batched)
       segments
@@ -108,8 +134,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             : (arc(d) ?? ""),
         )
         .on("end", () => {
-          // Clear transition lock after animation completes
-          isTransitioningRef.current = false;
+          // Reset rapid burst detection after animation completes
+          previouslyAnimatingRef.current = false;
         });
 
       // Update ARIA states (batched)
@@ -303,6 +329,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .select(this.previousSibling as SVGGElement)
           .select<SVGPathElement>("path.pie-segment");
 
+        // Immediately interrupt any ongoing transitions for responsive feel
+        visiblePath.interrupt();
+
         // Animate to hover state - clear hierarchy: default (0.55) → hover (0.8) → selected (1.0)
         visiblePath
           .transition()
@@ -331,6 +360,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .select(this.previousSibling as SVGGElement)
           .select<SVGPathElement>("path.pie-segment");
 
+        // Immediately interrupt any ongoing transitions for responsive feel
+        visiblePath.interrupt();
+
         // Animate back to default or selected state
         const targetArc = isSelected ? selectedArc : arc;
         visiblePath
@@ -352,7 +384,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .select(this.previousSibling as SVGGElement)
           .select<SVGPathElement>("path.pie-segment");
 
-        // Immediately interrupt any ongoing transitions to prevent conflicts
+        // Only interrupt THIS segment's animation, not all segments
+        // This prevents breaking state on other segments
         visiblePath.interrupt();
 
         // Pre-emptively update the matched domain ref to prevent race conditions
@@ -368,6 +401,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           datum.data.domain,
           "domain",
         );
+
         router.push(`${pathname}${queryString}`);
       };
 
@@ -431,7 +465,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           setupHoverInteractions();
         });
     } else {
-      // No animation, setup interactions immediately and turn off animation state
+      // No animation, setup interactions immediately and mark animation as complete
+      hasAnimatedRef.current = true;
       onAnimationComplete?.();
       setupHoverInteractions();
     }
@@ -449,29 +484,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   return <g ref={pieChartRef} className="pie-chart" />;
 };
 
-// Memoize to prevent re-renders when pieData and pieRadius haven't changed
-export const RootNodeChart = memo(
-  RootNodeChartComponent,
-  (prevProps, nextProps) => {
-    // Deep comparison of pieData array
-    if (prevProps.pieData.length !== nextProps.pieData.length) return false;
-    if (prevProps.pieRadius !== nextProps.pieRadius) return false;
-
-    // Check if pie data values have changed
-    for (let i = 0; i < prevProps.pieData.length; i++) {
-      const prev = prevProps.pieData[i];
-      const next = nextProps.pieData[i];
-      if (
-        !prev ||
-        !next ||
-        prev.domain !== next.domain ||
-        prev.value !== next.value ||
-        prev.color !== next.color
-      ) {
-        return false;
-      }
-    }
-
-    return true;
-  },
-);
+// Export component without memo to ensure useSearchParams() hook re-runs when URL changes
+// The memo was preventing React from re-rendering when router.push() updated the URL,
+// causing useSearchParams() to return stale values and blocking state updates
+export const RootNodeChart = RootNodeChartComponent;

@@ -30,7 +30,10 @@ function ToastViewportContent() {
               aria-label="Close notification"
               onClick={() => close(toast.id)}
             >
-              <Icon.X className="base-toast-close-icon" style={{ width: "100%", height: "100%" }} />
+              <Icon.X
+                className="base-toast-close-icon"
+                style={{ width: "100%", height: "100%" }}
+              />
             </Toast.Close>
           </div>
         </Toast.Root>
