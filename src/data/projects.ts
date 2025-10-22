@@ -3,16 +3,15 @@ import type { Project, StackItem, StackName } from "~/types";
 import { generateStackUrl } from "~/utils/generate-stack-url";
 import { STACK } from "./stack";
 
-function createStackItem(name: StackName, url?: string): StackItem {
+function createStackItem(name: StackName): StackItem {
   const stackConfig = STACK[name];
+  const parent = "parent" in stackConfig ? stackConfig?.parent : undefined;
   return {
     name,
-    ...("parent" in stackConfig && stackConfig.parent
-      ? { parent: stackConfig.parent }
-      : {}),
+    parent,
     domain: stackConfig.domain,
     icon: stackConfig.icon,
-    url: url ?? generateStackUrl(name),
+    url: generateStackUrl(parent ?? name),
   };
 }
 
@@ -20,7 +19,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_10",
     company: "Currentflow",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 1,
     industry: "Auditing",
     location: "Home",
@@ -32,9 +31,9 @@ export const PROJECTS: Project[] = [
       createStackItem("Effect"),
       createStackItem("JavaScript"),
       createStackItem("GitHub Actions"),
-      createStackItem("Tanstack Start", "/?query=Tanstack"),
-      createStackItem("Tanstack Router", "/?query=Tanstack"),
-      createStackItem("Tanstack DB", "/?query=Tanstack"),
+      createStackItem("Tanstack Start"),
+      createStackItem("Tanstack Router"),
+      createStackItem("Tanstack DB"),
       createStackItem("Docker"),
       createStackItem("Shell Script"),
       createStackItem("TypeScript"),
@@ -47,7 +46,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_9",
     company: "Permatrust",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 1,
     industry: "Auditing",
     location: "Home",
@@ -60,8 +59,8 @@ export const PROJECTS: Project[] = [
       createStackItem("Shell Script"),
       createStackItem("GitHub Actions"),
       createStackItem("JavaScript"),
-      createStackItem("Tanstack Router", "/?query=Tanstack"),
-      createStackItem("Tanstack Query", "/?query=Tanstack"),
+      createStackItem("Tanstack Router"),
+      createStackItem("Tanstack Query"),
       createStackItem("TypeScript"),
       createStackItem("React"),
       createStackItem("Tailwind"),
@@ -92,7 +91,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_7",
     company: "Departure Labs",
-    role: "Full-stack Developer & Designer",
+    role: "Full stack Developer & Designer",
     teamSize: 5,
     industry: "Finance & Developer tools",
     location: "Boston (Remote)",
@@ -250,14 +249,14 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_0",
     company: "Finview",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 2,
     industry: "Finance",
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
     description:
-      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full-stack development and understanding client needs in the financial sector.",
+      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full stack development and understanding client needs in the financial sector.",
     stack: [
       createStackItem("Visual Basic.NET"),
       createStackItem("SQL Server"),

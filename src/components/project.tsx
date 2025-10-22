@@ -50,15 +50,15 @@ export const Project = ({
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
-              <dl className="mt-0 grid grid-flow-row grid-cols-[6rem_1fr] gap-1 pt-4 md:grid-cols-[12rem_1fr] print:mt-8 print:grid-cols-[20rem_1fr] print:items-stretch">
-                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
+              <dl className="mt-0 md:pl-10 grid grid-flow-row grid-cols-[4rem_1fr] gap-1 pt-4 print:mt-8 print:items-stretch">
+                <dt className="mt-0 flex gap-2 md:m-0 print:m-0">
                   <span className="font-normal text-slate-500">Role</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.role}</HighlightedText>
                 </dd>
 
-                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
+                <dt className="mt-0 flex gap-2 md:m-0 print:m-0">
                   <span className="font-normal text-slate-500">Team</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
@@ -70,20 +70,20 @@ export const Project = ({
                   </span>
                   developer{project.teamSize > 1 && "s"}
                 </dd>
-                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
+                <dt className="mt-0 flex gap-2 md:m-0 print:m-0">
                   <span className="font-normal text-slate-500">Industry</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.industry}</HighlightedText>
                 </dd>
-                <dt className="mt-0 flex justify-end gap-2 md:m-0 print:m-0 print:justify-end">
+                <dt className="mt-0 flex gap-2 md:m-0 print:m-0">
                   <span className="font-normal text-slate-500">Location</span>
                 </dt>
                 <dd className="m-0 pl-4 md:pl-7">
                   <HighlightedText>{project.location}</HighlightedText>
                 </dd>
               </dl>
-              <p className="md:pl-10">
+              <p className="md:pl-10 text-pretty">
                 <HighlightedText>{project.description}</HighlightedText>
               </p>
               <div className="md:pl-10">

@@ -2,6 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    /* Make scrollbar track transparent while keeping the thumb visible */
+    scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
+  }
+
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: oklch(37.85% 0.1954 263.23 / 0.5);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(37.85% 0.1954 263.23 / 0.7);
+  }
+}
+
 @layer components {
   /* Mobile menu - ensure dropdown is visible above StackCloud */
   .relative.z-50 {
