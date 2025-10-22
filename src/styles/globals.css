@@ -236,30 +236,65 @@
   }
 }
 
-@keyframes animationRing {
+@keyframes animationIconIn {
   0% {
-    transform: scale(0.9);
     opacity: 0;
-  }
-  30% {
-    transform: scale(0.9);
-    opacity: 0;
+    transform: scale(0.8);
   }
   100% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
 }
 
-/* Ring component optimizations - prevents cascading reflows by batching visibility updates */
+/* Ring component optimizations - circle always visible */
 .ring-element {
-  /* Use transform and opacity for smooth 60fps animations */
-  will-change: auto; /* Only enable when visible */
+  /* Circle is always visible */
+  opacity: 1;
 }
 
-.ring-element.ring-is-visible {
-  animation: animationRing 1s ease-in-out forwards;
-  will-change: transform;
+/* Icon inside ring - animates in with spring effect */
+.ring-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  /* Default hidden state */
+  opacity: 0;
+  transform: scale(0.8);
+
+  /* Spring effect configuration */
+  --_spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --_spring-duration: 145ms;
+
+  /* Apply spring transition */
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      opacity var(--_spring-duration) var(--_spring-easing),
+      transform var(--_spring-duration) var(--_spring-easing);
+  }
+
+  /* Progressive enhancement to linear() spring easing */
+  @supports (animation-timing-function: linear(0, 0.1, 1)) {
+    --_spring-easing: linear(
+      0,
+      0.25 19%,
+      0.43 29%,
+      0.66,
+      0.86 71%,
+      0.97 85%,
+      1
+    );
+    --_spring-duration: 1s;
+  }
+}
+
+/* When icon comes into view */
+.ring-icon.ring-icon-visible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 @keyframes animationFadeIn {

@@ -7,16 +7,16 @@ import { useEffect, useRef } from "react";
 
 interface RingProps {
   borderColor?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 /**
  * Ring component with optimized IntersectionObserver usage
- * Batches visibility updates to prevent cascading reflows
- * Uses requestAnimationFrame to stagger class additions
+ * Shows circle always, animates children (icon) in on scroll with spring effect
  */
 export const Ring: React.FC<RingProps> = ({ children }) => {
   const ringRef = useRef<HTMLDivElement>(null);
+  const iconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let isStillMounted = true;
@@ -34,14 +34,14 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
             // Batch class changes using requestAnimationFrame to prevent cascading reflows
             // Multiple observers can fire in quick succession - RAF batches them
             rafId = requestAnimationFrame(() => {
-              if (isStillMounted && entry.target instanceof HTMLElement) {
-                entry.target.classList.add("ring-is-visible");
+              if (isStillMounted && iconRef.current instanceof HTMLElement) {
+                iconRef.current.classList.add("ring-icon-visible");
               }
             });
           } else {
             // Remove animation class when out of view
-            if (entry.target instanceof HTMLElement) {
-              entry.target.classList.remove("ring-is-visible");
+            if (iconRef.current instanceof HTMLElement) {
+              iconRef.current.classList.remove("ring-icon-visible");
             }
           }
         });
@@ -71,14 +71,15 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
     "h-full",
     "grid",
     "place-items-center",
-    "opacity-0",
     "print:opacity-100",
     "ring-element",
   );
 
   return (
     <div ref={ringRef} className={className}>
-      {children}
+      <div ref={iconRef} className="ring-icon">
+        {children}
+      </div>
     </div>
   );
 };
