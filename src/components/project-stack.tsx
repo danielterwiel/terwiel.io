@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import { useSearchParams } from "next/navigation";
 
-import { Suspense, useEffect, useRef, useState, useTransition } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
 import type { StackItem } from "~/types";
 
@@ -28,7 +28,6 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
     new Set(),
   );
   const [hasAnimated, setHasAnimated] = useState(false);
-  const [, startTransition] = useTransition();
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
 
   // Memoize badge matching results to avoid recalculating on every render
@@ -67,40 +66,42 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !hasAnimated) {
-            // Defer animation logic using useTransition to avoid blocking critical updates
-            startTransition(() => {
-              // Clear any previous timeouts
-              timeoutIdsRef.current.forEach(clearTimeout);
-              timeoutIdsRef.current = [];
+            // Clear any previous timeouts
+            timeoutIdsRef.current.forEach(clearTimeout);
+            timeoutIdsRef.current = [];
 
-              // Trigger wave animation - each badge lights up briefly then fades back
-              items.forEach((_, index) => {
-                // Light up after delay
-                const lightUpTimeout = setTimeout(() => {
-                  setAnimatingIndices((prev) => new Set(prev).add(index));
-                }, index * 80); // 80ms delay between each badge lighting up
+            // Trigger wave animation - each badge lights up briefly then fades back
+            // Don't wrap in startTransition - it's not needed and adds overhead
+            items.forEach((_, index) => {
+              // Light up after delay
+              const lightUpTimeout = setTimeout(() => {
+                setAnimatingIndices((prev) => new Set(prev).add(index));
+              }, index * 80); // 80ms delay between each badge lighting up
 
-                // Fade back to neutral after brief display
-                const fadeOutTimeout = setTimeout(
-                  () => {
-                    setAnimatingIndices((prev) => {
-                      const next = new Set(prev);
-                      next.delete(index);
-                      return next;
-                    });
-                  },
-                  index * 80 + 400,
-                ); // Show color for 400ms before fading
+              // Fade back to neutral after brief display
+              const fadeOutTimeout = setTimeout(
+                () => {
+                  setAnimatingIndices((prev) => {
+                    const next = new Set(prev);
+                    next.delete(index);
+                    return next;
+                  });
+                },
+                index * 80 + 400,
+              ); // Show color for 400ms before fading
 
-                timeoutIdsRef.current.push(lightUpTimeout, fadeOutTimeout);
-              });
-
-              setHasAnimated(true);
+              timeoutIdsRef.current.push(lightUpTimeout, fadeOutTimeout);
             });
+
+            setHasAnimated(true);
           }
         });
       },
-      { threshold: 0.1 },
+      {
+        threshold: 0.1,
+        // Add root margin to start animation slightly before entering viewport
+        rootMargin: "50px 0px",
+      },
     );
 
     const currentRef = stackRef.current;

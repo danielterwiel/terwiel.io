@@ -31,6 +31,11 @@ export const Project = ({
     <li
       key={project.id}
       className="relative break-inside-avoid-page pb-8 print:pt-8"
+      style={
+        {
+          "--stagger-index": String(projectIdx),
+        } as React.CSSProperties
+      }
     >
       {projectIdx !== totalLength - 1 ? (
         <span

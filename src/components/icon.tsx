@@ -51,6 +51,7 @@ import Knockout from "../images/icons/knockout.svg";
 import Language from "../images/icons/language.svg";
 import Mail from "../images/icons/mail.svg";
 import MapPin from "../images/icons/map-pin.svg";
+import MaterialUI from "../images/icons/material-ui.svg";
 import MessageCircleCode from "../images/icons/message-circle-code.svg";
 import Minus from "../images/icons/minus.svg";
 import Mocha from "../images/icons/mocha.svg";
@@ -133,6 +134,7 @@ const icons = {
   Language,
   Mail,
   MapPin,
+  MaterialUI,
   MessageCircleCode,
   Minus,
   Mocha,

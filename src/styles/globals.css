@@ -621,4 +621,131 @@
     width: 1.25rem;
     height: 1.25rem;
   }
+
+  /* View Transitions for filtered projects list */
+
+  /* CRITICAL: Disable the default root view transition */
+  /* This prevents the "bang" effect on the entire viewport */
+  ::view-transition-group(root) {
+    animation-duration: 0s;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* Header gets high z-index to stay on top during transitions */
+  /* Even though it doesn't animate, it needs to be in the transition layer */
+  ::view-transition-group(header) {
+    z-index: 100;
+    animation: none;
+  }
+
+  ::view-transition-old(header),
+  ::view-transition-new(header) {
+    animation: none;
+  }
+
+  /* Ensure project view transitions stay below header */
+  ::view-transition-group(*):not(::view-transition-group(header)) {
+    z-index: 1;
+  }
+
+  /* Projects list transition animation */
+  /* Conditional animations based on content change */
+  /* Triggers only on URLSearchParams changes via startTransition */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Default: SCALE animation (when first project stays the same) */
+    /* Hide old view immediately - no animation, no overlap */
+    ::view-transition-old(projects-list) {
+      animation: none;
+      opacity: 0;
+    }
+
+    /* New view gets subtle scale pulse by default */
+    ::view-transition-new(projects-list) {
+      animation: projects-scale-pulse 300ms linear both;
+    }
+
+    /* SLIDE animation override (when content changes) */
+    /* Applied when data-transition-type="slide" */
+    [data-transition-type="slide"] ::view-transition-old(projects-list) {
+      animation: projects-slide-out 250ms cubic-bezier(0.4, 0, 1, 1) both;
+    }
+
+    [data-transition-type="slide"] ::view-transition-new(projects-list) {
+      animation: projects-slide-in 350ms cubic-bezier(0.2, 0, 0, 1) 250ms both;
+    }
+
+    /* Ensure proper rendering */
+    ::view-transition-old(projects-list),
+    ::view-transition-new(projects-list) {
+      mix-blend-mode: normal;
+      height: 100%;
+      overflow: clip;
+    }
+
+    /* Isolate the blending to prevent artifacts */
+    ::view-transition-image-pair(projects-list) {
+      isolation: isolate;
+    }
+
+    /* Group animation - different durations based on type */
+    ::view-transition-group(projects-list) {
+      animation-duration: 300ms;
+      animation-timing-function: linear;
+    }
+
+    [data-transition-type="slide"] ::view-transition-group(projects-list) {
+      animation-duration: 600ms;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-new(projects-list),
+    ::view-transition-old(projects-list),
+    ::view-transition-group(projects-list) {
+      animation: none !important;
+    }
+  }
+
+  /* Subtle linear scale pulse - gentle emphasis effect */
+  /* Scales down slightly then back to normal - linear timing */
+  @keyframes projects-scale-pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(0.985);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  /* Slide animations for when content changes */
+  @keyframes projects-slide-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+  }
+
+  @keyframes projects-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(-40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 }

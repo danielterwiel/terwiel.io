@@ -20,33 +20,31 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
 
   useEffect(() => {
     let isStillMounted = true;
-    let rafId: number;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!isStillMounted) return;
 
-          // Cancel any pending animation frame
-          cancelAnimationFrame(rafId);
-
+          // Directly toggle class without RAF - browser will batch paint operations
+          // RAF can actually delay updates and cause more jank during fast scrolling
           if (entry.isIntersecting) {
-            // Batch class changes using requestAnimationFrame to prevent cascading reflows
-            // Multiple observers can fire in quick succession - RAF batches them
-            rafId = requestAnimationFrame(() => {
-              if (isStillMounted && iconRef.current instanceof HTMLElement) {
-                iconRef.current.classList.add("ring-icon-visible");
-              }
-            });
+            if (iconRef.current instanceof HTMLElement) {
+              iconRef.current.classList.add("ring-icon-visible");
+            }
           } else {
-            // Remove animation class when out of view
             if (iconRef.current instanceof HTMLElement) {
               iconRef.current.classList.remove("ring-icon-visible");
             }
           }
         });
       },
-      { threshold: 0.1 },
+      {
+        threshold: 0.1,
+        // Add root margin to trigger animations slightly before entering viewport
+        // This ensures icons are visible when the ring enters the viewport
+        rootMargin: "50px 0px",
+      },
     );
 
     const currentRef = ringRef.current;
@@ -56,7 +54,6 @@ export const Ring: React.FC<RingProps> = ({ children }) => {
 
     return () => {
       isStillMounted = false;
-      cancelAnimationFrame(rafId);
       if (currentRef) {
         observer.unobserve(currentRef);
       }

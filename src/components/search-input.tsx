@@ -4,7 +4,7 @@ import * as Form from "@radix-ui/react-form";
 import { clsx } from "clsx";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import React from "react";
+import React, { startTransition } from "react";
 
 import { Icon } from "~/components/icon";
 import { debounce } from "~/utils/debounce";
@@ -52,8 +52,11 @@ const SearchInputContent = React.forwardRef<
         const url = encodedValue
           ? `${pathname}?query=${encodedValue}&filterType=search`
           : pathname;
-        router.replace(url, {
-          scroll: false,
+        // Wrap router navigation in startTransition to trigger view transitions
+        startTransition(() => {
+          router.replace(url, {
+            scroll: false,
+          });
         });
       }, 1000);
     }
@@ -131,8 +134,11 @@ const SearchInputContent = React.forwardRef<
       debouncedSetSearchParamsRef.current?.cancel();
       setQuery("");
       const url = pathname;
-      router.replace(url, {
-        scroll: false,
+      // Wrap router navigation in startTransition to trigger view transitions
+      startTransition(() => {
+        router.replace(url, {
+          scroll: false,
+        });
       });
       const input =
         "current" in inputRef

@@ -236,14 +236,17 @@ const HeaderContent = () => {
 
   return (
     <header
-      className={`sticky top-0 z-40 bg-white backdrop-blur-sm transition-transform duration-300 ${
+      className={`sticky top-0 z-50 bg-white backdrop-blur-sm transition-transform duration-300 ${
         isHeaderVisible ? "translate-y-0" : "-translate-y-full"
       } ${hasSearchQuery ? "md:sticky" : ""}`}
-      style={{
-        backgroundColor: "rgba(255, 255, 255, 0.95)",
-        WebkitBackdropFilter: "blur(0.5rem)",
-        backdropFilter: "blur(0.5rem)",
-      }}
+      style={
+        {
+          backgroundColor: "rgba(255, 255, 255, 0.95)",
+          WebkitBackdropFilter: "blur(0.5rem)",
+          backdropFilter: "blur(0.5rem)",
+          viewTransitionName: "header",
+        } as React.CSSProperties
+      }
     >
       {/* Mobile: Full-width search overlay - positioned absolutely to not reserve space */}
       <div
@@ -317,7 +320,7 @@ const HeaderContent = () => {
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-10 w-10" />
+            <Icon.DtfdLogo className="h-10 w-10 text-klein" />
           </div>
         </div>
 

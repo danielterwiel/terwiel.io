@@ -21,18 +21,25 @@ const MENU_LINKS = [
     ariaLabel: "Visit GitHub profile",
   },
   {
+    id: "linkedin",
+    label: "LinkedIn",
+    icon: Icon.BrandLinkedin,
+    href: "https://linkedin.com/in/terwiel",
+    ariaLabel: "Visit LinkedIn profile",
+  },
+  {
+    id: "twitter",
+    label: "Twitter",
+    icon: Icon.BrandTwitter,
+    href: "https://twitter.com/terwiel",
+    ariaLabel: "Visit Twitter profile",
+  },
+  {
     id: "email",
     label: "Email",
     icon: Icon.Mail,
     href: "mailto:daniel@terwiel.io",
     ariaLabel: "Send email to daniel@terwiel.io",
-  },
-  {
-    id: "twitter",
-    label: "Twitter",
-    icon: Icon.X,
-    href: "https://twitter.com/danielt_dev",
-    ariaLabel: "Visit X profile",
   },
 ];
 
