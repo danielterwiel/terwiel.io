@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type React from "react";
 import {
   Suspense,
+  useEffect,
   useId,
   useMemo,
   useRef,
@@ -34,6 +35,9 @@ const ProjectsContent = () => {
     return buildSelectionIndex(PROJECTS);
   }, []);
 
+  // Track previous filtered results to detect if first project changes
+  const prevFilteredRef = useRef<typeof PROJECTS>([]);
+
   // Memoize filtered projects computation with cache - only recalculate when query or domain changes
   // Uses cache to avoid re-filtering if the same query/domain is repeated
   const filtered = useMemo(() => {
@@ -56,16 +60,30 @@ const ProjectsContent = () => {
 
   const projectsId = useId();
 
+  // Determine if first project is the same (content in viewport stays the same)
+  const firstProjectSame =
+    prevFilteredRef.current.length > 0 &&
+    filtered.length > 0 &&
+    prevFilteredRef.current[0]?.id === filtered[0]?.id;
+
+  // Update previous filtered state after comparison
+  useEffect(() => {
+    prevFilteredRef.current = filtered;
+  }, [filtered]);
+
   // Create a stable key that only changes when filter changes
   // Only trigger view transitions when the filter actually changes (query or domain)
   // This prevents transitions on initial render and scroll events
   const hasFilter = query !== "" || domain !== null;
   const filterKey = hasFilter ? `${query}-${domain ?? ""}` : "no-filter";
 
+  // Determine animation type based on whether first project changed
+  const animationType = firstProjectSame ? "scale" : "slide";
+
   // Conditionally render ViewTransition only when there's an active filter
   // This avoids performance overhead on initial render and scroll
   const content = (
-    <div className="flow-root space-y-4">
+    <div className="flow-root space-y-4" data-transition-type={animationType}>
       {filtered.length === 0 && query ? (
         <ProjectsEmptyState query={query} />
       ) : (
