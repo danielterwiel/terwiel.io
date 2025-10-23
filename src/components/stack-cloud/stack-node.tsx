@@ -1,6 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { memo } from "react";
+import { memo, useTransition } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -49,6 +49,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const IconComponent = Icon[stack.iconKey as keyof typeof Icon];
+  const [_isPending, startTransition] = useTransition();
 
   // Unified accessibility hook
   const a11y = useAccessibility();
@@ -116,7 +117,9 @@ const StackNodeComponent = (props: StackNodeProps) => {
       stack.name,
       "tech",
     );
-    router.push(`${pathname}${queryString}`);
+    startTransition(() => {
+      router.push(`${pathname}${queryString}`);
+    });
   };
 
   // Handle keyboard interaction

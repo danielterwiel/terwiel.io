@@ -317,7 +317,7 @@ const HeaderContent = () => {
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-10 w-10" />
+            <Icon.DtfdLogo className="h-10 w-10 text-klein" />
           </div>
         </div>
 

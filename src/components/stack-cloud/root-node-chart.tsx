@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useDeferredValue, useEffect, useRef } from "react";
+import { useDeferredValue, useEffect, useRef, useTransition } from "react";
 
 import type { Domain } from "~/types";
 
@@ -47,6 +47,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   const matchedDomainRef = useRef<string | null>(null);
   // Track previous animation state to detect rapid toggles
   const previouslyAnimatingRef = useRef<boolean>(false);
+  const [_isPending, startTransition] = useTransition();
 
   const a11y = useAccessibility();
   const currentSearchQuery = getSearchQuery(searchParams);
@@ -58,6 +59,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   // Track selection state in refs to avoid expensive re-renders
   const currentSearchQueryRef = useRef(currentSearchQuery);
   currentSearchQueryRef.current = currentSearchQuery;
+
+  // Store startTransition in ref so it can be accessed in useEffect
+  const startTransitionRef = useRef(startTransition);
+  startTransitionRef.current = startTransition;
 
   // Update visual states without re-rendering entire chart
   // Uses deferred value to avoid blocking urgent UI updates
@@ -401,7 +406,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           "domain",
         );
 
-        router.push(`${pathname}${queryString}`);
+        startTransitionRef.current(() => {
+          router.push(`${pathname}${queryString}`);
+        });
       };
 
       hitAreas

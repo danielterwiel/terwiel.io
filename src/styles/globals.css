@@ -621,4 +621,63 @@
     width: 1.25rem;
     height: 1.25rem;
   }
+
+  /* View Transitions for filtered projects list */
+  /* Subtle animations that respect user preferences */
+  .project-item {
+    view-transition-name: auto;
+  }
+
+  /* Customize the default view transition animations */
+  /* Keep them subtle to avoid being annoying */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Fade and slight scale for new items appearing */
+    ::view-transition-new(root) {
+      animation: view-transition-fade-scale-in 250ms
+        cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Fade and slight scale for old items disappearing */
+    ::view-transition-old(root) {
+      animation: view-transition-fade-scale-out 200ms
+        cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Group animation - smooth position changes */
+    ::view-transition-group(root) {
+      animation-duration: 300ms;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-new(root),
+    ::view-transition-old(root),
+    ::view-transition-group(root) {
+      animation: none !important;
+    }
+  }
+
+  @keyframes view-transition-fade-scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes view-transition-fade-scale-out {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+  }
 }

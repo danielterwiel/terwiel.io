@@ -83,6 +83,7 @@ export const PROJECTS: Project[] = [
       createStackItem("JavaScript"),
       createStackItem("TypeScript"),
       createStackItem("React"),
+      createStackItem("AntDesign"),
       createStackItem("GraphQL"),
       createStackItem("Figma"),
     ],

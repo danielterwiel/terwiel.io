@@ -9,8 +9,6 @@ const CONTACT_LINKS = [
     id: "email",
     label: "Email",
     icon: Icon.Mail,
-    // href: "mailto:daniel@terwiel.io",
-    // ariaLabel: "Send email to daniel@terwiel.io",
   },
   {
     id: "github",
@@ -18,6 +16,13 @@ const CONTACT_LINKS = [
     icon: Icon.BrandGithub,
     href: "https://github.com/danielterwiel",
     ariaLabel: "Visit GitHub profile",
+  },
+  {
+    id: "linkedin",
+    label: "LinkedIn",
+    icon: Icon.BrandLinkedin,
+    href: "https://linkedin.com/in/terwiel",
+    ariaLabel: "Visit LinkedIn profile",
   },
   {
     id: "twitter",

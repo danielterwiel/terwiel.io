@@ -3,7 +3,14 @@
 import { useSearchParams } from "next/navigation";
 
 import type React from "react";
-import { Suspense, useDeferredValue, useId, useMemo, useRef } from "react";
+import {
+  Suspense,
+  useDeferredValue,
+  useId,
+  useMemo,
+  useRef,
+  unstable_ViewTransition as ViewTransition,
+} from "react";
 
 import type { Domain } from "~/types";
 
@@ -87,12 +94,13 @@ const ProjectsContent = () => {
           ) : (
             <ol className="ml-0 list-none pl-0">
               {filtered.map((project, projectIdx) => (
-                <Project
-                  key={project.company}
-                  project={project}
-                  projectIdx={projectIdx}
-                  totalLength={filtered.length}
-                />
+                <ViewTransition key={project.company} default="project-item">
+                  <Project
+                    project={project}
+                    projectIdx={projectIdx}
+                    totalLength={filtered.length}
+                  />
+                </ViewTransition>
               ))}
             </ol>
           )}

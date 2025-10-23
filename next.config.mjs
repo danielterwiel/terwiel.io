@@ -6,6 +6,9 @@ await import("./src/env.mjs");
 
 // /** @type {import("next").NextConfig} */
 const config = {
+  experimental: {
+    viewTransition: true,
+  },
   /**
    * @param {import('webpack').Configuration} config
    * @returns {import('webpack').Configuration}

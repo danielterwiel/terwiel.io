@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 
-import { SearchInput, type SearchInputHandle } from "~/components/search-input";
+import type { SearchInputHandle } from "~/components/search-input";
+import { SearchInput } from "~/components/search-input";
 import { useMediaQuery } from "~/hooks/use-media-query";
 
 interface SearchInputWrapperProps {
