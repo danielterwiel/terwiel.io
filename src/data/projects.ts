@@ -26,7 +26,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "When I discovered Effect.TS, I saw the potential when I discovered all the benefits it offers that othern of my favorite languages have, but TypeScript lacks. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building my previous project, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
+      "When I discovered Effect.TS, I saw the potential when I discovered all the benefits it offers that other of my favorite languages have, but TypeScript lacks. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building my previous project, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
     stack: [
       createStackItem("Effect"),
       createStackItem("JavaScript"),

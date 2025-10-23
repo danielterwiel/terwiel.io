@@ -623,61 +623,102 @@
   }
 
   /* View Transitions for filtered projects list */
-  /* Subtle animations that respect user preferences */
-  .project-item {
-    view-transition-name: auto;
+
+  /* CRITICAL: Disable the default root view transition */
+  /* This prevents the "bang" effect on the entire viewport */
+  ::view-transition-group(root) {
+    animation-duration: 0s;
   }
 
-  /* Customize the default view transition animations */
-  /* Keep them subtle to avoid being annoying */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  /* Header gets high z-index to stay on top during transitions */
+  /* Even though it doesn't animate, it needs to be in the transition layer */
+  ::view-transition-group(header) {
+    z-index: 100;
+    animation: none;
+  }
+
+  ::view-transition-old(header),
+  ::view-transition-new(header) {
+    animation: none;
+  }
+
+  /* Ensure project view transitions stay below header */
+  ::view-transition-group(*):not(::view-transition-group(header)) {
+    z-index: 1;
+  }
+
+  /* Sequential slide animation for projects list - no overlap */
+  /* Old list slides out completely, THEN new list slides in */
+  /* Triggers only on URLSearchParams changes via startTransition */
   @media (prefers-reduced-motion: no-preference) {
-    /* Fade and slight scale for new items appearing */
-    ::view-transition-new(root) {
-      animation: view-transition-fade-scale-in 250ms
-        cubic-bezier(0.4, 0, 0.2, 1);
+    /* Old list slides out to bottom - starts immediately */
+    /* Duration: 250ms for quick exit */
+    /* Easing: ease-in (accelerates as it exits) */
+    ::view-transition-old(projects-list) {
+      animation: view-transition-slide-out-bottom 250ms
+        cubic-bezier(0.4, 0, 1, 1) both;
     }
 
-    /* Fade and slight scale for old items disappearing */
-    ::view-transition-old(root) {
-      animation: view-transition-fade-scale-out 200ms
-        cubic-bezier(0.4, 0, 0.2, 1);
+    /* New list slides in from top - DELAYED to start after old finishes */
+    /* Delay: 250ms (matches old duration) for sequential effect */
+    /* Duration: 350ms for smooth entrance */
+    /* Easing: ease-out (decelerates as it settles) */
+    ::view-transition-new(projects-list) {
+      animation: view-transition-slide-in-top 350ms cubic-bezier(0.2, 0, 0, 1)
+        250ms both;
     }
 
-    /* Group animation - smooth position changes */
-    ::view-transition-group(root) {
-      animation-duration: 300ms;
+    /* Group animation - height transition between states */
+    /* Total duration: 600ms (250ms exit + 350ms enter) */
+    /* Height animates smoothly to accommodate content change */
+    ::view-transition-group(projects-list) {
+      animation-duration: 600ms;
       animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Make old and new views fill the group height to prevent aspect ratio stretching */
+    ::view-transition-old(projects-list),
+    ::view-transition-new(projects-list) {
+      height: 100%;
+      overflow: clip;
     }
   }
 
   /* Respect reduced motion preference */
   @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(root),
-    ::view-transition-old(root),
-    ::view-transition-group(root) {
+    ::view-transition-new(projects-list),
+    ::view-transition-old(projects-list),
+    ::view-transition-group(projects-list) {
       animation: none !important;
     }
   }
 
-  @keyframes view-transition-fade-scale-in {
+  /* Slide in from top with fade - increased distance for scroll effect */
+  @keyframes view-transition-slide-in-top {
     from {
       opacity: 0;
-      transform: scale(0.98);
+      transform: translateY(-60px);
     }
     to {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
     }
   }
 
-  @keyframes view-transition-fade-scale-out {
+  /* Slide out to bottom with fade - increased distance for scroll effect */
+  @keyframes view-transition-slide-out-bottom {
     from {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
     }
     to {
       opacity: 0;
-      transform: scale(0.98);
+      transform: translateY(60px);
     }
   }
 }
