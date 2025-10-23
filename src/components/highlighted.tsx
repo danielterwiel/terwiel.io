@@ -4,7 +4,7 @@ import { Suspense } from "react";
 
 const HighlightedTextContent = ({ children }: { children: string }) => {
   const searchParams = useSearchParams();
-  const query = decodeURI(searchParams.get("search") ?? "").trim();
+  const query = decodeURI(searchParams.get("query") ?? "").trim();
 
   const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
 

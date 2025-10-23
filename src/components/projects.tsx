@@ -5,25 +5,57 @@ import { useSearchParams } from "next/navigation";
 import type React from "react";
 import { Suspense, useDeferredValue, useId, useMemo, useRef } from "react";
 
+import type { Domain } from "~/types";
+
 import { Project } from "~/components/project";
-import { SearchSummary } from "~/components/search-summary";
+import { ProjectsEmptyState } from "~/components/projects-empty-state";
+import { SearchToastQueued } from "~/components/search-toast-queued";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
+import { filterCache } from "~/utils/filter-cache";
 import { filterProjects } from "~/utils/filter-projects";
-import { getSearchQuery } from "~/utils/search-params";
+import {
+  getFilterType,
+  getSearchDomain,
+  getSearchQuery,
+} from "~/utils/search-params";
+import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 
 const ProjectsContent = () => {
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);
+  const filterType = getFilterType(searchParams);
 
   // Defer the query value to give priority to urgent UI updates (e.g., StackCloud animations)
   const deferredQuery = useDeferredValue(query);
 
-  // Memoize filtered projects computation - only recalculate when deferred query changes
-  const filtered = useMemo(
-    () => filterProjects(PROJECTS, deferredQuery),
-    [deferredQuery],
-  );
+  // Extract domain filter from query (if query matches a domain name exactly)
+  const domain = getSearchDomain(deferredQuery, PROJECTS) as Domain | null;
+
+  // Build selection index once for fast filtering
+  const selectionIndex = useMemo(() => {
+    return buildSelectionIndex(PROJECTS);
+  }, []);
+
+  // Memoize filtered projects computation with cache - only recalculate when deferred query or domain changes
+  // Uses cache to avoid re-filtering if the same query/domain is repeated
+  const filtered = useMemo(() => {
+    // Check cache first
+    const cached = filterCache.get(deferredQuery, domain ?? undefined);
+    if (cached) {
+      return cached;
+    }
+
+    // Calculate and cache the result
+    const result = filterProjects(
+      PROJECTS,
+      deferredQuery,
+      domain ?? undefined,
+      selectionIndex,
+    );
+    filterCache.set(deferredQuery, domain ?? undefined, result);
+    return result;
+  }, [deferredQuery, domain, selectionIndex]);
 
   const projectsId = useId();
 
@@ -36,7 +68,13 @@ const ProjectsContent = () => {
         Projects
       </h2>
       <div className="flow-root space-y-4">
-        {query ? <SearchSummary query={query} items={filtered} /> : null}
+        {query ? (
+          <SearchToastQueued
+            query={query}
+            items={filtered}
+            filterType={filterType}
+          />
+        ) : null}
 
         <div
           style={{
@@ -44,16 +82,20 @@ const ProjectsContent = () => {
             transition: "opacity 150ms ease-in-out",
           }}
         >
-          <ol className="ml-0 list-none pl-0">
-            {filtered.map((project, projectIdx) => (
-              <Project
-                key={project.company}
-                project={project}
-                projectIdx={projectIdx}
-                totalLength={filtered.length}
-              />
-            ))}
-          </ol>
+          {filtered.length === 0 && query ? (
+            <ProjectsEmptyState query={query} />
+          ) : (
+            <ol className="ml-0 list-none pl-0">
+              {filtered.map((project, projectIdx) => (
+                <Project
+                  key={project.company}
+                  project={project}
+                  projectIdx={projectIdx}
+                  totalLength={filtered.length}
+                />
+              ))}
+            </ol>
+          )}
         </div>
       </div>
     </article>

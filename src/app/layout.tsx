@@ -2,6 +2,8 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 
+import { ToastProvider } from "~/components/toast-provider";
+
 export const metadata: Metadata = {
   title: "Daniël Terwiel - Developer",
   description:
@@ -32,7 +34,7 @@ export default function RootLayout({
       </head>
 
       <body className="font-sans selection:bg-klein selection:text-white print:max-w-full">
-        {children}
+        <ToastProvider>{children}</ToastProvider>
       </body>
     </html>
   );

@@ -5,7 +5,7 @@ import { getIconHexColor } from "~/utils/icon-colors";
 
 /**
  * Normalize stack name to a URL-friendly slug
- * Examples: "React" -> "react", "Next.js" -> "nextjs", "Visual Basic.NET" -> "visual-basic-net"
+ * Examples: "React" -> "react", "Next" -> "nextjs", "Visual Basic.NET" -> "visual-basic-net"
  */
 function normalizeStackName(name: string): string {
   return name.toLowerCase().replace(/\./g, "").replace(/\s+/g, "-").trim();

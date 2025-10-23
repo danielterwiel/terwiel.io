@@ -3,16 +3,15 @@ import type { Project, StackItem, StackName } from "~/types";
 import { generateStackUrl } from "~/utils/generate-stack-url";
 import { STACK } from "./stack";
 
-function createStackItem(name: StackName, url?: string): StackItem {
+function createStackItem(name: StackName): StackItem {
   const stackConfig = STACK[name];
+  const parent = "parent" in stackConfig ? stackConfig?.parent : undefined;
   return {
     name,
-    ...("parent" in stackConfig && stackConfig.parent
-      ? { parent: stackConfig.parent }
-      : {}),
+    parent,
     domain: stackConfig.domain,
     icon: stackConfig.icon,
-    url: url ?? generateStackUrl(name),
+    url: generateStackUrl(parent ?? name),
   };
 }
 
@@ -20,7 +19,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_10",
     company: "Currentflow",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 1,
     industry: "Auditing",
     location: "Home",
@@ -32,11 +31,11 @@ export const PROJECTS: Project[] = [
       createStackItem("Effect"),
       createStackItem("JavaScript"),
       createStackItem("GitHub Actions"),
-      createStackItem("Tanstack Start", "/?search=Tanstack#projects"),
-      createStackItem("Tanstack Router", "/?search=Tanstack#projects"),
-      createStackItem("Tanstack DB", "/?search=Tanstack#projects"),
+      createStackItem("Tanstack Start"),
+      createStackItem("Tanstack Router"),
+      createStackItem("Tanstack DB"),
       createStackItem("Docker"),
-      createStackItem("Shell Script"),
+      createStackItem("Bash"),
       createStackItem("TypeScript"),
       createStackItem("React"),
       createStackItem("Tailwind"),
@@ -47,7 +46,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_9",
     company: "Permatrust",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 1,
     industry: "Auditing",
     location: "Home",
@@ -57,11 +56,11 @@ export const PROJECTS: Project[] = [
       "In my personal time, I am developing a ransomware-resilient QMS using Rust and XState on the Internet Computer. This initiative serves to master these technologies and a terminal-centric workflow, with the goal of creating robust, secure applications for vulnerable SMBs in nowadays rapidly evolving threat landscape.",
     stack: [
       createStackItem("Rust"),
-      createStackItem("Shell Script"),
+      createStackItem("Bash"),
       createStackItem("GitHub Actions"),
       createStackItem("JavaScript"),
-      createStackItem("Tanstack Router", "/?search=Tanstack#projects"),
-      createStackItem("Tanstack Query", "/?search=Tanstack#projects"),
+      createStackItem("Tanstack Router"),
+      createStackItem("Tanstack Query"),
       createStackItem("TypeScript"),
       createStackItem("React"),
       createStackItem("Tailwind"),
@@ -92,7 +91,7 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_7",
     company: "Departure Labs",
-    role: "Full-stack Developer & Designer",
+    role: "Full stack Developer & Designer",
     teamSize: 5,
     industry: "Finance & Developer tools",
     location: "Boston (Remote)",
@@ -107,7 +106,7 @@ export const PROJECTS: Project[] = [
       createStackItem("TypeScript"),
       createStackItem("Vue"),
       createStackItem("React"),
-      createStackItem("Next.js"),
+      createStackItem("Next"),
       createStackItem("Tailwind"),
       createStackItem("Vite"),
       createStackItem("Vitest"),
@@ -198,7 +197,7 @@ export const PROJECTS: Project[] = [
       createStackItem("React"),
       createStackItem("Redux"),
       createStackItem("Redux-saga"),
-      createStackItem("FlowType"),
+      createStackItem("Flow"),
       createStackItem("Jest"),
       createStackItem("Webpack"),
       createStackItem("Material UI"),
@@ -220,7 +219,7 @@ export const PROJECTS: Project[] = [
     description:
       "At Amadeus, I contributed to the development of ELS, a single-page application designed for the hospitality industry. My role primarily involved utilizing Knockout.js, JavaScript, CSS, and HTML to enhance the application's user interface and performance. This work included addressing various technical challenges and ensuring that the application met the needs of its users in the hospitality sector.",
     stack: [
-      createStackItem("Knockout.js"),
+      createStackItem("Knockout"),
       createStackItem("JavaScript"),
       createStackItem("CSS"),
       createStackItem("HTML"),
@@ -250,14 +249,14 @@ export const PROJECTS: Project[] = [
   {
     id: "PROJECT_0",
     company: "Finview",
-    role: "Developer",
+    role: "Full stack Developer",
     teamSize: 2,
     industry: "Finance",
     location: "Breda",
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
     description:
-      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full-stack development and understanding client needs in the financial sector.",
+      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full stack development and understanding client needs in the financial sector.",
     stack: [
       createStackItem("Visual Basic.NET"),
       createStackItem("SQL Server"),

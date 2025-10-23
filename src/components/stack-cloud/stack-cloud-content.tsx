@@ -2,7 +2,14 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import type { Domain } from "~/types";
 
@@ -13,6 +20,7 @@ import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
+import { buildExperienceCache } from "~/utils/experience-cache";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import {
   getInitialSelectedDomain,
@@ -22,24 +30,44 @@ import {
   getHoverStackOnLeave,
   isActiveStackHover,
 } from "~/utils/hover-state-manager";
+import { getSearchDomain } from "~/utils/search-params";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
-import { isStackSelected } from "~/utils/stack-selection";
+import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 
 /**
  * D3 force-directed visualization of technology stacks
  * Optimized for iOS Safari with dynamic viewport handling
  * Must be wrapped in Suspense (uses useSearchParams)
+ *
+ * Performance optimizations:
+ * - useDeferredValue defers heavy stack re-evaluations
+ * - Selection state cached to avoid O(n) lookups per render
+ * - D3 transitions don't block urgent UI updates
  */
 export function StackCloudContent() {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const searchParams = useSearchParams();
 
+  // Defer search params updates to let animations complete first
+  // This prevents expensive O(n) stack selection checks from blocking UI
+  const deferredSearchParams = useDeferredValue(searchParams);
+
   const a11y = useAccessibility();
 
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
   const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
+
+  // Build experience cache once for instant toast lookups (O(1) instead of O(n))
+  // This precomputes all domain and stack experiences to eliminate expensive
+  // date parsing and overlap calculations during interactions
+  useMemo(() => buildExperienceCache(PROJECTS), []);
+
+  // Build selection index once for O(1) stack selection checks
+  const selectionIndex = useMemo(() => {
+    return buildSelectionIndex(PROJECTS);
+  }, []);
 
   // Hover state management - initialize with selected domain/stack if present
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(() =>
@@ -54,14 +82,33 @@ export function StackCloudContent() {
   } | null>(() => getInitialSelectedStack(searchParams, stacks, PROJECTS));
 
   // Calculate scale factors based on selection state
+  // IMPORTANT: Use regular searchParams (not deferred) to immediately update D3 simulation
+  // Deferred values would cause the simulation to restart multiple times per click
+  // Uses selection index for O(1) lookup instead of O(n) scan
   const scaleFactors = useMemo(() => {
     const scaleFactorMap = new Map<string, number>();
+
+    // Get selected domain from search params using existing helper
+    // Use regular searchParams to trigger simulation updates immediately on clicks
+    const query = searchParams.get("query")?.toLowerCase().trim() ?? "";
+    const selectedDomain = getSearchDomain(query, PROJECTS) as Domain | null;
+
     for (const stack of stacks) {
-      const selected = isStackSelected(stack, searchParams, PROJECTS);
+      // A stack is selected if:
+      // 1. Its domain matches the search query, OR
+      // 2. Its name matches the search query directly (case-insensitive start match)
+      const isInSelectedDomain =
+        selectedDomain !== null &&
+        selectionIndex.isStackInDomain(stack.name, selectedDomain);
+
+      const isDirectlyNamed =
+        query !== "" && stack.name.toLowerCase().startsWith(query);
+
+      const selected = isInSelectedDomain || isDirectlyNamed;
       scaleFactorMap.set(stack.id, selected ? STACK_SELECTION_SCALE : 1.0);
     }
     return scaleFactorMap;
-  }, [stacks, searchParams]);
+  }, [stacks, searchParams, selectionIndex]);
 
   // Custom hooks for dimensions and simulation
   const { dimensions } = useDimensions(wrapperRef);
@@ -92,8 +139,10 @@ export function StackCloudContent() {
   );
 
   // Sync hover state with search params (selected stack/domain)
+  // Uses deferredSearchParams to defer hover state updates
   useEffect(() => {
-    const searchQuery = searchParams.get("search")?.toLowerCase().trim() ?? "";
+    const searchQuery =
+      deferredSearchParams.get("query")?.toLowerCase().trim() ?? "";
 
     // Clear all hover states when search param is empty (iOS Safari touch fix)
     if (searchQuery === "") {
@@ -103,13 +152,20 @@ export function StackCloudContent() {
     }
 
     // Get the appropriate hover state based on current selection
-    const hoverStack = getInitialSelectedStack(searchParams, stacks, PROJECTS);
-    const hoverDomain = getInitialSelectedDomain(searchParams, PROJECTS);
+    const hoverStack = getInitialSelectedStack(
+      deferredSearchParams,
+      stacks,
+      PROJECTS,
+    );
+    const hoverDomain = getInitialSelectedDomain(
+      deferredSearchParams,
+      PROJECTS,
+    );
 
     // Update hover states
     setHoveredStack(hoverStack);
     setHoveredDomain(hoverDomain);
-  }, [searchParams, stacks]);
+  }, [deferredSearchParams, stacks]);
 
   // Memoize callback for setting hovered domain
   const handleSetHoveredDomain = useCallback((domain: Domain | null) => {
@@ -170,6 +226,10 @@ export function StackCloudContent() {
             transition: a11y.prefersReducedMotion
               ? "none"
               : "opacity 0.6s ease-in-out",
+            // Prevent text selection on rapid clicks while maintaining keyboard a11y
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            WebkitTouchCallout: "none",
           }}
         >
           {/* No SVG filters - using CSS drop-shadow for better performance */}
@@ -183,7 +243,20 @@ export function StackCloudContent() {
           />
 
           {stacks.map((stack) => {
-            const selected = isStackSelected(stack, searchParams, PROJECTS);
+            // Use selection index for O(1) lookup instead of isStackSelected O(n)
+            // Use regular searchParams to show immediate visual feedback on clicks
+            const query = searchParams.get("query")?.toLowerCase().trim() ?? "";
+            const selectedDomain = getSearchDomain(
+              query,
+              PROJECTS,
+            ) as Domain | null;
+            const isInSelectedDomain =
+              selectedDomain !== null &&
+              selectionIndex.isStackInDomain(stack.name, selectedDomain);
+            const isDirectlyNamed =
+              query !== "" && stack.name.toLowerCase().startsWith(query);
+            const selected = isInSelectedDomain || isDirectlyNamed;
+
             const isDirectlyHovered = hoveredStack?.id === stack.id;
             const highlighted =
               isDirectlyHovered ||

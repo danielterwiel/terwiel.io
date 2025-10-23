@@ -2,53 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-@media print {
-  .a4-page {
-    width: 210mm;
-    height: 297mm;
-    overflow: hidden;
-  }
-  body {
-    margin: 0;
-    padding: 0;
+@layer base {
+  html {
+    /* Make scrollbar track transparent while keeping the thumb visible */
+    scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
   }
 
-  /* Enhanced print styles for one-pager */
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  ::-webkit-scrollbar {
+    width: 8px;
   }
 
-  .print\\:break-inside-avoid {
-    break-inside: avoid;
+  ::-webkit-scrollbar-track {
+    background: transparent;
   }
 
-  .print\\:page-break-before {
-    page-break-before: always;
+  ::-webkit-scrollbar-thumb {
+    background: oklch(37.85% 0.1954 263.23 / 0.5);
+    border-radius: 4px;
   }
 
-  /* Ensure compact layout for one-pager */
-  .print\\:text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-
-  .print\\:text-xs {
-    font-size: 0.75rem;
-    line-height: 1rem;
-  }
-
-  .print\\:p-4 {
-    padding: 1rem;
-  }
-
-  .print\\:max-w-none {
-    max-width: none;
-  }
-
-  .print\\:mx-0 {
-    margin-left: 0;
-    margin-right: 0;
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(37.85% 0.1954 263.23 / 0.7);
   }
 }
 
@@ -78,6 +53,48 @@
     display: block;
   }
 
+  /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
+  /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
+  .magnetic-base {
+    /* Enable smooth transitions for magnetic effect */
+    transition:
+      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease-out,
+      background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Hint browser for transform optimization */
+    will-change: transform;
+    /* Always have a subtle blue glow as base state to avoid color transition artifacts */
+    filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
+  }
+
+  /* Magnetic hover creates illusion of being "pulled" toward cursor */
+  /* Use drop-shadow instead of box-shadow to properly respect border-radius */
+  /* Mobile-first: reduced glow on mobile (8px blur) */
+  .magnetic-base:hover:not(.magnetic-selected) {
+    transform: scale(1);
+    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+  }
+
+  /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
+  @media (min-width: 768px) {
+    .magnetic-base:hover:not(.magnetic-selected) {
+      transform: scale(1.05);
+      filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+    }
+  }
+
+  /* Input-specific hover styling */
+  .magnetic-input:hover:not(.magnetic-selected) {
+    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .magnetic-base {
+      transition: none;
+    }
+  }
+
   /* StackCloud Component Styles */
   .stack-cloud-wrapper {
     width: 100%;
@@ -94,6 +111,10 @@
     overflow: visible;
     /* Hint browser for smooth opacity transitions */
     will-change: opacity;
+    /* Prevent text selection on rapid clicks while maintaining keyboard accessibility */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
   }
 
   /* Stack Node States - use CSS classes instead of inline styles for performance */
@@ -215,19 +236,65 @@
   }
 }
 
-@keyframes animationRing {
+@keyframes animationIconIn {
   0% {
-    transform: scale(0.9);
     opacity: 0;
-  }
-  30% {
-    transform: scale(0.9);
-    opacity: 0;
+    transform: scale(0.8);
   }
   100% {
-    transform: scale(1);
     opacity: 1;
+    transform: scale(1);
   }
+}
+
+/* Ring component optimizations - circle always visible */
+.ring-element {
+  /* Circle is always visible */
+  opacity: 1;
+}
+
+/* Icon inside ring - animates in with spring effect */
+.ring-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+
+  /* Default hidden state */
+  opacity: 0;
+  transform: scale(0.8);
+
+  /* Spring effect configuration */
+  --_spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --_spring-duration: 145ms;
+
+  /* Apply spring transition */
+  @media (prefers-reduced-motion: no-preference) {
+    transition:
+      opacity var(--_spring-duration) var(--_spring-easing),
+      transform var(--_spring-duration) var(--_spring-easing);
+  }
+
+  /* Progressive enhancement to linear() spring easing */
+  @supports (animation-timing-function: linear(0, 0.1, 1)) {
+    --_spring-easing: linear(
+      0,
+      0.25 19%,
+      0.43 29%,
+      0.66,
+      0.86 71%,
+      0.97 85%,
+      1
+    );
+    --_spring-duration: 1s;
+  }
+}
+
+/* When icon comes into view */
+.ring-icon.ring-icon-visible {
+  opacity: 1;
+  transform: scale(1);
 }
 
 @keyframes animationFadeIn {
@@ -281,6 +348,30 @@
   }
 }
 
+@keyframes magnetic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
+  }
+}
+
+@keyframes magnetic-bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;
@@ -297,11 +388,237 @@
   .animation-magnetic-pulse {
     animation: magnetic-pulse 2s ease-in-out infinite;
   }
+  /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
+  .animation-magnetic-bounce {
+    animation: none;
+  }
+
+  @media (min-width: 768px) {
+    .animation-magnetic-bounce {
+      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  }
 
   .svg-contain {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
+  }
+
+  /* Base UI Toast Styling */
+  .base-toast-viewport {
+    position: fixed;
+    z-index: 50;
+    width: 20rem;
+    bottom: 1rem;
+    right: 1rem;
+    left: auto;
+    top: auto;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .base-toast-root {
+    --gap: 0.75rem;
+    --peek: 0.5rem;
+    --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
+    --shrink: calc(1 - var(--scale));
+    --height: var(--toast-frontmost-height, var(--toast-height));
+    --offset-y: calc(
+      var(--toast-offset-y) *
+      -1 +
+      (var(--toast-index) * var(--gap) * -1) +
+      var(--toast-swipe-movement-y)
+    );
+
+    position: absolute;
+    right: 0;
+    margin: 0;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 1rem;
+    bottom: 0;
+    left: auto;
+    margin-right: 0;
+    pointer-events: auto;
+    user-select: none;
+    cursor: default;
+    z-index: calc(1000 - var(--toast-index));
+    height: var(--toast-frontmost-height, var(--toast-height));
+
+    /* Magnetic effect styling - white background with magnetic elevation */
+    background: white;
+    box-shadow: 0 4px 16px oklch(0% 0 0 / 0.1);
+    border-radius: 0.5rem;
+    border: 1px solid oklch(37.85% 0.1954 263.23 / 0.15);
+    transform-origin: bottom center;
+
+    /* Smooth transitions for stacking and animations */
+    transition:
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.5s,
+      height 0.15s,
+      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.2s ease-out;
+    will-change: transform;
+
+    /* Position with z-index stacking (older toasts peek from above) */
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(
+        calc(
+          var(--toast-swipe-movement-y) -
+          (var(--toast-index) * (var(--height) - var(--peek)) * 0.5)
+        )
+      )
+      scale(var(--scale));
+
+    /* Expanded state - triggered on viewport hover, shows all toasts in full height */
+    &[data-expanded] {
+      transform: translateX(var(--toast-swipe-movement-x))
+        translateY(
+          calc(
+            var(--toast-swipe-movement-y) -
+            (var(--toast-index) * (var(--height) + var(--gap)))
+          )
+        )
+        scale(1);
+      height: var(--toast-frontmost-height, var(--toast-height));
+      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+    }
+
+    /* Hover state on viewport triggers expanded for all toasts */
+    .base-toast-viewport:hover & {
+      transform: translateX(var(--toast-swipe-movement-x))
+        translateY(
+          calc(
+            var(--toast-swipe-movement-y) -
+            (var(--toast-index) * (var(--height) + var(--gap)))
+          )
+        )
+        scale(1);
+      height: var(--toast-frontmost-height, var(--toast-height));
+      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
+    }
+
+    /* Hover state - apply magnetic effect on individual toast hover */
+    &:hover {
+      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.3);
+      filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.2));
+    }
+
+    /* Limited toasts that exceed the max limit - hide and don't interact */
+    &[data-limited] {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Entry animation - slide up from bottom */
+    &[data-starting-style],
+    &[data-transition-status="starting"] {
+      transform: translateY(150%);
+      opacity: 0;
+    }
+
+    /* Exit animation - slide right and fade out (default direction) */
+    &[data-ending-style],
+    &[data-transition-status="ending"] {
+      opacity: 0;
+      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+        translateY(var(--toast-swipe-movement-y));
+    }
+
+    /* Swipe exit animations */
+    &[data-swipe-direction="up"] {
+      &[data-ending-style] {
+        transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
+      }
+    }
+
+    &[data-swipe-direction="down"] {
+      &[data-ending-style] {
+        transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
+      }
+    }
+
+    &[data-swipe-direction="left"] {
+      &[data-ending-style] {
+        transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
+          translateY(var(--toast-swipe-movement-y));
+      }
+    }
+
+    &[data-swipe-direction="right"] {
+      &[data-ending-style] {
+        transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
+          translateY(var(--toast-swipe-movement-y));
+      }
+    }
+
+    /* Gap for stacking */
+    &::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      width: 100%;
+      left: 0;
+      height: calc(var(--gap) + 1px);
+    }
+  }
+
+  .base-toast-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    position: relative;
+    padding-right: 2rem;
+  }
+
+  .base-toast-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(37.85% 0.1954 263.23);
+    margin: 0;
+  }
+
+  .base-toast-description {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: oklch(37.85% 0.1954 263.23 / 0.8);
+    margin: 0;
+  }
+
+  .base-toast-close {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+    padding: 0.25rem;
+    border: none;
+    background: transparent;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    color: oklch(37.85% 0.1954 263.23 / 0.6);
+    cursor: pointer;
+    transition: all 0.2s ease-out;
+
+    &:hover {
+      background-color: oklch(37.85% 0.1954 263.23 / 0.08);
+      color: oklch(37.85% 0.1954 263.23);
+    }
+
+    &:focus-visible {
+      outline: 2px solid oklch(37.85% 0.1954 263.23);
+      outline-offset: -1px;
+    }
+  }
+
+  .base-toast-close-icon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }

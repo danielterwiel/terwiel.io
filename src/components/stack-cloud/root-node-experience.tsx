@@ -6,6 +6,7 @@ import { Icon } from "~/components/icon";
 import { PRIMARY_COLOR } from "~/constants/colors";
 import { DOMAIN_ICONS } from "~/data/icons";
 import { PROJECTS } from "~/data/projects";
+import { adjustExperience } from "~/utils/adjust-experience";
 import { calculateDomainExperience } from "~/utils/calculate-domain-experience";
 import { calculateStackExperience } from "~/utils/calculate-stack-experience";
 import { calculateTotalExperience } from "~/utils/calculate-total-experience";
@@ -26,20 +27,6 @@ interface RootNodeExperienceProps {
 }
 
 type DisplayMode = "default" | "stack" | "domain";
-
-/**
- * Adjusts experience display for values over 5 years:
- * - Rounds up if months >= 6
- * - Hides months entirely
- */
-function adjustExperience(experience: { years: number; months: number }) {
-  if (experience.years > 5) {
-    const roundedYears =
-      experience.months >= 6 ? experience.years + 1 : experience.years;
-    return { years: roundedYears, months: 0 };
-  }
-  return experience;
-}
 
 /**
  * Component that displays dynamic experience information in the center of the root node
@@ -113,6 +100,10 @@ export function RootNodeExperience({
         style={{
           fontSize: baseFontSize,
           position: "fixed",
+          // Prevent text selection on rapid clicks while keeping keyboard focus accessible
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          WebkitTouchCallout: "none",
         }}
       >
         {/* Container 1: Title/Icon */}

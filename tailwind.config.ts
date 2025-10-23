@@ -136,19 +136,6 @@ export default {
           borderRadius: theme("borderRadius.full"),
         },
 
-        // Universal state variants - work with all component types
-        // Hover effects only apply when NOT selected to prevent conflicts
-        ".magnetic-hover:not(.magnetic-selected)": {
-          transform: "scale(1.02)",
-          boxShadow: "0 8px 25px oklch(37.85% 0.1954 263.23 / 0.25)",
-          background: `linear-gradient(135deg, oklch(100% 0 0 / 0.15), oklch(37.85% 0.1954 263.23 / 0.08))`,
-        },
-        ".magnetic-hover:not(.magnetic-selected).magnetic-with-ring::after": {
-          opacity: "1",
-          transform: "translate(-50%, -50%) scale(1)",
-          borderColor: "oklch(37.85% 0.1954 263.23 / 0.6)",
-        },
-
         ".magnetic-active": {
           transform: "scale(0.98)",
           boxShadow: "0 4px 16px oklch(37.85% 0.1954 263.23 / 0.3)",
@@ -170,12 +157,6 @@ export default {
           borderColor: "oklch(37.85% 0.1954 263.23 / 0.5)",
         },
 
-        // Input-specific state overrides
-        // Input hover only applies when NOT selected
-        ".magnetic-input.magnetic-hover:not(.magnetic-selected)": {
-          borderColor: "oklch(37.85% 0.1954 263.23 / 0.4)",
-          transform: "scale(1.01)", // Gentler scale for inputs
-        },
         ".magnetic-input.magnetic-selected": {
           borderColor: "oklch(37.85% 0.1954 263.23 / 0.6)",
           background: `linear-gradient(135deg, oklch(100% 0 0 / 0.08), oklch(37.85% 0.1954 263.23 / 0.04))`,

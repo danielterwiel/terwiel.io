@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { StackCloudLoader } from "./stack-cloud-loader";
 
@@ -10,6 +10,7 @@ import { StackCloudLoader } from "./stack-cloud-loader";
  * Main StackCloud component with dynamic loading
  * Splits d3.js (290.4kB) into separate bundle and shows loader during load
  * Cross-fades between loader and content with minimum display time
+ * Uses useTransition to defer content reveals and avoid blocking critical updates
  */
 const StackCloudContent = dynamic(
   () =>
@@ -22,31 +23,33 @@ const StackCloudContent = dynamic(
 );
 
 const MIN_LOADING_TIME = 800;
+const FADE_DELAY = 50;
 
 export function StackCloud() {
   const [mounted, setMounted] = useState(false);
-  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
+    // Mount component immediately to start dynamic import early
     setMounted(true);
+
+    // Wait for minimum loading time, then defer content reveal using useTransition
+    // This prevents the content reveal animation from blocking other updates
     const timer = setTimeout(() => {
-      setMinTimeElapsed(true);
+      startTransition(() => {
+        // Small delay before showing content to ensure smooth fade transition
+        setTimeout(() => {
+          setShowContent(true);
+        }, FADE_DELAY);
+      });
     }, MIN_LOADING_TIME);
+
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    if (mounted && minTimeElapsed) {
-      const fadeTimer = setTimeout(() => {
-        setShowContent(true);
-      }, 50);
-      return () => clearTimeout(fadeTimer);
-    }
-  }, [mounted, minTimeElapsed]);
-
   return (
-    <div className="flex flex-col md:h-full md:overflow-hidden">
+    <div className="flex flex-col md:h-full">
       <h2 className="mb-6 hidden shrink-0 text-2xl font-bold md:block md:text-center">
         Stack
       </h2>

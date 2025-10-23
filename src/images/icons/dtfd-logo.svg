@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs>
+    <!-- Invert filter: invert RGB, keep alpha -->
+    <filter id="invertFilter" color-interpolation-filters="sRGB">
+      <!-- Convert to 1 - c -->
+      <feComponentTransfer>
+        <feFuncR type="table" tableValues="1 0"/>
+        <feFuncG type="table" tableValues="1 0"/>
+        <feFuncB type="table" tableValues="1 0"/>
+        <feFuncA type="identity"/>
+      </feComponentTransfer>
+    </filter>
+
+    <!-- Mask from the two bottom paths: white = areas to invert -->
+    <mask id="invertMask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+      <rect x="0" y="0" width="24" height="24" fill="black"/>
+      <!-- Transformed paths from original, scaled/translated to fit 24x24 -->
+      <g transform="translate(0,-3.05)">
+        <path fill="white"
+          d="M0,20.15l19.72.07c-.47-.72-3.4-5.02-8.64-5.6C4.39,13.86.23,19.81,0,20.15Z"/>
+        <path fill="white"
+          d="M4.29,19.98h19.76c-.47.67-3.4,4.66-8.64,5.21-6.69.7-10.9-4.89-11.13-5.21Z"/>
+      </g>
+    </mask>
+
+    <style>
+      .dot { fill: #231f20; }
+      .waves { fill: #8983b3; mix-blend-mode: lighten; }
+    </style>
+  </defs>
+
+  <!-- Coordinate normalization:
+       Original viewBox: 0 0 24.06 30.05
+       We scale Y from 30.05 -> 24 and shift up by ~3.05 to center.
+       Using a uniform scale of 0.7987 (24/30.05) would also shrink X,
+       but we want to keep X ~ 24, so we just translate upward.
+       The original circles are within X ~ 0..24, so we can keep X.
+       We apply translate(0,-3.05) (approx) to center vertically. -->
+
+  <!-- Base layer: circles and paths as in original, with vertical translation -->
+  <g transform="translate(0,-3.05)">
+    <!-- Circles -->
+    <circle class="dot" cx="6.93" cy="20.89" r="1"/>
+    <circle class="dot" cx="10.46" cy="26.08" r="1"/>
+    <circle class="dot" cx="12.04" cy="28.47" r="1.58"/>
+    <circle class="dot" cx="4.05" cy="21.06" r="1.65"/>
+    <circle class="dot" cx="3.82" cy="18.08" r="1.2"/>
+    <circle class="dot" cx="8.21" cy="15.97" r="1.37"/>
+    <circle class="dot" cx="19.71" cy="18.94" r="1.84"/>
+    <circle class="dot" cx="5.45" cy="15.7" r="1.4"/>
+    <circle class="dot" cx="14.05" cy="14.47" r="1.09"/>
+    <circle class="dot" cx="6.42" cy="18.49" r="1.4"/>
+    <circle class="dot" cx="11.44" cy="15.7" r="1.65"/>
+    <circle class="dot" cx="10.08" cy="19.49" r="2.15"/>
+    <circle class="dot" cx="13.74" cy="25.06" r="1.89"/>
+    <circle class="dot" cx="9.11" cy="28.21" r="1.25"/>
+    <circle class="dot" cx="10.58" cy="23.36" r="1.47"/>
+    <circle class="dot" cx="6.47" cy="24.83" r="2.64"/>
+    <circle class="dot" cx="8.52" cy="22.02" r=".67"/>
+    <circle class="dot" cx="9.45" cy="13.6" r="1.11"/>
+    <circle class="dot" cx="13.92" cy="16.66" r=".69"/>
+    <circle class="dot" cx="19.89" cy="15.97" r=".69"/>
+    <circle class="dot" cx="14.83" cy="12.09" r=".78"/>
+    <circle class="dot" cx="9.79" cy="11.65" r=".53"/>
+    <circle class="dot" cx="6.93" cy="13.6" r=".9"/>
+    <circle class="dot" cx="13.63" cy="18.87" r="1.11"/>
+    <circle class="dot" cx="19.89" cy="22.75" r="1.54"/>
+    <circle class="dot" cx="18.51" cy="25.84" r="1.35"/>
+    <circle class="dot" cx="15.14" cy="28" r="1.11"/>
+    <circle class="dot" cx="12.04" cy="12.45" r="1.37"/>
+    <circle class="dot" cx="13.1" cy="21.64" r="1.25"/>
+    <circle class="dot" cx="16.48" cy="24.55" r=".66"/>
+    <circle class="dot" cx="17.16" cy="28" r=".66"/>
+    <circle class="dot" cx="16.55" cy="21.63" r="1.81"/>
+    <circle class="dot" cx="16.3" cy="18.07" r="1.56"/>
+    <circle class="dot" cx="17.16" cy="14.6" r="1.8"/>
+
+    <!-- Original decorative paths (optional visual baseline) -->
+    <path class="waves" d="M0,20.15l19.72.07c-.47-.72-3.4-5.02-8.64-5.6C4.39,13.86.23,19.81,0,20.15Z"/>
+    <path class="waves" d="M4.29,19.98h19.76c-.47.67-3.4,4.66-8.64,5.21-6.69.7-10.9-4.89-11.13-5.21Z"/>
+  </g>
+
+  <!-- Inverted overlap: render circles again with invert filter, clipped by paths mask -->
+  <g mask="url(#invertMask)" filter="url(#invertFilter)">
+    <g transform="translate(0,-3.05)">
+      <circle class="dot" cx="6.93" cy="20.89" r="1"/>
+      <circle class="dot" cx="10.46" cy="26.08" r="1"/>
+      <circle class="dot" cx="12.04" cy="28.47" r="1.58"/>
+      <circle class="dot" cx="4.05" cy="21.06" r="1.65"/>
+      <circle class="dot" cx="3.82" cy="18.08" r="1.2"/>
+      <circle class="dot" cx="8.21" cy="15.97" r="1.37"/>
+      <circle class="dot" cx="19.71" cy="18.94" r="1.84"/>
+      <circle class="dot" cx="5.45" cy="15.7" r="1.4"/>
+      <circle class="dot" cx="14.05" cy="14.47" r="1.09"/>
+      <circle class="dot" cx="6.42" cy="18.49" r="1.4"/>
+      <circle class="dot" cx="11.44" cy="15.7" r="1.65"/>
+      <circle class="dot" cx="10.08" cy="19.49" r="2.15"/>
+      <circle class="dot" cx="13.74" cy="25.06" r="1.89"/>
+      <circle class="dot" cx="9.11" cy="28.21" r="1.25"/>
+      <circle class="dot" cx="10.58" cy="23.36" r="1.47"/>
+      <circle class="dot" cx="6.47" cy="24.83" r="2.64"/>
+      <circle class="dot" cx="8.52" cy="22.02" r=".67"/>
+      <circle class="dot" cx="9.45" cy="13.6" r="1.11"/>
+      <circle class="dot" cx="13.92" cy="16.66" r=".69"/>
+      <circle class="dot" cx="19.89" cy="15.97" r=".69"/>
+      <circle class="dot" cx="14.83" cy="12.09" r=".78"/>
+      <circle class="dot" cx="9.79" cy="11.65" r=".53"/>
+      <circle class="dot" cx="6.93" cy="13.6" r=".9"/>
+      <circle class="dot" cx="13.63" cy="18.87" r="1.11"/>
+      <circle class="dot" cx="19.89" cy="22.75" r="1.54"/>
+      <circle class="dot" cx="18.51" cy="25.84" r="1.35"/>
+      <circle class="dot" cx="15.14" cy="28" r="1.11"/>
+      <circle class="dot" cx="12.04" cy="12.45" r="1.37"/>
+      <circle class="dot" cx="13.1" cy="21.64" r="1.25"/>
+      <circle class="dot" cx="16.48" cy="24.55" r=".66"/>
+      <circle class="dot" cx="17.16" cy="28" r=".66"/>
+      <circle class="dot" cx="16.55" cy="21.63" r="1.81"/>
+      <circle class="dot" cx="16.3" cy="18.07" r="1.56"/>
+      <circle class="dot" cx="17.16" cy="14.6" r="1.8"/>
+    </g>
+  </g>
+</svg>

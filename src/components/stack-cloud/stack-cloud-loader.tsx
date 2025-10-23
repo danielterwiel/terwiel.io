@@ -1,9 +1,8 @@
 "use client";
 
-import type { Domain } from "~/types";
-
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 import { DOMAIN_COLORS_HEX, PRIMARY_COLOR } from "~/constants/colors";
+import { DOMAINS } from "~/constants/domains";
 
 /**
  * Loading spinner matching RootNodeChart dimensions exactly
@@ -11,8 +10,7 @@ import { DOMAIN_COLORS_HEX, PRIMARY_COLOR } from "~/constants/colors";
  * Pure SVG with CSS animations - uses percentage-based viewBox (0 0 100 100)
  */
 export function StackCloudLoader() {
-  const domains: Domain[] = ["DevOps", "Back-end", "Front-end", "Design"];
-  const colors = domains.map((domain) => DOMAIN_COLORS_HEX[domain]);
+  const colors = DOMAINS.map((domain) => DOMAIN_COLORS_HEX[domain]);
 
   const centerX = 50;
   const centerY = 50;
@@ -44,7 +42,7 @@ export function StackCloudLoader() {
         aria-label="Loading technology stack visualization"
       >
         <g className="spinner-ring-container">
-          {domains.map((domain, index) => {
+          {DOMAINS.map((domain, index) => {
             const offset = -index * segmentLength;
 
             return (

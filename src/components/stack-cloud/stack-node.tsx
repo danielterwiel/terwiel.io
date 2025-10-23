@@ -111,7 +111,11 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
   // Handle click to toggle URL search params
   const handleClick = () => {
-    const queryString = toggleSearchParam(currentSearchQuery, stack.name);
+    const queryString = toggleSearchParam(
+      currentSearchQuery,
+      stack.name,
+      "tech",
+    );
     router.push(`${pathname}${queryString}`);
   };
 

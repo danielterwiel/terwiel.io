@@ -1,5 +1,10 @@
 export type Domain = "DevOps" | "Back-end" | "Front-end" | "Design" | "QA";
 
+export type BadgeProps = {
+  icon: string;
+  name: string;
+};
+
 export type StackItem = {
   name: string;
   parent?: string;
