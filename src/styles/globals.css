@@ -443,6 +443,10 @@
     /* Ensure proper stacking and no overlap */
     position: relative;
     isolation: isolate;
+
+    /* Prevent items from visually overlapping during transitions */
+    /* Items will clip their content to their bounds, preventing overflow */
+    overflow: clip;
   }
 
   /* Items sliding from TOP with stacked positioning */
@@ -482,6 +486,13 @@
   .project-item.project-visible {
     transform: translateY(0);
     opacity: 1;
+    /* Staying items should be on top during transitions to prevent overlaps */
+    z-index: 1;
+  }
+
+  /* Exiting items should be behind staying items during exit animation */
+  .project-item.project-slide-out {
+    z-index: 0;
   }
 
   /* Slide out animations with staggered timing */

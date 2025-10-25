@@ -1,8 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Hook to track which project IDs are currently visible in the viewport
  * Uses Intersection Observer to monitor visibility of project elements
+ *
+ * Important: This hook maintains visibility state across DOM updates to ensure
+ * the transition timing can rely on a stable anchor item even during DOM mutations.
  *
  * @param containerRef - Reference to the scrollable container element
  * @param selector - CSS selector for project elements (e.g., 'li[data-project-id]')
@@ -16,12 +19,16 @@ export function useViewportProjects(
     new Set(),
   );
 
+  // Keep reference to visibility map to maintain state across renders
+  const visibilityMapRef = useRef<Map<string, boolean>>(new Map());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Track visibility state for each project
-    const visibilityMap = new Map<string, boolean>();
+    // Reuse visibility map across DOM updates to maintain anchor stability
+    const visibilityMap = visibilityMapRef.current;
 
     const updateVisibleProjects = () => {
       const visible = new Set<string>();
@@ -33,24 +40,39 @@ export function useViewportProjects(
       setVisibleProjects(visible);
     };
 
+    // Disconnect previous observer if it exists
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
     // Create intersection observer with threshold 0 to detect ANY visibility
     const observer = new IntersectionObserver(
       (entries) => {
+        let changed = false;
         for (const entry of entries) {
           const element = entry.target as HTMLElement;
           const projectId = element.getAttribute("data-project-id");
 
           if (projectId) {
+            const prevValue = visibilityMap.get(projectId);
             visibilityMap.set(projectId, entry.isIntersecting);
+            if (prevValue !== entry.isIntersecting) {
+              changed = true;
+            }
           }
         }
-        updateVisibleProjects();
+        // Only update state if visibility actually changed
+        if (changed) {
+          updateVisibleProjects();
+        }
       },
       {
         root: container,
         threshold: 0,
       },
     );
+
+    observerRef.current = observer;
 
     // Observe all project elements
     const projectElements = container.querySelectorAll(selector);
@@ -61,6 +83,7 @@ export function useViewportProjects(
     // Cleanup: disconnect observer on unmount
     return () => {
       observer.disconnect();
+      observerRef.current = null;
     };
   }, [containerRef, selector]);
 

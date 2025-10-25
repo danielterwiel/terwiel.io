@@ -154,21 +154,33 @@ export function planTransition(
     newItems,
   );
 
-  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-    console.log(
-      "[planTransition]",
-      JSON.stringify({
-        oldItemsCount: oldItems.length,
-        newItemsCount: newItems.length,
-        stayingCount: commonItems.length,
-      }),
-    );
-  }
-
   const oldPlan: TransitionPlan[] = [];
   const newPlan: TransitionPlan[] = [];
 
   const stayingItems = new Set(commonItems);
+
+  // Debug logging
+  console.log(
+    "%c[LCS] Transition Plan",
+    "color: #FF6B6B; font-weight: bold; font-size: 12px",
+  );
+  console.log(
+    "%cOld items: %O",
+    "color: #FF8C42",
+    oldItems.map((p) => p.id),
+  );
+  console.log(
+    "%cNew items: %O",
+    "color: #2ECE71",
+    newItems.map((p) => p.id),
+  );
+  console.log("%cCommon (staying): %O", "color: #4D96FF", commonItems);
+  console.log(
+    "%cOld indices: %O, New indices: %O",
+    "color: #A29BFE",
+    oldIndices,
+    newIndices,
+  );
 
   // Plan for old items (items to remove or keep)
   for (let i = 0; i < oldItems.length; i++) {
@@ -190,7 +202,10 @@ export function planTransition(
       // Item is removed - determine action and direction
       const position = getRelativePosition(i, oldIndices);
 
-      if (position === "between") {
+      if (
+        position === "between-then-below" ||
+        position === "between-then-above"
+      ) {
         // Fade items between two staying items
         oldPlan.push({
           item: project.id,
@@ -244,15 +259,6 @@ export function planTransition(
         direction = "top";
       }
 
-      if (
-        typeof window !== "undefined" &&
-        process.env.NODE_ENV === "development"
-      ) {
-        console.log(
-          `[planTransition] NEW ${project.id} (${project.company}) at index ${j}: position=${position}, direction=${direction}`,
-        );
-      }
-
       newPlan.push({
         item: project.id,
         project,
@@ -262,6 +268,26 @@ export function planTransition(
       });
     }
   }
+
+  // Log transition details
+  console.log(
+    "%c[LCS] Old Plan (slide-out/fade/stay): %O",
+    "color: #FF8C42",
+    oldPlan,
+  );
+  console.log(
+    "%c[LCS] New Plan (slide-in/stay): %O",
+    "color: #2ECE71",
+    newPlan,
+  );
+  console.log(
+    "%c[LCS] Staying items count: %d, Entering items: %d, Exiting items: %d",
+    "color: #4D96FF",
+    stayingItems.size,
+    newPlan.filter((p) => p.action === "slide-in").length,
+    oldPlan.filter((p) => p.action === "slide-out" || p.action === "fade")
+      .length,
+  );
 
   return { oldPlan, newPlan, stayingItems };
 }

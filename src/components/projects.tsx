@@ -36,6 +36,7 @@ import { filterProjects } from "~/utils/filter-projects";
 import { planTransition } from "~/utils/lcs-transition";
 import { getSearchDomain, getSearchQuery } from "~/utils/search-params";
 import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
+import { planViewportAwareTransition } from "~/utils/viewport-anchor-transition";
 
 const ProjectsContent = ({
   containerRef,
@@ -81,6 +82,9 @@ const ProjectsContent = ({
     Map<string, { rect: DOMRect; isStaying: boolean }>
   >(new Map());
 
+  // AbortController to cancel in-flight transitions when new filter applied
+  const transitionAbortControllerRef = useRef<AbortController | null>(null);
+
   // Track which projects are currently visible in the viewport
   // This is used to determine which items should animate (visible) vs snap (off-screen)
   const visibleProjects = useViewportProjects(
@@ -113,6 +117,7 @@ const ProjectsContent = ({
     removedFromBottom: TransitionStep[];
     exitDuration: number;
     timing: ReturnType<typeof calculateOverlapTiming>;
+    capturedVisibleProjects: Set<string>; // Capture visible projects at animation start
   } | null>(null);
 
   // PHASE 1 & 2: Prepare and animate out removed items
@@ -129,17 +134,161 @@ const ProjectsContent = ({
       return;
     }
 
-    // Skip if already transitioning
-    if (isTransitioningRef.current) return;
+    // CRITICAL: Cancel any in-flight transition when new filter applied
+    // This prevents the old transition from blocking the new one
+    if (transitionAbortControllerRef.current) {
+      console.log(
+        "%c[PROJECTS] Canceling previous transition",
+        "color: #FF6B6B; font-weight: bold",
+      );
+      transitionAbortControllerRef.current.abort();
+    }
 
-    void prepareTransition();
+    // Create new abort controller for this transition
+    const abortController = new AbortController();
+    transitionAbortControllerRef.current = abortController;
 
-    async function prepareTransition() {
+    // If we're already transitioning, forcefully abort and clean up
+    if (isTransitioningRef.current) {
+      console.log(
+        "%c[PROJECTS] Force-cleaning previous transition state",
+        "color: #FF6B6B",
+      );
+      isTransitioningRef.current = false;
+      transitionPlanRef.current = null;
+
+      // Clean up animation classes from previous transition
+      const liElements = Array.from(
+        listRef.current?.querySelectorAll("li") ?? [],
+      );
+      liElements.forEach((el) => {
+        const htmlEl = el as HTMLElement;
+        htmlEl.style.transform = "";
+        htmlEl.style.transition = "";
+        htmlEl.style.transitionDelay = "";
+        htmlEl.classList.remove("project-bump");
+        htmlEl.style.removeProperty("--item-index");
+        htmlEl.style.removeProperty("--total-items");
+      });
+    }
+
+    console.log(
+      "%c[PROJECTS] Transition Started",
+      "color: #667EEA; font-weight: bold",
+    );
+    console.log(
+      "%cPrevious filtered: %O",
+      "color: #FF8C42",
+      prevFilteredRef.current.map((p) => p.id),
+    );
+    console.log(
+      "%cNew filtered: %O",
+      "color: #2ECE71",
+      filtered.map((p) => p.id),
+    );
+
+    // CRITICAL: Capture the current visible projects at the START of transition
+    // This ensures the anchor point remains stable throughout the animation
+    const capturedVisibleProjects = new Set(visibleProjects);
+
+    void prepareTransition(abortController.signal);
+
+    async function prepareTransition(signal: AbortSignal) {
       isTransitioningRef.current = true;
 
-      const { oldPlan, newPlan, stayingItems } = planTransition(
+      // Check if abort was requested before starting
+      if (signal.aborted) {
+        console.log(
+          "%c[PROJECTS] Transition aborted before start",
+          "color: #FF6B6B",
+        );
+        isTransitioningRef.current = false;
+        // Immediately display the new filtered results
+        setDisplayedProjects(filtered);
+        prevFilteredRef.current = filtered;
+        return;
+      }
+
+      // Get the original LCS-based transition plan for staying item detection
+      const {
+        oldPlan: lcsOldPlan,
+        newPlan: lcsNewPlan,
+        stayingItems,
+      } = planTransition(prevFilteredRef.current, filtered);
+
+      // Use viewport-aware transition planning to refine directions based on visible anchor
+      // Uses the captured visibility state to ensure consistent direction assignment
+      const viewportPlan = planViewportAwareTransition(
         prevFilteredRef.current,
         filtered,
+        capturedVisibleProjects,
+      );
+
+      // Merge LCS staying item detection with viewport-aware direction calculation
+      // This preserves the fade/slide detection while using viewport-aware directions
+      const oldPlan: TransitionStep[] = lcsOldPlan.map((step) => {
+        const viewportItem = viewportPlan.plan.find(
+          (vp) => vp.itemId === step.item,
+        );
+        return {
+          ...step,
+          // Use viewport-aware direction if available and item is sliding
+          direction:
+            step.action === "slide-out" && viewportItem?.direction
+              ? viewportItem.direction
+              : step.direction,
+        };
+      });
+
+      const newPlan: TransitionStep[] = lcsNewPlan.map((step) => {
+        const viewportItem = viewportPlan.plan.find(
+          (vp) => vp.itemId === step.item,
+        );
+        return {
+          ...step,
+          // Use viewport-aware direction if available and item is entering
+          direction:
+            step.action === "slide-in" && viewportItem?.direction
+              ? viewportItem.direction
+              : step.direction,
+        };
+      });
+
+      console.log(
+        "%c[PROJECTS] Viewport anchor: %s",
+        "color: #667EEA",
+        viewportPlan.anchor.anchorItemId,
+      );
+
+      // Log staying items to verify they're not being changed to slide-out
+      const stayingInOldPlan = oldPlan.filter((p) => p.action === "stay");
+      console.log(
+        "%c[PROJECTS] Staying items in merged plan: %O",
+        "color: #4D96FF",
+        stayingInOldPlan.map((p) => ({
+          id: p.item,
+          action: p.action,
+          direction: p.direction,
+        })),
+      );
+
+      const slidingOutItems = oldPlan.filter((p) => p.action === "slide-out");
+      console.log(
+        "%c[PROJECTS] Sliding out items: %O",
+        "color: #FF8C42",
+        slidingOutItems.map((p) => ({
+          id: p.item,
+          direction: p.direction,
+        })),
+      );
+
+      console.log(
+        "%c[PROJECTS] Viewport-aware anchor info: %O",
+        "color: #667EEA",
+        {
+          anchorItemId: viewportPlan.anchor.anchorItemId,
+          visibleItemIds: Array.from(viewportPlan.anchor.visibleItemIds),
+        },
       );
 
       // PHASE 1: Record positions BEFORE any changes
@@ -168,25 +317,56 @@ const ProjectsContent = ({
 
       // Count visible items in each category to coordinate timing
       // Only visible items animate; off-screen items snap instantly
-      // Capture current viewport state at animation start time
+      // Use the captured visibility set to ensure consistent timing calculation
       const visibleRemovedItems = removedFromTop
         .concat(removedFromBottom)
-        .filter((p) => visibleProjects.has(p.item));
+        .filter((p) => capturedVisibleProjects.has(p.item));
       const visibleEnteringItems = newPlan
         .filter((p) => p.action === "slide-in")
-        .filter((p) => visibleProjects.has(p.item));
+        .filter((p) => capturedVisibleProjects.has(p.item));
+
+      // Count items by direction for coordinated timing
+      const visibleRemovedFromTop = removedFromTop.filter((p) =>
+        capturedVisibleProjects.has(p.item),
+      );
+      const visibleRemovedFromBottom = removedFromBottom.filter((p) =>
+        capturedVisibleProjects.has(p.item),
+      );
+
+      const enteringFromTop = newPlan.filter(
+        (p) => p.action === "slide-in" && p.direction === "top",
+      );
+      const enteringFromBottom = newPlan.filter(
+        (p) => p.action === "slide-in" && p.direction === "bottom",
+      );
+
+      const visibleEnteringFromTop = enteringFromTop.filter((p) =>
+        capturedVisibleProjects.has(p.item),
+      );
+      const visibleEnteringFromBottom = enteringFromBottom.filter((p) =>
+        capturedVisibleProjects.has(p.item),
+      );
 
       // Calculate coordinated timing for smooth overlapping animations
       // Viewport-aware: only visible items get staggered delays, off-screen items snap
+      // Directional: items from TOP and BOTTOM are coordinated separately to prevent overlaps
       const timing = calculateOverlapTiming({
         removedCount: removedFromTop.length + removedFromBottom.length,
         visibleRemovedCount: visibleRemovedItems.length,
+        removedFromTopCount: removedFromTop.length,
+        visibleRemovedFromTopCount: visibleRemovedFromTop.length,
+        removedFromBottomCount: removedFromBottom.length,
+        visibleRemovedFromBottomCount: visibleRemovedFromBottom.length,
         stayingCount: oldPlan.filter((p) => p.action === "stay").length,
         visibleStayingCount: oldPlan
           .filter((p) => p.action === "stay")
           .filter((p) => visibleProjects.has(p.item)).length,
         enteringCount: newPlan.filter((p) => p.action === "slide-in").length,
         visibleEnteringCount: visibleEnteringItems.length,
+        enteringFromTopCount: enteringFromTop.length,
+        visibleEnteringFromTopCount: visibleEnteringFromTop.length,
+        enteringFromBottomCount: enteringFromBottom.length,
+        visibleEnteringFromBottomCount: visibleEnteringFromBottom.length,
         staggerDelay: 50, // 50ms between each visible item
         animationDuration: 600, // 600ms per animation
       });
@@ -210,7 +390,8 @@ const ProjectsContent = ({
 
           // Viewport-aware delay: only visible items get staggered delay
           // Off-screen items snap instantly with 0s delay
-          const isVisible = visibleProjects.has(plan.item);
+          // Use captured visibility to match the anchor that was determined at start
+          const isVisible = capturedVisibleProjects.has(plan.item);
           const delayMs = isVisible ? groupIndex * 50 : 0;
           element.style.transitionDelay = `${delayMs / 1000}s`;
 
@@ -239,27 +420,73 @@ const ProjectsContent = ({
         removedFromBottom,
         exitDuration,
         timing,
+        capturedVisibleProjects, // Preserve anchor stability across animation phases
       };
 
       if (exitDuration > 0) {
-        await new Promise((resolve) => setTimeout(resolve, exitDuration));
+        await new Promise((resolve) => {
+          const timeoutId = setTimeout(resolve, exitDuration);
+          // Allow abort signal to cancel the timeout
+          signal.addEventListener("abort", () => clearTimeout(timeoutId));
+        });
+      }
+
+      // Check if abort was requested before proceeding
+      if (signal.aborted) {
+        console.log(
+          "%c[PROJECTS] Transition aborted during wait",
+          "color: #FF6B6B",
+        );
+        isTransitioningRef.current = false;
+        // Immediately display the new filtered results
+        setDisplayedProjects(filtered);
+        prevFilteredRef.current = filtered;
+        return;
       }
 
       // PHASE 3: Update to new filtered list
       // This triggers a React render, and useLayoutEffect will fire to do FLIP before paint
+      console.log(
+        "%c[PROJECTS] PHASE 3: Updating displayed projects",
+        "color: #667EEA",
+      );
       setDisplayedProjects(filtered);
     }
   }, [filtered]);
 
   // PHASE 4: FLIP animation using useLayoutEffect (runs BEFORE browser paint)
-  // biome-ignore lint/correctness/useExhaustiveDependencies: displayedProjects is derived from filtered
   useLayoutEffect(() => {
     const plan = transitionPlanRef.current;
     if (!listRef.current) return;
 
+    console.log(
+      "%c[PROJECTS] PHASE 4: FLIP animation starting",
+      "color: #667EEA",
+    );
+    console.log(
+      "%cDisplayed projects count: %d",
+      "color: #667EEA",
+      displayedProjects.length,
+    );
+    console.log(
+      "%cActual DOM li elements: %d",
+      "color: #667EEA",
+      listRef.current.querySelectorAll("li").length,
+    );
+
     // If no transition plan, just make all items visible (fallback for normal renders)
     if (!plan) {
-      Array.from(listRef.current.querySelectorAll("li")).forEach((item) => {
+      console.log(
+        "%c[PROJECTS] No transition plan - making all items visible",
+        "color: #667EEA",
+      );
+      const liElements = Array.from(listRef.current.querySelectorAll("li"));
+      console.log(
+        "%cDirect visibility update for %d items",
+        "color: #667EEA",
+        liElements.length,
+      );
+      liElements.forEach((item) => {
         const el = item as HTMLElement;
         if (!el.classList.contains("project-visible")) {
           el.classList.add("project-visible");
@@ -268,11 +495,29 @@ const ProjectsContent = ({
       return;
     }
 
-    const { newPlan, stayingItems, removedFromTop, removedFromBottom } = plan;
+    const {
+      newPlan,
+      stayingItems,
+      removedFromTop,
+      removedFromBottom,
+      capturedVisibleProjects: capturedVisible,
+    } = plan;
 
     const newElements = Array.from(
       listRef.current.querySelectorAll("li"),
     ) as HTMLElement[];
+
+    console.log(
+      "%c[PROJECTS] New elements found: %d, Staying items: %d",
+      "color: #667EEA",
+      newElements.length,
+      stayingItems.size,
+    );
+    console.log(
+      "%cStaying items IDs: %O",
+      "color: #667EEA",
+      Array.from(stayingItems),
+    );
 
     // CRITICAL: Prevent staying items from being visible before FLIP transforms are applied
     // This must happen in useLayoutEffect (BEFORE browser paint) to prevent flicker
@@ -324,7 +569,7 @@ const ProjectsContent = ({
       }
     });
 
-    // Slide in new items with coordinated timing (viewport-aware)
+    // Slide in new items with coordinated timing (viewport-aware, direction-specific)
     const newFromTop = newPlan.filter((p) => p.direction === "top");
     const newFromBottom = newPlan.filter((p) => p.direction === "bottom");
 
@@ -348,13 +593,18 @@ const ProjectsContent = ({
 
           // Viewport-aware entry delay: only visible items get staggered timing
           // Off-screen items snap instantly (0s delay) to avoid performance issues
-          const isVisible = visibleProjects.has(projectId);
+          // Direction-specific timing: TOP items wait for TOP exits, BOTTOM for BOTTOM exits
+          // Use captured visibility from animation start for consistency
+          const isVisible = capturedVisible.has(projectId);
           if (isVisible) {
-            // For visible items, use the coordinated stagger timing
-            const entryDelay = plan.timing.entryDelays[groupIndex];
-            if (entryDelay !== undefined) {
-              item.style.transitionDelay = `${entryDelay / 1000}s`;
-            }
+            // Calculate the delay based on direction
+            const isFromTop = newPlanItem.direction === "top";
+            const entryStartDelay = isFromTop
+              ? plan.timing.entryFromTopStartDelay
+              : plan.timing.entryFromBottomStartDelay;
+
+            const delayMs = entryStartDelay + groupIndex * 50; // 50ms stagger per item
+            item.style.transitionDelay = `${delayMs / 1000}s`;
           } else {
             // For off-screen items, snap instantly with no delay
             item.style.transitionDelay = "0s";
@@ -374,15 +624,35 @@ const ProjectsContent = ({
     );
 
     const cleanupTimer = setTimeout(() => {
-      Array.from(listRef.current?.querySelectorAll("li") ?? []).forEach(
-        (element) => {
-          const el = element as HTMLElement;
-          el.style.transform = "";
-          el.style.transition = "";
-          el.classList.remove("project-bump");
-          el.style.removeProperty("--item-index");
-          el.style.removeProperty("--total-items");
-        },
+      console.log(
+        "%c[PROJECTS] Cleanup phase - removing transition styles",
+        "color: #667EEA",
+      );
+      const elements = Array.from(
+        listRef.current?.querySelectorAll("li") ?? [],
+      );
+      console.log(
+        "%cCleaning up %d elements",
+        "color: #667EEA",
+        elements.length,
+      );
+      elements.forEach((element) => {
+        const el = element as HTMLElement;
+        el.style.transform = "";
+        el.style.transition = "";
+        el.classList.remove("project-bump");
+        el.style.removeProperty("--item-index");
+        el.style.removeProperty("--total-items");
+      });
+
+      console.log(
+        "%c[PROJECTS] Final displayed projects: %O",
+        "color: #2ECE71",
+        filtered.map((p) => p.id),
+      );
+      console.log(
+        "%c[PROJECTS] Transition complete",
+        "color: #667EEA; font-weight: bold",
       );
 
       prevFilteredRef.current = filtered;
@@ -391,7 +661,7 @@ const ProjectsContent = ({
     }, maxAnimationDuration);
 
     return () => clearTimeout(cleanupTimer);
-  }, [displayedProjects, filtered, visibleProjects]);
+  }, [displayedProjects, filtered]);
 
   // Determine project state for rendering (minimal - most logic is in transition handler)
   const projectStates = useMemo(() => {
@@ -422,6 +692,15 @@ const ProjectsContent = ({
 
     return states;
   }, [displayedProjects]);
+
+  // Log final render state
+  const renderedProjectIds = displayedProjects.map((p) => p.id);
+  console.log(
+    "%c[PROJECTS] Rendering %d projects",
+    "color: #667EEA",
+    displayedProjects.length,
+  );
+  console.log("%cRendered IDs: %O", "color: #667EEA", renderedProjectIds);
 
   return (
     <article className="prose max-w-none">
@@ -466,7 +745,9 @@ export const Projects = () => {
       className="md:h-full md:overflow-y-auto projects-scrollable"
     >
       <Suspense fallback={<div>Loading projects...</div>}>
-        <ProjectsContent containerRef={containerRef} />
+        <ProjectsContent
+          containerRef={containerRef as React.RefObject<HTMLDivElement>}
+        />
       </Suspense>
     </div>
   );
