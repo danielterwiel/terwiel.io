@@ -50,7 +50,7 @@ const SearchInputContent = React.forwardRef<
       debouncedSetSearchParamsRef.current = debounce((query: string) => {
         const encodedValue = encodeURIComponent(query);
         const url = encodedValue
-          ? `${pathname}?query=${encodedValue}&filterType=search`
+          ? `${pathname}?query=${encodedValue}`
           : pathname;
         // Wrap router navigation in startTransition to trigger view transitions
         startTransition(() => {

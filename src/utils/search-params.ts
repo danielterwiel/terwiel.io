@@ -29,13 +29,11 @@ export const getSearchDomain = (
  *
  * @param currentSearchQuery - The current search query from getSearchQuery()
  * @param newValue - The new value to set (stack name or domain name)
- * @param filterType - Type of filter being applied (search, domain, tech, or project)
  * @returns The query string with "?" prefix, or empty string if clearing
  */
 export const toggleSearchParam = (
   currentSearchQuery: string,
   newValue: string,
-  filterType?: "search" | "domain" | "tech" | "project",
 ): string => {
   // If clicking the same value, clear the query param
   if (currentSearchQuery === newValue) {
@@ -44,8 +42,5 @@ export const toggleSearchParam = (
 
   const searchParams = new URLSearchParams();
   searchParams.set("query", newValue);
-  if (filterType) {
-    searchParams.set("filterType", filterType);
-  }
   return `?${searchParams.toString()}`;
 };
