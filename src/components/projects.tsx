@@ -57,10 +57,21 @@ const ProjectsContent = ({
   // Track previous filtered results for LCS diffing
   const prevFilteredRef = useRef<ProjectType[]>([]);
 
+  // Track previous query/domain to detect filter changes even if results are identical
+  const prevQueryRef = useRef<string>("");
+  const prevDomainRef = useRef<Domain | null>(null);
+
   // Memoize filtered projects computation with cache
   const filtered = useMemo(() => {
     const cached = filterCache.get(query, domain ?? undefined);
     if (cached) {
+      console.log(
+        "%c[PROJECTS] Using cached filter result: %d items for query='%s', domain='%s'",
+        "color: #4D96FF",
+        cached.length,
+        query,
+        domain ?? "none",
+      );
       return cached;
     }
 
@@ -69,6 +80,13 @@ const ProjectsContent = ({
       query,
       domain ?? undefined,
       selectionIndex,
+    );
+    console.log(
+      "%c[PROJECTS] Computed filter result: %d items for query='%s', domain='%s'",
+      "color: #4D96FF",
+      result.length,
+      query,
+      domain ?? "none",
     );
     filterCache.set(query, domain ?? undefined, result);
     return result;
@@ -97,6 +115,8 @@ const ProjectsContent = ({
     if (prevFilteredRef.current.length === 0 && filtered.length > 0) {
       setDisplayedProjects(filtered);
       prevFilteredRef.current = filtered;
+      prevQueryRef.current = query;
+      prevDomainRef.current = domain;
 
       // Trigger slide-in animation after render
       setTimeout(() => {
@@ -106,7 +126,7 @@ const ProjectsContent = ({
         });
       }, 100);
     }
-  }, [filtered]);
+  }, [filtered, query, domain]);
 
   // Store transition plan for use in useLayoutEffect
   const transitionPlanRef = useRef<{
@@ -126,8 +146,14 @@ const ProjectsContent = ({
     // Skip initial render
     if (prevFilteredRef.current.length === 0) return;
 
-    // Skip if no actual change
+    // Check if query/domain changed (even if results are identical)
+    const queryChanged = prevQueryRef.current !== query;
+    const domainChanged = prevDomainRef.current !== domain;
+
+    // Skip if no actual change in results AND no change in query/domain
     if (
+      !queryChanged &&
+      !domainChanged &&
       prevFilteredRef.current.length === filtered.length &&
       prevFilteredRef.current.every((p, i) => p.id === filtered[i]?.id)
     ) {
@@ -142,6 +168,7 @@ const ProjectsContent = ({
         "color: #FF6B6B; font-weight: bold",
       );
       transitionAbortControllerRef.current.abort();
+      transitionAbortControllerRef.current = null;
     }
 
     // Create new abort controller for this transition
@@ -177,14 +204,21 @@ const ProjectsContent = ({
       "color: #667EEA; font-weight: bold",
     );
     console.log(
-      "%cPrevious filtered: %O",
+      "%cPrevious filtered ref: %d items - %O",
       "color: #FF8C42",
+      prevFilteredRef.current.length,
       prevFilteredRef.current.map((p) => p.id),
     );
     console.log(
-      "%cNew filtered: %O",
+      "%cNew filtered: %d items - %O",
       "color: #2ECE71",
+      filtered.length,
       filtered.map((p) => p.id),
+    );
+    console.log(
+      "%cCurrent displayed projects: %d items",
+      "color: #FF6B6B",
+      displayedProjects.length,
     );
 
     // CRITICAL: Capture the current visible projects at the START of transition
@@ -203,9 +237,8 @@ const ProjectsContent = ({
           "color: #FF6B6B",
         );
         isTransitioningRef.current = false;
-        // Immediately display the new filtered results
-        setDisplayedProjects(filtered);
-        prevFilteredRef.current = filtered;
+        transitionPlanRef.current = null;
+        // DO NOT update prevFilteredRef here - let the new transition handle it
         return;
       }
 
@@ -438,9 +471,8 @@ const ProjectsContent = ({
           "color: #FF6B6B",
         );
         isTransitioningRef.current = false;
-        // Immediately display the new filtered results
-        setDisplayedProjects(filtered);
-        prevFilteredRef.current = filtered;
+        transitionPlanRef.current = null;
+        // DO NOT update state when aborted - the new effect will handle it
         return;
       }
 
@@ -451,6 +483,9 @@ const ProjectsContent = ({
         "color: #667EEA",
       );
       setDisplayedProjects(filtered);
+      prevFilteredRef.current = filtered;
+      prevQueryRef.current = query;
+      prevDomainRef.current = domain;
     }
   }, [filtered]);
 
@@ -561,11 +596,23 @@ const ProjectsContent = ({
             "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
           newElement.style.transform = "translate(0, 0)";
         } else {
+          // Clear any inline transition styles that might interfere with the bump animation
+          newElement.style.removeProperty("transition");
+          newElement.style.removeProperty("transform");
+
+          // Ensure animation property is cleared
+          newElement.style.animation = "none";
+
+          // Make visible first (applying project-visible CSS rule with transform: translateY(0))
+          newElement.classList.add("project-visible");
+
+          // Force layout recalculation to ensure animation starts fresh
+          void newElement.offsetHeight;
+
+          // Now clear inline animation and add the bump animation class
+          newElement.style.removeProperty("animation");
           newElement.classList.add("project-bump");
         }
-
-        // Now make it visible - it will be at old position due to transform
-        newElement.classList.add("project-visible");
       }
     });
 
@@ -624,6 +671,17 @@ const ProjectsContent = ({
     );
 
     const cleanupTimer = setTimeout(() => {
+      // Only cleanup if this is still the active transition
+      // If transitionPlanRef was cleared, it means a new transition started
+      if (!transitionPlanRef.current) {
+        console.log(
+          "%c[PROJECTS] Cleanup skipped - new transition has started",
+          "color: #FF6B6B",
+        );
+        isTransitioningRef.current = false;
+        return;
+      }
+
       console.log(
         "%c[PROJECTS] Cleanup phase - removing transition styles",
         "color: #667EEA",
@@ -641,6 +699,10 @@ const ProjectsContent = ({
         el.style.transform = "";
         el.style.transition = "";
         el.classList.remove("project-bump");
+        el.classList.remove("project-from-top");
+        el.classList.remove("project-from-bottom");
+        el.classList.remove("project-slide-out");
+        el.classList.remove("project-fade-out");
         el.style.removeProperty("--item-index");
         el.style.removeProperty("--total-items");
       });
@@ -655,7 +717,6 @@ const ProjectsContent = ({
         "color: #667EEA; font-weight: bold",
       );
 
-      prevFilteredRef.current = filtered;
       isTransitioningRef.current = false;
       transitionPlanRef.current = null;
     }, maxAnimationDuration);
