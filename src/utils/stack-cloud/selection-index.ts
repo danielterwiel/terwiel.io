@@ -75,15 +75,3 @@ export function buildSelectionIndex(projects: Project[]): SelectionIndex {
     },
   };
 }
-
-/**
- * Quick utility to check if a stack is selected based on domain selection
- */
-export function isStackSelectedByDomain(
-  stackName: string,
-  selectedDomain: string | null,
-  index: SelectionIndex,
-): boolean {
-  if (!selectedDomain) return false;
-  return index.isStackInDomain(stackName, selectedDomain as Domain);
-}

@@ -208,27 +208,3 @@ export function calculateOverlapTiming(
     entryFromBottomStartDelay,
   };
 }
-
-/**
- * Get the delay for a specific removed item.
- * Items are indexed from the perspective of their animation group
- * (items being removed from top are numbered 0, 1, 2... separately from bottom items)
- */
-export function getExitItemDelay(
-  itemGroupIndex: number,
-  staggerDelay: number,
-): number {
-  return itemGroupIndex * staggerDelay;
-}
-
-/**
- * Get the delay for a specific entering item.
- */
-export function getEntryItemDelay(
-  itemGroupIndex: number,
-  staggerDelay: number,
-  domUpdateTrigger: number,
-): number {
-  const entryStartDelay = domUpdateTrigger + staggerDelay;
-  return entryStartDelay + itemGroupIndex * staggerDelay;
-}

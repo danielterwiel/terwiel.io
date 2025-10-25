@@ -11,28 +11,6 @@ export const getSearchQuery = (
 };
 
 /**
- * Extract the filter type from URL params to differentiate between:
- * - 'search': user typed in search input
- * - 'domain': user clicked a domain segment
- * - 'tech': user clicked a technology/stack node
- * - 'project': user clicked a project badge
- */
-export const getFilterType = (
-  searchParams: ReadonlyURLSearchParams | null,
-): "search" | "domain" | "tech" | "project" | null => {
-  const type = searchParams?.get("filterType");
-  if (
-    type === "search" ||
-    type === "domain" ||
-    type === "tech" ||
-    type === "project"
-  ) {
-    return type;
-  }
-  return null;
-};
-
-/**
  * Extract domain filter from search query if it matches a valid domain
  * This allows clicking a domain in the stack cloud to filter projects
  */
