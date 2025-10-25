@@ -38,6 +38,9 @@ export const Project = ({
     "relative break-inside-avoid-page pb-8 print:pt-8 project-item",
   ];
 
+  // Only apply directional classes for slide-in/slide-out actions
+  // "stay" action items should NOT have directional classes to prevent flicker
+  // They will be animated via FLIP (First, Last, Invert, Play) in the transition handler
   if (projectAction === "slide-in" && projectDirection) {
     classNames.push(`project-from-${projectDirection}`);
   }
