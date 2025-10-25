@@ -74,11 +74,16 @@ export function computeLCS(
 
 /**
  * Determine the relative position of a target index compared to staying items
+ * Returns: "above" | "below" | "between-then-below" | "between-then-above" | "none"
+ *
+ * For items between staying items, we need to know which direction they should slide:
+ * - "between-then-below": There are staying items after, so slide UP from below
+ * - "between-then-above": There are staying items before, so slide DOWN from above
  */
 function getRelativePosition(
   targetIndex: number,
   stayingIndices: number[],
-): "above" | "below" | "between" | "none" {
+): "above" | "below" | "between-then-below" | "between-then-above" | "none" {
   if (stayingIndices.length === 0) return "none";
 
   const before = stayingIndices.filter((idx) => idx < targetIndex);
@@ -88,7 +93,22 @@ function getRelativePosition(
   const hasAfter = after.length > 0;
 
   if (hasBefore && hasAfter) {
-    return "between"; // Between two staying items
+    // Item is between two staying items
+    // If there are more staying items after, it's in a "below" gap (slide up)
+    // If there are more staying items before, it's in an "above" gap (slide down)
+    // Return the direction to closest staying item
+    const closestBeforeIdx = before[before.length - 1] ?? -Infinity;
+    const closestAfterIdx = after[0] ?? Infinity;
+    const distToBefore = targetIndex - closestBeforeIdx;
+    const distToAfter = closestAfterIdx - targetIndex;
+
+    if (distToAfter < distToBefore) {
+      // Closer to the item after → slide UP from bottom to fill gap
+      return "between-then-below";
+    } else {
+      // Closer to item before → slide DOWN from top to fill gap
+      return "between-then-above";
+    }
   }
   if (hasBefore) {
     return "below"; // Below the last staying item
@@ -133,6 +153,17 @@ export function planTransition(
     oldItems,
     newItems,
   );
+
+  if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+    console.log(
+      "[planTransition]",
+      JSON.stringify({
+        oldItemsCount: oldItems.length,
+        newItemsCount: newItems.length,
+        stayingCount: commonItems.length,
+      }),
+    );
+  }
 
   const oldPlan: TransitionPlan[] = [];
   const newPlan: TransitionPlan[] = [];
@@ -195,15 +226,31 @@ export function planTransition(
       // Item is new - determine slide direction
       const position = getRelativePosition(j, stayingNewIndices);
 
-      // New items slide IN opposite to how they would slide OUT
+      // Determine slide direction based on position
       let direction: "top" | "bottom";
+
       if (position === "above") {
         direction = "top"; // Slide in from top (downward)
       } else if (position === "below") {
         direction = "bottom"; // Slide in from bottom (upward)
-      } else {
-        // No staying items or 'between' case - default to top
+      } else if (position === "between-then-above") {
+        // Closer to item before → slide DOWN from top to fill gap
         direction = "top";
+      } else if (position === "between-then-below") {
+        // Closer to item after → slide UP from bottom to fill gap
+        direction = "bottom";
+      } else {
+        // No staying items - default to top
+        direction = "top";
+      }
+
+      if (
+        typeof window !== "undefined" &&
+        process.env.NODE_ENV === "development"
+      ) {
+        console.log(
+          `[planTransition] NEW ${project.id} (${project.company}) at index ${j}: position=${position}, direction=${direction}`,
+        );
       }
 
       newPlan.push({
