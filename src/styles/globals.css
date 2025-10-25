@@ -3,584 +3,604 @@
 @tailwind utilities;
 
 @layer base {
-  html,
-  body {
-    /* Ensure white background prevents animations from showing through on mobile */
-    background-color: white;
-  }
+    html,
+    body {
+        /* Ensure white background prevents animations from showing through on mobile */
+        background-color: white;
+    }
 
-  html {
-    /* Make scrollbar track transparent while keeping the thumb visible */
-    scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
-  }
+    html {
+        /* Make scrollbar track transparent while keeping the thumb visible */
+        scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
+    }
 
-  /* Webkit browsers (Chrome, Safari, Edge) */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
+    /* Webkit browsers (Chrome, Safari, Edge) */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
 
-  ::-webkit-scrollbar-thumb {
-    background: oklch(37.85% 0.1954 263.23 / 0.5);
-    border-radius: 4px;
-  }
+    ::-webkit-scrollbar-thumb {
+        background: oklch(37.85% 0.1954 263.23 / 0.5);
+        border-radius: 4px;
+    }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(37.85% 0.1954 263.23 / 0.7);
-  }
+    ::-webkit-scrollbar-thumb:hover {
+        background: oklch(37.85% 0.1954 263.23 / 0.7);
+    }
 }
 
 @layer components {
-  /* Mobile menu - ensure dropdown is visible above StackCloud */
-  .relative.z-50 {
-    /* Don't hide overflow for dropdowns inside z-50 container */
-  }
-
-  /* Remove default focus outline from SVG interactive elements */
-  svg [role="button"]:focus {
-    outline: none;
-  }
-
-  .icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    overflow: hidden;
-  }
-
-  .icon-container svg {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
-
-  /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
-  /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
-  .magnetic-base {
-    /* Enable smooth transitions for magnetic effect */
-    transition:
-      transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out,
-      background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Hint browser for transform optimization */
-    will-change: transform;
-    /* Always have a subtle blue glow as base state to avoid color transition artifacts */
-    filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
-  }
-
-  /* Magnetic hover creates illusion of being "pulled" toward cursor */
-  /* Use drop-shadow instead of box-shadow to properly respect border-radius */
-  /* Mobile-first: reduced glow on mobile (8px blur) */
-  .magnetic-base:hover:not(.magnetic-selected) {
-    transform: scale(1);
-    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
-  }
-
-  /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
-  @media (min-width: 768px) {
-    .magnetic-base:hover:not(.magnetic-selected) {
-      transform: scale(1.05);
-      filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+    /* Mobile menu - ensure dropdown is visible above StackCloud */
+    .relative.z-50 {
+        /* Don't hide overflow for dropdowns inside z-50 container */
     }
-  }
 
-  /* Input-specific hover styling */
-  .magnetic-input:hover:not(.magnetic-selected) {
-    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
-  }
+    /* Remove default focus outline from SVG interactive elements */
+    svg [role="button"]:focus {
+        outline: none;
+    }
 
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
+    .icon-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+
+    .icon-container svg {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+
+    /* Enhanced Magnetic Effect Styles - Pure CSS magnetic attraction illusion */
+    /* This creates a visual "pull" effect on hover without JavaScript cursor tracking */
     .magnetic-base {
-      transition: none;
+        /* Enable smooth transitions for magnetic effect */
+        transition:
+            transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.2s ease-out,
+            background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        /* Hint browser for transform optimization */
+        will-change: transform;
+        /* Always have a subtle blue glow as base state to avoid color transition artifacts */
+        filter: drop-shadow(0 0px 0px oklch(37.85% 0.1954 263.23 / 0));
     }
-  }
 
-  /* StackCloud Component Styles */
-  .stack-cloud-wrapper {
-    width: 100%;
-    aspect-ratio: 1;
-    min-height: 400px;
-    max-height: 600px;
-    position: relative;
-  }
+    /* Magnetic hover creates illusion of being "pulled" toward cursor */
+    /* Use drop-shadow instead of box-shadow to properly respect border-radius */
+    /* Mobile-first: reduced glow on mobile (8px blur) */
+    .magnetic-base:hover:not(.magnetic-selected) {
+        transform: scale(1);
+        filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+    }
 
-  .stack-cloud-svg {
-    width: 100%;
-    height: 100%;
-    display: block;
-    overflow: visible;
-    /* Hint browser for smooth opacity transitions */
-    will-change: opacity;
-    /* Prevent text selection on rapid clicks while maintaining keyboard accessibility */
-    user-select: none;
-    -webkit-user-select: none;
-    -webkit-touch-callout: none;
-  }
+    /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
+    @media (min-width: 768px) {
+        .magnetic-base:hover:not(.magnetic-selected) {
+            transform: scale(1.05);
+            filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
+        }
+    }
 
-  /* Stack Node States - use CSS classes instead of inline styles for performance */
-  .stack-node {
-    cursor: pointer;
-    /* NO transition on transform - controlled by D3 simulation */
-    /* Hint browser to prepare for transform changes */
-    will-change: transform;
-  }
+    /* Input-specific hover styling */
+    .magnetic-input:hover:not(.magnetic-selected) {
+        border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+    }
 
-  .stack-node.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+        .magnetic-base {
+            transition: none;
+        }
+    }
 
-  .stack-node-circle {
-    transition:
-      stroke-width 0.2s ease-out,
-      stroke 0.2s ease-out,
-      filter 0.2s ease-out;
-    /* Hint browser for composite layers */
-    will-change: filter;
-  }
+    /* StackCloud Component Styles */
+    .stack-cloud-wrapper {
+        width: 100%;
+        aspect-ratio: 1;
+        min-height: 400px;
+        max-height: 600px;
+        position: relative;
+    }
 
-  .stack-node-circle.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-cloud-svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        overflow: visible;
+        /* Hint browser for smooth opacity transitions */
+        will-change: opacity;
+        /* Prevent text selection on rapid clicks while maintaining keyboard accessibility */
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+    }
 
-  /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
-  .stack-node-circle.is-highlighted:not(.forced-colors) {
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
-  }
+    /* Stack Node States - use CSS classes instead of inline styles for performance */
+    .stack-node {
+        cursor: pointer;
+        /* NO transition on transform - controlled by D3 simulation */
+        /* Hint browser to prepare for transform changes */
+        will-change: transform;
+    }
 
-  .stack-node-circle.is-selected:not(.forced-colors) {
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
-  }
+    .stack-node.prefers-reduced-motion {
+        transition: none;
+    }
 
-  /* Remove drop shadows for reduced motion and forced colors */
-  .stack-node-circle.prefers-reduced-motion,
-  .stack-node-circle.forced-colors {
-    filter: none !important;
-  }
+    .stack-node-circle {
+        transition:
+            stroke-width 0.2s ease-out,
+            stroke 0.2s ease-out,
+            filter 0.2s ease-out;
+        /* Hint browser for composite layers */
+        will-change: filter;
+    }
 
-  .stack-node-icon {
-    pointer-events: none;
-    transition:
-      opacity 0.2s ease-out,
-      color 0.2s ease-out;
-  }
+    .stack-node-circle.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .stack-node-icon.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Balanced elevation on hover/selection for depth perception (WCAG 2.2 multi-modal feedback) */
+    .stack-node-circle.is-highlighted:not(.forced-colors) {
+        filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.12));
+    }
 
-  .stack-node-focus-ring {
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
+    .stack-node-circle.is-selected:not(.forced-colors) {
+        filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.18));
+    }
 
-  .stack-node-focus-ring.prefers-reduced-motion {
-    transition: none;
-  }
+    /* Remove drop shadows for reduced motion and forced colors */
+    .stack-node-circle.prefers-reduced-motion,
+    .stack-node-circle.forced-colors {
+        filter: none !important;
+    }
 
-  .stack-node:focus-visible .stack-node-focus-ring {
-    opacity: 1;
-  }
+    .stack-node-icon {
+        pointer-events: none;
+        transition:
+            opacity 0.2s ease-out,
+            color 0.2s ease-out;
+    }
 
-  /* Pie segment states */
-  .pie-segment {
-    transition:
-      opacity 0.2s ease,
-      d 0.2s ease;
-  }
+    .stack-node-icon.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment.prefers-reduced-motion {
-    transition: none;
-  }
+    .stack-node-focus-ring {
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
 
-  .pie-segment-hit-area {
-    cursor: pointer;
-  }
+    .stack-node-focus-ring.prefers-reduced-motion {
+        transition: none;
+    }
 
-  .pie-segment-hit-area:focus-visible {
-    outline: 3px solid oklch(45% 0.15 260);
-    outline-offset: 2px;
-  }
+    .stack-node:focus-visible .stack-node-focus-ring {
+        opacity: 1;
+    }
 
-  .pie-segment-hit-area.forced-colors:focus-visible {
-    outline-color: CanvasText;
-  }
+    /* Pie segment states */
+    .pie-segment {
+        transition:
+            opacity 0.2s ease,
+            d 0.2s ease;
+    }
 
-  /* Forced colors mode adjustments */
-  @media (forced-colors: active) {
-    .stack-node-circle,
+    .pie-segment.prefers-reduced-motion {
+        transition: none;
+    }
+
     .pie-segment-hit-area {
-      forced-color-adjust: auto;
+        cursor: pointer;
     }
-  }
 
-  /* Loading Spinner Animations */
-  .spinner-ring-container {
-    transform-origin: 50px 50px;
-    animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  }
+    .pie-segment-hit-area:focus-visible {
+        outline: 3px solid oklch(45% 0.15 260);
+        outline-offset: 2px;
+    }
 
-  .spinner-ring-segment {
-    /* Individual segments grow and shrink for fluid motion */
-    animation: spinner-segment-pulse 2s ease-in-out infinite;
-  }
+    .pie-segment-hit-area.forced-colors:focus-visible {
+        outline-color: CanvasText;
+    }
 
-  @media (prefers-reduced-motion: reduce) {
+    /* Forced colors mode adjustments */
+    @media (forced-colors: active) {
+        .stack-node-circle,
+        .pie-segment-hit-area {
+            forced-color-adjust: auto;
+        }
+    }
+
+    /* Loading Spinner Animations */
     .spinner-ring-container {
-      animation: spinner-rotate-smooth 5s linear infinite;
+        transform-origin: 50px 50px;
+        animation: spinner-rotate-smooth 2.5s cubic-bezier(0.4, 0, 0.2, 1)
+            infinite;
     }
 
     .spinner-ring-segment {
-      animation: none;
+        /* Individual segments grow and shrink for fluid motion */
+        animation: spinner-segment-pulse 2s ease-in-out infinite;
     }
-  }
+
+    @media (prefers-reduced-motion: reduce) {
+        .spinner-ring-container {
+            animation: spinner-rotate-smooth 5s linear infinite;
+        }
+
+        .spinner-ring-segment {
+            animation: none;
+        }
+    }
 }
 
 @keyframes animationIconIn {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+    0% {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Ring component optimizations - circle always visible */
 .ring-element {
-  /* Circle is always visible */
-  opacity: 1;
+    /* Circle is always visible */
+    opacity: 1;
 }
 
 /* Icon inside ring - animates in with spring effect */
 .ring-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
 
-  /* Default hidden state */
-  opacity: 0;
-  transform: scale(0.8);
+    /* Default hidden state */
+    opacity: 0;
+    transform: scale(0.8);
 
-  /* Spring effect configuration */
-  --_spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --_spring-duration: 145ms;
+    /* Spring effect configuration */
+    --_spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --_spring-duration: 145ms;
 
-  /* Apply spring transition */
-  @media (prefers-reduced-motion: no-preference) {
-    transition:
-      opacity var(--_spring-duration) var(--_spring-easing),
-      transform var(--_spring-duration) var(--_spring-easing);
-  }
+    /* Apply spring transition */
+    @media (prefers-reduced-motion: no-preference) {
+        transition:
+            opacity var(--_spring-duration) var(--_spring-easing),
+            transform var(--_spring-duration) var(--_spring-easing);
+    }
 
-  /* Progressive enhancement to linear() spring easing */
-  @supports (animation-timing-function: linear(0, 0.1, 1)) {
-    --_spring-easing: linear(
-      0,
-      0.25 19%,
-      0.43 29%,
-      0.66,
-      0.86 71%,
-      0.97 85%,
-      1
-    );
-    --_spring-duration: 1s;
-  }
+    /* Progressive enhancement to linear() spring easing */
+    @supports (animation-timing-function: linear(0, 0.1, 1)) {
+        --_spring-easing: linear(
+            0,
+            0.25 19%,
+            0.43 29%,
+            0.66,
+            0.86 71%,
+            0.97 85%,
+            1
+        );
+        --_spring-duration: 1s;
+    }
 }
 
 /* When icon comes into view */
 .ring-icon.ring-icon-visible {
-  opacity: 1;
-  transform: scale(1);
+    opacity: 1;
+    transform: scale(1);
 }
 
 @keyframes animationFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 100;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 100;
+    }
 }
 
 @keyframes animation-slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 @keyframes float-subtle {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-2px);
+    }
 }
 
 @keyframes spinner-rotate-smooth {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @keyframes spinner-segment-pulse {
-  0%,
-  100% {
-    stroke-dasharray: var(--dash-base) var(--dash-gap);
-    opacity: 0.85;
-  }
-  50% {
-    stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
-    opacity: 1;
-  }
+    0%,
+    100% {
+        stroke-dasharray: var(--dash-base) var(--dash-gap);
+        opacity: 0.85;
+    }
+    50% {
+        stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
+        opacity: 1;
+    }
 }
 
 @keyframes magnetic-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
-  }
+    0%,
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
+    }
 }
 
 @keyframes magnetic-bounce {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
-  }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @layer utilities {
-  .animation-ring {
-    animation: animationRing 1s ease-in-out;
-  }
-  .animation-fade-in {
-    animation: animationFadeIn 1s ease-out forwards;
-  }
-  .animation-slide-down {
-    animation: animationSlideDown 0.5s ease-in-out forwards;
-  }
-  .animation-float-subtle {
-    animation: float-subtle 4s ease-in-out infinite;
-  }
-  .animation-magnetic-pulse {
-    animation: magnetic-pulse 2s ease-in-out infinite;
-  }
-  /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
-  .animation-magnetic-bounce {
-    animation: none;
-  }
-
-  @media (min-width: 768px) {
+    .animation-ring {
+        animation: animationRing 1s ease-in-out;
+    }
+    .animation-fade-in {
+        animation: animationFadeIn 1s ease-out forwards;
+    }
+    .animation-slide-down {
+        animation: animationSlideDown 0.5s ease-in-out forwards;
+    }
+    .animation-float-subtle {
+        animation: float-subtle 4s ease-in-out infinite;
+    }
+    .animation-magnetic-pulse {
+        animation: magnetic-pulse 2s ease-in-out infinite;
+    }
+    /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
     .animation-magnetic-bounce {
-      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        animation: none;
     }
-  }
 
-  .svg-contain {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    display: block;
-  }
+    @media (min-width: 768px) {
+        .animation-magnetic-bounce {
+            animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    }
+
+    .svg-contain {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
 }
 
 @layer utilities {
-  /* Projects scrollable container - clips animations on mobile */
-  .projects-scrollable {
-    /* On mobile: clip animations so they don't overflow into header/StackCloud */
-    overflow: hidden;
-  }
-
-  @media (min-width: 768px) {
+    /* Projects scrollable container - clips animations on mobile */
     .projects-scrollable {
-      /* On desktop: allow normal overflow behavior */
-      overflow: visible;
+        /* On mobile: clip animations so they don't overflow into header/StackCloud */
+        overflow: hidden;
     }
-  }
 
-  /* Project List Sliding Transitions - Pure CSS + FLIP */
-  /* Uses LCS algorithm + Manual FLIP for intelligent animations */
+    @media (min-width: 768px) {
+        .projects-scrollable {
+            /* On desktop: allow normal overflow behavior */
+            overflow: visible;
+        }
+    }
 
-  /* Project item base */
-  .project-item {
-    /* Initial state - invisible but takes up space */
-    opacity: 0;
+    /* Project List Sliding Transitions - Pure CSS + FLIP */
+    /* Uses LCS algorithm + Manual FLIP for intelligent animations */
 
-    /* CSS Transition properties - supports transition-delay set dynamically */
-    transition:
-      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Project item base */
+    .project-item {
+        /* Initial state - invisible but takes up space */
+        opacity: 0;
 
-    /* Ensure proper stacking and no overlap */
-    position: relative;
-    isolation: isolate;
+        /* CSS Transition properties - supports transition-delay set dynamically */
+        transition:
+            transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+            opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Prevent items from visually overlapping during transitions */
-    /* Items will clip their content to their bounds, preventing overflow */
-    overflow: clip;
-  }
+        /* Ensure proper stacking and no overlap */
+        position: relative;
+        isolation: isolate;
 
-  /* Items sliding from TOP with stacked positioning */
-  /* Mobile: smaller animation range to avoid overlapping header/StackCloud */
-  .project-item.project-from-top {
-    transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
-  }
+        /* Mobile: clip overflow to prevent animations from showing beneath StackCloud */
+        /* Desktop: allow overflow for scale animations and ViewTransitions */
+        overflow: clip;
+    }
 
-  /* Items sliding from BOTTOM with stacked positioning */
-  /* Mobile: smaller animation range */
-  .project-item.project-from-bottom {
-    transform: translateY(
-      calc(500px + ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px))
-    );
-  }
+    @media (min-width: 768px) {
+        .project-item {
+            /* Desktop: allow overflow for scale animations during ViewTransitions */
+            overflow: visible;
+        }
+    }
 
-  /* Desktop: use full viewport height for animations */
-  @media (min-width: 768px) {
+    /* Items sliding from TOP with stacked positioning */
+    /* Mobile: smaller animation range to avoid overlapping header/StackCloud */
     .project-item.project-from-top {
-      transform: translateY(
-        calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
-      );
+        transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
     }
 
+    /* Items sliding from BOTTOM with stacked positioning */
+    /* Mobile: smaller animation range */
     .project-item.project-from-bottom {
-      transform: translateY(
-        calc(
-          100vh +
-          ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
-          100px
-        )
-      );
+        transform: translateY(
+            calc(
+                500px +
+                    ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px)
+            )
+        );
     }
-  }
 
-  /* Visible state */
-  .project-item.project-visible {
-    transform: translateY(0);
-    opacity: 1;
-    /* Staying items should be on top during transitions to prevent overlaps */
-    z-index: 1;
-  }
+    /* Desktop: use full viewport height for animations */
+    @media (min-width: 768px) {
+        .project-item.project-from-top {
+            transform: translateY(
+                calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+            );
+        }
 
-  /* Exiting items should be behind staying items during exit animation */
-  .project-item.project-slide-out {
-    z-index: 0;
-  }
+        .project-item.project-from-bottom {
+            transform: translateY(
+                calc(
+                    100vh +
+                        (
+                            (var(--total-items, 8) - var(--item-index, 0) - 1) *
+                                200px
+                        ) +
+                        100px
+                )
+            );
+        }
+    }
 
-  /* Slide out animations with staggered timing */
-  /* Each item exits with transition-delay = index * 50ms (set via JS) */
-  /* This creates overlapping exit animations where items cascade out smoothly */
-  /* Mobile: smaller animation range */
-  .project-item.project-slide-out.project-from-top {
-    transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
-    opacity: 0;
-  }
+    /* Visible state */
+    .project-item.project-visible {
+        transform: translateY(0);
+        opacity: 1;
+        /* Staying items should be on top during transitions to prevent overlaps */
+        z-index: 1;
+    }
 
-  .project-item.project-slide-out.project-from-bottom {
-    transform: translateY(
-      calc(500px + ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px))
-    );
-    opacity: 0;
-  }
+    /* Exiting items should be behind staying items during exit animation */
+    .project-item.project-slide-out {
+        z-index: 0;
+    }
 
-  /* Desktop: use full viewport height for animations */
-  @media (min-width: 768px) {
+    /* Slide out animations with staggered timing */
+    /* Each item exits with transition-delay = index * 50ms (set via JS) */
+    /* This creates overlapping exit animations where items cascade out smoothly */
+    /* Mobile: smaller animation range */
     .project-item.project-slide-out.project-from-top {
-      transform: translateY(
-        calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
-      );
-      opacity: 0;
+        transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
+        opacity: 0;
     }
 
     .project-item.project-slide-out.project-from-bottom {
-      transform: translateY(
-        calc(
-          100vh +
-          ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
-          100px
-        )
-      );
-      opacity: 0;
-    }
-  }
-
-  /* Fade out animation for items between staying items */
-  /* Faster fade than slide animations to avoid blocking the view */
-  .project-item.project-fade-out {
-    opacity: 0;
-    transform: scale(0.8);
-    transition:
-      opacity 0.4s ease,
-      transform 0.4s ease;
-  }
-
-  /* Bump animation for items that stay in same position */
-  .project-bump {
-    animation: project-bump 0.4s ease-out;
-  }
-
-  @keyframes project-bump {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.03);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  /* Accessibility: Respect user's motion preferences */
-  @media (prefers-reduced-motion: reduce) {
-    .project-item {
-      transition: opacity 0.3s ease;
-      transform: translateY(0) !important;
+        transform: translateY(
+            calc(
+                500px +
+                    ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px)
+            )
+        );
+        opacity: 0;
     }
 
-    .project-item:not(.project-visible) {
-      opacity: 0;
+    /* Desktop: use full viewport height for animations */
+    @media (min-width: 768px) {
+        .project-item.project-slide-out.project-from-top {
+            transform: translateY(
+                calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+            );
+            opacity: 0;
+        }
+
+        .project-item.project-slide-out.project-from-bottom {
+            transform: translateY(
+                calc(
+                    100vh +
+                        (
+                            (var(--total-items, 8) - var(--item-index, 0) - 1) *
+                                200px
+                        ) +
+                        100px
+                )
+            );
+            opacity: 0;
+        }
     }
 
-    .project-item.project-visible {
-      opacity: 1;
-    }
-
-    .project-item.project-slide-out,
+    /* Fade out animation for items between staying items */
+    /* Faster fade than slide animations to avoid blocking the view */
     .project-item.project-fade-out {
-      opacity: 0;
+        opacity: 0;
+        transform: scale(0.8);
+        transition:
+            opacity 0.4s ease,
+            transform 0.4s ease;
     }
 
+    /* Bump animation for items that stay in same position */
     .project-bump {
-      animation: none;
+        animation: project-bump 0.4s ease-out;
     }
-  }
+
+    @keyframes project-bump {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.02);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    /* Accessibility: Respect user's motion preferences */
+    @media (prefers-reduced-motion: reduce) {
+        .project-item {
+            transition: opacity 0.3s ease;
+            transform: translateY(0) !important;
+        }
+
+        .project-item:not(.project-visible) {
+            opacity: 0;
+        }
+
+        .project-item.project-visible {
+            opacity: 1;
+        }
+
+        .project-item.project-slide-out,
+        .project-item.project-fade-out {
+            opacity: 0;
+        }
+
+        .project-bump {
+            animation: none;
+        }
+    }
 }

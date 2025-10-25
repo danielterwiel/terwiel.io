@@ -15,13 +15,13 @@ export default function HomePage() {
           This aligns the project timeline with the centered header title
         */}
         {/* StackCloud - full width on mobile, adjusted width on desktop */}
-        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0 relative z-10">
+        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0 relative z-0">
           <StackCloud />
         </div>
 
         {/* Projects - full width on mobile, adjusted width on desktop */}
-        {/* bg-white ensures projects container doesn't show animations from beneath */}
-        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-0 bg-white md:bg-transparent">
+        {/* bg-white ensures projects container doesn't show animations from beneath on mobile */}
+        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-10 bg-white md:bg-transparent">
           <Projects />
         </div>
       </main>
