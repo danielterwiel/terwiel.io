@@ -138,6 +138,8 @@ const ProjectsContent = ({
     exitDuration: number;
     timing: ReturnType<typeof calculateOverlapTiming>;
     capturedVisibleProjects: Set<string>; // Capture visible projects at animation start
+    anchorScrollOffset: number | null; // Anchor's position relative to container top
+    anchorItemId: string | null; // ID of anchor item for scroll restoration
   } | null>(null);
 
   // PHASE 1 & 2: Prepare and animate out removed items
@@ -197,6 +199,11 @@ const ProjectsContent = ({
         htmlEl.style.removeProperty("--item-index");
         htmlEl.style.removeProperty("--total-items");
       });
+
+      // Unlock container height during force cleanup
+      if (listRef.current) {
+        listRef.current.style.height = "";
+      }
     }
 
     console.log(
@@ -242,48 +249,97 @@ const ProjectsContent = ({
         return;
       }
 
-      // Get the original LCS-based transition plan for staying item detection
-      const {
-        oldPlan: lcsOldPlan,
-        newPlan: lcsNewPlan,
-        stayingItems,
-      } = planTransition(prevFilteredRef.current, filtered);
+      // STEP 1: Use LCS ONLY for staying item detection (not directions)
+      const { stayingItems } = planTransition(
+        prevFilteredRef.current,
+        filtered,
+      );
 
-      // Use viewport-aware transition planning to refine directions based on visible anchor
-      // Uses the captured visibility state to ensure consistent direction assignment
+      // STEP 2: Use viewport-aware planning for ALL direction logic
+      // This is simpler and more reliable than merging LCS + viewport directions
       const viewportPlan = planViewportAwareTransition(
         prevFilteredRef.current,
         filtered,
         capturedVisibleProjects,
       );
 
-      // Merge LCS staying item detection with viewport-aware direction calculation
-      // This preserves the fade/slide detection while using viewport-aware directions
-      const oldPlan: TransitionStep[] = lcsOldPlan.map((step) => {
-        const viewportItem = viewportPlan.plan.find(
-          (vp) => vp.itemId === step.item,
-        );
-        return {
-          ...step,
-          // Use viewport-aware direction if available and item is sliding
-          direction:
-            step.action === "slide-out" && viewportItem?.direction
-              ? viewportItem.direction
-              : step.direction,
-        };
-      });
+      // STEP 3: Build transition steps from viewport plan
+      // Map viewport-aware plan to our TransitionStep format
+      const oldPlan: TransitionStep[] = prevFilteredRef.current.map(
+        (project) => {
+          const vpItem = viewportPlan.plan.find(
+            (vp) => vp.itemId === project.id,
+          );
+          if (!vpItem) {
+            // Item not in plan - shouldn't happen, but handle gracefully
+            return {
+              item: project.id,
+              project,
+              action: "slide-out" as const,
+              oldIndex: prevFilteredRef.current.findIndex(
+                (p) => p.id === project.id,
+              ),
+              direction: "bottom" as const,
+            };
+          }
 
-      const newPlan: TransitionStep[] = lcsNewPlan.map((step) => {
-        const viewportItem = viewportPlan.plan.find(
-          (vp) => vp.itemId === step.item,
-        );
+          if (vpItem.action === "stay") {
+            const oldIndex = prevFilteredRef.current.findIndex(
+              (p) => p.id === project.id,
+            );
+            const newIndex = filtered.findIndex((p) => p.id === project.id);
+            return {
+              item: project.id,
+              project,
+              action: "stay" as const,
+              oldIndex,
+              newIndex,
+            };
+          }
+
+          // Action is slide-out or fade
+          return {
+            item: project.id,
+            project,
+            action: vpItem.action,
+            oldIndex: prevFilteredRef.current.findIndex(
+              (p) => p.id === project.id,
+            ),
+            direction: vpItem.direction,
+          };
+        },
+      );
+
+      const newPlan: TransitionStep[] = filtered.map((project) => {
+        const vpItem = viewportPlan.plan.find((vp) => vp.itemId === project.id);
+        if (!vpItem) {
+          // Item not in plan - shouldn't happen, but handle gracefully
+          return {
+            item: project.id,
+            project,
+            action: "slide-in" as const,
+            newIndex: filtered.findIndex((p) => p.id === project.id),
+            direction: "top" as const,
+          };
+        }
+
+        if (vpItem.action === "stay") {
+          // Already in old plan
+          return {
+            item: project.id,
+            project,
+            action: "stay" as const,
+            newIndex: filtered.findIndex((p) => p.id === project.id),
+          };
+        }
+
+        // Action is slide-in
         return {
-          ...step,
-          // Use viewport-aware direction if available and item is entering
-          direction:
-            step.action === "slide-in" && viewportItem?.direction
-              ? viewportItem.direction
-              : step.direction,
+          item: project.id,
+          project,
+          action: vpItem.action,
+          newIndex: filtered.findIndex((p) => p.id === project.id),
+          direction: vpItem.direction,
         };
       });
 
@@ -339,6 +395,42 @@ const ProjectsContent = ({
           });
         }
       });
+
+      // CRITICAL: Save anchor element's scroll position before DOM update
+      // This prevents scroll jumps when items are added/removed above the anchor
+      let anchorScrollOffset: number | null = null;
+      let anchorElement: HTMLElement | null = null;
+      if (viewportPlan.anchor.anchorItemId && containerRef.current) {
+        anchorElement =
+          currentElements.find(
+            (el) => el.dataset.projectId === viewportPlan.anchor.anchorItemId,
+          ) ?? null;
+        if (anchorElement) {
+          // Save anchor's position relative to container top
+          const containerTop = containerRef.current.getBoundingClientRect().top;
+          const anchorTop = anchorElement.getBoundingClientRect().top;
+          anchorScrollOffset = anchorTop - containerTop;
+          console.log(
+            "%c[PROJECTS] Saved anchor scroll offset: %dpx (anchor: %s)",
+            "color: #9B59B6",
+            anchorScrollOffset,
+            viewportPlan.anchor.anchorItemId,
+          );
+        }
+      }
+
+      // CRITICAL: Lock the list container height to prevent it from collapsing
+      // as items are removed. This keeps the anchor item in its visual position
+      // while new items slide up underneath from below.
+      if (listRef.current) {
+        const currentHeight = listRef.current.offsetHeight;
+        listRef.current.style.height = `${currentHeight}px`;
+        console.log(
+          "%c[PROJECTS] Locking container height: %dpx",
+          "color: #667EEA",
+          currentHeight,
+        );
+      }
 
       // PHASE 2: Animate OUT only items being REMOVED with overlapping timing
       const removedFromTop = oldPlan.filter(
@@ -402,6 +494,7 @@ const ProjectsContent = ({
         visibleEnteringFromBottomCount: visibleEnteringFromBottom.length,
         staggerDelay: 50, // 50ms between each visible item
         animationDuration: 600, // 600ms per animation
+        anchorItemId: viewportPlan.anchor.anchorItemId, // Pass anchor to prevent FLIP animation
       });
 
       oldPlan.forEach((plan, index) => {
@@ -421,12 +514,16 @@ const ProjectsContent = ({
             String(directionalGroup.length),
           );
 
-          // Viewport-aware delay: only visible items get staggered delay
-          // Off-screen items snap instantly with 0s delay
-          // Use captured visibility to match the anchor that was determined at start
+          // Viewport-aware optimization: only visible items get staggered animation delay
+          // Off-viewport items get reduced delay but still animate (for smoothness)
           const isVisible = capturedVisibleProjects.has(plan.item);
-          const delayMs = isVisible ? groupIndex * 50 : 0;
-          element.style.transitionDelay = `${delayMs / 1000}s`;
+          if (isVisible) {
+            const delayMs = groupIndex * 50;
+            element.style.transitionDelay = `${delayMs / 1000}s`;
+          } else {
+            // Off-viewport: minimal delay, still animates for visual consistency
+            element.style.transitionDelay = "0s";
+          }
 
           element.classList.add(
             plan.direction === "top"
@@ -454,6 +551,8 @@ const ProjectsContent = ({
         exitDuration,
         timing,
         capturedVisibleProjects, // Preserve anchor stability across animation phases
+        anchorScrollOffset, // For scroll position restoration
+        anchorItemId: viewportPlan.anchor.anchorItemId, // For finding anchor after DOM update
       };
 
       if (exitDuration > 0) {
@@ -490,6 +589,7 @@ const ProjectsContent = ({
   }, [filtered]);
 
   // PHASE 4: FLIP animation using useLayoutEffect (runs BEFORE browser paint)
+  // biome-ignore lint/correctness/useExhaustiveDependencies: containerRef is stable and should not trigger re-runs
   useLayoutEffect(() => {
     const plan = transitionPlanRef.current;
     if (!listRef.current) return;
@@ -536,6 +636,9 @@ const ProjectsContent = ({
       removedFromTop,
       removedFromBottom,
       capturedVisibleProjects: capturedVisible,
+      timing,
+      anchorScrollOffset,
+      anchorItemId,
     } = plan;
 
     const newElements = Array.from(
@@ -553,11 +656,48 @@ const ProjectsContent = ({
       "color: #667EEA",
       Array.from(stayingItems),
     );
+    console.log(
+      "%cViewport anchor item: %s",
+      "color: #667EEA",
+      timing.anchorItemId ?? "none",
+    );
+
+    // CRITICAL: Restore scroll position to keep anchor in same viewport position
+    // This prevents scroll jumps when items are added/removed above the anchor
+    if (anchorItemId && anchorScrollOffset !== null && containerRef.current) {
+      const newAnchorElement = newElements.find(
+        (el) => el.dataset.projectId === anchorItemId,
+      );
+      if (newAnchorElement) {
+        // Calculate anchor's new position relative to container top
+        const containerTop = containerRef.current.getBoundingClientRect().top;
+        const newAnchorTop = newAnchorElement.getBoundingClientRect().top;
+        const newAnchorOffset = newAnchorTop - containerTop;
+
+        // Calculate how much scroll adjustment is needed
+        const scrollDelta = newAnchorOffset - anchorScrollOffset;
+
+        if (Math.abs(scrollDelta) > 1) {
+          // Adjust scroll position to keep anchor in same viewport position
+          containerRef.current.scrollTop += scrollDelta;
+          console.log(
+            "%c[PROJECTS] Restored scroll position: delta=%dpx (old=%d, new=%d)",
+            "color: #9B59B6",
+            scrollDelta,
+            anchorScrollOffset,
+            newAnchorOffset,
+          );
+        }
+      }
+    }
 
     // CRITICAL: Prevent staying items from being visible before FLIP transforms are applied
     // This must happen in useLayoutEffect (BEFORE browser paint) to prevent flicker
+    // EXCEPTION: Skip hiding the anchor item - it stays visually static
     positionsBeforeRef.current.forEach((data, itemId) => {
       if (!data.isStaying) return;
+      // Skip anchor item - it stays visible and static
+      if (timing.anchorItemId === itemId) return;
 
       const newElement = newElements.find(
         (el) => el.dataset.projectId === itemId,
@@ -572,8 +712,18 @@ const ProjectsContent = ({
     void listRef.current.offsetHeight;
 
     // Second pass: FLIP animation for staying items
+    // CRITICAL: The anchor item is NOT animated - it stays in the same visual position
     positionsBeforeRef.current.forEach((data, itemId) => {
       if (!data.isStaying) return;
+      // CRITICAL: Skip anchor item - it remains completely static in the viewport
+      if (timing.anchorItemId === itemId) {
+        console.log(
+          "%c[PROJECTS] Anchor item %s - keeping static (no FLIP animation)",
+          "color: #2ECE71",
+          itemId,
+        );
+        return;
+      }
 
       const newElement = newElements.find(
         (el) => el.dataset.projectId === itemId,
@@ -638,10 +788,9 @@ const ProjectsContent = ({
             String(directionalGroup.length),
           );
 
-          // Viewport-aware entry delay: only visible items get staggered timing
-          // Off-screen items snap instantly (0s delay) to avoid performance issues
+          // Viewport-aware entry optimization: visible items get staggered delays
+          // Off-viewport items get minimal delay but still animate
           // Direction-specific timing: TOP items wait for TOP exits, BOTTOM for BOTTOM exits
-          // Use captured visibility from animation start for consistency
           const isVisible = capturedVisible.has(projectId);
           if (isVisible) {
             // Calculate the delay based on direction
@@ -653,14 +802,20 @@ const ProjectsContent = ({
             const delayMs = entryStartDelay + groupIndex * 50; // 50ms stagger per item
             item.style.transitionDelay = `${delayMs / 1000}s`;
           } else {
-            // For off-screen items, snap instantly with no delay
+            // Off-viewport: minimal delay, still animates for visual consistency
             item.style.transitionDelay = "0s";
           }
         }
 
         item.classList.add("project-visible");
       } else if (projectId && stayingItems.has(projectId)) {
+        // Staying item that wasn't processed by FLIP (likely the anchor or off-viewport)
         item.classList.add("project-visible");
+
+        // If this is the anchor, add a subtle bump animation to signal it's staying
+        if (timing.anchorItemId === projectId) {
+          item.classList.add("project-bump");
+        }
       }
     });
 
@@ -707,6 +862,16 @@ const ProjectsContent = ({
         el.style.removeProperty("--total-items");
       });
 
+      // CRITICAL: Unlock container height after animation completes
+      // This allows the container to shrink/expand based on new content
+      if (listRef.current) {
+        listRef.current.style.height = "";
+        console.log(
+          "%c[PROJECTS] Unlocking container height",
+          "color: #667EEA",
+        );
+      }
+
       console.log(
         "%c[PROJECTS] Final displayed projects: %O",
         "color: #2ECE71",
@@ -726,33 +891,41 @@ const ProjectsContent = ({
 
   // Determine project state for rendering (minimal - most logic is in transition handler)
   const projectStates = useMemo(() => {
-    const { newPlan, stayingItems } = planTransition(
+    // Use LCS ONLY for staying item detection
+    const { stayingItems } = planTransition(
       prevFilteredRef.current,
       displayedProjects,
+    );
+
+    // Use viewport-aware planning for directions
+    const viewportPlan = planViewportAwareTransition(
+      prevFilteredRef.current,
+      displayedProjects,
+      visibleProjects,
     );
 
     const states = new Map<string, { action: string; direction?: string }>();
 
     displayedProjects.forEach((project) => {
+      const vpItem = viewportPlan.plan.find((vp) => vp.itemId === project.id);
+
       // For staying items, don't apply any directional classes during render
       // The FLIP animation in Phase 4 will handle them without initial animation classes
       if (stayingItems.has(project.id)) {
         states.set(project.id, { action: "stay" });
+      } else if (vpItem) {
+        states.set(project.id, {
+          action: vpItem.action,
+          direction: vpItem.direction,
+        });
       } else {
-        const newPlanItem = newPlan.find((p) => p.item === project.id);
-        if (newPlanItem) {
-          states.set(project.id, {
-            action: newPlanItem.action,
-            direction: newPlanItem.direction,
-          });
-        } else {
-          states.set(project.id, { action: "stay" });
-        }
+        // Fallback - shouldn't happen
+        states.set(project.id, { action: "stay" });
       }
     });
 
     return states;
-  }, [displayedProjects]);
+  }, [displayedProjects, visibleProjects]);
 
   // Log final render state
   const renderedProjectIds = displayedProjects.map((p) => p.id);

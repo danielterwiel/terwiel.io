@@ -33,18 +33,24 @@ interface ViewportAwareTransitionPlan {
   isViewportAnchor?: boolean;
   /** For staying items: whether their viewport position changed */
   shouldFlip?: boolean;
-  /** For entering/exiting: whether they're in the viewport boundary */
-  isInViewportBoundary?: boolean;
+  /** Whether this item is currently visible in viewport (for animation decisions) */
+  isVisible?: boolean;
+  /** Whether this item should animate (false = snap instantly) */
+  shouldAnimate?: boolean;
 }
 
 /**
  * Analyzes current viewport state to find anchor items.
- * Returns the first staying item visible in the viewport, or null if none are visible.
+ * Returns the first VISIBLE staying item, or the first staying item if none are visible.
  *
  * The anchor item is crucial because:
  * - Items above it should slide UP when removed, slide DOWN when entering
  * - Items below it should slide DOWN when removed, slide UP when entering
- * - The anchor item itself uses FLIP if its visual position changed
+ * - The anchor item itself should remain visually static (scale animation only)
+ *
+ * IMPORTANT: We prioritize VISIBLE staying items because the anchor should be
+ * something the user can see. We capture visibleOldItemIds at animation start
+ * to ensure consistency throughout the transition.
  */
 export function findViewportAnchor(
   oldItems: Project[],
@@ -63,7 +69,7 @@ export function findViewportAnchor(
     }
   }
 
-  // Find visible staying items in order
+  // Track visible staying items
   const visibleStayingItems: { itemId: string; oldIndex: number }[] = [];
   for (let i = 0; i < oldItems.length; i++) {
     const item = oldItems[i];
@@ -72,8 +78,28 @@ export function findViewportAnchor(
     }
   }
 
-  // The anchor is the first visible staying item
-  const anchorItemId = visibleStayingItems[0]?.itemId ?? null;
+  // CRITICAL: Prioritize first VISIBLE staying item as anchor
+  // This ensures the anchor is something the user can actually see
+  let anchorItemId: string | null = null;
+  if (visibleStayingItems.length > 0) {
+    anchorItemId = visibleStayingItems[0]?.itemId ?? null;
+  } else {
+    // Fallback: if no visible staying items, use first staying item
+    for (const item of oldItems) {
+      if (item && stayingItemIds.has(item.id)) {
+        anchorItemId = item.id;
+        break;
+      }
+    }
+  }
+
+  console.log(
+    "%c[VIEWPORT-ANCHOR] Staying items: %O, Visible staying items: %O, Anchor (first visible staying): %s",
+    "color: #667EEA",
+    Array.from(stayingItemIds),
+    visibleStayingItems.map((v) => v.itemId),
+    anchorItemId ?? "null",
+  );
 
   // Build viewport positions for visible items in the old list
   const viewportPositions = new Map<string, number>();
@@ -144,16 +170,76 @@ export function findStayingItemsNeedingFlip(
 }
 
 /**
+ * Detects if this is a single-result scenario that needs special handling.
+ *
+ * Special Case: When filtering results in a single item that's already in the viewport
+ * but not at the top, it should slide to the top of the viewport to maximize visibility.
+ *
+ * Returns: { isSingleResult: boolean, shouldSlideToTop: boolean, itemId: string | null }
+ */
+export function detectSingleResultCase(
+  oldItems: Project[],
+  newItems: Project[],
+  visibleOldItemIds: Set<string>,
+): {
+  isSingleResult: boolean;
+  shouldSlideToTop: boolean;
+  itemId: string | null;
+} {
+  // Not a single result case
+  if (newItems.length !== 1) {
+    return { isSingleResult: false, shouldSlideToTop: false, itemId: null };
+  }
+
+  const singleItem = newItems[0];
+  if (!singleItem) {
+    return { isSingleResult: false, shouldSlideToTop: false, itemId: null };
+  }
+
+  // Single result exists - check if it was visible and not already at top
+  const wasVisible = visibleOldItemIds.has(singleItem.id);
+  const oldIndex = oldItems.findIndex((item) => item?.id === singleItem.id);
+  const wasAtTop = oldIndex === 0;
+
+  // Should slide to top if it was visible but not at the top position
+  const shouldSlideToTop = wasVisible && !wasAtTop;
+
+  console.log(
+    "%c[SINGLE-RESULT] Detected: item=%s, wasVisible=%s, oldIndex=%d, shouldSlideToTop=%s",
+    "color: #FF6B6B",
+    singleItem.id,
+    wasVisible,
+    oldIndex,
+    shouldSlideToTop,
+  );
+
+  return {
+    isSingleResult: true,
+    shouldSlideToTop,
+    itemId: singleItem.id,
+  };
+}
+
+/**
  * Plans viewport-aware transitions that prevent overlaps.
  *
  * Strategy:
- * 1. Find the anchor item (first visible staying item)
- * 2. For each old item:
- *    - If staying: mark for FLIP if viewport position changed
- *    - If exiting: determine direction relative to anchor
- * 3. For each new item:
- *    - If entering: determine direction relative to anchor
- *    - Wait for opposite-direction exits to complete
+ * 1. Check for single-result special case first
+ * 2. Find the anchor item (first visible staying item)
+ * 3. For each old item:
+ *    - If staying AND visible: keep in place (scale animation only)
+ *    - If staying but NOT visible: can snap to new position instantly
+ *    - If exiting AND visible: animate out in direction relative to anchor
+ *    - If exiting but NOT visible: remove instantly
+ * 4. For each new item:
+ *    - If entering AND will be visible: animate in from direction relative to anchor
+ *    - If entering but NOT visible: add instantly
+ *    - Wait for exits to complete before entries start
+ *
+ * KEY BEHAVIORS:
+ * - Visible staying items remain visually static (scale animation only)
+ * - Off-viewport items snap instantly (no animation overhead)
+ * - Entries wait for exits to complete (no overlaps)
  */
 export function planViewportAwareTransition(
   oldItems: Project[],
@@ -163,7 +249,15 @@ export function planViewportAwareTransition(
   plan: ViewportAwareTransitionPlan[];
   anchor: ViewportAnchorInfo;
   flipItems: StayingItemFlipInfo[];
+  singleResultCase: ReturnType<typeof detectSingleResultCase>;
 } {
+  // STEP 1: Check for single-result special case
+  const singleResultCase = detectSingleResultCase(
+    oldItems,
+    newItems,
+    visibleOldItemIds,
+  );
+
   const anchor = findViewportAnchor(oldItems, newItems, visibleOldItemIds);
   const flipItems = findStayingItemsNeedingFlip(oldItems, newItems, anchor);
 
@@ -186,14 +280,21 @@ export function planViewportAwareTransition(
     const oldItem = oldItems[i];
     if (!oldItem) continue;
 
+    const isVisible = visibleOldItemIds.has(oldItem.id);
+
     if (stayingItemIds.has(oldItem.id)) {
       // Staying item
+      const isAnchor = oldItem.id === anchor.anchorItemId;
       const flipInfo = flipItems.find((fi) => fi.itemId === oldItem.id);
       plan.push({
         itemId: oldItem.id,
         action: "stay",
-        shouldFlip: flipInfo?.shouldFlip ?? false,
-        isViewportAnchor: oldItem.id === anchor.anchorItemId,
+        // CRITICAL: Never FLIP the anchor item - it stays visually static in the viewport
+        shouldFlip: isAnchor ? false : (flipInfo?.shouldFlip ?? false),
+        isViewportAnchor: isAnchor,
+        isVisible,
+        // Staying items that are visible should animate (scale), off-viewport should snap
+        shouldAnimate: isVisible,
       });
     } else {
       // Exiting item
@@ -203,6 +304,9 @@ export function planViewportAwareTransition(
           itemId: oldItem.id,
           action: "slide-out",
           direction: i < (oldItems.length - 1) / 2 ? "top" : "bottom",
+          isVisible,
+          // Only animate visible items; off-viewport items snap instantly
+          shouldAnimate: isVisible,
         });
       } else {
         // Find anchor index
@@ -215,25 +319,41 @@ export function planViewportAwareTransition(
           itemId: oldItem.id,
           action: "slide-out",
           direction,
-          isInViewportBoundary: anchor.visibleItemIds.has(oldItem.id),
+          isVisible,
+          // Only animate visible items; off-viewport items snap instantly
+          shouldAnimate: isVisible,
         });
       }
     }
   }
 
   // Plan for new items
+  // Note: We don't know which NEW items will be visible in the viewport yet,
+  // but we can make an educated guess based on their position relative to the anchor
   for (let i = 0; i < newItems.length; i++) {
     const newItem = newItems[i];
     if (!newItem) continue;
 
     if (!stayingItemIds.has(newItem.id)) {
       // Entering item
+      // Heuristic: items near the anchor are more likely to be visible
+      const anchorNewIndex = anchor.anchorItemId
+        ? newItems.findIndex((item) => item?.id === anchor.anchorItemId)
+        : -1;
+
+      // Consider items within a reasonable range of the anchor as "likely visible"
+      // This is a heuristic since we don't have actual viewport measurements yet
+      const isLikelyVisible =
+        anchorNewIndex !== -1 && Math.abs(i - anchorNewIndex) <= 3;
+
       if (!anchor.anchorItemId) {
         // No visible anchor - default
         plan.push({
           itemId: newItem.id,
           action: "slide-in",
           direction: i < (newItems.length - 1) / 2 ? "top" : "bottom",
+          isVisible: false, // Unknown
+          shouldAnimate: isLikelyVisible, // Animate if likely visible
         });
       } else {
         // Find anchor index in new list
@@ -246,10 +366,12 @@ export function planViewportAwareTransition(
           itemId: newItem.id,
           action: "slide-in",
           direction,
+          isVisible: false, // Unknown until after DOM update
+          shouldAnimate: isLikelyVisible, // Animate if likely visible
         });
       }
     }
   }
 
-  return { plan, anchor, flipItems };
+  return { plan, anchor, flipItems, singleResultCase };
 }

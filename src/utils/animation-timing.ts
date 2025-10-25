@@ -47,6 +47,8 @@ interface AnimationTimingConfig {
   staggerDelay: number;
   /** Duration of individual exit/entry animations (ms) */
   animationDuration: number;
+  /** ID of the viewport anchor item (stays static, no FLIP animation) */
+  anchorItemId?: string | null;
 }
 
 interface AnimationTiming {
@@ -66,6 +68,8 @@ interface AnimationTiming {
   entryFromTopStartDelay: number;
   /** When entering items from BOTTOM should start (after bottom-exits clear space) */
   entryFromBottomStartDelay: number;
+  /** ID of the viewport anchor item (stays static, no FLIP animation) */
+  anchorItemId?: string | null;
 }
 
 /**
@@ -98,6 +102,7 @@ export function calculateOverlapTiming(
     visibleEnteringFromBottomCount,
     staggerDelay,
     animationDuration,
+    anchorItemId,
   } = config;
 
   // Calculate exit timing for items exiting from TOP
@@ -127,31 +132,31 @@ export function calculateOverlapTiming(
       ? (visibleRemovedFromBottomCount - 1) * staggerDelay + animationDuration
       : 0;
 
-  // DOM update happens after exits are mostly visible (around 60% through exit)
+  // DOM update happens early so new items can start filling in quickly
+  // Around 20% through exit animation provides good overlap without flicker
   const domUpdateTrigger = Math.min(
-    animationDuration * 0.4, // Slightly later to ensure exits are visible
-    180,
+    animationDuration * 0.2, // Early update for fast filling
+    120,
   );
 
   // FLIP animation starts at domUpdateTrigger (not 0) to prevent flicker
   // Staying items need the DOM to update first before FLIP can calculate positions
   const flipStartDelay = domUpdateTrigger;
 
-  // Entry timing: Items from TOP wait for top-exits to fully complete
-  // This prevents new top entries from overlapping with items exiting from top
-  // If no items exit from top, entries can start after FLIP repositioning
+  // Entry timing: Items should START entering WHILE exits are still animating
+  // This creates smooth "filling" behavior with no gaps around the anchor
+  // Start entries at ~40% through the exit animation for smooth overlap
+  const exitOverlapPoint = animationDuration * 0.4;
+
   const entryFromTopStartDelay =
     removedFromTopCount > 0
-      ? maxTopExitTime + staggerDelay // Wait for exits to complete, then start entries
-      : Math.max(domUpdateTrigger + animationDuration * 0.5, staggerDelay); // No exits, wait for FLIP to progress
+      ? exitOverlapPoint // Start while exits are mid-animation
+      : Math.max(domUpdateTrigger + animationDuration * 0.3, staggerDelay); // No exits, wait briefly for FLIP
 
-  // Entry timing: Items from BOTTOM wait for bottom-exits to fully complete
-  // This prevents new bottom entries from overlapping with items exiting from bottom
-  // If no items exit from bottom, entries can start after FLIP repositioning
   const entryFromBottomStartDelay =
     removedFromBottomCount > 0
-      ? maxBottomExitTime + staggerDelay // Wait for exits to complete, then start entries
-      : Math.max(domUpdateTrigger + animationDuration * 0.5, staggerDelay); // No exits, wait for FLIP to progress
+      ? exitOverlapPoint // Start while exits are mid-animation
+      : Math.max(domUpdateTrigger + animationDuration * 0.3, staggerDelay); // No exits, wait briefly for FLIP
 
   // Build entry delays with direction-specific start times
   const entryDelays: number[] = [];
@@ -206,5 +211,6 @@ export function calculateOverlapTiming(
     maxDelay,
     entryFromTopStartDelay,
     entryFromBottomStartDelay,
+    anchorItemId,
   };
 }
