@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body {
+    /* Ensure white background prevents animations from showing through on mobile */
+    background-color: white;
+  }
+
   html {
     /* Make scrollbar track transparent while keeping the thumb visible */
     scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
@@ -408,6 +414,19 @@
 }
 
 @layer utilities {
+  /* Projects scrollable container - clips animations on mobile */
+  .projects-scrollable {
+    /* On mobile: clip animations so they don't overflow into header/StackCloud */
+    overflow: hidden;
+  }
+
+  @media (min-width: 768px) {
+    .projects-scrollable {
+      /* On desktop: allow normal overflow behavior */
+      overflow: visible;
+    }
+  }
+
   /* Project List Sliding Transitions - Pure CSS + FLIP */
   /* Uses LCS algorithm + Manual FLIP for intelligent animations */
 
@@ -416,7 +435,7 @@
     /* Initial state - invisible but takes up space */
     opacity: 0;
 
-    /* CSS Transition properties */
+    /* CSS Transition properties - supports transition-delay set dynamically */
     transition:
       transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
       opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
@@ -427,21 +446,36 @@
   }
 
   /* Items sliding from TOP with stacked positioning */
+  /* Mobile: smaller animation range to avoid overlapping header/StackCloud */
   .project-item.project-from-top {
-    transform: translateY(
-      calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
-    );
+    transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
   }
 
   /* Items sliding from BOTTOM with stacked positioning */
+  /* Mobile: smaller animation range */
   .project-item.project-from-bottom {
     transform: translateY(
-      calc(
-        100vh +
-        ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
-        100px
-      )
+      calc(500px + ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px))
     );
+  }
+
+  /* Desktop: use full viewport height for animations */
+  @media (min-width: 768px) {
+    .project-item.project-from-top {
+      transform: translateY(
+        calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+      );
+    }
+
+    .project-item.project-from-bottom {
+      transform: translateY(
+        calc(
+          100vh +
+          ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
+          100px
+        )
+      );
+    }
   }
 
   /* Visible state */
@@ -450,26 +484,45 @@
     opacity: 1;
   }
 
-  /* Slide out animations */
+  /* Slide out animations with staggered timing */
+  /* Each item exits with transition-delay = index * 50ms (set via JS) */
+  /* This creates overlapping exit animations where items cascade out smoothly */
+  /* Mobile: smaller animation range */
   .project-item.project-slide-out.project-from-top {
-    transform: translateY(
-      calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
-    );
+    transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
     opacity: 0;
   }
 
   .project-item.project-slide-out.project-from-bottom {
     transform: translateY(
-      calc(
-        100vh +
-        ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
-        100px
-      )
+      calc(500px + ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px))
     );
     opacity: 0;
   }
 
+  /* Desktop: use full viewport height for animations */
+  @media (min-width: 768px) {
+    .project-item.project-slide-out.project-from-top {
+      transform: translateY(
+        calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+      );
+      opacity: 0;
+    }
+
+    .project-item.project-slide-out.project-from-bottom {
+      transform: translateY(
+        calc(
+          100vh +
+          ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
+          100px
+        )
+      );
+      opacity: 0;
+    }
+  }
+
   /* Fade out animation for items between staying items */
+  /* Faster fade than slide animations to avoid blocking the view */
   .project-item.project-fade-out {
     opacity: 0;
     transform: scale(0.8);

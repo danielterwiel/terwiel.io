@@ -15,6 +15,8 @@ import {
 
 import type { Domain, Project as ProjectType } from "~/types";
 
+import { useViewportProjects } from "~/hooks/use-viewport-projects";
+
 type TransitionStep = {
   item: string;
   project: ProjectType;
@@ -28,13 +30,18 @@ import { Project } from "~/components/project";
 import { ProjectsEmptyState } from "~/components/projects-empty-state";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
+import { calculateOverlapTiming } from "~/utils/animation-timing";
 import { filterCache } from "~/utils/filter-cache";
 import { filterProjects } from "~/utils/filter-projects";
 import { planTransition } from "~/utils/lcs-transition";
 import { getSearchDomain, getSearchQuery } from "~/utils/search-params";
 import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 
-const ProjectsContent = () => {
+const ProjectsContent = ({
+  containerRef,
+}: {
+  containerRef: React.RefObject<HTMLDivElement>;
+}) => {
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);
 
@@ -74,6 +81,13 @@ const ProjectsContent = () => {
     Map<string, { rect: DOMRect; isStaying: boolean }>
   >(new Map());
 
+  // Track which projects are currently visible in the viewport
+  // This is used to determine which items should animate (visible) vs snap (off-screen)
+  const visibleProjects = useViewportProjects(
+    containerRef,
+    "li[data-project-id]",
+  );
+
   // Initial load
   useEffect(() => {
     if (prevFilteredRef.current.length === 0 && filtered.length > 0) {
@@ -98,9 +112,11 @@ const ProjectsContent = () => {
     removedFromTop: TransitionStep[];
     removedFromBottom: TransitionStep[];
     exitDuration: number;
+    timing: ReturnType<typeof calculateOverlapTiming>;
   } | null>(null);
 
   // PHASE 1 & 2: Prepare and animate out removed items
+  // biome-ignore lint/correctness/useExhaustiveDependencies: visibleProjects is captured at animation start, not used as a dependency
   useEffect(() => {
     // Skip initial render
     if (prevFilteredRef.current.length === 0) return;
@@ -142,13 +158,38 @@ const ProjectsContent = () => {
         }
       });
 
-      // PHASE 2: Animate OUT only items being REMOVED
+      // PHASE 2: Animate OUT only items being REMOVED with overlapping timing
       const removedFromTop = oldPlan.filter(
         (p) => p.action === "slide-out" && p.direction === "top",
       );
       const removedFromBottom = oldPlan.filter(
         (p) => p.action === "slide-out" && p.direction === "bottom",
       );
+
+      // Count visible items in each category to coordinate timing
+      // Only visible items animate; off-screen items snap instantly
+      // Capture current viewport state at animation start time
+      const visibleRemovedItems = removedFromTop
+        .concat(removedFromBottom)
+        .filter((p) => visibleProjects.has(p.item));
+      const visibleEnteringItems = newPlan
+        .filter((p) => p.action === "slide-in")
+        .filter((p) => visibleProjects.has(p.item));
+
+      // Calculate coordinated timing for smooth overlapping animations
+      // Viewport-aware: only visible items get staggered delays, off-screen items snap
+      const timing = calculateOverlapTiming({
+        removedCount: removedFromTop.length + removedFromBottom.length,
+        visibleRemovedCount: visibleRemovedItems.length,
+        stayingCount: oldPlan.filter((p) => p.action === "stay").length,
+        visibleStayingCount: oldPlan
+          .filter((p) => p.action === "stay")
+          .filter((p) => visibleProjects.has(p.item)).length,
+        enteringCount: newPlan.filter((p) => p.action === "slide-in").length,
+        visibleEnteringCount: visibleEnteringItems.length,
+        staggerDelay: 50, // 50ms between each visible item
+        animationDuration: 600, // 600ms per animation
+      });
 
       oldPlan.forEach((plan, index) => {
         const element = currentElements[index];
@@ -166,7 +207,12 @@ const ProjectsContent = () => {
             "--total-items",
             String(directionalGroup.length),
           );
-          element.style.transitionDelay = `${index * 0.05}s`;
+
+          // Viewport-aware delay: only visible items get staggered delay
+          // Off-screen items snap instantly with 0s delay
+          const isVisible = visibleProjects.has(plan.item);
+          const delayMs = isVisible ? groupIndex * 50 : 0;
+          element.style.transitionDelay = `${delayMs / 1000}s`;
 
           element.classList.add(
             plan.direction === "top"
@@ -180,11 +226,9 @@ const ProjectsContent = () => {
         }
       });
 
-      const exitDuration =
-        removedFromTop.length > 0 || removedFromBottom.length > 0
-          ? 600 +
-            Math.max(removedFromTop.length, removedFromBottom.length) * 100
-          : 0;
+      // DOM update trigger: when exits are clearly visible but before full completion
+      // This allows FLIP animations to start immediately with staying items
+      const exitDuration = timing.totalDuration;
 
       // Store transition plan for Phase 4 (FLIP animation)
       transitionPlanRef.current = {
@@ -194,6 +238,7 @@ const ProjectsContent = () => {
         removedFromTop,
         removedFromBottom,
         exitDuration,
+        timing,
       };
 
       if (exitDuration > 0) {
@@ -279,7 +324,7 @@ const ProjectsContent = () => {
       }
     });
 
-    // Slide in new items
+    // Slide in new items with coordinated timing (viewport-aware)
     const newFromTop = newPlan.filter((p) => p.direction === "top");
     const newFromBottom = newPlan.filter((p) => p.direction === "bottom");
 
@@ -300,6 +345,20 @@ const ProjectsContent = () => {
             "--total-items",
             String(directionalGroup.length),
           );
+
+          // Viewport-aware entry delay: only visible items get staggered timing
+          // Off-screen items snap instantly (0s delay) to avoid performance issues
+          const isVisible = visibleProjects.has(projectId);
+          if (isVisible) {
+            // For visible items, use the coordinated stagger timing
+            const entryDelay = plan.timing.entryDelays[groupIndex];
+            if (entryDelay !== undefined) {
+              item.style.transitionDelay = `${entryDelay / 1000}s`;
+            }
+          } else {
+            // For off-screen items, snap instantly with no delay
+            item.style.transitionDelay = "0s";
+          }
         }
 
         item.classList.add("project-visible");
@@ -332,7 +391,7 @@ const ProjectsContent = () => {
     }, maxAnimationDuration);
 
     return () => clearTimeout(cleanupTimer);
-  }, [displayedProjects, filtered]);
+  }, [displayedProjects, filtered, visibleProjects]);
 
   // Determine project state for rendering (minimal - most logic is in transition handler)
   const projectStates = useMemo(() => {
@@ -407,7 +466,7 @@ export const Projects = () => {
       className="md:h-full md:overflow-y-auto projects-scrollable"
     >
       <Suspense fallback={<div>Loading projects...</div>}>
-        <ProjectsContent />
+        <ProjectsContent containerRef={containerRef} />
       </Suspense>
     </div>
   );

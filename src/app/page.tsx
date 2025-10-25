@@ -7,7 +7,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen md:flex-col md:h-screen">
       <Header />
       {/* Main content area with full viewport height minus header on desktop */}
-      <main className="flex-1 flex flex-col md:flex-row md:min-h-0 p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0">
+      <main className="flex-1 flex flex-col md:flex-row md:min-h-0 p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 relative z-0">
         {/*
           Desktop grid adjustment:
           - StackCloud: calc(50% - half of right menu width from header)
@@ -15,12 +15,13 @@ export default function HomePage() {
           This aligns the project timeline with the centered header title
         */}
         {/* StackCloud - full width on mobile, adjusted width on desktop */}
-        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0">
+        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0 relative z-10">
           <StackCloud />
         </div>
 
         {/* Projects - full width on mobile, adjusted width on desktop */}
-        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0">
+        {/* bg-white ensures projects container doesn't show animations from beneath */}
+        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-0 bg-white md:bg-transparent">
           <Projects />
         </div>
       </main>
