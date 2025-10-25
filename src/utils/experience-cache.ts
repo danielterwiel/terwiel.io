@@ -53,28 +53,3 @@ export function buildExperienceCache(projects: Project[]): ExperienceCache {
 
   return cache;
 }
-
-/**
- * Get cached domain experience (O(1) lookup)
- */
-export function getDomainExperience(
-  domain: string,
-): DomainExperienceSimple | undefined {
-  return cache?.domains.get(domain);
-}
-
-/**
- * Get cached stack experience (O(1) lookup)
- */
-export function getStackExperience(
-  stackName: string,
-): DomainExperienceSimple | undefined {
-  return cache?.stacks.get(stackName);
-}
-
-/**
- * Clear cache (useful for testing)
- */
-export function clearExperienceCache(): void {
-  cache = null;
-}
