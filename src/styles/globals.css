@@ -405,347 +405,118 @@
     object-fit: contain;
     display: block;
   }
+}
 
-  /* Base UI Toast Styling */
-  .base-toast-viewport {
-    position: fixed;
-    z-index: 50;
-    width: 20rem;
-    bottom: 1rem;
-    right: 1rem;
-    left: auto;
-    top: auto;
-    pointer-events: none;
-    overflow: visible;
-  }
+@layer utilities {
+  /* Project List Sliding Transitions - Pure CSS + FLIP */
+  /* Uses LCS algorithm + Manual FLIP for intelligent animations */
 
-  .base-toast-root {
-    --gap: 0.75rem;
-    --peek: 0.5rem;
-    --scale: calc(max(0, 1 - (var(--toast-index) * 0.1)));
-    --shrink: calc(1 - var(--scale));
-    --height: var(--toast-frontmost-height, var(--toast-height));
-    --offset-y: calc(
-      var(--toast-offset-y) *
-      -1 +
-      (var(--toast-index) * var(--gap) * -1) +
-      var(--toast-swipe-movement-y)
-    );
+  /* Project item base */
+  .project-item {
+    /* Initial state - invisible but takes up space */
+    opacity: 0;
 
-    position: absolute;
-    right: 0;
-    margin: 0;
-    box-sizing: border-box;
-    width: 100%;
-    padding: 1rem;
-    bottom: 0;
-    left: auto;
-    margin-right: 0;
-    pointer-events: auto;
-    user-select: none;
-    cursor: default;
-    z-index: calc(1000 - var(--toast-index));
-    height: var(--toast-frontmost-height, var(--toast-height));
-
-    /* Magnetic effect styling - white background with magnetic elevation */
-    background: white;
-    box-shadow: 0 4px 16px oklch(0% 0 0 / 0.1);
-    border-radius: 0.5rem;
-    border: 1px solid oklch(37.85% 0.1954 263.23 / 0.15);
-    transform-origin: bottom center;
-
-    /* Smooth transitions for stacking and animations */
+    /* CSS Transition properties */
     transition:
-      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-      opacity 0.5s,
-      height 0.15s,
-      box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-      filter 0.2s ease-out;
-    will-change: transform;
+      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
-    /* Position with z-index stacking (older toasts peek from above) */
-    transform: translateX(var(--toast-swipe-movement-x))
-      translateY(
-        calc(
-          var(--toast-swipe-movement-y) -
-          (var(--toast-index) * (var(--height) - var(--peek)) * 0.5)
-        )
-      )
-      scale(var(--scale));
-
-    /* Expanded state - triggered on viewport hover, shows all toasts in full height */
-    &[data-expanded] {
-      transform: translateX(var(--toast-swipe-movement-x))
-        translateY(
-          calc(
-            var(--toast-swipe-movement-y) -
-            (var(--toast-index) * (var(--height) + var(--gap)))
-          )
-        )
-        scale(1);
-      height: var(--toast-frontmost-height, var(--toast-height));
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
-    }
-
-    /* Hover state on viewport triggers expanded for all toasts */
-    .base-toast-viewport:hover & {
-      transform: translateX(var(--toast-swipe-movement-x))
-        translateY(
-          calc(
-            var(--toast-swipe-movement-y) -
-            (var(--toast-index) * (var(--height) + var(--gap)))
-          )
-        )
-        scale(1);
-      height: var(--toast-frontmost-height, var(--toast-height));
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.25);
-    }
-
-    /* Hover state - apply magnetic effect on individual toast hover */
-    &:hover {
-      box-shadow: 0 12px 32px oklch(37.85% 0.1954 263.23 / 0.3);
-      filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.2));
-    }
-
-    /* Limited toasts that exceed the max limit - hide and don't interact */
-    &[data-limited] {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* Entry animation - slide up from bottom */
-    &[data-starting-style],
-    &[data-transition-status="starting"] {
-      transform: translateY(150%);
-      opacity: 0;
-    }
-
-    /* Exit animation - slide right and fade out (default direction) */
-    &[data-ending-style],
-    &[data-transition-status="ending"] {
-      opacity: 0;
-      transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-        translateY(var(--toast-swipe-movement-y));
-    }
-
-    /* Swipe exit animations */
-    &[data-swipe-direction="up"] {
-      &[data-ending-style] {
-        transform: translateY(calc(var(--toast-swipe-movement-y) - 150%));
-      }
-    }
-
-    &[data-swipe-direction="down"] {
-      &[data-ending-style] {
-        transform: translateY(calc(var(--toast-swipe-movement-y) + 150%));
-      }
-    }
-
-    &[data-swipe-direction="left"] {
-      &[data-ending-style] {
-        transform: translateX(calc(var(--toast-swipe-movement-x) - 150%))
-          translateY(var(--toast-swipe-movement-y));
-      }
-    }
-
-    &[data-swipe-direction="right"] {
-      &[data-ending-style] {
-        transform: translateX(calc(var(--toast-swipe-movement-x) + 150%))
-          translateY(var(--toast-swipe-movement-y));
-      }
-    }
-
-    /* Gap for stacking */
-    &::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      width: 100%;
-      left: 0;
-      height: calc(var(--gap) + 1px);
-    }
-  }
-
-  .base-toast-content {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+    /* Ensure proper stacking and no overlap */
     position: relative;
-    padding-right: 2rem;
+    isolation: isolate;
   }
 
-  .base-toast-title {
-    font-weight: 600;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(37.85% 0.1954 263.23);
-    margin: 0;
+  /* Items sliding from TOP with stacked positioning */
+  .project-item.project-from-top {
+    transform: translateY(
+      calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+    );
   }
 
-  .base-toast-description {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: oklch(37.85% 0.1954 263.23 / 0.8);
-    margin: 0;
+  /* Items sliding from BOTTOM with stacked positioning */
+  .project-item.project-from-bottom {
+    transform: translateY(
+      calc(
+        100vh +
+        ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
+        100px
+      )
+    );
   }
 
-  .base-toast-close {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.25rem;
-    padding: 0.25rem;
-    border: none;
-    background: transparent;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0.25rem;
-    color: oklch(37.85% 0.1954 263.23 / 0.6);
-    cursor: pointer;
-    transition: all 0.2s ease-out;
-
-    &:hover {
-      background-color: oklch(37.85% 0.1954 263.23 / 0.08);
-      color: oklch(37.85% 0.1954 263.23);
-    }
-
-    &:focus-visible {
-      outline: 2px solid oklch(37.85% 0.1954 263.23);
-      outline-offset: -1px;
-    }
+  /* Visible state */
+  .project-item.project-visible {
+    transform: translateY(0);
+    opacity: 1;
   }
 
-  .base-toast-close-icon {
-    width: 1.25rem;
-    height: 1.25rem;
+  /* Slide out animations */
+  .project-item.project-slide-out.project-from-top {
+    transform: translateY(
+      calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
+    );
+    opacity: 0;
   }
 
-  /* View Transitions for filtered projects list */
-
-  /* CRITICAL: Disable the default root view transition */
-  /* This prevents the "bang" effect on the entire viewport */
-  ::view-transition-group(root) {
-    animation-duration: 0s;
+  .project-item.project-slide-out.project-from-bottom {
+    transform: translateY(
+      calc(
+        100vh +
+        ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px) +
+        100px
+      )
+    );
+    opacity: 0;
   }
 
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
+  /* Fade out animation for items between staying items */
+  .project-item.project-fade-out {
+    opacity: 0;
+    transform: scale(0.8);
+    transition:
+      opacity 0.4s ease,
+      transform 0.4s ease;
   }
 
-  /* Header gets high z-index to stay on top during transitions */
-  /* Even though it doesn't animate, it needs to be in the transition layer */
-  ::view-transition-group(header) {
-    z-index: 100;
-    animation: none;
+  /* Bump animation for items that stay in same position */
+  .project-bump {
+    animation: project-bump 0.4s ease-out;
   }
 
-  ::view-transition-old(header),
-  ::view-transition-new(header) {
-    animation: none;
-  }
-
-  /* Ensure project view transitions stay below header */
-  ::view-transition-group(*):not(::view-transition-group(header)) {
-    z-index: 1;
-  }
-
-  /* Projects list transition animation */
-  /* Conditional animations based on content change */
-  /* Triggers only on URLSearchParams changes via startTransition */
-  @media (prefers-reduced-motion: no-preference) {
-    /* Default: SCALE animation (when first project stays the same) */
-    /* Hide old view immediately - no animation, no overlap */
-    ::view-transition-old(projects-list) {
-      animation: none;
-      opacity: 0;
-    }
-
-    /* New view gets subtle scale pulse by default */
-    ::view-transition-new(projects-list) {
-      animation: projects-scale-pulse 300ms linear both;
-    }
-
-    /* SLIDE animation override (when content changes) */
-    /* Applied when data-transition-type="slide" */
-    [data-transition-type="slide"] ::view-transition-old(projects-list) {
-      animation: projects-slide-out 250ms cubic-bezier(0.4, 0, 1, 1) both;
-    }
-
-    [data-transition-type="slide"] ::view-transition-new(projects-list) {
-      animation: projects-slide-in 350ms cubic-bezier(0.2, 0, 0, 1) 250ms both;
-    }
-
-    /* Ensure proper rendering */
-    ::view-transition-old(projects-list),
-    ::view-transition-new(projects-list) {
-      mix-blend-mode: normal;
-      height: 100%;
-      overflow: clip;
-    }
-
-    /* Isolate the blending to prevent artifacts */
-    ::view-transition-image-pair(projects-list) {
-      isolation: isolate;
-    }
-
-    /* Group animation - different durations based on type */
-    ::view-transition-group(projects-list) {
-      animation-duration: 300ms;
-      animation-timing-function: linear;
-    }
-
-    [data-transition-type="slide"] ::view-transition-group(projects-list) {
-      animation-duration: 600ms;
-      animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    }
-  }
-
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-new(projects-list),
-    ::view-transition-old(projects-list),
-    ::view-transition-group(projects-list) {
-      animation: none !important;
-    }
-  }
-
-  /* Subtle linear scale pulse - gentle emphasis effect */
-  /* Scales down slightly then back to normal - linear timing */
-  @keyframes projects-scale-pulse {
+  @keyframes project-bump {
     0% {
       transform: scale(1);
     }
     50% {
-      transform: scale(0.985);
+      transform: scale(1.03);
     }
     100% {
       transform: scale(1);
     }
   }
 
-  /* Slide animations for when content changes */
-  @keyframes projects-slide-out {
-    from {
-      opacity: 1;
-      transform: translateY(0);
+  /* Accessibility: Respect user's motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    .project-item {
+      transition: opacity 0.3s ease;
+      transform: translateY(0) !important;
     }
-    to {
-      opacity: 0;
-      transform: translateY(40px);
-    }
-  }
 
-  @keyframes projects-slide-in {
-    from {
+    .project-item:not(.project-visible) {
       opacity: 0;
-      transform: translateY(-40px);
     }
-    to {
+
+    .project-item.project-visible {
       opacity: 1;
-      transform: translateY(0);
+    }
+
+    .project-item.project-slide-out,
+    .project-item.project-fade-out {
+      opacity: 0;
+    }
+
+    .project-bump {
+      animation: none;
     }
   }
 }
