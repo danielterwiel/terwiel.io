@@ -403,7 +403,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         const queryString = toggleSearchParam(
           currentSearchQueryRef.current,
           datum.data.domain,
-          "domain",
         );
 
         startTransitionRef.current(() => {
