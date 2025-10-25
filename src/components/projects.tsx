@@ -65,13 +65,6 @@ const ProjectsContent = ({
   const filtered = useMemo(() => {
     const cached = filterCache.get(query, domain ?? undefined);
     if (cached) {
-      console.log(
-        "%c[PROJECTS] Using cached filter result: %d items for query='%s', domain='%s'",
-        "color: #4D96FF",
-        cached.length,
-        query,
-        domain ?? "none",
-      );
       return cached;
     }
 
@@ -80,13 +73,6 @@ const ProjectsContent = ({
       query,
       domain ?? undefined,
       selectionIndex,
-    );
-    console.log(
-      "%c[PROJECTS] Computed filter result: %d items for query='%s', domain='%s'",
-      "color: #4D96FF",
-      result.length,
-      query,
-      domain ?? "none",
     );
     filterCache.set(query, domain ?? undefined, result);
     return result;
@@ -165,10 +151,6 @@ const ProjectsContent = ({
     // CRITICAL: Cancel any in-flight transition when new filter applied
     // This prevents the old transition from blocking the new one
     if (transitionAbortControllerRef.current) {
-      console.log(
-        "%c[PROJECTS] Canceling previous transition",
-        "color: #FF6B6B; font-weight: bold",
-      );
       transitionAbortControllerRef.current.abort();
       transitionAbortControllerRef.current = null;
     }
@@ -179,10 +161,6 @@ const ProjectsContent = ({
 
     // If we're already transitioning, forcefully abort and clean up
     if (isTransitioningRef.current) {
-      console.log(
-        "%c[PROJECTS] Force-cleaning previous transition state",
-        "color: #FF6B6B",
-      );
       isTransitioningRef.current = false;
       transitionPlanRef.current = null;
 
@@ -206,28 +184,6 @@ const ProjectsContent = ({
       }
     }
 
-    console.log(
-      "%c[PROJECTS] Transition Started",
-      "color: #667EEA; font-weight: bold",
-    );
-    console.log(
-      "%cPrevious filtered ref: %d items - %O",
-      "color: #FF8C42",
-      prevFilteredRef.current.length,
-      prevFilteredRef.current.map((p) => p.id),
-    );
-    console.log(
-      "%cNew filtered: %d items - %O",
-      "color: #2ECE71",
-      filtered.length,
-      filtered.map((p) => p.id),
-    );
-    console.log(
-      "%cCurrent displayed projects: %d items",
-      "color: #FF6B6B",
-      displayedProjects.length,
-    );
-
     // CRITICAL: Capture the current visible projects at the START of transition
     // This ensures the anchor point remains stable throughout the animation
     const capturedVisibleProjects = new Set(visibleProjects);
@@ -239,10 +195,6 @@ const ProjectsContent = ({
 
       // Check if abort was requested before starting
       if (signal.aborted) {
-        console.log(
-          "%c[PROJECTS] Transition aborted before start",
-          "color: #FF6B6B",
-        );
         isTransitioningRef.current = false;
         transitionPlanRef.current = null;
         // DO NOT update prevFilteredRef here - let the new transition handle it
@@ -343,43 +295,6 @@ const ProjectsContent = ({
         };
       });
 
-      console.log(
-        "%c[PROJECTS] Viewport anchor: %s",
-        "color: #667EEA",
-        viewportPlan.anchor.anchorItemId,
-      );
-
-      // Log staying items to verify they're not being changed to slide-out
-      const stayingInOldPlan = oldPlan.filter((p) => p.action === "stay");
-      console.log(
-        "%c[PROJECTS] Staying items in merged plan: %O",
-        "color: #4D96FF",
-        stayingInOldPlan.map((p) => ({
-          id: p.item,
-          action: p.action,
-          direction: p.direction,
-        })),
-      );
-
-      const slidingOutItems = oldPlan.filter((p) => p.action === "slide-out");
-      console.log(
-        "%c[PROJECTS] Sliding out items: %O",
-        "color: #FF8C42",
-        slidingOutItems.map((p) => ({
-          id: p.item,
-          direction: p.direction,
-        })),
-      );
-
-      console.log(
-        "%c[PROJECTS] Viewport-aware anchor info: %O",
-        "color: #667EEA",
-        {
-          anchorItemId: viewportPlan.anchor.anchorItemId,
-          visibleItemIds: Array.from(viewportPlan.anchor.visibleItemIds),
-        },
-      );
-
       // PHASE 1: Record positions BEFORE any changes
       const currentElements = Array.from(
         listRef.current?.querySelectorAll("li") ?? [],
@@ -410,12 +325,6 @@ const ProjectsContent = ({
           const containerTop = containerRef.current.getBoundingClientRect().top;
           const anchorTop = anchorElement.getBoundingClientRect().top;
           anchorScrollOffset = anchorTop - containerTop;
-          console.log(
-            "%c[PROJECTS] Saved anchor scroll offset: %dpx (anchor: %s)",
-            "color: #9B59B6",
-            anchorScrollOffset,
-            viewportPlan.anchor.anchorItemId,
-          );
         }
       }
 
@@ -425,11 +334,6 @@ const ProjectsContent = ({
       if (listRef.current) {
         const currentHeight = listRef.current.offsetHeight;
         listRef.current.style.height = `${currentHeight}px`;
-        console.log(
-          "%c[PROJECTS] Locking container height: %dpx",
-          "color: #667EEA",
-          currentHeight,
-        );
       }
 
       // PHASE 2: Animate OUT only items being REMOVED with overlapping timing
@@ -565,10 +469,6 @@ const ProjectsContent = ({
 
       // Check if abort was requested before proceeding
       if (signal.aborted) {
-        console.log(
-          "%c[PROJECTS] Transition aborted during wait",
-          "color: #FF6B6B",
-        );
         isTransitioningRef.current = false;
         transitionPlanRef.current = null;
         // DO NOT update state when aborted - the new effect will handle it
@@ -577,10 +477,6 @@ const ProjectsContent = ({
 
       // PHASE 3: Update to new filtered list
       // This triggers a React render, and useLayoutEffect will fire to do FLIP before paint
-      console.log(
-        "%c[PROJECTS] PHASE 3: Updating displayed projects",
-        "color: #667EEA",
-      );
       setDisplayedProjects(filtered);
       prevFilteredRef.current = filtered;
       prevQueryRef.current = query;
@@ -594,33 +490,9 @@ const ProjectsContent = ({
     const plan = transitionPlanRef.current;
     if (!listRef.current) return;
 
-    console.log(
-      "%c[PROJECTS] PHASE 4: FLIP animation starting",
-      "color: #667EEA",
-    );
-    console.log(
-      "%cDisplayed projects count: %d",
-      "color: #667EEA",
-      displayedProjects.length,
-    );
-    console.log(
-      "%cActual DOM li elements: %d",
-      "color: #667EEA",
-      listRef.current.querySelectorAll("li").length,
-    );
-
     // If no transition plan, just make all items visible (fallback for normal renders)
     if (!plan) {
-      console.log(
-        "%c[PROJECTS] No transition plan - making all items visible",
-        "color: #667EEA",
-      );
       const liElements = Array.from(listRef.current.querySelectorAll("li"));
-      console.log(
-        "%cDirect visibility update for %d items",
-        "color: #667EEA",
-        liElements.length,
-      );
       liElements.forEach((item) => {
         const el = item as HTMLElement;
         if (!el.classList.contains("project-visible")) {
@@ -645,23 +517,6 @@ const ProjectsContent = ({
       listRef.current.querySelectorAll("li"),
     ) as HTMLElement[];
 
-    console.log(
-      "%c[PROJECTS] New elements found: %d, Staying items: %d",
-      "color: #667EEA",
-      newElements.length,
-      stayingItems.size,
-    );
-    console.log(
-      "%cStaying items IDs: %O",
-      "color: #667EEA",
-      Array.from(stayingItems),
-    );
-    console.log(
-      "%cViewport anchor item: %s",
-      "color: #667EEA",
-      timing.anchorItemId ?? "none",
-    );
-
     // CRITICAL: Restore scroll position to keep anchor in same viewport position
     // This prevents scroll jumps when items are added/removed above the anchor
     if (anchorItemId && anchorScrollOffset !== null && containerRef.current) {
@@ -680,13 +535,6 @@ const ProjectsContent = ({
         if (Math.abs(scrollDelta) > 1) {
           // Adjust scroll position to keep anchor in same viewport position
           containerRef.current.scrollTop += scrollDelta;
-          console.log(
-            "%c[PROJECTS] Restored scroll position: delta=%dpx (old=%d, new=%d)",
-            "color: #9B59B6",
-            scrollDelta,
-            anchorScrollOffset,
-            newAnchorOffset,
-          );
         }
       }
     }
@@ -717,11 +565,6 @@ const ProjectsContent = ({
       if (!data.isStaying) return;
       // CRITICAL: Skip anchor item - it remains completely static in the viewport
       if (timing.anchorItemId === itemId) {
-        console.log(
-          "%c[PROJECTS] Anchor item %s - keeping static (no FLIP animation)",
-          "color: #2ECE71",
-          itemId,
-        );
         return;
       }
 
@@ -829,25 +672,12 @@ const ProjectsContent = ({
       // Only cleanup if this is still the active transition
       // If transitionPlanRef was cleared, it means a new transition started
       if (!transitionPlanRef.current) {
-        console.log(
-          "%c[PROJECTS] Cleanup skipped - new transition has started",
-          "color: #FF6B6B",
-        );
         isTransitioningRef.current = false;
         return;
       }
 
-      console.log(
-        "%c[PROJECTS] Cleanup phase - removing transition styles",
-        "color: #667EEA",
-      );
       const elements = Array.from(
         listRef.current?.querySelectorAll("li") ?? [],
-      );
-      console.log(
-        "%cCleaning up %d elements",
-        "color: #667EEA",
-        elements.length,
       );
       elements.forEach((element) => {
         const el = element as HTMLElement;
@@ -866,21 +696,7 @@ const ProjectsContent = ({
       // This allows the container to shrink/expand based on new content
       if (listRef.current) {
         listRef.current.style.height = "";
-        console.log(
-          "%c[PROJECTS] Unlocking container height",
-          "color: #667EEA",
-        );
       }
-
-      console.log(
-        "%c[PROJECTS] Final displayed projects: %O",
-        "color: #2ECE71",
-        filtered.map((p) => p.id),
-      );
-      console.log(
-        "%c[PROJECTS] Transition complete",
-        "color: #667EEA; font-weight: bold",
-      );
 
       isTransitioningRef.current = false;
       transitionPlanRef.current = null;
@@ -926,15 +742,6 @@ const ProjectsContent = ({
 
     return states;
   }, [displayedProjects, visibleProjects]);
-
-  // Log final render state
-  const renderedProjectIds = displayedProjects.map((p) => p.id);
-  console.log(
-    "%c[PROJECTS] Rendering %d projects",
-    "color: #667EEA",
-    displayedProjects.length,
-  );
-  console.log("%cRendered IDs: %O", "color: #667EEA", renderedProjectIds);
 
   return (
     <article className="prose max-w-none">

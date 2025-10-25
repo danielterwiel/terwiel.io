@@ -20,8 +20,7 @@ export default function HomePage() {
         </div>
 
         {/* Projects - full width on mobile, adjusted width on desktop */}
-        {/* bg-white ensures projects container doesn't show animations from beneath on mobile */}
-        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-10 bg-white md:bg-transparent">
+        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-10 overflow-visible">
           <Projects />
         </div>
       </main>

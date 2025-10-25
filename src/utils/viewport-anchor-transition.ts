@@ -93,14 +93,6 @@ export function findViewportAnchor(
     }
   }
 
-  console.log(
-    "%c[VIEWPORT-ANCHOR] Staying items: %O, Visible staying items: %O, Anchor (first visible staying): %s",
-    "color: #667EEA",
-    Array.from(stayingItemIds),
-    visibleStayingItems.map((v) => v.itemId),
-    anchorItemId ?? "null",
-  );
-
   // Build viewport positions for visible items in the old list
   const viewportPositions = new Map<string, number>();
   let viewportIndex = 0;
@@ -203,15 +195,6 @@ export function detectSingleResultCase(
 
   // Should slide to top if it was visible but not at the top position
   const shouldSlideToTop = wasVisible && !wasAtTop;
-
-  console.log(
-    "%c[SINGLE-RESULT] Detected: item=%s, wasVisible=%s, oldIndex=%d, shouldSlideToTop=%s",
-    "color: #FF6B6B",
-    singleItem.id,
-    wasVisible,
-    oldIndex,
-    shouldSlideToTop,
-  );
 
   return {
     isSingleResult: true,
