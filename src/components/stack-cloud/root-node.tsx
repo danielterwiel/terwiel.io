@@ -9,7 +9,7 @@ import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
 import { matchesDomainName } from "~/utils/get-domain-names";
-import { getSearchQuery } from "~/utils/search-params";
+import { getSearchFilter, getSearchQuery } from "~/utils/search-params";
 import { RootNodeChart } from "./root-node-chart";
 import { RootNodeExperience } from "./root-node-experience";
 
@@ -53,6 +53,7 @@ const RootNodeComponent = (props: RootNodeProps) => {
   const activeHover = isActiveHover ?? false;
 
   const currentSearchQuery = getSearchQuery(searchParams);
+  const currentFilter = getSearchFilter(searchParams);
 
   const domainExperiences = useMemo(
     () => calculateDomainExperiences(PROJECTS),
@@ -73,11 +74,16 @@ const RootNodeComponent = (props: RootNodeProps) => {
 
   const pieRadius = dimensions.rootRadius * 0.75; // 75% of root radius
 
-  // Set initial hovered domain based on selected domain in search params
+  // Set initial hovered domain based on selected domain in search/filter params
+  // Check BOTH query (from SearchInput) and filter (from StackCloud) parameters
   useEffect(() => {
-    const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    // Check query first, then filter if no query match
+    let matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+    if (!matchedDomain) {
+      matchedDomain = matchesDomainName(currentFilter, PROJECTS);
+    }
     setHoveredDomain(matchedDomain);
-  }, [currentSearchQuery]);
+  }, [currentSearchQuery, currentFilter]);
 
   const handleAnimationComplete = useCallback(() => {
     setIsAnimating(false);

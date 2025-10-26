@@ -8,7 +8,7 @@ import type { Domain } from "~/types";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { matchesDomainName } from "~/utils/get-domain-names";
-import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
+import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 
 interface PieSegmentData {
   domain: string;
@@ -50,15 +50,15 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   const [_isPending, startTransition] = useTransition();
 
   const a11y = useAccessibility();
-  const currentSearchQuery = getSearchQuery(searchParams);
+  const currentSearchFilter = getSearchFilter(searchParams);
 
-  // Defer search query updates to let animations complete first
+  // Defer filter updates to let animations complete first
   // This prevents D3 transitions from blocking urgent UI updates
-  const _deferredSearchQuery = useDeferredValue(currentSearchQuery);
+  const _deferredSearchFilter = useDeferredValue(currentSearchFilter);
 
   // Track selection state in refs to avoid expensive re-renders
-  const currentSearchQueryRef = useRef(currentSearchQuery);
-  currentSearchQueryRef.current = currentSearchQuery;
+  const currentSearchFilterRef = useRef(currentSearchFilter);
+  currentSearchFilterRef.current = currentSearchFilter;
 
   // Store startTransition in ref so it can be accessed in useEffect
   const startTransitionRef = useRef(startTransition);
@@ -79,7 +79,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     const rafId = requestAnimationFrame(() => {
       if (!pieChartRef.current) return;
 
-      const matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
+      const matchedDomain = matchesDomainName(currentSearchFilter, PROJECTS);
 
       // CRITICAL BUG FIX: Save previous state BEFORE updating ref
       // Compare NEW state (matchedDomain) with OLD state (matchedDomainRef.current)
@@ -161,7 +161,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [currentSearchQuery, a11y, pieRadius]);
+  }, [currentSearchFilter, a11y, pieRadius]);
 
   useEffect(() => {
     if (!pieChartRef.current) return;
@@ -171,9 +171,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
     const svg = d3.select(pieChartRef.current);
 
-    // Read from ref to get latest value without retriggering effect
+    // Read from ref to get latest filter value without retriggering effect
     const matchedDomain = matchesDomainName(
-      currentSearchQueryRef.current,
+      currentSearchFilterRef.current,
       PROJECTS,
     );
     matchedDomainRef.current = matchedDomain;
@@ -400,8 +400,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         // This prevents breaking state on other segments
         visiblePath.interrupt();
 
-        const queryString = toggleSearchParam(
-          currentSearchQueryRef.current,
+        const queryString = toggleFilterParam(
+          currentSearchFilterRef.current,
           datum.data.domain,
         );
 

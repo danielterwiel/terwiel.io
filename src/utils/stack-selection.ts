@@ -6,7 +6,7 @@ import { filterProjects } from "~/utils/filter-projects";
 import { matchesDomainName } from "~/utils/get-domain-names";
 import { matchesParent } from "~/utils/get-stack-parent";
 import { matchesAnyStackName } from "~/utils/matches-stack-name";
-import { getSearchQuery } from "~/utils/search-params";
+import { getSearchFilter } from "~/utils/search-params";
 
 /**
  * Normalize stack name to a URL-friendly slug
@@ -17,11 +17,11 @@ function normalizeStackName(name: string): string {
 }
 
 /**
- * Determine if a stack should be selected based on URL search parameters
+ * Determine if a stack should be selected based on URL filter parameter
  * A stack is selected if:
- * 1. Its name matches the search query (case-insensitive, word start)
- * 2. Its domain matches the search query (case-insensitive)
- * 3. It's used in projects that match the search query (BUT NOT if the query directly matches a stack name or domain)
+ * 1. Its name matches the filter (case-insensitive, word start)
+ * 2. Its domain matches the filter (case-insensitive)
+ * 3. It's used in projects that match the filter (BUT NOT if the filter directly matches a stack name or domain)
  */
 export function isStackSelected(
   stack: Stack,
@@ -30,36 +30,36 @@ export function isStackSelected(
 ): boolean {
   if (!searchParams) return false;
 
-  const searchQuery = getSearchQuery(searchParams);
+  const filter = getSearchFilter(searchParams);
 
-  if (!searchQuery) return false;
+  if (!filter) return false;
 
-  const normalizedQuery = searchQuery.toLowerCase().trim();
+  const normalizedFilter = filter.toLowerCase().trim();
   const normalizedStackName = stack.name.toLowerCase();
 
-  // Check if the query directly matches the start of this stack's name (case-insensitive)
-  if (normalizedStackName.startsWith(normalizedQuery)) {
+  // Check if the filter directly matches the start of this stack's name (case-insensitive)
+  if (normalizedStackName.startsWith(normalizedFilter)) {
     return true;
   }
 
-  // Check if the query matches this stack's domain (case-insensitive)
-  const matchedDomain = matchesDomainName(searchQuery, projects);
+  // Check if the filter matches this stack's domain (case-insensitive)
+  const matchedDomain = matchesDomainName(filter, projects);
   if (matchedDomain && stack.domain === matchedDomain) {
     return true;
   }
 
-  // Check if the query matches ANY stack name or domain name
+  // Check if the filter matches ANY stack name or domain name
   // If so, don't select based on filtered projects (to avoid too many selections)
-  const queryMatchesStackName = matchesAnyStackName(searchQuery, projects);
-  const queryMatchesDomain = matchedDomain !== null;
+  const filterMatchesStackName = matchesAnyStackName(filter, projects);
+  const filterMatchesDomain = matchedDomain !== null;
 
-  if (queryMatchesStackName || queryMatchesDomain) {
+  if (filterMatchesStackName || filterMatchesDomain) {
     return false;
   }
 
-  // Only if the query doesn't match any stack/domain directly,
+  // Only if the filter doesn't match any stack/domain directly,
   // check if this stack is used in filtered projects
-  const filteredProjects = filterProjects(projects, searchQuery);
+  const filteredProjects = filterProjects(projects, filter);
   const stackUsedInFilteredProjects = filteredProjects.some((project) =>
     project.stack.some((s) => {
       // Match by parent or name

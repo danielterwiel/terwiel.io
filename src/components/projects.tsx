@@ -34,7 +34,11 @@ import { calculateOverlapTiming } from "~/utils/animation-timing";
 import { filterCache } from "~/utils/filter-cache";
 import { filterProjects } from "~/utils/filter-projects";
 import { planTransition } from "~/utils/lcs-transition";
-import { getSearchDomain, getSearchQuery } from "~/utils/search-params";
+import {
+  getSearchDomain,
+  getSearchFilter,
+  getSearchQuery,
+} from "~/utils/search-params";
 import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 import { planViewportAwareTransition } from "~/utils/viewport-anchor-transition";
 
@@ -45,9 +49,13 @@ const ProjectsContent = ({
 }) => {
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);
+  const filter = getSearchFilter(searchParams);
 
-  // Extract domain filter from query (if query matches a domain name exactly)
-  const domain = getSearchDomain(query, PROJECTS) as Domain | null;
+  // Use filter parameter if set (from StackCloud), otherwise fall back to query (from SearchInput)
+  const activeSearchTerm = filter || query;
+
+  // Extract domain filter (if search term matches a domain name exactly)
+  const domain = getSearchDomain(activeSearchTerm, PROJECTS) as Domain | null;
 
   // Build selection index once for fast filtering
   const selectionIndex = useMemo(() => {
@@ -62,21 +70,22 @@ const ProjectsContent = ({
   const prevDomainRef = useRef<Domain | null>(null);
 
   // Memoize filtered projects computation with cache
+  // Checks BOTH query (from SearchInput) and filter (from StackCloud) parameters
   const filtered = useMemo(() => {
-    const cached = filterCache.get(query, domain ?? undefined);
+    const cached = filterCache.get(activeSearchTerm, domain ?? undefined);
     if (cached) {
       return cached;
     }
 
     const result = filterProjects(
       PROJECTS,
-      query,
+      activeSearchTerm,
       domain ?? undefined,
       selectionIndex,
     );
-    filterCache.set(query, domain ?? undefined, result);
+    filterCache.set(activeSearchTerm, domain ?? undefined, result);
     return result;
-  }, [query, domain, selectionIndex]);
+  }, [activeSearchTerm, domain, selectionIndex]);
 
   const projectsId = useId();
   const listRef = useRef<HTMLOListElement>(null);

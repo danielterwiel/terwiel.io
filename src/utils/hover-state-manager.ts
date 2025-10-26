@@ -3,7 +3,7 @@ import type { ReadonlyURLSearchParams } from "next/navigation";
 import type { Domain, Project, Stack } from "~/types";
 
 import { matchesDomainName } from "~/utils/get-domain-names";
-import { getSearchQuery } from "~/utils/search-params";
+import { getSearchFilter } from "~/utils/search-params";
 import { isStackSelected } from "~/utils/stack-selection";
 
 /**
@@ -45,11 +45,11 @@ export function getHoverStackOnLeave(
   stacks: Stack[],
   projects: Project[],
 ): Stack | null {
-  const searchQuery = getSearchQuery(searchParams);
-  if (!searchQuery) return null;
+  const filter = getSearchFilter(searchParams);
+  if (!filter) return null;
 
   // Don't show stack if a domain is selected
-  const isDomainSelected = matchesDomainName(searchQuery, projects) !== null;
+  const isDomainSelected = matchesDomainName(filter, projects) !== null;
   if (isDomainSelected) return null;
 
   // Show the selected stack (if any)

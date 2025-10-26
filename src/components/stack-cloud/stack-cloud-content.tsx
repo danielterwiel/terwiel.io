@@ -30,7 +30,11 @@ import {
   getHoverStackOnLeave,
   isActiveStackHover,
 } from "~/utils/hover-state-manager";
-import { getSearchDomain } from "~/utils/search-params";
+import {
+  getSearchDomain,
+  getSearchFilter,
+  getSearchQuery,
+} from "~/utils/search-params";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 
@@ -85,26 +89,45 @@ export function StackCloudContent() {
   // IMPORTANT: Use regular searchParams (not deferred) to immediately update D3 simulation
   // Deferred values would cause the simulation to restart multiple times per click
   // Uses selection index for O(1) lookup instead of O(n) scan
+  // Checks BOTH query (from SearchInput) and filter (from StackCloud) parameters
   const scaleFactors = useMemo(() => {
     const scaleFactorMap = new Map<string, number>();
 
     // Get selected domain from search params using existing helper
     // Use regular searchParams to trigger simulation updates immediately on clicks
-    const query = searchParams.get("query")?.toLowerCase().trim() ?? "";
-    const selectedDomain = getSearchDomain(query, PROJECTS) as Domain | null;
+    const query = getSearchQuery(searchParams).toLowerCase();
+    const filter = getSearchFilter(searchParams).toLowerCase();
+    const querySelectedDomain = getSearchDomain(
+      query,
+      PROJECTS,
+    ) as Domain | null;
+    const filterSelectedDomain = getSearchDomain(
+      filter,
+      PROJECTS,
+    ) as Domain | null;
 
     for (const stack of stacks) {
-      // A stack is selected if:
-      // 1. Its domain matches the search query, OR
-      // 2. Its name matches the search query directly (case-insensitive start match)
-      const isInSelectedDomain =
-        selectedDomain !== null &&
-        selectionIndex.isStackInDomain(stack.name, selectedDomain);
+      // A stack is selected if it matches EITHER query or filter:
+      // 1. Its domain matches the query/filter, OR
+      // 2. Its name matches the query/filter directly (case-insensitive start match)
 
-      const isDirectlyNamed =
+      const isInQueryDomain =
+        querySelectedDomain !== null &&
+        selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
+      const isDirectlyNamedByQuery =
         query !== "" && stack.name.toLowerCase().startsWith(query);
 
-      const selected = isInSelectedDomain || isDirectlyNamed;
+      const isInFilterDomain =
+        filterSelectedDomain !== null &&
+        selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
+      const isDirectlyNamedByFilter =
+        filter !== "" && stack.name.toLowerCase().startsWith(filter);
+
+      const selected =
+        isInQueryDomain ||
+        isDirectlyNamedByQuery ||
+        isInFilterDomain ||
+        isDirectlyNamedByFilter;
       scaleFactorMap.set(stack.id, selected ? STACK_SELECTION_SCALE : 1.0);
     }
     return scaleFactorMap;
@@ -140,12 +163,15 @@ export function StackCloudContent() {
 
   // Sync hover state with search params (selected stack/domain)
   // Uses deferredSearchParams to defer hover state updates
+  // Checks BOTH query and filter parameters
   useEffect(() => {
     const searchQuery =
       deferredSearchParams.get("query")?.toLowerCase().trim() ?? "";
+    const filter =
+      deferredSearchParams.get("filter")?.toLowerCase().trim() ?? "";
 
-    // Clear all hover states when search param is empty (iOS Safari touch fix)
-    if (searchQuery === "") {
+    // Clear all hover states when both search params are empty (iOS Safari touch fix)
+    if (searchQuery === "" && filter === "") {
       setHoveredStack(null);
       setHoveredDomain(null);
       return;
@@ -245,17 +271,35 @@ export function StackCloudContent() {
           {stacks.map((stack) => {
             // Use selection index for O(1) lookup instead of isStackSelected O(n)
             // Use regular searchParams to show immediate visual feedback on clicks
-            const query = searchParams.get("query")?.toLowerCase().trim() ?? "";
-            const selectedDomain = getSearchDomain(
+            // Check BOTH query and filter parameters for selection
+            const query = getSearchQuery(searchParams).toLowerCase();
+            const filter = getSearchFilter(searchParams).toLowerCase();
+            const querySelectedDomain = getSearchDomain(
               query,
               PROJECTS,
             ) as Domain | null;
-            const isInSelectedDomain =
-              selectedDomain !== null &&
-              selectionIndex.isStackInDomain(stack.name, selectedDomain);
-            const isDirectlyNamed =
+            const filterSelectedDomain = getSearchDomain(
+              filter,
+              PROJECTS,
+            ) as Domain | null;
+
+            const isInQueryDomain =
+              querySelectedDomain !== null &&
+              selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
+            const isDirectlyNamedByQuery =
               query !== "" && stack.name.toLowerCase().startsWith(query);
-            const selected = isInSelectedDomain || isDirectlyNamed;
+
+            const isInFilterDomain =
+              filterSelectedDomain !== null &&
+              selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
+            const isDirectlyNamedByFilter =
+              filter !== "" && stack.name.toLowerCase().startsWith(filter);
+
+            const selected =
+              isInQueryDomain ||
+              isDirectlyNamedByQuery ||
+              isInFilterDomain ||
+              isDirectlyNamedByFilter;
 
             const isDirectlyHovered = hoveredStack?.id === stack.id;
             const highlighted =

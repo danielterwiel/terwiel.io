@@ -3,11 +3,11 @@ import type { ReadonlyURLSearchParams } from "next/navigation";
 import type { Domain, Project, Stack } from "~/types";
 
 import { matchesDomainName } from "~/utils/get-domain-names";
-import { getSearchQuery } from "~/utils/search-params";
+import { getSearchFilter } from "~/utils/search-params";
 import { isStackSelected } from "~/utils/stack-selection";
 
 /**
- * Get the initially selected domain from URL search params
+ * Get the initially selected domain from URL filter param
  * Used to initialize state on first render (SSR/hydration compatible)
  */
 export function getInitialSelectedDomain(
@@ -16,14 +16,14 @@ export function getInitialSelectedDomain(
 ): Domain | null {
   if (!searchParams) return null;
 
-  const searchQuery = getSearchQuery(searchParams);
-  if (!searchQuery) return null;
+  const filter = getSearchFilter(searchParams);
+  if (!filter) return null;
 
-  return matchesDomainName(searchQuery, projects);
+  return matchesDomainName(filter, projects);
 }
 
 /**
- * Get the initially selected stack from URL search params
+ * Get the initially selected stack from URL filter param
  * Used to initialize state on first render (SSR/hydration compatible)
  * Returns null if a domain is selected instead
  */
@@ -34,11 +34,11 @@ export function getInitialSelectedStack(
 ): Stack | null {
   if (!searchParams) return null;
 
-  const searchQuery = getSearchQuery(searchParams);
-  if (!searchQuery) return null;
+  const filter = getSearchFilter(searchParams);
+  if (!filter) return null;
 
   // If a domain is selected, don't select a stack
-  const matchedDomain = matchesDomainName(searchQuery, projects);
+  const matchedDomain = matchesDomainName(filter, projects);
   if (matchedDomain) return null;
 
   // Find the selected stack

@@ -7,7 +7,7 @@ import type { Dimensions, Domain } from "~/types";
 import { Icon } from "~/components/icon";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { getIconHexColor } from "~/utils/icon-colors";
-import { getSearchQuery, toggleSearchParam } from "~/utils/search-params";
+import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 
 interface StackNodeProps {
   stack: {
@@ -54,7 +54,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
   // Unified accessibility hook
   const a11y = useAccessibility();
 
-  const currentSearchQuery = getSearchQuery(searchParams);
+  const currentFilter = getSearchFilter(searchParams);
 
   // Apply default values
   const isSelected = selected ?? false;
@@ -110,9 +110,9 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
   const transitionDuration = a11y.getTransitionDuration(200);
 
-  // Handle click to toggle URL search params
+  // Handle click to toggle URL filter params
   const handleClick = () => {
-    const queryString = toggleSearchParam(currentSearchQuery, stack.name);
+    const queryString = toggleFilterParam(currentFilter, stack.name);
     startTransition(() => {
       router.push(`${pathname}${queryString}`);
     });

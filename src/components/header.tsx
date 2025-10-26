@@ -33,9 +33,10 @@ const HeaderContent = () => {
     setShowSearchInput(hasSearchQuery);
   }, [hasSearchQuery]);
 
-  // Scroll to Projects section on mobile when search query is submitted
+  // Scroll to Projects section on mobile when SEARCH QUERY is submitted (not on filter interactions)
+  // This effect only triggers on the "query" parameter from SearchInput, not on "filter" from StackCloud
   useEffect(() => {
-    // Only on mobile (< md breakpoint) and only when there's a query
+    // Only on mobile (< md breakpoint) and only when there's a search query
     if (
       window.innerWidth >= STACK_CLOUD_BREAKPOINTS.MEDIUM ||
       !hasSearchQuery
