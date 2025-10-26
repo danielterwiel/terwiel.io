@@ -144,7 +144,12 @@ const SearchInputContent = React.forwardRef<
         "current" in inputRef
           ? inputRef.current
           : (inputRef as HTMLInputElement);
-      input?.focus();
+      // Use requestAnimationFrame for iOS compatibility with focus after state update
+      if (input) {
+        requestAnimationFrame(() => {
+          input.focus();
+        });
+      }
     }
   };
 

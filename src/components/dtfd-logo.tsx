@@ -10,9 +10,7 @@ export const DtfdLogo = ({ className }: { className?: string }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="24"
-      height="24"
+      viewBox="0 0 24 32"
       className={className}
       role="img"
       aria-label="DTFD Logo"
@@ -54,7 +52,7 @@ export const DtfdLogo = ({ className }: { className?: string }) => {
 
         <style>
           {`.dot { fill: #231f20; }
-          .waves { fill: #8983b3; mix-blend-mode: lighten; }`}
+          .waves { fill: #8983b3; mix-blend-mode: lighten; opacity: 1; }`}
         </style>
       </defs>
 

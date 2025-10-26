@@ -744,7 +744,8 @@ const ProjectsContent = ({
   }, [displayedProjects, visibleProjects]);
 
   return (
-    <article className="prose max-w-none">
+    // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
+    <article className="prose max-w-none" id="projects">
       <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>

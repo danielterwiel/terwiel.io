@@ -7,20 +7,20 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen overflow-visible">
       <Header />
       {/* Main content area with full viewport height minus header on desktop */}
-      <main className="flex-1 flex flex-col md:flex-row md:min-h-0 p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 relative z-0 overflow-visible">
+      <main className="flex-1 flex flex-col md:flex-row p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 relative z-0 overflow-visible">
         {/*
           Desktop grid adjustment:
           - StackCloud: calc(50% - half of right menu width from header)
           - Projects: calc(50% + half of right menu width from header)
           This aligns the project timeline with the centered header title
         */}
-        {/* StackCloud - full width on mobile, sticky on desktop */}
-        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:pb-24 lg:pb-0 relative z-0 md:sticky md:top-0 md:self-start md:h-screen">
+        {/* StackCloud - full width on mobile, fixed on desktop */}
+        <div className="w-full md:w-[calc(50%-1.75rem)] md:flex md:flex-col md:h-[calc(100vh-72px)] relative z-0 md:fixed md:top-[72px] md:left-0 pt-8 md:pt-20">
           <StackCloud />
         </div>
 
         {/* Projects - full width on mobile, adjusted width on desktop */}
-        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-10 overflow-visible">
+        <div className="w-full md:w-[calc(50%+1.75rem)] md:overflow-y-auto md:min-h-0 relative z-10 overflow-visible pt-8 md:ml-[calc(50%-1.75rem)] min-h-screen">
           <Projects />
         </div>
       </main>

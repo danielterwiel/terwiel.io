@@ -33,6 +33,27 @@ const HeaderContent = () => {
     setShowSearchInput(hasSearchQuery);
   }, [hasSearchQuery]);
 
+  // Scroll to Projects section on mobile when search query is submitted
+  useEffect(() => {
+    // Only on mobile (< md breakpoint) and only when there's a query
+    if (
+      window.innerWidth >= STACK_CLOUD_BREAKPOINTS.MEDIUM ||
+      !hasSearchQuery
+    ) {
+      return;
+    }
+
+    // Use a longer delay to ensure projects are rendered and filtered
+    const timeoutId = setTimeout(() => {
+      const projectsSection = document.getElementById("projects");
+      if (projectsSection) {
+        projectsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [hasSearchQuery]);
+
   // Hide header on scroll down on mobile (except when search is active)
   useEffect(() => {
     const handleScroll = () => {
@@ -137,16 +158,18 @@ const HeaderContent = () => {
         isOpeningRef.current = false;
       });
     } else {
-      // Mobile: must wait for CSS transition to complete (300ms) because the input has pointer-events-none during transition
+      // Mobile: Focus immediately to maintain iOS user interaction context
+      // iOS requires focus to be called synchronously within user event handler
+      const input = searchInputRef.current;
+      if (input) {
+        input.focus?.();
+        input.click?.();
+        input.select?.();
+      }
+      // Reset opening flag after a longer delay to account for CSS transition (300ms) + some buffer
       setTimeout(() => {
-        const input = searchInputRef.current;
-        if (input) {
-          input.focus?.();
-          input.click?.();
-          input.select?.();
-        }
         isOpeningRef.current = false;
-      }, 300);
+      }, 400);
     }
   };
 
@@ -274,7 +297,7 @@ const HeaderContent = () => {
         {/* Left column: Logo */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <DtfdLogo className="h-8 w-8 text-klein" />
+            <DtfdLogo className="h-12 w-12 text-klein" />
           </div>
         </div>
 
@@ -318,7 +341,7 @@ const HeaderContent = () => {
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <DtfdLogo className="h-10 w-10 text-klein" />
+            <DtfdLogo className="h-14 w-14 text-klein" />
           </div>
         </div>
 
