@@ -114,7 +114,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
   const handleClick = () => {
     const queryString = toggleFilterParam(currentFilter, stack.name);
     startTransition(() => {
-      router.push(`${pathname}${queryString}`);
+      router.push(`${pathname}${queryString}`, { scroll: false });
     });
   };
 

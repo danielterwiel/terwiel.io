@@ -406,7 +406,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         );
 
         startTransitionRef.current(() => {
-          router.push(`${pathname}${queryString}`);
+          router.push(`${pathname}${queryString}`, { scroll: false });
         });
       };
 

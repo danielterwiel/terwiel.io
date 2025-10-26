@@ -26,6 +26,14 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        // Mobile landscape detection for devices like iPhone 11 and newer
+        // Uses aspect-ratio to detect when height < width on small screens
+        // This keeps the vertical layout on mobile landscape
+        "landscape-mobile": {
+          raw: "(max-width: 1024px) and (max-height: 500px) and (orientation: landscape)",
+        },
+      },
       fontFamily: {
         sans: [
           "Bahnschrift",
