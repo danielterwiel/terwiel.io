@@ -757,7 +757,7 @@ const ProjectsContent = ({
     <article className="prose max-w-none" id="projects">
       <h2
         id={projectsId}
-        className="mb-6 text-2xl font-bold md:text-center md:pt-2"
+        className="mb-6 text-2xl font-bold md:text-center md:pt-2 landscape-mobile:pt-24"
       >
         Projects
       </h2>

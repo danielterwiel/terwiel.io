@@ -67,8 +67,17 @@ const HeaderContent = () => {
         return;
       }
 
-      // Only apply hide-on-scroll on mobile (< md breakpoint)
-      if (window.innerWidth >= STACK_CLOUD_BREAKPOINTS.MEDIUM) {
+      // Check if we're on landscape-mobile (max-width: 1024px, max-height: 500px, landscape)
+      const isLandscapeMobile =
+        window.innerWidth <= STACK_CLOUD_BREAKPOINTS.LARGE &&
+        window.innerHeight <= 500 &&
+        window.innerWidth > window.innerHeight;
+
+      // Only apply hide-on-scroll on mobile (< md breakpoint) or landscape-mobile
+      if (
+        window.innerWidth >= STACK_CLOUD_BREAKPOINTS.MEDIUM &&
+        !isLandscapeMobile
+      ) {
         setIsHeaderVisible(true);
         lastScrollY.current = currentScrollY;
         return;
@@ -237,12 +246,19 @@ const HeaderContent = () => {
     };
 
     const handleScrollClose = () => {
+      // Check if we're on landscape-mobile
+      const isLandscapeMobile =
+        window.innerWidth <= STACK_CLOUD_BREAKPOINTS.LARGE &&
+        window.innerHeight <= 500 &&
+        window.innerWidth > window.innerHeight;
+
       // Don't close while opening (prevents closing when keyboard appears and triggers scroll)
       if (
         !isOpeningRef.current &&
         showSearchInput &&
         !hasSearchQuery &&
-        window.innerWidth < STACK_CLOUD_BREAKPOINTS.MEDIUM
+        (window.innerWidth < STACK_CLOUD_BREAKPOINTS.MEDIUM ||
+          isLandscapeMobile)
       ) {
         handleCloseSearch();
       }
