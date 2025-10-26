@@ -6,6 +6,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 
 import type { SearchInputHandle } from "~/components/search-input";
 import { ContactDropdown } from "~/components/contact-dropdown";
+import { DtfdLogo } from "~/components/dtfd-logo";
 import { Icon } from "~/components/icon";
 import { SearchInputWrapper } from "~/components/search-input-wrapper";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
@@ -30,6 +31,27 @@ const HeaderContent = () => {
   // Show search input if there are search params
   useEffect(() => {
     setShowSearchInput(hasSearchQuery);
+  }, [hasSearchQuery]);
+
+  // Scroll to Projects section on mobile when search query is submitted
+  useEffect(() => {
+    // Only on mobile (< md breakpoint) and only when there's a query
+    if (
+      window.innerWidth >= STACK_CLOUD_BREAKPOINTS.MEDIUM ||
+      !hasSearchQuery
+    ) {
+      return;
+    }
+
+    // Use a longer delay to ensure projects are rendered and filtered
+    const timeoutId = setTimeout(() => {
+      const projectsSection = document.getElementById("projects");
+      if (projectsSection) {
+        projectsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [hasSearchQuery]);
 
   // Hide header on scroll down on mobile (except when search is active)
@@ -136,16 +158,18 @@ const HeaderContent = () => {
         isOpeningRef.current = false;
       });
     } else {
-      // Mobile: must wait for CSS transition to complete (300ms) because the input has pointer-events-none during transition
+      // Mobile: Focus immediately to maintain iOS user interaction context
+      // iOS requires focus to be called synchronously within user event handler
+      const input = searchInputRef.current;
+      if (input) {
+        input.focus?.();
+        input.click?.();
+        input.select?.();
+      }
+      // Reset opening flag after a longer delay to account for CSS transition (300ms) + some buffer
       setTimeout(() => {
-        const input = searchInputRef.current;
-        if (input) {
-          input.focus?.();
-          input.click?.();
-          input.select?.();
-        }
         isOpeningRef.current = false;
-      }, 300);
+      }, 400);
     }
   };
 
@@ -236,14 +260,11 @@ const HeaderContent = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white backdrop-blur-sm transition-transform duration-300 ${
+      className={`sticky top-0 z-50 transition-transform duration-300 glass-header ${
         isHeaderVisible ? "translate-y-0" : "-translate-y-full"
       } ${hasSearchQuery ? "md:sticky" : ""}`}
       style={
         {
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          WebkitBackdropFilter: "blur(0.5rem)",
-          backdropFilter: "blur(0.5rem)",
           viewTransitionName: "header",
         } as React.CSSProperties
       }
@@ -276,7 +297,7 @@ const HeaderContent = () => {
         {/* Left column: Logo */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-8 w-8 text-klein" />
+            <DtfdLogo className="h-12 w-12 text-klein" />
           </div>
         </div>
 
@@ -316,11 +337,11 @@ const HeaderContent = () => {
       </div>
 
       {/* Desktop: Asymmetric layout with logo on left, centered title, and menu on right */}
-      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6">
+      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6 glass-header-content">
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-10 w-10 text-klein" />
+            <DtfdLogo className="h-14 w-14 text-klein" />
           </div>
         </div>
 
@@ -391,11 +412,11 @@ export const Header = () => {
   return (
     <Suspense
       fallback={
-        <header className="sticky top-0 bg-white/95 backdrop-blur-sm">
+        <header className="sticky top-0 glass-header">
           <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-3 md:gap-6 md:px-6 md:py-4 md:items-center">
             <div className="flex items-center justify-start">
               <div className="flex items-center justify-center md:h-10 md:w-10">
-                <Icon.BrandReact className="h-8 w-8 text-klein md:h-10 md:w-10" />
+                <DtfdLogo className="h-8 w-8 text-klein md:h-10 md:w-10" />
               </div>
             </div>
             <div className="flex flex-col items-center">

@@ -49,12 +49,12 @@ export function StackCloud() {
   }, []);
 
   return (
-    <div className="flex flex-col md:h-full">
-      <h2 className="mb-6 hidden shrink-0 text-2xl font-bold md:block md:text-center">
+    <div className="flex flex-col h-full md:h-full">
+      <h2 className="mb-6 text-2xl font-bold md:text-center hidden md:block">
         Stack
       </h2>
       <div
-        className="flex-1 flex items-center justify-center md:min-h-0"
+        className="flex-1 flex items-center justify-center"
         style={{ position: "relative" }}
       >
         <div
