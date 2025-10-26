@@ -6,6 +6,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 
 import type { SearchInputHandle } from "~/components/search-input";
 import { ContactDropdown } from "~/components/contact-dropdown";
+import { DtfdLogo } from "~/components/dtfd-logo";
 import { Icon } from "~/components/icon";
 import { SearchInputWrapper } from "~/components/search-input-wrapper";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
@@ -236,14 +237,11 @@ const HeaderContent = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 bg-white backdrop-blur-sm transition-transform duration-300 ${
+      className={`sticky top-0 z-50 transition-transform duration-300 glass-header ${
         isHeaderVisible ? "translate-y-0" : "-translate-y-full"
       } ${hasSearchQuery ? "md:sticky" : ""}`}
       style={
         {
-          backgroundColor: "rgba(255, 255, 255, 0.95)",
-          WebkitBackdropFilter: "blur(0.5rem)",
-          backdropFilter: "blur(0.5rem)",
           viewTransitionName: "header",
         } as React.CSSProperties
       }
@@ -276,7 +274,7 @@ const HeaderContent = () => {
         {/* Left column: Logo */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-8 w-8 text-klein" />
+            <DtfdLogo className="h-8 w-8 text-klein" />
           </div>
         </div>
 
@@ -316,11 +314,11 @@ const HeaderContent = () => {
       </div>
 
       {/* Desktop: Asymmetric layout with logo on left, centered title, and menu on right */}
-      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6">
+      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6 glass-header-content">
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <div className="flex items-center justify-center">
-            <Icon.DtfdLogo className="h-10 w-10 text-klein" />
+            <DtfdLogo className="h-10 w-10 text-klein" />
           </div>
         </div>
 
@@ -391,11 +389,11 @@ export const Header = () => {
   return (
     <Suspense
       fallback={
-        <header className="sticky top-0 bg-white/95 backdrop-blur-sm">
+        <header className="sticky top-0 glass-header">
           <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-3 md:gap-6 md:px-6 md:py-4 md:items-center">
             <div className="flex items-center justify-start">
               <div className="flex items-center justify-center md:h-10 md:w-10">
-                <Icon.BrandReact className="h-8 w-8 text-klein md:h-10 md:w-10" />
+                <DtfdLogo className="h-8 w-8 text-klein md:h-10 md:w-10" />
               </div>
             </div>
             <div className="flex flex-col items-center">

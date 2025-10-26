@@ -50,6 +50,14 @@ export default {
       animation: {
         "magnetic-ring": "magnetic-ring 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       },
+      backdropBlur: {
+        xs: "2px",
+        sm: "4px",
+        md: "8px",
+        lg: "12px",
+        xl: "16px",
+        "2xl": "20px",
+      },
       keyframes: {
         "magnetic-ring": {
           "0%": {

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
   <defs>
     <!-- Invert filter: invert RGB, keep alpha -->
-    <filter id="invertFilter" color-interpolation-filters="sRGB">
+    <filter id="dtfd-invertFilter" color-interpolation-filters="sRGB">
       <!-- Convert to 1 - c -->
       <feComponentTransfer>
         <feFuncR type="table" tableValues="1 0"/>
@@ -12,7 +12,7 @@
     </filter>
 
     <!-- Mask from the two bottom paths: white = areas to invert -->
-    <mask id="invertMask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
+    <mask id="dtfd-invertMask" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
       <rect x="0" y="0" width="24" height="24" fill="black"/>
       <!-- Transformed paths from original, scaled/translated to fit 24x24 -->
       <g transform="translate(0,-3.05)">
@@ -81,7 +81,7 @@
   </g>
 
   <!-- Inverted overlap: render circles again with invert filter, clipped by paths mask -->
-  <g mask="url(#invertMask)" filter="url(#invertFilter)">
+  <g mask="url(#dtfd-invertMask)" filter="url(#dtfd-invertFilter)">
     <g transform="translate(0,-3.05)">
       <circle class="dot" cx="6.93" cy="20.89" r="1"/>
       <circle class="dot" cx="10.46" cy="26.08" r="1"/>
