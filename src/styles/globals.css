@@ -10,6 +10,8 @@
   }
 
   html {
+    /* Prevent header movement on overscroll/bounce */
+    overscroll-behavior: none;
     /* Make scrollbar track transparent while keeping the thumb visible */
     scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
   }

@@ -746,7 +746,10 @@ const ProjectsContent = ({
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
     <article className="prose max-w-none" id="projects">
-      <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
+      <h2
+        id={projectsId}
+        className="mb-6 text-2xl font-bold md:text-center md:pt-2"
+      >
         Projects
       </h2>
       <div className="flow-root space-y-4 overflow-visible">
