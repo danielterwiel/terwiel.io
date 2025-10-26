@@ -470,44 +470,47 @@
   /* Project List Sliding Transitions - Pure CSS + FLIP */
   /* Uses LCS algorithm + Manual FLIP for intelligent animations */
 
-  /* Project item base */
+  /* Project item base - smooth cross-fade with position change */
   .project-item {
     /* Initial state - invisible but takes up space */
     opacity: 0;
 
-    /* CSS Transition properties - supports transition-delay set dynamically */
+    /* Smooth cross-fade: opacity + transform for position changes */
+    /* Cross-fade creates subtle visual connection between items */
     transition:
-      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-      opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 
     /* Ensure proper stacking and no overlap */
     position: relative;
     isolation: isolate;
 
     /* Mobile: clip overflow to prevent animations from showing beneath StackCloud */
-    /* Desktop: allow overflow for scale animations and ViewTransitions */
+    /* Desktop: allow overflow for scale animations */
     overflow: clip;
   }
 
   @media (min-width: 768px) {
     .project-item {
-      /* Desktop: allow overflow for scale animations during ViewTransitions */
+      /* Desktop: allow overflow for scale animations */
       overflow: visible;
     }
   }
 
-  /* Items sliding from TOP with stacked positioning */
+  /* Items entering FROM TOP with stacked positioning and cross-fade */
   /* Mobile: smaller animation range to avoid overlapping header/StackCloud */
   .project-item.project-from-top {
     transform: translateY(calc(-500px - (var(--item-index, 0) * 200px)));
+    opacity: 0;
   }
 
-  /* Items sliding from BOTTOM with stacked positioning */
+  /* Items entering FROM BOTTOM with stacked positioning and cross-fade */
   /* Mobile: smaller animation range */
   .project-item.project-from-bottom {
     transform: translateY(
       calc(500px + ((var(--total-items, 8) - var(--item-index, 0) - 1) * 200px))
     );
+    opacity: 0;
   }
 
   /* Desktop: use full viewport height for animations */
@@ -516,6 +519,7 @@
       transform: translateY(
         calc(-100vh - (var(--item-index, 0) * 200px) - 100px)
       );
+      opacity: 0;
     }
 
     .project-item.project-from-bottom {
@@ -526,6 +530,7 @@
           100px
         )
       );
+      opacity: 0;
     }
   }
 
@@ -617,6 +622,27 @@
     }
   }
 
+  /* Empty state slide animation - treat as special transition item */
+  .empty-state-container {
+    opacity: 0;
+    transform: translateY(
+      calc(500px + ((var(--total-items, 8) - 0 - 1) * 200px))
+    );
+    transition:
+      opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .empty-state-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Projects exiting as empty state shows - slide up */
+  .empty-state-container.slide-in {
+    animation: none;
+  }
+
   /* Accessibility: Respect user's motion preferences */
   @media (prefers-reduced-motion: reduce) {
     .project-item {
@@ -639,6 +665,19 @@
 
     .project-bump {
       animation: none;
+    }
+
+    .empty-state-container {
+      transition: opacity 0.3s ease;
+      transform: translateY(0) !important;
+    }
+
+    .empty-state-container:not(.visible) {
+      opacity: 0;
+    }
+
+    .empty-state-container.visible {
+      opacity: 1;
     }
   }
 }

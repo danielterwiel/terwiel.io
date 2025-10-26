@@ -13,15 +13,13 @@ export const Project = ({
   project,
   projectIdx,
   totalLength,
-  projectAction,
-  projectDirection,
+  isVisible = false,
   ...attrs
 }: {
   project: ProjectType;
   projectIdx: number;
   totalLength: number;
-  projectAction?: string;
-  projectDirection?: string;
+  isVisible?: boolean;
   [key: string]: unknown;
 }) => {
   const { duration } = calculateProjectDuration(
@@ -33,34 +31,17 @@ export const Project = ({
   const IconProject =
     Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
 
-  // Build class names based on action and direction
-  const classNames = [
-    "relative break-inside-avoid-page pb-8 print:pt-8 project-item",
-  ];
-
-  // Only apply directional classes for slide-in/slide-out actions
-  // "stay" action items should NOT have directional classes to prevent flicker
-  // They will be animated via FLIP (First, Last, Invert, Play) in the transition handler
-  if (projectAction === "slide-in" && projectDirection) {
-    classNames.push(`project-from-${projectDirection}`);
-  }
-  if (projectAction === "slide-out" && projectDirection) {
-    classNames.push("project-slide-out", `project-from-${projectDirection}`);
-  }
-  if (projectAction === "fade") {
-    classNames.push("project-fade-out");
-  }
+  const className =
+    `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""}`.trim();
 
   return (
     <li
-      className={classNames.join(" ")}
+      className={className}
       data-project-id={project.id}
-      data-project-action={projectAction}
       style={
         {
           "--item-index": String(projectIdx),
           "--total-items": String(totalLength),
-          viewTransitionName: `project-${project.id}`,
         } as React.CSSProperties
       }
       {...attrs}

@@ -70,6 +70,12 @@ interface AnimationTiming {
   entryFromBottomStartDelay: number;
   /** ID of the viewport anchor item (stays static, no FLIP animation) */
   anchorItemId?: string | null;
+  /** Phase duration: exit animations only */
+  exitPhaseDuration?: number;
+  /** Phase duration: FLIP and entry animations */
+  entryPhaseDuration?: number;
+  /** Train effect enabled: entering items start at same time as exiting items */
+  trainEffect?: boolean;
 }
 
 /**
@@ -105,91 +111,106 @@ export function calculateOverlapTiming(
     anchorItemId,
   } = config;
 
+  // DOM update trigger for train effect - calculated first, used in all delays
+  // This is the time when new items appear in DOM and animations can begin
+  // We use 50ms to give the browser time to render without making it too slow
+  const DOM_UPDATE_TRIGGER = 50;
+
+  // For train effect: exits also start AFTER DOM update so entries can start simultaneously
   // Calculate exit timing for items exiting from TOP
-  // These slide up and out immediately (stagger: 0, 50, 100, ...)
-  const topExitDelays = Array.from({ length: removedFromTopCount }, (_, i) =>
-    i < visibleRemovedFromTopCount ? i * staggerDelay : 0,
-  );
+  // Start after DOM update, then stagger (domUpdateTrigger: 0, +50ms: 50, +100ms: 100, ...)
+  const topExitDelays = Array.from({ length: removedFromTopCount }, (_, i) => {
+    if (i < visibleRemovedFromTopCount) {
+      // DOM_UPDATE_TRIGGER + stagger index * staggerDelay
+      return DOM_UPDATE_TRIGGER + i * staggerDelay;
+    }
+    return 0;
+  });
 
   // Calculate exit timing for items exiting from BOTTOM
-  // These slide down and out immediately (stagger: 0, 50, 100, ...)
+  // Start after DOM update, then stagger
   const bottomExitDelays = Array.from(
     { length: removedFromBottomCount },
-    (_, i) => (i < visibleRemovedFromBottomCount ? i * staggerDelay : 0),
+    (_, i) => {
+      if (i < visibleRemovedFromBottomCount) {
+        return DOM_UPDATE_TRIGGER + i * staggerDelay;
+      }
+      return 0;
+    },
   );
 
   // Merge exit delays (order doesn't matter for exit timing)
   const exitDelays = [...topExitDelays, ...bottomExitDelays];
 
   // Calculate when exits complete for each direction
+  // Note: starts at DOM_UPDATE_TRIGGER, not 0
   const maxTopExitTime =
     visibleRemovedFromTopCount > 0
-      ? (visibleRemovedFromTopCount - 1) * staggerDelay + animationDuration
+      ? DOM_UPDATE_TRIGGER +
+        (visibleRemovedFromTopCount - 1) * staggerDelay +
+        animationDuration
       : 0;
 
   const maxBottomExitTime =
     visibleRemovedFromBottomCount > 0
-      ? (visibleRemovedFromBottomCount - 1) * staggerDelay + animationDuration
+      ? DOM_UPDATE_TRIGGER +
+        (visibleRemovedFromBottomCount - 1) * staggerDelay +
+        animationDuration
       : 0;
 
-  // DOM update happens early so new items can start filling in quickly
-  // Around 20% through exit animation provides good overlap without flicker
-  const domUpdateTrigger = Math.min(
-    animationDuration * 0.2, // Early update for fast filling
-    120,
-  );
+  // domUpdateTrigger: the critical timing for train effect
+  // This is when the DOM updates and new items appear
+  // All animations start after this point
+  const domUpdateTrigger = DOM_UPDATE_TRIGGER;
 
-  // FLIP animation starts at domUpdateTrigger (not 0) to prevent flicker
+  // FLIP animation starts right after DOM update
   // Staying items need the DOM to update first before FLIP can calculate positions
   const flipStartDelay = domUpdateTrigger;
 
-  // Entry timing: Items should START entering WHILE exits are still animating
-  // This creates smooth "filling" behavior with no gaps around the anchor
-  // Start entries at ~40% through the exit animation for smooth overlap
-  const exitOverlapPoint = animationDuration * 0.4;
+  // Entry timing: TRAIN EFFECT - items should START entering AT THE SAME TIME
+  // as their corresponding exiting items, creating a seamless "train" effect
+  // This prevents any whitespace gaps in the viewport
+  // Both exits and entries wait until after DOM update, then animate in parallel
+  // Entering items start with the same stagger index (0, 50, 100, ...) as exits
+  // This makes them slide through at the exact same speed/timing
+  const entryFromTopStartDelay = domUpdateTrigger; // Start after DOM update
+  const entryFromBottomStartDelay = domUpdateTrigger; // Start after DOM update
 
-  const entryFromTopStartDelay =
-    removedFromTopCount > 0
-      ? exitOverlapPoint // Start while exits are mid-animation
-      : Math.max(domUpdateTrigger + animationDuration * 0.3, staggerDelay); // No exits, wait briefly for FLIP
-
-  const entryFromBottomStartDelay =
-    removedFromBottomCount > 0
-      ? exitOverlapPoint // Start while exits are mid-animation
-      : Math.max(domUpdateTrigger + animationDuration * 0.3, staggerDelay); // No exits, wait briefly for FLIP
-
-  // Build entry delays with direction-specific start times
+  // Build entry delays: each entering item gets the SAME delay as its paired exiting item
+  // This creates the "train" effect where exits and entries animate in perfect sync
+  // Both start after DOM update, with matching stagger indices
   const entryDelays: number[] = [];
 
-  // Add delays for top-entering items (using entryFromTopStartDelay)
+  // Add delays for top-entering items (start at DOM_UPDATE_TRIGGER + stagger)
   for (let i = 0; i < enteringFromTopCount; i++) {
     const baseDelay =
       i < visibleEnteringFromTopCount
-        ? entryFromTopStartDelay + i * staggerDelay
+        ? DOM_UPDATE_TRIGGER + i * staggerDelay
         : 0;
     entryDelays.push(baseDelay);
   }
 
-  // Add delays for bottom-entering items (using entryFromBottomStartDelay)
+  // Add delays for bottom-entering items (start at DOM_UPDATE_TRIGGER + stagger)
   for (let i = 0; i < enteringFromBottomCount; i++) {
     const baseDelay =
       i < visibleEnteringFromBottomCount
-        ? entryFromBottomStartDelay + i * staggerDelay
+        ? DOM_UPDATE_TRIGGER + i * staggerDelay
         : 0;
     entryDelays.push(baseDelay);
   }
 
   // Calculate maximum animation duration across all phases
+  // Entries start at DOM_UPDATE_TRIGGER (same as exits for train effect)
   const maxTopEntryTime =
     visibleEnteringFromTopCount > 0
-      ? entryFromTopStartDelay +
+      ? DOM_UPDATE_TRIGGER +
         (visibleEnteringFromTopCount - 1) * staggerDelay +
         animationDuration
       : 0;
 
   const maxBottomEntryTime =
     visibleEnteringFromBottomCount > 0
-      ? entryFromBottomStartDelay +
+      ? DOM_UPDATE_TRIGGER +
         (visibleEnteringFromBottomCount - 1) * staggerDelay +
         animationDuration
       : 0;
@@ -202,6 +223,11 @@ export function calculateOverlapTiming(
     animationDuration,
   );
 
+  // Calculate phase durations for clearer animation flow
+  // With train effect: exits and entries happen in parallel, so total duration is max of both
+  const exitPhaseDuration = Math.max(maxTopExitTime, maxBottomExitTime);
+  const entryPhaseDuration = Math.max(maxTopEntryTime, maxBottomEntryTime);
+
   return {
     domUpdateTrigger,
     flipStartDelay,
@@ -212,5 +238,8 @@ export function calculateOverlapTiming(
     entryFromTopStartDelay,
     entryFromBottomStartDelay,
     anchorItemId,
+    exitPhaseDuration,
+    entryPhaseDuration,
+    trainEffect: true, // Train effect is now always enabled for smooth transitions
   };
 }
