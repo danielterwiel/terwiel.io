@@ -3,7 +3,8 @@
 import { useSearchParams } from "next/navigation";
 
 import type React from "react";
-import { Suspense, useId, useMemo, useRef } from "react";
+import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
 import type { Domain } from "~/types";
 
@@ -13,6 +14,7 @@ import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
 import { filterCache } from "~/utils/filter-cache";
 import { filterProjects } from "~/utils/filter-projects";
+import { diffProjectStates } from "~/utils/project-state-diff";
 import {
   getSearchDomain,
   getSearchFilter,
@@ -54,6 +56,59 @@ const ProjectsContent = () => {
     return result;
   }, [activeSearchTerm, domain, selectionIndex]);
 
+  // Track previous filtered list to calculate project states for transitions
+  const prevFilteredRef = useRef<typeof filtered>([]);
+  const projectStateMapRef = useRef(
+    new Map<string, "exit" | "enter" | "stay">(),
+  );
+  const [renderingProjects, setRenderingProjects] = useState<typeof filtered>(
+    [],
+  );
+
+  // Update project states when filtered list changes
+  useEffect(() => {
+    // Only update states if filtered list actually changed
+    if (
+      prevFilteredRef.current.length !== filtered.length ||
+      prevFilteredRef.current.some((p, i) => p.id !== filtered[i]?.id)
+    ) {
+      // Use native View Transition API
+      if ("startViewTransition" in document) {
+        const vtAPI = document as Document & {
+          startViewTransition: (callback: () => void) => ViewTransition;
+        };
+
+        // Calculate the new state map BEFORE transition
+        const newStateMap = diffProjectStates(
+          prevFilteredRef.current,
+          filtered,
+        );
+
+        // Start the transition IMMEDIATELY
+        vtAPI.startViewTransition(() => {
+          // Inside the transition callback, update state synchronously
+          flushSync(() => {
+            // Update the project state map
+            projectStateMapRef.current = newStateMap;
+            // Update rendering to show only filtered projects
+            setRenderingProjects(filtered);
+            // Mark that we've processed this update
+            prevFilteredRef.current = filtered;
+          });
+        });
+      } else {
+        // Fallback for browsers without View Transitions
+        const newStateMap = diffProjectStates(
+          prevFilteredRef.current,
+          filtered,
+        );
+        projectStateMapRef.current = newStateMap;
+        setRenderingProjects(filtered);
+        prevFilteredRef.current = filtered;
+      }
+    }
+  }, [filtered]);
+
   const projectsId = useId();
   const listRef = useRef<HTMLOListElement>(null);
   const emptyStateRef = useRef<HTMLDivElement>(null);
@@ -68,19 +123,31 @@ const ProjectsContent = () => {
         Projects
       </h2>
       <div className="flow-root space-y-4 overflow-visible">
-        {filtered.length === 0 && activeSearchTerm ? (
-          <div ref={emptyStateRef} className="empty-state-container visible">
+        {renderingProjects.length === 0 && activeSearchTerm ? (
+          <div
+            ref={emptyStateRef}
+            className="empty-state-container visible vt-empty-state"
+          >
             <ProjectsEmptyState query={activeSearchTerm} />
           </div>
         ) : (
-          <ol className="ml-0 list-none pl-0" ref={listRef}>
-            {filtered.map((project, idx) => (
+          <ol
+            className="ml-0 list-none pl-0"
+            ref={listRef}
+            style={
+              { viewTransitionName: "projects-list" } as React.CSSProperties
+            }
+          >
+            {renderingProjects.map((project, idx) => (
               <Project
                 key={project.id}
                 project={project}
                 projectIdx={idx}
                 totalLength={filtered.length}
-                isVisible={true}
+                isVisible={filtered.some((p) => p.id === project.id)}
+                projectState={
+                  projectStateMapRef.current.get(project.id) ?? "stay"
+                }
               />
             ))}
           </ol>

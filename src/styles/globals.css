@@ -411,6 +411,92 @@
   }
 }
 
+/* ViewTransition animations for projects list */
+@keyframes vt-project-exit-old {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+}
+
+@keyframes vt-project-exit-new {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vt-project-enter-old {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+}
+
+@keyframes vt-project-enter-new {
+  from {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes vt-project-stay {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes vt-empty-state-old {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+}
+
+@keyframes vt-empty-state-new {
+  from {
+    opacity: 0;
+    transform: translateY(-100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade out snapshots quickly during two-phase transition */
+@keyframes vt-snapshot-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
 @layer utilities {
   .animation-ring {
     animation: animationRing 1s ease-in-out;
@@ -444,6 +530,131 @@
     object-fit: contain;
     display: block;
   }
+
+  /* ViewTransition animations for projects list */
+  /* Each project gets a unique transition name that includes both ID and state */
+  /* This ensures uniqueness required by View Transitions API */
+  [style*="--vt-project-name"] {
+    view-transition-name: var(--vt-project-name);
+  }
+
+  .vt-empty-state {
+    view-transition-name: projects-empty-state;
+  }
+}
+
+/* ViewTransition animations for projects list */
+/* Two-phase approach: exit animations first, then enter animations */
+
+/* EXIT PHASE: Animate out old snapshots of exiting projects */
+/* These are ::view-transition-old() snapshots - static rasterized versions */
+::view-transition-old(project-PROJECT_0-exit),
+::view-transition-old(project-PROJECT_1-exit),
+::view-transition-old(project-PROJECT_2-exit),
+::view-transition-old(project-PROJECT_3-exit),
+::view-transition-old(project-PROJECT_4-exit),
+::view-transition-old(project-PROJECT_5-exit),
+::view-transition-old(project-PROJECT_6-exit),
+::view-transition-old(project-PROJECT_7-exit),
+::view-transition-old(project-PROJECT_8-exit),
+::view-transition-old(project-PROJECT_9-exit),
+::view-transition-old(project-PROJECT_10-exit) {
+  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-name: vt-project-exit-old;
+}
+
+/* Stay/Enter projects fade old snapshot quickly (they stay in new state) */
+::view-transition-old(project-PROJECT_0-stay),
+::view-transition-old(project-PROJECT_0-enter),
+::view-transition-old(project-PROJECT_1-stay),
+::view-transition-old(project-PROJECT_1-enter),
+::view-transition-old(project-PROJECT_2-stay),
+::view-transition-old(project-PROJECT_2-enter),
+::view-transition-old(project-PROJECT_3-stay),
+::view-transition-old(project-PROJECT_3-enter),
+::view-transition-old(project-PROJECT_4-stay),
+::view-transition-old(project-PROJECT_4-enter),
+::view-transition-old(project-PROJECT_5-stay),
+::view-transition-old(project-PROJECT_5-enter),
+::view-transition-old(project-PROJECT_6-stay),
+::view-transition-old(project-PROJECT_6-enter),
+::view-transition-old(project-PROJECT_7-stay),
+::view-transition-old(project-PROJECT_7-enter),
+::view-transition-old(project-PROJECT_8-stay),
+::view-transition-old(project-PROJECT_8-enter),
+::view-transition-old(project-PROJECT_9-stay),
+::view-transition-old(project-PROJECT_9-enter),
+::view-transition-old(project-PROJECT_10-stay),
+::view-transition-old(project-PROJECT_10-enter) {
+  animation: 50ms ease-out forwards;
+  animation-name: vt-snapshot-fade-out;
+}
+
+/* ENTER PHASE: Animate in new live DOM elements with staggered timing */
+/* Delay ensures enter animations start after exit animations complete */
+/* For enter animations, start hidden and slide in */
+::view-transition-new(project-PROJECT_0-enter),
+::view-transition-new(project-PROJECT_1-enter),
+::view-transition-new(project-PROJECT_2-enter),
+::view-transition-new(project-PROJECT_3-enter),
+::view-transition-new(project-PROJECT_4-enter),
+::view-transition-new(project-PROJECT_5-enter),
+::view-transition-new(project-PROJECT_6-enter),
+::view-transition-new(project-PROJECT_7-enter),
+::view-transition-new(project-PROJECT_8-enter),
+::view-transition-new(project-PROJECT_9-enter),
+::view-transition-new(project-PROJECT_10-enter) {
+  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-name: vt-project-enter-new;
+  animation-delay: 400ms;
+}
+
+/* For stay animations, keep them visible during transition */
+::view-transition-new(project-PROJECT_0-stay),
+::view-transition-new(project-PROJECT_1-stay),
+::view-transition-new(project-PROJECT_2-stay),
+::view-transition-new(project-PROJECT_3-stay),
+::view-transition-new(project-PROJECT_4-stay),
+::view-transition-new(project-PROJECT_5-stay),
+::view-transition-new(project-PROJECT_6-stay),
+::view-transition-new(project-PROJECT_7-stay),
+::view-transition-new(project-PROJECT_8-stay),
+::view-transition-new(project-PROJECT_9-stay),
+::view-transition-new(project-PROJECT_10-stay) {
+  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-name: vt-project-enter-new;
+  animation-delay: 0ms;
+}
+
+/* For exit animations, also animate the new state if needed */
+::view-transition-new(project-PROJECT_0-exit),
+::view-transition-new(project-PROJECT_1-exit),
+::view-transition-new(project-PROJECT_2-exit),
+::view-transition-new(project-PROJECT_3-exit),
+::view-transition-new(project-PROJECT_4-exit),
+::view-transition-new(project-PROJECT_5-exit),
+::view-transition-new(project-PROJECT_6-exit),
+::view-transition-new(project-PROJECT_7-exit),
+::view-transition-new(project-PROJECT_8-exit),
+::view-transition-new(project-PROJECT_9-exit),
+::view-transition-new(project-PROJECT_10-exit) {
+  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-name: vt-project-exit-new;
+  animation-delay: 0ms;
+}
+
+::view-transition-old(projects-empty-state),
+::view-transition-new(projects-empty-state) {
+  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+::view-transition-old(projects-empty-state) {
+  animation-name: vt-empty-state-old;
+}
+
+::view-transition-new(projects-empty-state) {
+  animation-name: vt-empty-state-new;
+  animation-delay: 0ms;
 }
 
 @layer components {
@@ -454,48 +665,27 @@
 }
 
 @layer utilities {
-  /* Projects scrollable container - clips animations on mobile */
+  /* Projects scrollable container - allow animations to be visible */
   .projects-scrollable {
-    /* On mobile: clip animations so they don't overflow into header/StackCloud */
-    overflow: hidden;
-  }
-
-  @media (min-width: 768px) {
-    .projects-scrollable {
-      /* On desktop: allow normal overflow behavior */
-      overflow: visible;
-    }
+    /* Allow animations to slide in/out smoothly */
+    overflow: visible;
   }
 
   /* Project List Sliding Transitions - Pure CSS + FLIP */
   /* Uses LCS algorithm + Manual FLIP for intelligent animations */
 
-  /* Project item base - smooth cross-fade with position change */
+  /* Project item base */
   .project-item {
-    /* Initial state - invisible but takes up space */
-    opacity: 0;
-
-    /* Smooth cross-fade: opacity + transform for position changes */
-    /* Cross-fade creates subtle visual connection between items */
-    transition:
-      opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-      transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-
     /* Ensure proper stacking and no overlap */
     position: relative;
     isolation: isolate;
 
-    /* Mobile: clip overflow to prevent animations from showing beneath StackCloud */
-    /* Desktop: allow overflow for scale animations */
-    overflow: clip;
+    /* Allow animations to overflow smoothly */
+    overflow: visible;
   }
 
-  @media (min-width: 768px) {
-    .project-item {
-      /* Desktop: allow overflow for scale animations */
-      overflow: visible;
-    }
-  }
+  /* Projects are visible by default during View Transitions */
+  /* The View Transitions API handles the animation between old and new states */
 
   /* Items entering FROM TOP with stacked positioning and cross-fade */
   /* Mobile: smaller animation range to avoid overlapping header/StackCloud */

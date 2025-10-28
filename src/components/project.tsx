@@ -14,12 +14,14 @@ export const Project = ({
   projectIdx,
   totalLength,
   isVisible = false,
+  projectState = "stay",
   ...attrs
 }: {
   project: ProjectType;
   projectIdx: number;
   totalLength: number;
   isVisible?: boolean;
+  projectState?: "exit" | "enter" | "stay";
   [key: string]: unknown;
 }) => {
   const { duration } = calculateProjectDuration(
@@ -34,6 +36,10 @@ export const Project = ({
   const className =
     `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""}`.trim();
 
+  // Create unique transition name per project and state to satisfy View Transitions API uniqueness requirement
+  // The API requires each element with view-transition-name to have a unique name
+  const vtProjectName = `project-${project.id}-${projectState}`;
+
   return (
     <li
       className={className}
@@ -42,6 +48,7 @@ export const Project = ({
         {
           "--item-index": String(projectIdx),
           "--total-items": String(totalLength),
+          "--vt-project-name": vtProjectName,
         } as React.CSSProperties
       }
       {...attrs}
