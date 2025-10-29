@@ -662,6 +662,17 @@
   animation-delay: 0ms;
 }
 
+/* Header View Transition - ensure header stays on top during transitions */
+::view-transition-group(header) {
+  z-index: 100;
+}
+
+::view-transition-old(header),
+::view-transition-new(header) {
+  /* No animation for header - it stays in place */
+  animation: none;
+}
+
 @layer components {
   /* Field sizing utility - allows form inputs to resize based on content */
   .field-sizing-content {
