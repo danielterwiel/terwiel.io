@@ -280,11 +280,6 @@ const HeaderContent = () => {
       className={`sticky top-0 z-50 transition-transform duration-300 glass-header ${
         isHeaderVisible ? "translate-y-0" : "-translate-y-full"
       } ${hasSearchQuery ? "md:sticky" : ""}`}
-      style={
-        {
-          viewTransitionName: "header",
-        } as React.CSSProperties
-      }
     >
       {/* Mobile: Full-width search overlay - positioned absolutely to not reserve space */}
       <div

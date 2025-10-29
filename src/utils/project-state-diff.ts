@@ -2,11 +2,6 @@ import type { Project } from "~/types";
 
 export type ProjectState = "exit" | "enter" | "stay";
 
-export interface ProjectWithState {
-  project: Project;
-  state: ProjectState;
-}
-
 /**
  * Determines the state of each project by comparing previous and current filtered lists
  * States:

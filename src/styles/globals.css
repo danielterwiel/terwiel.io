@@ -16,6 +16,12 @@
     scrollbar-color: oklch(37.85% 0.1954 263.23 / 0.5) transparent;
   }
 
+  /* Disable root element from participating in view transitions */
+  /* This prevents the entire page snapshot from darkening backdrop-filters */
+  :root {
+    view-transition-name: none;
+  }
+
   /* Modern Glassmorphism Header - 2025 Design */
   .glass-header {
     /* Highly transparent frosted glass for maximum see-through effect */
@@ -458,14 +464,15 @@
 
 @keyframes vt-project-stay {
   from {
-    transform: scale(1);
+    transform: translateY(0);
     opacity: 1;
   }
   50% {
-    transform: scale(1.02);
+    /* Use translateY instead of scale to avoid backdrop-filter darkening issues */
+    transform: translateY(-4px);
   }
   to {
-    transform: scale(1);
+    transform: translateY(0);
     opacity: 1;
   }
 }
@@ -548,8 +555,71 @@
   }
 }
 
+/* View Transitions Root - Prevent darkening of backdrop-filter elements */
+/* The root captures the entire page by default - we need to prevent it from interfering */
+::view-transition {
+  /* Ensure root transition doesn't create backdrop issues */
+  pointer-events: none;
+}
+
+/* Completely disable root transition - we only want named element transitions */
+::view-transition-group(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  /* Hide old root snapshot immediately - it causes backdrop-filter darkening */
+  animation: none;
+  display: none;
+}
+
+::view-transition-new(root) {
+  /* Skip animation for new root - show immediately */
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* ViewTransition animations for projects list */
 /* Two-phase approach: exit animations first, then enter animations */
+
+/* Fix mix-blend-mode for all project transitions to prevent backdrop-filter darkening */
+::view-transition-group(project-PROJECT_0-exit),
+::view-transition-group(project-PROJECT_1-exit),
+::view-transition-group(project-PROJECT_2-exit),
+::view-transition-group(project-PROJECT_3-exit),
+::view-transition-group(project-PROJECT_4-exit),
+::view-transition-group(project-PROJECT_5-exit),
+::view-transition-group(project-PROJECT_6-exit),
+::view-transition-group(project-PROJECT_7-exit),
+::view-transition-group(project-PROJECT_8-exit),
+::view-transition-group(project-PROJECT_9-exit),
+::view-transition-group(project-PROJECT_10-exit),
+::view-transition-group(project-PROJECT_0-enter),
+::view-transition-group(project-PROJECT_1-enter),
+::view-transition-group(project-PROJECT_2-enter),
+::view-transition-group(project-PROJECT_3-enter),
+::view-transition-group(project-PROJECT_4-enter),
+::view-transition-group(project-PROJECT_5-enter),
+::view-transition-group(project-PROJECT_6-enter),
+::view-transition-group(project-PROJECT_7-enter),
+::view-transition-group(project-PROJECT_8-enter),
+::view-transition-group(project-PROJECT_9-enter),
+::view-transition-group(project-PROJECT_10-enter),
+::view-transition-group(project-PROJECT_0-stay),
+::view-transition-group(project-PROJECT_1-stay),
+::view-transition-group(project-PROJECT_2-stay),
+::view-transition-group(project-PROJECT_3-stay),
+::view-transition-group(project-PROJECT_4-stay),
+::view-transition-group(project-PROJECT_5-stay),
+::view-transition-group(project-PROJECT_6-stay),
+::view-transition-group(project-PROJECT_7-stay),
+::view-transition-group(project-PROJECT_8-stay),
+::view-transition-group(project-PROJECT_9-stay),
+::view-transition-group(project-PROJECT_10-stay) {
+  /* Override default plus-lighter blend mode to prevent darkening */
+  mix-blend-mode: normal;
+}
 
 /* EXIT PHASE: Animate out old snapshots of exiting projects */
 /* These are ::view-transition-old() snapshots - static rasterized versions */
@@ -662,16 +732,8 @@
   animation-delay: 0ms;
 }
 
-/* Header View Transition - ensure header stays on top during transitions */
-::view-transition-group(header) {
-  z-index: 100;
-}
-
-::view-transition-old(header),
-::view-transition-new(header) {
-  /* No animation for header - it stays in place */
-  animation: none;
-}
+/* Header is NOT part of view transitions - it remains live to maintain backdrop-filter */
+/* This ensures the backdrop-filter continues to work correctly during transitions */
 
 @layer components {
   /* Field sizing utility - allows form inputs to resize based on content */
