@@ -28,10 +28,13 @@ export const PRIMARY_COLOR_OKLCH = {
 
 // Domain colors — muted but clearly separable for 1px lines
 // Strategy:
-// - Δh ≈ 15° steps across a mauve/violet arc (290→350)
+// - Δh ≈ 15° steps across a blue-violet to magenta arc (270→350)
 // - Staggered L: 0.68 / 0.74 / 0.80 / 0.84 / 0.88
 // - Low-to-moderate chroma to stay sophisticated but distinct
 export const DOMAIN_COLORS_OKLCH = {
+  // Deep blue-violet (cooler anchor before Back-end)
+  AI: { l: 0.72, c: 0.078, h: 270 },
+
   // Blue‑gray violet (darker anchor)
   "Back-end": { l: 0.68, c: 0.072, h: 290 },
 

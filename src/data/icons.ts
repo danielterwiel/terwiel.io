@@ -1,8 +1,10 @@
 import type { Domain, IconName, StackName } from "~/types";
 
 export const ICON_COLORS = {
+  Ai: "#10A37F",
   AntDesign: "#1677FF",
   Assembly: "#624FE8",
+  At: "#4B5563",
   BrandCss3: "#1572B6",
   BrandDocker: "#2496ED",
   BrandFigma: "#A259FF",
@@ -28,7 +30,10 @@ export const ICON_COLORS = {
   BrandVite: "#646CFF",
   BrandVue: "#4FC08D",
   BrandXstate: "#4D4F60",
+  ChatGPT: "#74AA9C",
   ChartPie: "#8B5CF6",
+  Claude: "#DA6C49",
+  ClaudeCode: "#DA6C49",
   CloudCog: "#0EA5E9",
   Code: "#10B981",
   Components: "#384EF6",
@@ -52,6 +57,7 @@ export const ICON_COLORS = {
 } as const satisfies Record<IconName, string>;
 
 export const STACK_ICONS = {
+  "Claude Code": "ClaudeCode",
   "GitHub Actions": "BrandGithub",
   "Material UI": "MaterialUI",
   "Redux-saga": "BrandRedux",
@@ -64,6 +70,7 @@ export const STACK_ICONS = {
   AntDesign: "AntDesign",
   Bash: "BrandPowerShell",
   CSS: "BrandCss3",
+  ChatGPT: "ChatGPT",
   Docker: "BrandDocker",
   Effect: "Effect",
   Figma: "BrandFigma",
@@ -102,4 +109,5 @@ export const DOMAIN_ICONS = {
   "Back-end": "ServerCog",
   DevOps: "CloudCog",
   QA: "TestPipe",
+  AI: "Ai",
 } as const satisfies Record<Domain, IconName>;

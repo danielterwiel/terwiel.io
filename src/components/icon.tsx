@@ -1,4 +1,5 @@
 import Accessible from "../images/icons/accessible.svg";
+import Ai from "../images/icons/ai.svg";
 import AntDesign from "../images/icons/ant-design.svg";
 import Assembly from "../images/icons/assembly.svg";
 import At from "../images/icons/at.svg";
@@ -11,6 +12,7 @@ import BrandGraphql from "../images/icons/brand-graphql.svg";
 import BrandHtml5 from "../images/icons/brand-html5.svg";
 import BrandJavascript from "../images/icons/brand-javascript.svg";
 import BrandLinkedin from "../images/icons/brand-linkedin.svg";
+import ChatGPT from "../images/icons/brand-openai.svg";
 import BrandPhp from "../images/icons/brand-php.svg";
 import BrandPowerShell from "../images/icons/brand-powershell.svg";
 import BrandReact from "../images/icons/brand-react.svg";
@@ -32,6 +34,8 @@ import BuildingFactory2 from "../images/icons/building-factory-2.svg";
 import BuildingWarehouse from "../images/icons/building-warehouse.svg";
 import Bulb from "../images/icons/bulb.svg";
 import ChartPie from "../images/icons/chart-pie.svg";
+import Claude from "../images/icons/claude.svg";
+import ClaudeCode from "../images/icons/claude.svg";
 import CloudCog from "../images/icons/cloud-cog.svg";
 import Code from "../images/icons/code.svg";
 import Components from "../images/icons/components.svg";
@@ -85,6 +89,7 @@ const icons = {
   Accessible,
   AntDesign,
   Assembly,
+  Ai,
   At,
   BrandCss3,
   BrandDocker,
@@ -116,6 +121,9 @@ const icons = {
   BuildingWarehouse,
   Bulb,
   ChartPie,
+  ChatGPT,
+  Claude,
+  ClaudeCode,
   CloudCog,
   Code,
   Components,

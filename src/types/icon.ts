@@ -1,6 +1,8 @@
 export type IconName =
   | "AntDesign"
+  | "Ai"
   | "Assembly"
+  | "At"
   | "BrandCss3"
   | "BrandDocker"
   | "BrandFigma"
@@ -26,7 +28,10 @@ export type IconName =
   | "BrandVite"
   | "BrandVue"
   | "BrandXstate"
+  | "ChatGPT"
   | "ChartPie"
+  | "Claude"
+  | "ClaudeCode"
   | "CloudCog"
   | "Code"
   | "Components"
@@ -50,7 +55,9 @@ export type IconName =
 
 export type StackName =
   | "AntDesign"
+  | "ChatGPT"
   | "CSS"
+  | "Claude Code"
   | "Docker"
   | "Effect"
   | "Figma"

@@ -11,4 +11,5 @@ export const DOMAINS = [
   "Front-end",
   "Design",
   "QA",
+  "AI",
 ] as const satisfies readonly Domain[];

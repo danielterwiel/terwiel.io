@@ -18,8 +18,9 @@ function calculateProjectDuration(dateFrom: string, dateTo: string): number {
  *
  * Algorithm:
  * 1. For each project, calculate its duration in months
- * 2. Identify which domains are used in the project (via stack items)
- * 3. Add the project's full duration to each domain that appears
+ * 2. For each domain, count the number of stack items in that domain
+ * 3. Weight domain experience by: months * stackItemCount
+ *    This amplifies domains with more specialized tools/technologies
  * 4. Calculate percentages for pie chart rendering
  *
  * @param projects - All projects to analyze
@@ -30,20 +31,24 @@ export function calculateDomainExperiences(
 ): DomainExperience[] {
   const domainMonths = new Map<Domain, number>();
 
-  // Aggregate months per domain
+  // Aggregate weighted months per domain
   for (const project of projects) {
     const months = calculateProjectDuration(project.dateFrom, project.dateTo);
-    const domainsInProject = new Set<Domain>();
 
-    // Collect unique domains in this project
+    // Count stack items per domain in this project
+    const stackItemsByDomain = new Map<Domain, number>();
     for (const stackItem of project.stack) {
-      domainsInProject.add(stackItem.domain);
+      const count = stackItemsByDomain.get(stackItem.domain) ?? 0;
+      stackItemsByDomain.set(stackItem.domain, count + 1);
     }
 
-    // Add project duration to each domain present
-    for (const domain of domainsInProject) {
+    // Add weighted experience to each domain
+    // Weight = project months * (1 + stackCount * 0.5)
+    // This gives 50% less increment per stack item compared to full multiplication
+    for (const [domain, stackCount] of stackItemsByDomain) {
+      const weightedMonths = months * (1 + stackCount * 0.5);
       const current = domainMonths.get(domain) ?? 0;
-      domainMonths.set(domain, current + months);
+      domainMonths.set(domain, current + weightedMonths);
     }
   }
 
