@@ -36,6 +36,7 @@ export type IconName =
   | "Flow"
   | "Jest"
   | "Knockout"
+  | "Lit"
   | "MaterialUI"
   | "Mocha"
   | "Palette"

@@ -49,6 +49,7 @@ import HotelService from "../images/icons/hotel-service.svg";
 import Jest from "../images/icons/jest.svg";
 import Knockout from "../images/icons/knockout.svg";
 import Language from "../images/icons/language.svg";
+import Lit from "../images/icons/lit.svg";
 import Mail from "../images/icons/mail.svg";
 import MapPin from "../images/icons/map-pin.svg";
 import MaterialUI from "../images/icons/material-ui.svg";
@@ -103,8 +104,8 @@ const icons = {
   BrandSpeedtest,
   BrandTailwind,
   BrandTanstack,
-  BrandTypescript,
   BrandTwitter,
+  BrandTypescript,
   BrandVercel,
   BrandVisualStudio,
   BrandVite,
@@ -132,6 +133,7 @@ const icons = {
   Jest,
   Knockout,
   Language,
+  Lit,
   Mail,
   MapPin,
   MaterialUI,
