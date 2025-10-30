@@ -18,6 +18,27 @@ function createStackItem(name: StackName): StackItem {
 export const PROJECTS: Project[] = [
   {
     id: "PROJECT_10",
+    company: "90 Percent of Everything",
+    role: "Front-end Developer",
+    teamSize: 100,
+    industry: "Logistics",
+    location: "London (Remote)",
+    dateFrom: "2024-02-01",
+    dateTo: "2025-12-31",
+    description:
+      "90POE builds maritime logistics software (OpenOcean STUDIO), so the logistics focus matches. I built and maintained several CRUD apps inside their micro-frontend setup, aligning APIs and shared UI components to avoid regressions and speed up releases. That helped teams ship new features used in daily vessel and operations workflows more quickly.",
+    stack: [
+      createStackItem("JavaScript"),
+      createStackItem("TypeScript"),
+      createStackItem("React"),
+      createStackItem("AntDesign"),
+      createStackItem("GraphQL"),
+      createStackItem("Figma"),
+    ],
+    icon: "Ship",
+  },
+  {
+    id: "PROJECT_9",
     company: "Currentflow",
     role: "Full stack Developer",
     teamSize: 1,
@@ -26,7 +47,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "When I discovered Effect.TS, I saw the potential when I discovered all the benefits it offers that other of my favorite languages have, but TypeScript lacks. I decided to spend my personal time to learn it by building. Reluctant to completely throw away all the code and experience I've gained by building my previous project, I decided to build a containerized QMS. Using Effect.TS for maintainability, Electric SQL for real-time data sync and Tanstack DB for offline-first data management.",
+      "In my spare time, I’m building a containerized QMS in my spare time, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
     stack: [
       createStackItem("Effect"),
       createStackItem("JavaScript"),
@@ -44,16 +65,16 @@ export const PROJECTS: Project[] = [
     icon: "Ripple",
   },
   {
-    id: "PROJECT_9",
+    id: "PROJECT_8",
     company: "Permatrust",
     role: "Full stack Developer",
     teamSize: 1,
     industry: "Auditing",
     location: "Home",
     dateFrom: "2024-06-01",
-    dateTo: "present",
+    dateTo: "2025-06-01",
     description:
-      "In my personal time, I am developing a ransomware-resilient QMS using Rust and XState on the Internet Computer. This initiative serves to master these technologies and a terminal-centric workflow, with the goal of creating robust, secure applications for vulnerable SMBs in nowadays rapidly evolving threat landscape.",
+      "In my spare time, I prototyped a ransomware-resilient QMS using Rust for memory safety and XState for predictable logic, deployed on Internet Computer. The result is a secure, minimal prototype that is highly data resilient and abides by GxP regulations.",
     stack: [
       createStackItem("Rust"),
       createStackItem("Bash"),
@@ -69,27 +90,6 @@ export const PROJECTS: Project[] = [
     icon: "ShieldLock",
   },
   {
-    id: "PROJECT_8",
-    company: "90 Percent of Everything",
-    role: "Front-end Developer",
-    teamSize: 100,
-    industry: "Logistics",
-    location: "London (Remote)",
-    dateFrom: "2024-02-01",
-    dateTo: "present",
-    description:
-      "At 90 Percent of Everything, I've built and maintained multiple micro-frontend CRUD applications using TypeScript.",
-    stack: [
-      createStackItem("JavaScript"),
-      createStackItem("TypeScript"),
-      createStackItem("React"),
-      createStackItem("AntDesign"),
-      createStackItem("GraphQL"),
-      createStackItem("Figma"),
-    ],
-    icon: "Ship",
-  },
-  {
     id: "PROJECT_7",
     company: "Departure Labs",
     role: "Full stack Developer & Designer",
@@ -99,7 +99,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
-      "In my role at Departure Labs, I spearheaded the development of several innovative blockchain products on Dfinity's Internet Computer before pivoting to a WebAssembly-enabled cloud platform. My key contributions included architecting the CLI written in Rust and setting up the release and publishing flow. Next to this I lead the front-end development team with a combination of JavaScript, TypeScript, Vue, and React. I played a pivotal role in product design, ensuring scalability and robustness, and facilitated the transition of the platform from concept to market-ready product.",
+      "Departure Labs shifted to a cloud platform built on WASM. I built the Rust CLI and release pipeline for that. Furthermore I guided a small front-end group across Vue and React, and contributed to product design. We moved the platform from concept to a shippable product.",
     stack: [
       createStackItem("Rust"),
       createStackItem("GitHub Actions"),
@@ -126,7 +126,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
-      "At ING's Touchpoint department, I was instrumental in developing and maintaining a multi-component, plug-and-play platform, used across various ING branches worldwide. My focus was on enhancing user authentication processes and building utility libraries to streamline user experiences. I employed advanced JavaScript, JSDoc, Lit, CSS, and HTML to deliver high-quality, scalable, and secure front-end solutions. My work contributed to standardizing the user experience across ING's global network. Furthermore I was responsible for the creation of a bootstrapping tool to spin up new projects that adhere to the ING infrastructure.",
+      "ING needed consistent authentication and faster project setup across many teams. I improved authentication flows and built a bootstrap tool that spins up new projects with platform standards baked in. This cut setup time and kept apps aligned with security and UI rules.",
     stack: [
       createStackItem("JavaScript"),
       createStackItem("Lit"),
@@ -147,7 +147,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
-      "At M&I my main task was to maintain and enhance a complex newsroom management application, heavily utilized by major media outlets in the Benelux region. My role involved modernizing the application using React, Redux, and a suite of JavaScript technologies, improving performance, and user interface. I implemented automated testing with Jest and Puppeteer, ensuring high reliability and user satisfaction. Next to that I developed a media editor where video and audio files could be edited and published to the newsroom. In addition to that I was resonsible for the implementation of a new design. I leveraged Tailwind to iterate more quickly and efficiently implement new features such as dark mode.",
+      "Here I was tasked to create a video editor. Furthermore, I helped modernize a complex newsroom app used by major broadcasters. I replaced brittle parts with React, added a test suite, and used Tailwind to move the new design system faster.",
     stack: [
       createStackItem("React"),
       createStackItem("Redux"),
@@ -171,7 +171,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
-      "At one of the fastest-growing scale-ups in the Netherlands, I was responsible for replacing legacy parts of the application with reimplementations in Vue. In addition to building out our design system, I redeveloped the subscription page and co-created the returns portal: a high-traffic, consumer-facing web application. If you ever ordered a package online in any European country, chances are you have received an email that links to that work.",
+      "At Sendcloud, I replaced legacy front-end sections with Vue, contributed to the design system, and co-built the consumer returns portal. The portal handles high traffic across Europe, and the design system made UI work more consistent across teams.",
     stack: [
       createStackItem("Vue"),
       createStackItem("Preact"),
@@ -193,7 +193,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2016-06-01",
     dateTo: "2019-01-31",
     description:
-      "At Iperion, my role was centered around designing and developing the GxP Cloud, a greenfield application for the life sciences industry. I utilized React, Redux, Redux-saga, and Material UI among other technologies to create a user-friendly, scalable, and compliant application. My work involved deep collaboration with cross-functional teams to understand and implement industry-specific requirements, ensuring that the application met stringent regulatory standards while offering an intuitive user experience.",
+      "I worked on the front-end architecture for a greenfield GxP compliant Cloud platform in life sciences. Using React and Redux, we mapped regulatory requirements to UI and state that auditors and end users could actually use. We shipped a compliant product that stayed usable.",
     stack: [
       createStackItem("React"),
       createStackItem("Redux"),
@@ -218,7 +218,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
     description:
-      "At Amadeus, I contributed to the development of ELS, a single-page application designed for the hospitality industry. My role primarily involved utilizing Knockout.js, JavaScript, CSS, and HTML to enhance the application's user interface and performance. This work included addressing various technical challenges and ensuring that the application met the needs of its users in the hospitality sector.",
+      "The large-scale ELS app lacked a consistent architecture, which slowed feature work and made maintenance hard. I was asked to build new features and introduce a standard to improve code quality and developer flow. I applied MVVM to separate UI from business logic and added a simple component-based approach to encourage reuse and consistent view logic. This made the features I delivered more organized, maintainable, and testable, and it nudged the team toward more component-driven development.",
     stack: [
       createStackItem("Knockout"),
       createStackItem("JavaScript"),
@@ -237,7 +237,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2013-10-01",
     dateTo: "2014-10-31",
     description:
-      "During my time at Dinto, I was involved in creating interactive blueprints for warehouse layouts using SVG, SQL, and JavaScript. This task required a focus on detail and accuracy to ensure the blueprints were both functional and user-friendly. My role contributed to improving the way warehouses could be organized and managed, offering a visual and practical tool for operational planning.",
+      "I built an interactive warehouse layout tool with SVG and JavaScript backed by SQL for real-time updates on the current stock of that warehouse. It provided a more efficient and accurate way to manage inventory. Furthermore I built software for handheld devices for order picking.",
     stack: [
       createStackItem("JavaScript"),
       createStackItem("CSS"),
@@ -257,7 +257,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2007-01-01",
     dateTo: "2013-06-30",
     description:
-      "My tenure at Finview was an opportunity to develop my skills in a range of technologies, including Visual Basic.NET, SQL Server, PHP, JavaScript, CSS, and HTML. I worked on building websites and a CRM system for financial advisors, focusing on creating solutions that were both reliable and user-friendly. This experience was valuable in honing my abilities in full stack development and understanding client needs in the financial sector.",
+      "I co-built an internal CRM and client websites for a financial advisor. It streamlined and automated daily work and kept client data in one place.",
     stack: [
       createStackItem("Visual Basic.NET"),
       createStackItem("SQL Server"),
