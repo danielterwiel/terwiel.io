@@ -8,7 +8,11 @@ import type { Domain } from "~/types";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { matchesDomainName } from "~/utils/get-domain-names";
-import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
+import {
+  getSearchFilter,
+  getSearchQuery,
+  toggleFilterParam,
+} from "~/utils/search-params";
 
 interface PieSegmentData {
   domain: string;
@@ -50,6 +54,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   const [_isPending, startTransition] = useTransition();
 
   const a11y = useAccessibility();
+  const currentSearchQuery = getSearchQuery(searchParams);
   const currentSearchFilter = getSearchFilter(searchParams);
 
   // Defer filter updates to let animations complete first
@@ -57,6 +62,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   const _deferredSearchFilter = useDeferredValue(currentSearchFilter);
 
   // Track selection state in refs to avoid expensive re-renders
+  const currentSearchQueryRef = useRef(currentSearchQuery);
+  currentSearchQueryRef.current = currentSearchQuery;
+
   const currentSearchFilterRef = useRef(currentSearchFilter);
   currentSearchFilterRef.current = currentSearchFilter;
 
@@ -79,7 +87,17 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     const rafId = requestAnimationFrame(() => {
       if (!pieChartRef.current) return;
 
-      const matchedDomain = matchesDomainName(currentSearchFilter, PROJECTS);
+      // Check query first (from SearchInput), then filter (from StackCloud) if no query match
+      let matchedDomain = matchesDomainName(
+        currentSearchQueryRef.current,
+        PROJECTS,
+      );
+      if (!matchedDomain) {
+        matchedDomain = matchesDomainName(
+          currentSearchFilterRef.current,
+          PROJECTS,
+        );
+      }
 
       // CRITICAL BUG FIX: Save previous state BEFORE updating ref
       // Compare NEW state (matchedDomain) with OLD state (matchedDomainRef.current)
@@ -161,7 +179,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [currentSearchFilter, a11y, pieRadius]);
+  }, [a11y, pieRadius]);
 
   useEffect(() => {
     if (!pieChartRef.current) return;
@@ -171,11 +189,18 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
     const svg = d3.select(pieChartRef.current);
 
-    // Read from ref to get latest filter value without retriggering effect
-    const matchedDomain = matchesDomainName(
-      currentSearchFilterRef.current,
+    // Read from refs to get latest search values without retriggering effect
+    // Check query first (from SearchInput), then filter (from StackCloud) if no query match
+    let matchedDomain = matchesDomainName(
+      currentSearchQueryRef.current,
       PROJECTS,
     );
+    if (!matchedDomain) {
+      matchedDomain = matchesDomainName(
+        currentSearchFilterRef.current,
+        PROJECTS,
+      );
+    }
     matchedDomainRef.current = matchedDomain;
 
     // Clear existing content
