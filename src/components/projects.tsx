@@ -10,6 +10,7 @@ import type { Domain } from "~/types";
 
 import { Project } from "~/components/project";
 import { ProjectsEmptyState } from "~/components/projects-empty-state";
+import { ProjectsSkeleton } from "~/components/projects-skeleton";
 import { PROJECTS } from "~/data/projects";
 import { useScrollDelegation } from "~/hooks/use-scroll-delegation";
 import { filterCache } from "~/utils/filter-cache";
@@ -64,9 +65,23 @@ const ProjectsContent = () => {
   const [renderingProjects, setRenderingProjects] = useState<typeof filtered>(
     [],
   );
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [showSkeleton, setShowSkeleton] = useState(true);
+
+  // Show skeleton for minimum time to prevent flash
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSkeleton(false);
+    }, 400); // Minimum skeleton display time
+    return () => clearTimeout(timer);
+  }, []);
 
   // Update project states when filtered list changes
   useEffect(() => {
+    // Mark initial load as complete on first render
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+    }
     // Only update states if filtered list actually changed
     if (
       prevFilteredRef.current.length !== filtered.length ||
@@ -107,19 +122,21 @@ const ProjectsContent = () => {
         prevFilteredRef.current = filtered;
       }
     }
-  }, [filtered]);
+  }, [filtered, isInitialLoad]);
 
   const projectsId = useId();
   const listRef = useRef<HTMLOListElement>(null);
   const emptyStateRef = useRef<HTMLDivElement>(null);
 
+  // Show skeleton during initial load or while minimum display time hasn't elapsed
+  if (showSkeleton || (isInitialLoad && renderingProjects.length === 0)) {
+    return <ProjectsSkeleton />;
+  }
+
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
     <article className="prose max-w-none" id="projects">
-      <h2
-        id={projectsId}
-        className="mb-6 text-2xl font-bold md:text-center md:pt-2 landscape-mobile:pt-24"
-      >
+      <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>
       <div className="flow-root space-y-4 overflow-visible">
@@ -166,7 +183,7 @@ export const Projects = () => {
       ref={containerRef}
       className="md:h-full md:overflow-y-auto projects-scrollable"
     >
-      <Suspense fallback={<div>Loading projects...</div>}>
+      <Suspense fallback={<ProjectsSkeleton />}>
         <ProjectsContent />
       </Suspense>
     </div>
