@@ -16,7 +16,7 @@ export function calculateDomainAngles(
 
   const pie = d3
     .pie<DomainExperience>()
-    .value((d) => d.percentage)
+    .value((d) => d.totalMonths)
     .sort(null); // Maintain order
 
   // Generate pie segments

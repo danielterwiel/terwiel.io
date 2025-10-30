@@ -1,8 +1,16 @@
-import type { StackName } from "~/types";
+import type { Domain, StackName } from "~/types";
 
 import { STACK_ICONS } from "./icons";
 
 export const STACK = {
+  "Claude Code": {
+    domain: "AI",
+    icon: STACK_ICONS["Claude Code"],
+  },
+  ChatGPT: {
+    domain: "AI",
+    icon: STACK_ICONS.ChatGPT,
+  },
   AntDesign: {
     domain: "Front-end",
     icon: STACK_ICONS.AntDesign,
@@ -181,7 +189,7 @@ export const STACK = {
 } as const satisfies Record<
   StackName,
   {
-    domain: "DevOps" | "Back-end" | "Front-end" | "Design" | "QA";
+    domain: Domain;
     icon: string;
     parent?: string;
   }

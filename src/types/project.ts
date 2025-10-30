@@ -1,4 +1,10 @@
-export type Domain = "DevOps" | "Back-end" | "Front-end" | "Design" | "QA";
+export type Domain =
+  | "DevOps"
+  | "Back-end"
+  | "Front-end"
+  | "Design"
+  | "QA"
+  | "AI";
 
 export type BadgeProps = {
   icon: string;
