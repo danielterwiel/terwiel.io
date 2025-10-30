@@ -24,16 +24,10 @@
 
   /* Modern Glassmorphism Header - 2025 Design */
   .glass-header {
-    /* Highly transparent frosted glass for maximum see-through effect */
-    background: linear-gradient(
-      135deg,
-      oklch(100% 0 0 / 0.35),
-      oklch(98% 0.002 240 / 0.28)
-    );
-    /* Strong blur for true glassmorphism with enhanced brightness and saturation */
-    backdrop-filter: blur(20px) brightness(1.12) saturate(1.15) contrast(1.05);
-    -webkit-backdrop-filter: blur(20px) brightness(1.12) saturate(1.15)
-      contrast(1.05);
+    /* Position relative to allow ::before pseudo-element positioning */
+    position: relative;
+    /* Isolation creates a new stacking context without interfering with view transitions */
+    isolation: isolate;
     /* Subtle border for definition without heaviness */
     border-bottom: 1px solid oklch(100% 0 0 / 0.25);
     /* Layered shadow for depth: outer glow + inner highlight */
@@ -42,8 +36,35 @@
       inset 0 1px 1px oklch(100% 0 0 / 0.5);
   }
 
+  /* Apply backdrop-filter to pseudo-element to avoid stacking context conflicts with view-transition-name */
+  .glass-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    /* Transparent frosted glass for maximum see-through effect */
+    background: linear-gradient(
+      135deg,
+      oklch(100% 0 0 / 0.75),
+      oklch(98% 0.002 240 / 0.75)
+    );
+    /* Strong blur for true glassmorphism with enhanced brightness and saturation */
+    backdrop-filter: blur(20px) brightness(1.12) saturate(1.15) contrast(1.05);
+    -webkit-backdrop-filter: blur(20px) brightness(1.12) saturate(1.15)
+      contrast(1.05);
+  }
+
   /* Desktop header content with splashy glassmorphic effect */
   .glass-header-content {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .glass-header-content::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
     background: linear-gradient(
       135deg,
       oklch(100% 0 0 / 0.65),
@@ -732,8 +753,32 @@
   animation-delay: 0ms;
 }
 
-/* Header is NOT part of view transitions - it remains live to maintain backdrop-filter */
-/* This ensures the backdrop-filter continues to work correctly during transitions */
+/* Header participates in view transitions to prevent overlap issues */
+/* But we hide the old snapshot immediately to prevent backdrop-filter darkening */
+.glass-header {
+  view-transition-name: glass-header;
+}
+
+::view-transition-group(glass-header) {
+  /* Ensure header appears above all project transitions */
+  z-index: 100000;
+  /* No animation needed - we only show the new (live) version */
+  animation: none;
+}
+
+::view-transition-old(glass-header) {
+  /* CRITICAL: Hide old snapshot immediately to prevent darkening */
+  /* The old snapshot is a rasterized image without live backdrop-filter */
+  display: none;
+  animation: none;
+}
+
+::view-transition-new(glass-header) {
+  /* Show new (live) version immediately with no animation */
+  /* This preserves the live backdrop-filter effect */
+  animation: none;
+  opacity: 1;
+}
 
 @layer components {
   /* Field sizing utility - allows form inputs to resize based on content */
