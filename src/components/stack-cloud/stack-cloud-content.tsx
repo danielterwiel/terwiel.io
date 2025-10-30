@@ -287,13 +287,13 @@ export function StackCloudContent() {
               querySelectedDomain !== null &&
               selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
             const isDirectlyNamedByQuery =
-              query !== "" && stack.name.toLowerCase().startsWith(query);
+              query !== "" && stack.name.toLowerCase() === query;
 
             const isInFilterDomain =
               filterSelectedDomain !== null &&
               selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
             const isDirectlyNamedByFilter =
-              filter !== "" && stack.name.toLowerCase().startsWith(filter);
+              filter !== "" && stack.name.toLowerCase() === filter;
 
             const selected =
               isInQueryDomain ||
