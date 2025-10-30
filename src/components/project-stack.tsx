@@ -8,7 +8,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import type { StackItem } from "~/types";
 
 import { Badge } from "~/components/badge";
-import { getSearchFilter } from "~/utils/search-params";
+import { getSearchFilter, getSearchQuery } from "~/utils/search-params";
 
 type ProjectStackProps = {
   items: StackItem[];
@@ -24,6 +24,7 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   const stackRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
   const filter = getSearchFilter(searchParams);
+  const query = getSearchQuery(searchParams);
   const [animatingIndices, setAnimatingIndices] = useState<Set<number>>(
     new Set(),
   );
@@ -31,12 +32,14 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   const timeoutIdsRef = useRef<NodeJS.Timeout[]>([]);
 
   // Memoize badge matching results to avoid recalculating on every render
-  // Uses filter as key to invalidate cache when filter changes
+  // Uses filter and query as keys to invalidate cache when either changes
   const badgeMatchCache = useRef(new Map<string, boolean>());
 
-  // Check if a badge matches the current filter parameter
+  // Check if a badge matches the current filter or query parameter
   const isBadgeMatched = (item: StackItem): boolean => {
-    if (!filter) return false;
+    // Use filter if available, otherwise check query
+    const searchTerm = filter || query;
+    if (!searchTerm) return false;
 
     // Check cache first
     const cacheKey = `${item.name}|${item.domain}|${item.parent ?? ""}`;
@@ -47,19 +50,19 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
 
     // Calculate and cache
     const matches =
-      item.name.toLowerCase() === filter.toLowerCase() ||
-      item.domain.toLowerCase() === filter.toLowerCase() ||
-      item.parent?.toLowerCase() === filter.toLowerCase();
+      item.name.toLowerCase() === searchTerm.toLowerCase() ||
+      item.domain.toLowerCase() === searchTerm.toLowerCase() ||
+      item.parent?.toLowerCase() === searchTerm.toLowerCase();
 
     badgeMatchCache.current.set(cacheKey, matches);
     return matches;
   };
 
-  // Clear cache when filter changes
-  // biome-ignore lint/correctness/useExhaustiveDependencies: filter dependency is needed to clear cache
+  // Clear cache when filter or query changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: filter and query dependencies are needed to clear cache
   useEffect(() => {
     badgeMatchCache.current.clear();
-  }, [filter]);
+  }, [filter, query]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
