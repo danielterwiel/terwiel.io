@@ -19,14 +19,10 @@ export function useScrollDelegation(targetRef: React.RefObject<HTMLElement>) {
     const handleWheel = (e: WheelEvent) => {
       if (!isDesktop.current || !targetRef.current) return;
 
-      // Only intercept if not already scrolling the target
-      const target = e.target as HTMLElement;
-      if (targetRef.current.contains(target)) return;
-
       // Get the bounding rect of the Projects container to check if cursor is over it
       const projectsRect = targetRef.current.getBoundingClientRect();
 
-      // If the mouse event is over the Projects scrollable area, don't delegate
+      // If the mouse event is over the Projects scrollable area horizontally, don't delegate
       // (let it handle its own scrolling)
       if (e.clientX >= projectsRect.left && e.clientX <= projectsRect.right) {
         return;

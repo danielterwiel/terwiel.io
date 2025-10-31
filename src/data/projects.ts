@@ -32,6 +32,7 @@ export const PROJECTS: Project[] = [
       createStackItem("Claude Code"),
       createStackItem("Figma"),
       createStackItem("GraphQL"),
+      createStackItem("HTML"),
       createStackItem("JavaScript"),
       createStackItem("Jest"),
       createStackItem("React"),
@@ -56,6 +57,7 @@ export const PROJECTS: Project[] = [
       createStackItem("Docker"),
       createStackItem("Effect"),
       createStackItem("GitHub Actions"),
+      createStackItem("HTML"),
       createStackItem("JavaScript"),
       createStackItem("React"),
       createStackItem("Tailwind"),
@@ -82,6 +84,7 @@ export const PROJECTS: Project[] = [
       createStackItem("Bash"),
       createStackItem("Claude Code"),
       createStackItem("GitHub Actions"),
+      createStackItem("HTML"),
       createStackItem("JavaScript"),
       createStackItem("React"),
       createStackItem("Rust"),
@@ -223,7 +226,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2015-03-01",
     dateTo: "2019-01-31",
     description:
-      "The large-scale ELS app lacked a consistent architecture, which slowed feature work and made maintenance hard. I was asked to build new features and we introduced a standard to improve code quality and developer flow. I applied MVVM to separate UI from business logic and added a simple component-based approach to encourage reuse and consistent view logic. This made the features I delivered more organized, maintainable, and testable, and it nudged the team toward more component-driven development.",
+      "The large-scale ELS app lacked a consistent architecture, which slowed feature work and made maintenance hard. I was asked to build new features and we introduced a standard to improve code quality and developer. I applied MVVM to separate UI from business logic and added a simple component-based approach to encourage reuse and consistent view logic. This made the features I delivered more organized, maintainable, and testable, and it nudged the team toward more component-driven development.",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),

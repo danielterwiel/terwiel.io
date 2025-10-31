@@ -35,6 +35,7 @@ import {
   getSearchFilter,
   getSearchQuery,
 } from "~/utils/search-params";
+import { isExactParamMatch } from "~/utils/search-params-match";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
 
@@ -109,19 +110,25 @@ export function StackCloudContent() {
     for (const stack of stacks) {
       // A stack is selected if it matches EITHER query or filter:
       // 1. Its domain matches the query/filter, OR
-      // 2. Its name matches the query/filter directly (case-insensitive start match)
+      // 2. Its name matches the query/filter directly (exact match via utility)
 
       const isInQueryDomain =
         querySelectedDomain !== null &&
         selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
-      const isDirectlyNamedByQuery =
-        query !== "" && stack.name.toLowerCase().startsWith(query);
+      const isDirectlyNamedByQuery = isExactParamMatch(
+        searchParams,
+        "query",
+        stack.name,
+      );
 
       const isInFilterDomain =
         filterSelectedDomain !== null &&
         selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
-      const isDirectlyNamedByFilter =
-        filter !== "" && stack.name.toLowerCase().startsWith(filter);
+      const isDirectlyNamedByFilter = isExactParamMatch(
+        searchParams,
+        "filter",
+        stack.name,
+      );
 
       const selected =
         isInQueryDomain ||
@@ -164,6 +171,8 @@ export function StackCloudContent() {
   // Sync hover state with search params (selected stack/domain)
   // Uses deferredSearchParams to defer hover state updates
   // Checks BOTH query and filter parameters
+  // IMPORTANT: Only clear hover states when selection is completely cleared
+  // Do NOT update hover states when selection changes - preserve user's hover
   useEffect(() => {
     const searchQuery =
       deferredSearchParams.get("query")?.toLowerCase().trim() ?? "";
@@ -177,21 +186,10 @@ export function StackCloudContent() {
       return;
     }
 
-    // Get the appropriate hover state based on current selection
-    const hoverStack = getInitialSelectedStack(
-      deferredSearchParams,
-      stacks,
-      PROJECTS,
-    );
-    const hoverDomain = getInitialSelectedDomain(
-      deferredSearchParams,
-      PROJECTS,
-    );
-
-    // Update hover states
-    setHoveredStack(hoverStack);
-    setHoveredDomain(hoverDomain);
-  }, [deferredSearchParams, stacks]);
+    // When selection exists, preserve current hover state
+    // Hover state should only be updated by user interaction (mouse/keyboard),
+    // not by selection changes in the URL
+  }, [deferredSearchParams]);
 
   // Memoize callback for setting hovered domain
   const handleSetHoveredDomain = useCallback((domain: Domain | null) => {
@@ -286,14 +284,20 @@ export function StackCloudContent() {
             const isInQueryDomain =
               querySelectedDomain !== null &&
               selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
-            const isDirectlyNamedByQuery =
-              query !== "" && stack.name.toLowerCase() === query;
+            const isDirectlyNamedByQuery = isExactParamMatch(
+              searchParams,
+              "query",
+              stack.name,
+            );
 
             const isInFilterDomain =
               filterSelectedDomain !== null &&
               selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
-            const isDirectlyNamedByFilter =
-              filter !== "" && stack.name.toLowerCase() === filter;
+            const isDirectlyNamedByFilter = isExactParamMatch(
+              searchParams,
+              "filter",
+              stack.name,
+            );
 
             const selected =
               isInQueryDomain ||

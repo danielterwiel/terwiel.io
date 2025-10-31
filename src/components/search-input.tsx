@@ -82,6 +82,26 @@ const SearchInputContent = React.forwardRef<
     }
   };
 
+  const triggerSearchImmediately = (searchValue: string) => {
+    // Cancel any pending debounced search
+    debouncedSetSearchParamsRef.current?.cancel();
+
+    // Trigger search immediately without debounce
+    const encodedValue = encodeURIComponent(searchValue);
+    const url = encodedValue ? `${pathname}?query=${encodedValue}` : pathname;
+    startTransition(() => {
+      router.replace(url, {
+        scroll: false,
+      });
+    });
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      triggerSearchImmediately(query);
+    }
+  };
+
   const handleFocus = () => {
     setIsFocused(true);
     // Trigger bounce animation on focus
@@ -194,6 +214,7 @@ const SearchInputContent = React.forwardRef<
                 placeholder="Search - e.g. Rust, 2022, Logistics"
                 value={query}
                 onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 className="w-full border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"

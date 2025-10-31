@@ -9,6 +9,7 @@ import type { StackItem } from "~/types";
 
 import { Badge } from "~/components/badge";
 import { getSearchFilter, getSearchQuery } from "~/utils/search-params";
+import { isExactParamMatchAny } from "~/utils/search-params-match";
 
 type ProjectStackProps = {
   items: StackItem[];
@@ -37,10 +38,6 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
 
   // Check if a badge matches the current filter or query parameter
   const isBadgeMatched = (item: StackItem): boolean => {
-    // Use filter if available, otherwise check query
-    const searchTerm = filter || query;
-    if (!searchTerm) return false;
-
     // Check cache first
     const cacheKey = `${item.name}|${item.domain}|${item.parent ?? ""}`;
     const cached = badgeMatchCache.current.get(cacheKey);
@@ -48,11 +45,11 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
       return cached;
     }
 
-    // Calculate and cache
+    // Calculate and cache - check if name, domain, or parent exactly matches query or filter
     const matches =
-      item.name.toLowerCase() === searchTerm.toLowerCase() ||
-      item.domain.toLowerCase() === searchTerm.toLowerCase() ||
-      item.parent?.toLowerCase() === searchTerm.toLowerCase();
+      isExactParamMatchAny(searchParams, item.name) ||
+      isExactParamMatchAny(searchParams, item.domain) ||
+      (item.parent ? isExactParamMatchAny(searchParams, item.parent) : false);
 
     badgeMatchCache.current.set(cacheKey, matches);
     return matches;

@@ -7,7 +7,7 @@ import type { Domain } from "~/types";
 
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
-import { matchesDomainName } from "~/utils/get-domain-names";
+import { isEqualDomain, matchesDomainName } from "~/utils/get-domain-names";
 import {
   getSearchFilter,
   getSearchQuery,
@@ -75,6 +75,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   // Update visual states without re-rendering entire chart
   // Uses deferred value to avoid blocking urgent UI updates
   // Immediately interrupts ongoing animations on new updates for responsive feel
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentSearchQuery and currentSearchFilter are needed to trigger updates when search params change, even though they're read from refs
   useEffect(() => {
     if (!pieChartRef.current) {
       return;
@@ -101,7 +102,11 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       // CRITICAL BUG FIX: Save previous state BEFORE updating ref
       // Compare NEW state (matchedDomain) with OLD state (matchedDomainRef.current)
-      const stateIsChanging = matchedDomain !== matchedDomainRef.current;
+      // Use isEqualDomain for case-insensitive comparison
+      const stateIsChanging = !isEqualDomain(
+        matchedDomain,
+        matchedDomainRef.current,
+      );
 
       // Early bailout: Skip update entirely if state hasn't changed
       // This prevents unnecessary DOM operations and D3 transitions
@@ -113,7 +118,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       const svg = d3.select(pieChartRef.current);
 
-      const RING_THICKNESS = pieRadius * 0.1;
+      const RING_THICKNESS = pieRadius * 0.08; // Match the ring thickness used when creating the chart
       const arc = d3
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
@@ -122,7 +127,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const selectedArc = d3
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
-        .outerRadius(pieRadius + RING_THICKNESS * 1.4);
+        .outerRadius(pieRadius + RING_THICKNESS * 1.1); // Match the selection scale used when creating the chart
 
       // Batch DOM updates together
       const segments = svg.selectAll<
@@ -160,10 +165,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .transition()
         .duration(transitionDuration)
         .attr("opacity", (d) =>
-          matchedDomain === d.data.domain ? "1.0" : "0.55",
+          isEqualDomain(matchedDomain, d.data.domain) ? "1.0" : "0.55",
         ) // Moderate contrast for multiple selections
         .attr("d", (d) =>
-          matchedDomain === d.data.domain
+          isEqualDomain(matchedDomain, d.data.domain)
             ? (selectedArc(d) ?? "")
             : (arc(d) ?? ""),
         )
@@ -174,12 +179,12 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       // Update ARIA states (batched, no transitions needed)
       hitAreas.attr("aria-pressed", (d) =>
-        matchedDomain === d.data.domain ? "true" : "false",
+        isEqualDomain(matchedDomain, d.data.domain) ? "true" : "false",
       );
     });
 
     return () => cancelAnimationFrame(rafId);
-  }, [a11y, pieRadius]);
+  }, [a11y, pieRadius, currentSearchQuery, currentSearchFilter]);
 
   useEffect(() => {
     if (!pieChartRef.current) return;
@@ -213,7 +218,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       .sort(null); // Maintain order
 
     // Define arc states
-    const RING_THICKNESS = pieRadius * 0.1; // Thickness of the ring border
+    const RING_THICKNESS = pieRadius * 0.08; // Thickness of the ring border
 
     // Default arc: ring/donut style (hollow) - idle state
     const arc = d3
@@ -225,7 +230,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     const selectedArc = d3
       .arc<d3.PieArcDatum<PieSegmentData>>()
       .innerRadius(pieRadius - RING_THICKNESS)
-      .outerRadius(pieRadius + RING_THICKNESS * 1.4);
+      .outerRadius(pieRadius + RING_THICKNESS * 1.1);
 
     // Invisible hit area arc: always full segment for better mobile interaction
     const hitAreaArc = d3
@@ -302,16 +307,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       .attr("class", (d) => {
         const baseClasses = "pie-segment magnetic-base magnetic-rounded-full";
         const stateClasses = a11y.getStateClasses({
-          selected: matchedDomain === d.data.domain,
+          selected: isEqualDomain(matchedDomain, d.data.domain),
         });
         return `${baseClasses} ${stateClasses}`;
       })
       .attr("opacity", (d) =>
-        matchedDomain === d.data.domain ? "1.0" : "0.55",
+        isEqualDomain(matchedDomain, d.data.domain) ? "1.0" : "0.55",
       ) // Moderate contrast for multiple selections
       .attr("pointer-events", "none")
       .attr("d", (d) =>
-        matchedDomain === d.data.domain
+        isEqualDomain(matchedDomain, d.data.domain)
           ? (selectedArc(d) ?? "")
           : (arc(d) ?? ""),
       );
@@ -338,7 +343,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         return `${d.data.domain}: ${d.data.percentage.toFixed(1)}% - click to filter`;
       })
       .attr("aria-pressed", (d) => {
-        return matchedDomain === d.data.domain ? "true" : "false";
+        return isEqualDomain(matchedDomain, d.data.domain) ? "true" : "false";
       });
 
     // Title for hover tooltip
@@ -353,7 +358,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const hoverArc = d3
         .arc<d3.PieArcDatum<PieSegmentData>>()
         .innerRadius(pieRadius - RING_THICKNESS)
-        .outerRadius(pieRadius + RING_THICKNESS * 1.2);
+        .outerRadius(pieRadius + RING_THICKNESS * 1.1);
 
       // Track if a touch is intended as a click (vs scroll/pan)
       let touchWasClick = false;
@@ -370,11 +375,15 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         visiblePath.interrupt();
 
         // Animate to hover state - clear hierarchy: default (0.55) → hover (0.8) → selected (1.0)
+        // Force re-application of transition by temporarily setting to a different state first
+        const hoverPath = hoverArc(datum) ?? "";
+        const hoverOpacity = "0.8";
+
         visiblePath
           .transition()
           .duration(transitionDuration)
-          .attr("d", hoverArc(datum) ?? "")
-          .attr("opacity", "0.8");
+          .attr("d", hoverPath)
+          .attr("opacity", hoverOpacity);
 
         // Notify parent component of domain hover
         onDomainHover?.(datum.data.domain as Domain);
@@ -385,7 +394,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
 
         // Check if this segment's domain is selected
-        const isSelected = matchedDomainRef.current === datum.data.domain;
+        const isSelected = isEqualDomain(
+          matchedDomainRef.current,
+          datum.data.domain,
+        );
 
         // When leaving any segment, restore the selected domain if one exists
         const restoreDomain = matchedDomainRef.current

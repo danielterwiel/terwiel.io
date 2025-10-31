@@ -12,7 +12,7 @@ export const STACK = {
     icon: STACK_ICONS.ChatGPT,
   },
   AntDesign: {
-    domain: "Front-end",
+    domain: "Design",
     icon: STACK_ICONS.AntDesign,
   },
   Puppeteer: {

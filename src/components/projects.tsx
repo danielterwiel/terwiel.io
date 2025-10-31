@@ -67,6 +67,8 @@ const ProjectsContent = () => {
   );
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
+  // Track ongoing view transition to prevent concurrent transitions
+  const ongoingTransitionRef = useRef<ViewTransition | null>(null);
 
   // Show skeleton for minimum time to prevent flash
   useEffect(() => {
@@ -82,25 +84,35 @@ const ProjectsContent = () => {
     if (isInitialLoad) {
       setIsInitialLoad(false);
     }
-    // Only update states if filtered list actually changed
-    if (
+    // Calculate the new state map to handle projects that stay (for scale animation)
+    const newStateMap = diffProjectStates(prevFilteredRef.current, filtered);
+
+    // Check if filtered list actually changed OR if we have any "stay" projects (for scale animation)
+    const hasListChanged =
       prevFilteredRef.current.length !== filtered.length ||
-      prevFilteredRef.current.some((p, i) => p.id !== filtered[i]?.id)
-    ) {
-      // Use native View Transition API
+      prevFilteredRef.current.some((p, i) => p.id !== filtered[i]?.id);
+    const hasStayProjects = Array.from(newStateMap.values()).some(
+      (state) => state === "stay",
+    );
+
+    if (hasListChanged || hasStayProjects) {
+      // Use native View Transition API with proper abort handling
       if ("startViewTransition" in document) {
         const vtAPI = document as Document & {
           startViewTransition: (callback: () => void) => ViewTransition;
         };
 
-        // Calculate the new state map BEFORE transition
-        const newStateMap = diffProjectStates(
-          prevFilteredRef.current,
-          filtered,
-        );
+        // Abort any ongoing transition to prevent conflicts
+        if (ongoingTransitionRef.current) {
+          // Suppress the error from skipTransition by catching it
+          ongoingTransitionRef.current.finished.catch(() => {
+            // Silently handle the skip error - this is expected
+          });
+          ongoingTransitionRef.current.skipTransition();
+        }
 
-        // Start the transition IMMEDIATELY
-        vtAPI.startViewTransition(() => {
+        // Start the new transition
+        const transition = vtAPI.startViewTransition(() => {
           // Inside the transition callback, update state synchronously
           flushSync(() => {
             // Update the project state map
@@ -111,12 +123,25 @@ const ProjectsContent = () => {
             prevFilteredRef.current = filtered;
           });
         });
+
+        // Track this transition
+        ongoingTransitionRef.current = transition;
+
+        // Clear the reference when transition finishes
+        transition.finished
+          .then(() => {
+            if (ongoingTransitionRef.current === transition) {
+              ongoingTransitionRef.current = null;
+            }
+          })
+          .catch(() => {
+            // Handle abortion or other errors
+            if (ongoingTransitionRef.current === transition) {
+              ongoingTransitionRef.current = null;
+            }
+          });
       } else {
         // Fallback for browsers without View Transitions
-        const newStateMap = diffProjectStates(
-          prevFilteredRef.current,
-          filtered,
-        );
         projectStateMapRef.current = newStateMap;
         setRenderingProjects(filtered);
         prevFilteredRef.current = filtered;
@@ -160,7 +185,7 @@ const ProjectsContent = () => {
                 key={project.id}
                 project={project}
                 projectIdx={idx}
-                totalLength={filtered.length}
+                totalLength={renderingProjects.length}
                 isVisible={filtered.some((p) => p.id === project.id)}
                 projectState={
                   projectStateMapRef.current.get(project.id) ?? "stay"
@@ -181,7 +206,13 @@ export const Projects = () => {
   return (
     <div
       ref={containerRef}
-      className="md:h-full md:overflow-y-auto projects-scrollable"
+      className="md:overflow-y-auto projects-scrollable"
+      style={
+        {
+          // Safari fix: without explicit height, use max-height to constrain scrolling
+          WebkitOverflowScrolling: "touch",
+        } as React.CSSProperties
+      }
     >
       <Suspense fallback={<ProjectsSkeleton />}>
         <ProjectsContent />

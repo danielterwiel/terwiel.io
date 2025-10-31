@@ -2,6 +2,7 @@
 
 import { clsx } from "clsx";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 import type { BadgeProps } from "~/types";
 
@@ -11,6 +12,8 @@ import {
   getMagneticClasses,
   validateIconName,
 } from "~/utils/icon-colors";
+import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
+import { isExactParamMatchAny } from "~/utils/search-params-match";
 
 export const Badge = ({
   icon,
@@ -18,9 +21,16 @@ export const Badge = ({
   isAnimating = false,
   isMatched = false,
 }: BadgeProps & { isAnimating?: boolean; isMatched?: boolean }) => {
+  const searchParams = useSearchParams();
+  const currentFilter = getSearchFilter(searchParams);
   const validatedIcon = validateIconName(icon);
   const IconComponent = Icon[icon as keyof typeof Icon];
-  const colored = isMatched || validatedIcon !== undefined;
+
+  // Check if this badge's name matches the current URLSearchParams (filter or query)
+  const isSelected = isExactParamMatchAny(searchParams, name);
+
+  const colored =
+    isAnimating || isMatched || isSelected || validatedIcon !== undefined;
   const hexColor = colored ? getIconHexColor(icon) : "#94A3B8";
 
   // Convert hex to RGB for dynamic coloring
@@ -38,8 +48,9 @@ export const Badge = ({
   const rgb = hexToRgb(hexColor);
   const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 
-  // Generate href with query parameter
-  const href = `/?query=${encodeURIComponent(name)}`;
+  // Generate href using toggleFilterParam to clear filter if badge is already selected
+  const queryString = toggleFilterParam(currentFilter, name);
+  const href = `/${queryString}`;
 
   const magneticClasses = getMagneticClasses(undefined, {
     component: "button",
@@ -52,14 +63,14 @@ export const Badge = ({
 
   const iconClasses = clsx(
     "flex-shrink-0 w-6 h-6 text-slate-400 transition-colors duration-500 ease-out",
-    (isAnimating || isMatched) && colored && "[color:var(--badge-color)]",
-    colored && !isMatched && "group-hover:[color:var(--badge-color)]",
+    (isAnimating || isSelected) && colored && "[color:var(--badge-color)]",
+    colored && !isSelected && "group-hover:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
     "text-sm font-medium text-slate-700 whitespace-nowrap",
     "transition-all duration-500 ease-out",
-    !isMatched &&
+    !isSelected &&
       "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)]",
     !colored && "group-hover:[text-decoration-color:#94A3B8]",
   );
@@ -83,12 +94,12 @@ export const Badge = ({
       className={clsx(
         magneticClasses,
         "group border-2 transition-all duration-500",
-        (isAnimating || isMatched) && colored
+        (isAnimating || isSelected) && colored
           ? "[border-color:rgba(var(--badge-rgb),0.3)]"
           : "border-slate-400/20",
-        !isMatched && "hover:border-slate-400/40",
+        !isSelected && "hover:border-slate-400/40",
         colored &&
-          !isMatched &&
+          !isSelected &&
           "hover:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}

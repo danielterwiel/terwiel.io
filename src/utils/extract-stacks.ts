@@ -1,5 +1,6 @@
 import type { Project, Stack, StackName } from "~/types";
 
+import { STACK } from "~/data/stack";
 import { getStackParent } from "~/utils/get-stack-parent";
 import { getIconHexColor } from "~/utils/icon-colors";
 
@@ -41,13 +42,19 @@ export function extractUniqueStacks(projects: Project[]): Stack[] {
 
       // For child stacks, create entry using parent's name
       if (stackItem.parent) {
-        // Use the first child's properties, but with parent's name
+        // Use the parent's definition from STACK data if available, otherwise fall back to child's properties
+        const parentStackDef = STACK[stackItem.parent as StackName];
+        const iconKey = parentStackDef ? parentStackDef.icon : stackItem.icon;
+        const domain = parentStackDef
+          ? parentStackDef.domain
+          : stackItem.domain;
+
         const stack: Stack = {
           id: normalizeStackName(stackItem.parent),
           name: stackItem.parent as StackName,
-          iconKey: stackItem.icon,
-          color: getIconHexColor(stackItem.icon),
-          domain: stackItem.domain,
+          iconKey,
+          color: getIconHexColor(iconKey),
+          domain,
         };
         stackMap.set(effectiveName, stack);
       } else {

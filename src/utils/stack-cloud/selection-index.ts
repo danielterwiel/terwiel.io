@@ -44,7 +44,13 @@ export function buildSelectionIndex(projects: Project[]): SelectionIndex {
       const domain = stack.domain;
       const stackSet = domainToStacks.get(domain);
       if (stackSet) {
+        // Add the stack name
         stackSet.add(stack.name);
+        // If this stack has a parent, also add the parent name to the index
+        // This ensures parent stacks (like "Tanstack") are found when filtering by domain
+        if (stack.parent) {
+          stackSet.add(stack.parent);
+        }
       }
     }
 
