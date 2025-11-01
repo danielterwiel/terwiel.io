@@ -24,6 +24,7 @@
 
   /* Modern Glassmorphism Header - 2025 Design */
   .glass-header {
+    /* CHROME: Will add view-transition-name via Chrome-specific CSS below */
     /* Position relative to allow ::before pseudo-element positioning */
     position: relative;
     /* Isolation creates a new stacking context without interfering with view transitions */
@@ -34,6 +35,15 @@
     box-shadow:
       0 12px 32px oklch(37.85% 0.1954 263.23 / 0.15),
       inset 0 1px 1px oklch(100% 0 0 / 0.5);
+  }
+
+  /* Header view-transition configuration */
+  /* CHROME: Participates in transition layer for z-index control */
+  /* SAFARI: View transitions are DISABLED in JavaScript to prevent rendering bugs */
+  /* (header disappears, backdrop-filter breaks, clipping occurs) */
+  .glass-header {
+    view-transition-name: glass-header;
+    z-index: 50;
   }
 
   /* Apply backdrop-filter to pseudo-element to avoid stacking context conflicts with view-transition-name */
@@ -596,6 +606,29 @@
   pointer-events: none;
 }
 
+/* Ensure header stays on top of all view transition animations */
+/* By including header in transition layer with view-transition-name: glass-header, */
+/* we can control its z-index with ::view-transition-group(glass-header) */
+/* The key is setting a MUCH higher z-index than projects (which use z-index: 20) */
+::view-transition-group(glass-header) {
+  z-index: 9999;
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(glass-header) {
+  animation: none;
+  display: none;
+}
+
+::view-transition-new(glass-header) {
+  animation: none;
+}
+
+/* View transitions are disabled for Safari in JavaScript */
+/* (src/components/projects.tsx: line ~101-110 detects Safari and skips startViewTransition) */
+/* This prevents critical rendering bugs: header disappearing, backdrop-filter breaking, clipping */
+
 /* Completely disable root transition - we only want named element transitions */
 ::view-transition-group(root) {
   animation: none;
@@ -651,6 +684,9 @@
 ::view-transition-group(project-PROJECT_8-stay),
 ::view-transition-group(project-PROJECT_9-stay),
 ::view-transition-group(project-PROJECT_10-stay) {
+  /* Put projects BEHIND header by using negative z-index */
+  /* Header has z-index: 9999, projects now appear underneath */
+  z-index: -1;
   /* Override default plus-lighter blend mode to prevent darkening */
   mix-blend-mode: normal;
 }
@@ -777,32 +813,8 @@
   animation-delay: 0ms;
 }
 
-/* Header participates in view transitions to prevent overlap issues */
-/* But we hide the old snapshot immediately to prevent backdrop-filter darkening */
-.glass-header {
-  view-transition-name: glass-header;
-}
-
-::view-transition-group(glass-header) {
-  /* Ensure header appears above all project transitions */
-  z-index: 100000;
-  /* No animation needed - we only show the new (live) version */
-  animation: none;
-}
-
-::view-transition-old(glass-header) {
-  /* CRITICAL: Hide old snapshot immediately to prevent darkening */
-  /* The old snapshot is a rasterized image without live backdrop-filter */
-  display: none;
-  animation: none;
-}
-
-::view-transition-new(glass-header) {
-  /* Show new (live) version immediately with no animation */
-  /* This preserves the live backdrop-filter effect */
-  animation: none;
-  opacity: 1;
-}
+/* Header is excluded from View Transitions to avoid conflicts with its own animations */
+/* The header uses view-transition-name: none via inline style */
 
 @layer components {
   /* Field sizing utility - allows form inputs to resize based on content */
@@ -876,23 +888,23 @@
     transform: translateY(0);
     opacity: 1;
     /* Staying items should be on top during transitions to prevent overlaps */
-    z-index: 2;
+    z-index: 22;
   }
 
   /* Exiting items should be behind staying items during exit animation */
   .project-item.project-slide-out {
-    z-index: 0;
+    z-index: 20;
   }
 
-  /* Entering items should be between exiting (0) and staying (2) */
+  /* Entering items should be between exiting (20) and staying (22) */
   .project-item.project-from-top:not(.project-slide-out),
   .project-item.project-from-bottom:not(.project-slide-out) {
-    z-index: 1;
+    z-index: 21;
   }
 
   /* Fade out items should be lowest to avoid blocking view */
   .project-item.project-fade-out {
-    z-index: -1;
+    z-index: 19;
   }
 
   /* Slide out animations with staggered timing */

@@ -107,6 +107,35 @@ This project has been updated to Next.js 15 with the following changes:
 - **Environment**: @t3-oss/env-nextjs for env var management
 - **Date handling**: date-fns 2.x
 
+## Z-Index Hierarchy
+
+**IMPORTANT**: All z-index values are defined in `tailwind.config.ts` and should be used consistently. Do not use arbitrary z-index values.
+
+### Z-Index Scale (Tailwind):
+- `z-0`: Default layer (body, containers, StackCloud sidebar)
+- `z-10`: Main content (Projects container)
+- `z-20`: View transitions for projects (project items: 19-22)
+  - `z-19`: Project fade-out items
+  - `z-20`: Exiting project items
+  - `z-21`: Entering project items
+  - `z-22`: Staying/visible project items
+- `z-40`: View transition group for header (Chrome only, below sticky header)
+- `z-50`: Sticky elements (Header, contact dropdown)
+- `z-60`: Safari-specific header override (only on Safari, overrides z-50 to stay above view transitions)
+- `z-100`: Emergency layer (use only for critical edge cases)
+
+### Key Rules:
+1. Header (sticky): Always `z-50` in HTML, with Safari override to `z-60` in CSS
+2. Contact dropdown: `z-50` (same as header, inside portal)
+3. Project items during transitions: `z-19` to `z-22` range
+4. View transition pseudo-elements: `z-40` (below header)
+5. Never use arbitrary z-index values like `z-9999` or `z-100000`
+
+### Safari Specific:
+- Safari disables view transitions for the header (`view-transition-name: glass-header`) due to clipping bug
+- On Safari, header z-index is boosted to `z-60` to stay above project animations
+- Chrome continues to use view transitions with header at `z-40` group level
+
 ## Development Notes
 
 - The site is designed with print optimization in mind - many classes include print-specific variants
@@ -114,3 +143,5 @@ This project has been updated to Next.js 15 with the following changes:
 - Uses Inter font from Google Fonts
 - Includes favicon and proper metadata setup
 - Built for Vercel deployment (includes .vercel directory)
+- View transitions API is used for smooth project list filtering animations
+- Safari requires special handling for view transitions due to rendering bugs with sticky positioned elements
