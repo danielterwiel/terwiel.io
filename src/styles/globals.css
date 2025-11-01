@@ -485,15 +485,15 @@
 
 @keyframes vt-project-stay {
   from {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
   50% {
     /* Use translateY instead of scale to avoid backdrop-filter darkening issues */
-    transform: translateY(-4px);
+    transform: translateY(-4px) scale(1);
   }
   to {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }
@@ -717,9 +717,20 @@
 ::view-transition-new(project-PROJECT_8-stay),
 ::view-transition-new(project-PROJECT_9-stay),
 ::view-transition-new(project-PROJECT_10-stay) {
-  animation: 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  animation-name: vt-project-stay;
-  animation-delay: 0ms;
+  animation: 400ms linear both;
+  animation-name: vt-project-stay-scale;
+}
+
+@keyframes vt-project-stay-scale {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 /* For exit animations, also animate the new state if needed */
@@ -790,8 +801,8 @@
 @layer utilities {
   /* Projects scrollable container - allow animations to be visible */
   .projects-scrollable {
-    /* Allow animations to slide in/out smoothly */
-    overflow: visible;
+    /* Safari macOS/iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Project List Sliding Transitions - Pure CSS + FLIP */

@@ -53,7 +53,7 @@ export const Project = ({
       }
       {...attrs}
     >
-      {projectIdx !== totalLength - 1 ? (
+      {totalLength > 1 && projectIdx !== totalLength - 1 ? (
         <span
           className="absolute top-4 ml-[1.4rem] hidden h-full w-0.5 bg-gray-200 md:block"
           aria-hidden="true"

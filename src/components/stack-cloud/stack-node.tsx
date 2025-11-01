@@ -8,6 +8,7 @@ import { Icon } from "~/components/icon";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { getIconHexColor } from "~/utils/icon-colors";
 import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
+import { isExactParamMatchAny } from "~/utils/search-params-match";
 
 interface StackNodeProps {
   stack: {
@@ -105,8 +106,12 @@ const StackNodeComponent = (props: StackNodeProps) => {
   // Get icon-specific color for hover override
   const iconSpecificColor = getIconHexColor(stack.iconKey);
 
-  // Determine final icon color: use specific color ONLY on direct hover (not on selection or domain highlight)
-  const finalIconColor = isDirectHovered ? iconSpecificColor : iconStyle.color;
+  // Check if this stack is exactly matched by query or filter parameter
+  const isExactlyMatched = isExactParamMatchAny(searchParams, stack.name);
+
+  // Determine final icon color: use specific color on direct hover OR exact URLSearchParams match
+  const finalIconColor =
+    isDirectHovered || isExactlyMatched ? iconSpecificColor : iconStyle.color;
 
   const transitionDuration = a11y.getTransitionDuration(200);
 
