@@ -7,7 +7,11 @@ import type { Dimensions, Domain } from "~/types";
 import { Icon } from "~/components/icon";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { getIconHexColor } from "~/utils/icon-colors";
-import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
+import {
+  getSearchFilter,
+  getSearchQuery,
+  toggleFilterParam,
+} from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
 interface StackNodeProps {
@@ -56,6 +60,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
   const a11y = useAccessibility();
 
   const currentFilter = getSearchFilter(searchParams);
+  const currentQuery = getSearchQuery(searchParams);
 
   // Apply default values
   const isSelected = selected ?? false;
@@ -112,6 +117,13 @@ const StackNodeComponent = (props: StackNodeProps) => {
   // Determine final icon color: use specific color on direct hover OR exact URLSearchParams match
   const finalIconColor =
     isDirectHovered || isExactlyMatched ? iconSpecificColor : iconStyle.color;
+
+  // DEBUG: Log only nodes with filter/query and their color
+  if (currentFilter || currentQuery) {
+    console.log(
+      `[${stack.name}] f="${currentFilter}" q="${currentQuery}" matched=${isExactlyMatched} state=${state} color=${finalIconColor === iconStyle.color ? "default" : "colored"}`,
+    );
+  }
 
   const transitionDuration = a11y.getTransitionDuration(200);
 

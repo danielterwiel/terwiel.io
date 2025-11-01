@@ -82,8 +82,21 @@ const RootNodeComponent = (props: RootNodeProps) => {
     if (!matchedDomain) {
       matchedDomain = matchesDomainName(currentFilter, PROJECTS);
     }
+
+    // DEBUG: Log only for relevant stacks/domains
+    const isRelevant =
+      hoveredStack?.name === "HTML" ||
+      hoveredStack?.name === "JavaScript" ||
+      currentFilter === "Front-end" ||
+      currentSearchQuery === "Front-end";
+    if (isRelevant) {
+      console.log(
+        `[RootNode useEffect] matchedDomain="${matchedDomain}" currentFilter="${currentFilter}" currentQuery="${currentSearchQuery}" hoveredStack="${hoveredStack?.name ?? "null"}"`,
+      );
+    }
+
     setHoveredDomain(matchedDomain);
-  }, [currentSearchQuery, currentFilter]);
+  }, [currentSearchQuery, currentFilter, hoveredStack?.name]);
 
   const handleAnimationComplete = useCallback(() => {
     setIsAnimating(false);

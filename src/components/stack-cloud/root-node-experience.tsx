@@ -49,6 +49,17 @@ export function RootNodeExperience({
         ? "stack" // Selected stack (not actively hovered)
         : "default";
 
+  // DEBUG: Log only for relevant stacks/domains
+  const isRelevant =
+    hoveredStack?.name === "HTML" ||
+    hoveredStack?.name === "JavaScript" ||
+    hoveredDomain === "Front-end";
+  if (isRelevant) {
+    console.log(
+      `[RootNodeExperience] displayMode="${displayMode}" hoveredStack="${hoveredStack?.name ?? "null"}" hoveredDomain="${hoveredDomain ?? "null"}" isActiveHover=${isActiveHover}`,
+    );
+  }
+
   // Track the initial display mode to know which ticker should animate on first render
   const initialDisplayModeRef = useRef<DisplayMode | null>(null);
   if (initialDisplayModeRef.current === null && isInitialAnimating) {

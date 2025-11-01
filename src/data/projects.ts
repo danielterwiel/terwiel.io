@@ -53,6 +53,7 @@ export const PROJECTS: Project[] = [
       "In my spare time, I’m building a containerized QMS in my spare time, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
     stack: [
       createStackItem("Bash"),
+      createStackItem("CSS"),
       createStackItem("Claude Code"),
       createStackItem("Docker"),
       createStackItem("Effect"),
@@ -79,9 +80,10 @@ export const PROJECTS: Project[] = [
     dateFrom: "2024-06-01",
     dateTo: "2025-06-01",
     description:
-      "In my spare time, I developed a ransomware-resilient QMS using Rust for memory safety and XState for predictable logic, deployed on the Internet Computer. The result is a secure prototype that is highly data resilient and abides by GxP regulations.",
+      "In my spare time, I developed a ransomware-resilient QMS using Rust for memory safety and XState for predictable logic, deployed on Dfinity's Internet Computer. The result is a secure prototype that is highly data resilient and abides by GxP regulations.",
     stack: [
       createStackItem("Bash"),
+      createStackItem("CSS"),
       createStackItem("Claude Code"),
       createStackItem("GitHub Actions"),
       createStackItem("HTML"),
@@ -106,8 +108,9 @@ export const PROJECTS: Project[] = [
     dateFrom: "2022-02-01",
     dateTo: "2023-09-30",
     description:
-      "Departure Labs shifted to a cloud platform built on WASM. I built the Rust CLI and release pipeline for that. Before that I guided a small front-end group across Vue and React, and contributed to product design. We've created several applications, the biggest one was a payment provider.",
+      "Departure Labs shifted to a cloud platform built on WASM. I built the Rust CLI and release pipeline for that. Before that I guided a small front-end group across Vue and React, and contributed to product design. We've created several applications on Dfinity's Internet Computer, the biggest one was a payment provider.",
     stack: [
+      createStackItem("CSS"),
       createStackItem("ChatGPT"),
       createStackItem("Figma"),
       createStackItem("GitHub Actions"),
