@@ -9,9 +9,9 @@ function isSafari(): boolean {
 
   const ua = navigator.userAgent;
   // Safari contains "Safari" and "Mac", but not "Chrome", "Chromium", or "Edg"
-  return /Safari/i.test(ua) &&
-         /Mac/i.test(ua) &&
-         !/Chrome|Chromium|Edg/i.test(ua);
+  return (
+    /Safari/i.test(ua) && /Mac/i.test(ua) && !/Chrome|Chromium|Edg/i.test(ua)
+  );
 }
 
 /**

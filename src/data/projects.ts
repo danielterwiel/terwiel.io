@@ -158,7 +158,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2020-06-01",
     dateTo: "2021-05-31",
     description:
-      "Here I was tasked to create a video editor. Furthermore, I helped modernize a complex newsroom app used by major broadcasters. I replaced brittle parts with React, added a test suite, and used Tailwind to move the new design system faster.",
+      "Here I was tasked to create a video editor. Furthermore, I helped modernize a complex newsroom app used by major broadcasters. I replaced brittle parts with React, added tests, and used Tailwind to move the new design system.",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),

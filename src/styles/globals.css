@@ -74,6 +74,19 @@
     -webkit-backdrop-filter: blur(18px) brightness(1.08) saturate(1.1);
   }
 
+  /* Glass input styling - matches header glass effect for seamless integration */
+  .glass-input {
+    position: relative;
+    background: linear-gradient(
+      135deg,
+      oklch(100% 0 0 / 0.75),
+      oklch(98% 0.002 240 / 0.75)
+    );
+    backdrop-filter: blur(20px) brightness(1.12) saturate(1.15) contrast(1.05);
+    -webkit-backdrop-filter: blur(20px) brightness(1.12) saturate(1.15)
+      contrast(1.05);
+  }
+
   /* Webkit browsers (Chrome, Safari, Edge) */
   ::-webkit-scrollbar {
     width: 8px;

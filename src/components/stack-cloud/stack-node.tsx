@@ -7,11 +7,7 @@ import type { Dimensions, Domain } from "~/types";
 import { Icon } from "~/components/icon";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { getIconHexColor } from "~/utils/icon-colors";
-import {
-  getSearchFilter,
-  getSearchQuery,
-  toggleFilterParam,
-} from "~/utils/search-params";
+import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
 interface StackNodeProps {
