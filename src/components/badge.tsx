@@ -63,16 +63,23 @@ export const Badge = ({
 
   const iconClasses = clsx(
     "flex-shrink-0 w-6 h-6 text-slate-400 transition-colors duration-500 ease-out",
-    (isAnimating || isSelected) && colored && "[color:var(--badge-color)]",
-    colored && !isSelected && "group-hover:[color:var(--badge-color)]",
+    (isAnimating || isSelected || isMatched) &&
+      colored &&
+      "[color:var(--badge-color)]",
+    colored &&
+      !isSelected &&
+      !isMatched &&
+      "group-hover:[color:var(--badge-color)] focus:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
     "text-sm font-medium text-slate-700 whitespace-nowrap",
     "transition-all duration-500 ease-out",
     !isSelected &&
-      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)]",
-    !colored && "group-hover:[text-decoration-color:#94A3B8]",
+      !isMatched &&
+      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)] focus:underline focus:[text-decoration-color:var(--badge-color)]",
+    !colored &&
+      "group-hover:[text-decoration-color:#94A3B8] focus:[text-decoration-color:#94A3B8]",
   );
 
   // Set CSS custom properties for dynamic theming only when badge is colored
@@ -93,14 +100,17 @@ export const Badge = ({
       scroll={false}
       className={clsx(
         magneticClasses,
-        "group border-2 transition-all duration-500",
-        (isAnimating || isSelected) && colored
+        "group border-2 transition-all duration-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-klein",
+        (isAnimating || isSelected || isMatched) && colored
           ? "[border-color:rgba(var(--badge-rgb),0.3)]"
           : "border-slate-400/20",
-        !isSelected && "hover:border-slate-400/40",
+        !isSelected &&
+          !isMatched &&
+          "hover:border-slate-400/40 focus:border-slate-400/40",
         colored &&
           !isSelected &&
-          "hover:[border-color:rgba(var(--badge-rgb),0.6)]",
+          !isMatched &&
+          "hover:[border-color:rgba(var(--badge-rgb),0.6)] focus:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}
       aria-label={`Filter by ${name}`}

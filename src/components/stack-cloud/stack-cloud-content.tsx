@@ -90,9 +90,6 @@ export function StackCloudContent() {
   // This ensures hoveredStack is cleared when user searches or filter is removed
   useEffect(() => {
     const hoverStack = getHoverStackOnLeave(searchParams, stacks, PROJECTS);
-    console.log(
-      `[useEffect hoveredStack sync] setting to ${hoverStack?.name ?? "null"}`,
-    );
     setHoveredStack(hoverStack);
   }, [searchParams, stacks]);
 
@@ -243,9 +240,6 @@ export function StackCloudContent() {
   const handleStackMouseLeave = useCallback(() => {
     // Restore the appropriate hover state when mouse leaves
     const hoverStack = getHoverStackOnLeave(searchParams, stacks, PROJECTS);
-    console.log(
-      `[handleStackMouseLeave] setting hoveredStack to ${hoverStack?.name ?? "null"}`,
-    );
     setHoveredStack(hoverStack);
   }, [searchParams, stacks]);
 

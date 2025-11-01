@@ -116,14 +116,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       matchedDomainRef.current = matchedDomain;
 
-      // DEBUG: Log only for relevant stacks/domains
-      const isRelevant = matchedDomain === "Front-end";
-      if (isRelevant) {
-        console.log(
-          `[RootNodeChart animation effect] updating matchedDomain to "${matchedDomain}"`,
-        );
-      }
-
       const svg = d3.select(pieChartRef.current);
 
       const RING_THICKNESS = pieRadius * 0.08; // Match the ring thickness used when creating the chart
@@ -374,13 +366,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const handleHoverStart = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
 
-        // DEBUG: Log only for relevant domains
-        if (datum.data.domain === "Front-end") {
-          console.log(
-            `[RootNodeChart handleHoverStart] Setting hoveredDomain to "${datum.data.domain}"`,
-          );
-        }
-
         // Get the corresponding visible segment path
         const visiblePath = d3
           .select(this.previousSibling as SVGGElement)
@@ -407,13 +392,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       const handleHoverEnd = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
-
-        // DEBUG: Log only for relevant domains
-        if (datum.data.domain === "Front-end") {
-          console.log(
-            `[RootNodeChart handleHoverEnd] domain="${datum.data.domain}" matchedDomainRef.current="${matchedDomainRef.current ?? "null"}"`,
-          );
-        }
 
         // Check if this segment's domain is selected
         const isSelected = isEqualDomain(
@@ -443,11 +421,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           .attr("opacity", isSelected ? "1.0" : "0.55"); // Moderate contrast for multiple selections
 
         // Notify parent of domain hover state (clear hover when leaving segment)
-        if (datum.data.domain === "Front-end") {
-          console.log(
-            `[RootNodeChart handleHoverEnd] Calling setHoveredDomain(null)`,
-          );
-        }
         onDomainHover?.(restoreDomain);
         setHoveredDomain(restoreDomain);
       };
