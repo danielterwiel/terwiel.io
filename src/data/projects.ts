@@ -27,6 +27,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2025-12-31",
     description:
       "90POE builds maritime logistics software: OpenOcean STUDIO. I built and maintained several CRUD apps inside their micro-frontend setup.",
+    url: "https://www.90poe.io/",
     stack: [
       createStackItem("AntDesign"),
       createStackItem("Claude Code"),
@@ -81,6 +82,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2025-06-01",
     description:
       "In my spare time, I developed a ransomware-resilient QMS using Rust for memory safety and XState for predictable logic, deployed on Dfinity's Internet Computer. The result is a secure prototype that is highly data resilient and abides by GxP regulations.",
+    url: "https://github.com/danielterwiel/permatrust",
     stack: [
       createStackItem("Bash"),
       createStackItem("CSS"),
@@ -109,6 +111,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2023-09-30",
     description:
       "Departure Labs shifted to a cloud platform built on WASM. I built the Rust CLI and release pipeline for that. Before that I guided a small front-end group across Vue and React, and contributed to product design. We've created several applications on Dfinity's Internet Computer, the biggest one was a payment provider.",
+    url: "https://github.com/MyceliaNetwork",
     stack: [
       createStackItem("CSS"),
       createStackItem("ChatGPT"),
@@ -138,6 +141,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2022-01-31",
     description:
       "ING needed consistent authentication and faster project setup across many teams. I improved authentication flows and built a bootstrap tool that spins up new projects with platform standards baked in. This cut setup time and kept apps aligned with security and UI rules.",
+    url: "https://developer.ing.com/",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),
@@ -159,6 +163,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2021-05-31",
     description:
       "Here I was tasked to create a video editor. Furthermore, I helped modernize a complex newsroom app used by major broadcasters. I replaced brittle parts with React, added tests, and used Tailwind to move the new design system.",
+    url: "https://www.mibroadcastservices.nl/",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),
@@ -183,6 +188,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2020-06-01",
     description:
       "At Sendcloud, I replaced legacy front-end sections with Vue, contributed to the design system, and co-built the consumer returns portal. The portal handles high traffic across Europe, and the design system made UI work more consistent across teams.",
+    url: "https://www.sendcloud.com/",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),
@@ -230,6 +236,7 @@ export const PROJECTS: Project[] = [
     dateTo: "2019-01-31",
     description:
       "The large-scale ELS app lacked a consistent architecture, which slowed feature work and made maintenance hard. I was asked to build new features and we introduced a standard to improve code quality and developer. I applied MVVM to separate UI from business logic and added a simple component-based approach to encourage reuse and consistent view logic. This made the features I delivered more organized, maintainable, and testable, and it nudged the team toward more component-driven development.",
+    url: "https://www.amadeus-hospitality.com/",
     stack: [
       createStackItem("CSS"),
       createStackItem("HTML"),

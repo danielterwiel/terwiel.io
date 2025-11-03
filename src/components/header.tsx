@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import { Suspense, useEffect, useRef, useState } from "react";
@@ -308,9 +309,13 @@ const HeaderContent = () => {
       >
         {/* Left column: Logo */}
         <div className="flex items-center justify-start">
-          <div className="flex items-center justify-center">
+          <Link
+            href="/"
+            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+            aria-label="Go to home"
+          >
             <DtfdLogo className="h-12 w-12 text-klein" />
-          </div>
+          </Link>
         </div>
 
         {/* Center: Title (name + subtitle) */}
@@ -327,9 +332,9 @@ const HeaderContent = () => {
           {/* PDF Download Button */}
           <a
             href="/daniel-terwiel-resume.pdf"
-            download="Daniel-Terwiel-Resume.pdf"
+            download="daniel-terwiel-resume.pdf"
             className="rounded-md p-2 hidden sm:inline text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-            aria-label="Download resume as PDF"
+            aria-label="Download PDF resume"
           >
             <Icon.FileCv className="h-6 w-6" />
           </a>
@@ -352,9 +357,13 @@ const HeaderContent = () => {
       <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6 glass-header-content">
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
-          <div className="flex items-center justify-center">
+          <Link
+            href="/"
+            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+            aria-label="Go to home"
+          >
             <DtfdLogo className="h-14 w-14 text-klein" />
-          </div>
+          </Link>
         </div>
 
         {/* Center: Title or Search Input - perfectly centered, fixed height to prevent jump */}
@@ -396,9 +405,9 @@ const HeaderContent = () => {
           {/* PDF Download Button */}
           <a
             href="/daniel-terwiel-resume.pdf"
-            download="Daniel-Terwiel-Resume.pdf"
+            download="daniel-terwiel-resume.pdf"
             className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
-            aria-label="Download resume as PDF"
+            aria-label="Download PDF resume"
           >
             <Icon.FileCv className="h-6 w-6" />
           </a>
@@ -427,9 +436,13 @@ export const Header = () => {
         <header className="sticky top-0 glass-header">
           <div className="flex items-center justify-between gap-4 p-4 md:grid md:grid-cols-3 md:gap-6 md:px-6 md:py-4 md:items-center">
             <div className="flex items-center justify-start">
-              <div className="flex items-center justify-center md:h-10 md:w-10">
+              <Link
+                href="/"
+                className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+                aria-label="Go to home"
+              >
                 <DtfdLogo className="h-8 w-8 text-klein md:h-10 md:w-10" />
-              </div>
+              </Link>
             </div>
             <div className="flex flex-col items-center">
               <h1 className="text-lg font-bold text-slate-900 md:text-xl">

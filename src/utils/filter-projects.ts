@@ -13,7 +13,7 @@ function hasFullWordMatch(text: string, query: string): boolean {
   const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
   // Match the query with word boundaries: start/end of string or word separator chars
   const pattern = new RegExp(
-    `(^|[\\s\\-./])(${escapedQuery})([\\s\\-./]|$)`,
+    `(^|[\\s\\-.,/])(${escapedQuery})([\\s\\-.,/]|$)`,
     "i",
   );
   return pattern.test(text);

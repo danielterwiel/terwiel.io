@@ -67,7 +67,22 @@ export const Project = ({
             </Ring>
           </div>
           <h3 className="mt-2.5 pl-6 text-lg">
-            <HighlightedText>{project.company}</HighlightedText>
+            {project.url ? (
+              <a
+                href={project.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1 hover:text-inherit"
+              >
+                <HighlightedText>{project.company}</HighlightedText>
+                <Icon.ExternalLink
+                  aria-hidden="true"
+                  className="h-6 w-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-slate-500"
+                />
+              </a>
+            ) : (
+              <HighlightedText>{project.company}</HighlightedText>
+            )}
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
