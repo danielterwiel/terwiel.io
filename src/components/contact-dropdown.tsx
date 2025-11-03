@@ -10,17 +10,17 @@ import { Icon } from "~/components/icon";
 const CONTACT_LINKS = [
   {
     id: "cv",
-    label: "Download CV",
+    label: "Download PDF resume",
     icon: Icon.FileCv,
-    href: "/CV.pdf",
-    ariaLabel: "Download CV",
+    href: "/daniel-terwiel-resume.pdf",
+    ariaLabel: "Download PDF resume",
     className: "sm:hidden",
   },
   {
     id: "github",
     label: "GitHub",
     icon: Icon.BrandGithub,
-    href: "https://github.com/danielterwiel",
+    href: "https://www.github.com/danielterwiel",
     ariaLabel: "Visit GitHub profile",
   },
   {

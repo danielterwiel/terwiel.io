@@ -41,6 +41,7 @@ import Code from "../images/icons/code.svg";
 import Components from "../images/icons/components.svg";
 import DtfdLogo from "../images/icons/dtfd-logo.svg";
 import Effect from "../images/icons/effect.svg";
+import ExternalLink from "../images/icons/external-link.svg";
 import FileCv from "../images/icons/file-cv.svg";
 import FileTypeDoc from "../images/icons/file-type-doc.svg";
 import Flow from "../images/icons/flow.svg";
@@ -129,6 +130,7 @@ const icons = {
   Components,
   DtfdLogo,
   Effect,
+  ExternalLink,
   FileCv,
   FileTypeDoc,
   Flow,

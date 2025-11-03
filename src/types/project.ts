@@ -31,4 +31,5 @@ export type Project = {
   description: string;
   stack: StackItem[];
   icon: string;
+  url?: string;
 };
