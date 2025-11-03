@@ -29,7 +29,9 @@ export function matchesDomainName(
   query: string,
   projects: Project[],
 ): Domain | null {
-  if (!query) return null;
+  if (!query) {
+    return null;
+  }
 
   const normalizedQuery = query.toLowerCase().trim();
   const domains = getDomainNames(projects);

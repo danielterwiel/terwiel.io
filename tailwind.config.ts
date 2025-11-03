@@ -66,6 +66,22 @@ export default {
         xl: "16px",
         "2xl": "20px",
       },
+      zIndex: {
+        /* Z-index hierarchy:
+           0: Default layer (body, containers)
+           10: Projects/main content
+           20: View transitions for projects (above projects, below header)
+           40: View transitions for header (Chrome only, below sticky header)
+           50: Sticky header, dropdowns, sticky UI elements
+           100: Maximum z-index for edge cases (no items should use this)
+        */
+        "0": "0",
+        "10": "10",
+        "20": "20",
+        "40": "40",
+        "50": "50",
+        "100": "100",
+      },
       keyframes: {
         "magnetic-ring": {
           "0%": {

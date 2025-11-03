@@ -46,6 +46,7 @@ export function getHoverStackOnLeave(
   projects: Project[],
 ): Stack | null {
   const filter = getSearchFilter(searchParams);
+
   if (!filter) return null;
 
   // Don't show stack if a domain is selected

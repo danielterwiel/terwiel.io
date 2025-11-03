@@ -117,6 +117,10 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
   // Handle click to toggle URL filter params
   const handleClick = () => {
+    // Preserve hover state during click by triggering onMouseEnter
+    // This prevents flash of default state in RootNodeExperience
+    onMouseEnter?.();
+
     const queryString = toggleFilterParam(currentFilter, stack.name);
     startTransition(() => {
       router.push(`${pathname}${queryString}`, { scroll: false });

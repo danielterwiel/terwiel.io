@@ -96,8 +96,19 @@ const ProjectsContent = () => {
     );
 
     if (hasListChanged || hasStayProjects) {
+      // Detect Safari - it has rendering bugs with view transitions and sticky headers
+      // The transition layer clips/hides sticky elements and breaks backdrop-filter effects
+      const isSafari =
+        /Safari/.test(navigator.userAgent) &&
+        !/Chrome/.test(navigator.userAgent);
+
       // Use native View Transition API with proper abort handling
-      if ("startViewTransition" in document) {
+      // DISABLED FOR SAFARI: Safari has critical bugs with view transitions causing:
+      // 1. Sticky header disappears completely during transition
+      // 2. Backdrop-filter effect becomes invisible
+      // 3. Header gets clipped by the view transition layer
+      // Workaround: Disable view transitions on Safari, use instant updates instead
+      if ("startViewTransition" in document && !isSafari) {
         const vtAPI = document as Document & {
           startViewTransition: (callback: () => void) => ViewTransition;
         };
@@ -108,7 +119,12 @@ const ProjectsContent = () => {
           ongoingTransitionRef.current.finished.catch(() => {
             // Silently handle the skip error - this is expected
           });
-          ongoingTransitionRef.current.skipTransition();
+          // Only call skipTransition if the transition is still pending
+          try {
+            ongoingTransitionRef.current.skipTransition();
+          } catch {
+            // Silently handle any errors from skipTransition
+          }
         }
 
         // Start the new transition
@@ -141,7 +157,8 @@ const ProjectsContent = () => {
             }
           });
       } else {
-        // Fallback for browsers without View Transitions
+        // Fallback for Safari and browsers without View Transitions
+        // Use instant DOM updates without animation
         projectStateMapRef.current = newStateMap;
         setRenderingProjects(filtered);
         prevFilteredRef.current = filtered;

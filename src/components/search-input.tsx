@@ -196,7 +196,7 @@ const SearchInputContent = React.forwardRef<
             isBouncing && "animation-magnetic-bounce",
           )}
         >
-          <search className="group relative flex w-full items-center rounded-md bg-white">
+          <search className="group relative flex w-full items-center rounded-md glass-input">
             <Form.Control asChild>
               <input
                 ref={

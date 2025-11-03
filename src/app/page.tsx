@@ -13,6 +13,12 @@ export default function HomePage() {
           - StackCloud: calc(50% - half of right menu width from header)
           - Projects: calc(50% + half of right menu width from header)
           This aligns the project timeline with the centered header title
+
+          Z-index hierarchy:
+          - StackCloud: z-0 (default)
+          - Projects: z-10 (above StackCloud on mobile)
+          - View transitions for projects: z-20 (handled in CSS)
+          - Header: z-50 (sticky, above everything)
         */}
         {/* StackCloud - full width on mobile, fixed on desktop */}
         <div className="w-full md:w-[calc(50%-1.75rem)] landscape-mobile:w-full md:flex landscape-mobile:block md:flex-col md:h-[calc(100vh-72px)] landscape-mobile:h-auto relative z-0 md:fixed landscape-mobile:relative md:top-[72px] md:left-0 pt-8 landscape-mobile:pt-0">

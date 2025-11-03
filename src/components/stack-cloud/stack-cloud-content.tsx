@@ -86,6 +86,13 @@ export function StackCloudContent() {
     domain: Domain;
   } | null>(() => getInitialSelectedStack(searchParams, stacks, PROJECTS));
 
+  // Sync hoveredStack with search params when they change
+  // This ensures hoveredStack is cleared when user searches or filter is removed
+  useEffect(() => {
+    const hoverStack = getHoverStackOnLeave(searchParams, stacks, PROJECTS);
+    setHoveredStack(hoverStack);
+  }, [searchParams, stacks]);
+
   // Calculate scale factors based on selection state
   // IMPORTANT: Use regular searchParams (not deferred) to immediately update D3 simulation
   // Deferred values would cause the simulation to restart multiple times per click

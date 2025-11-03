@@ -1,6 +1,6 @@
 import { useSearchParams } from "next/navigation";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -46,6 +46,7 @@ const RootNodeComponent = (props: RootNodeProps) => {
   const searchParams = useSearchParams();
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
   const [isAnimating, setIsAnimating] = useState(true);
+  const skipNextEffectRef = useRef(false);
 
   const a11y = useAccessibility();
 
@@ -76,12 +77,22 @@ const RootNodeComponent = (props: RootNodeProps) => {
 
   // Set initial hovered domain based on selected domain in search/filter params
   // Check BOTH query (from SearchInput) and filter (from StackCloud) parameters
+  // CRITICAL: Don't overwrite hover state set by RootNodeChart on click
+  // The chart sets hover state BEFORE the URL updates, so we need to let it settle
   useEffect(() => {
+    // If the chart just set the hover state, skip this update
+    // to prevent flashing the default state
+    if (skipNextEffectRef.current) {
+      skipNextEffectRef.current = false;
+      return;
+    }
+
     // Check query first, then filter if no query match
     let matchedDomain = matchesDomainName(currentSearchQuery, PROJECTS);
     if (!matchedDomain) {
       matchedDomain = matchesDomainName(currentFilter, PROJECTS);
     }
+
     setHoveredDomain(matchedDomain);
   }, [currentSearchQuery, currentFilter]);
 
@@ -102,6 +113,9 @@ const RootNodeComponent = (props: RootNodeProps) => {
         onDomainHover={onDomainHover}
         onAnimationComplete={handleAnimationComplete}
         setHoveredDomain={setHoveredDomain}
+        onChartStateChange={() => {
+          skipNextEffectRef.current = true;
+        }}
       />
 
       {/* Border circle */}
