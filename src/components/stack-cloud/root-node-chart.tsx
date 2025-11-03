@@ -27,6 +27,7 @@ interface RootNodeChartProps {
   onDomainHover?: (domain: Domain | null) => void;
   onAnimationComplete?: () => void;
   setHoveredDomain: (domain: Domain | null) => void;
+  onChartStateChange?: () => void;
 }
 
 /**
@@ -42,6 +43,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     onDomainHover,
     onAnimationComplete,
     setHoveredDomain,
+    onChartStateChange,
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -186,6 +188,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     return () => cancelAnimationFrame(rafId);
   }, [a11y, pieRadius, currentSearchQuery, currentSearchFilter]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: onChartStateChange is only called in event handlers, not in render
   useEffect(() => {
     if (!pieChartRef.current) return;
 
@@ -362,9 +365,21 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       // Track if a touch is intended as a click (vs scroll/pan)
       let touchWasClick = false;
+      // Track which domain was just clicked
+      let clickedDomain: string | null = null;
+      let clearClickedDomainTimeout: NodeJS.Timeout | null = null;
 
       const handleHoverStart = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+
+        // If we're hovering a different segment than the one clicked, clear the click tracking
+        if (clickedDomain !== null && clickedDomain !== datum.data.domain) {
+          if (clearClickedDomainTimeout) {
+            clearTimeout(clearClickedDomainTimeout);
+            clearClickedDomainTimeout = null;
+          }
+          clickedDomain = null;
+        }
 
         // Get the corresponding visible segment path
         const visiblePath = d3
@@ -392,6 +407,12 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       const handleHoverEnd = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+
+        // CRITICAL: If we just clicked this domain, DON'T clear the hover state
+        // The click handler has already set the correct hover state
+        if (clickedDomain === datum.data.domain) {
+          return;
+        }
 
         // Check if this segment's domain is selected
         const isSelected = isEqualDomain(
@@ -428,6 +449,28 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const handleClick = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
 
+        // Check if this click is selecting or deselecting
+        const isCurrentlySelected =
+          currentSearchFilterRef.current === datum.data.domain;
+        const isDeselecting = isCurrentlySelected;
+
+        // Mark this domain as clicked to prevent handleHoverEnd from interfering
+        clickedDomain = datum.data.domain;
+
+        // Signal to parent that chart state is changing to skip the next URL effect
+        onChartStateChange?.();
+
+        // Only preserve hover state when SELECTING (not deselecting)
+        if (!isDeselecting) {
+          // Preserve hover state during click to prevent flash of default state
+          setHoveredDomain(datum.data.domain as Domain);
+          onDomainHover?.(datum.data.domain as Domain);
+        } else {
+          // When deselecting, immediately clear hover state
+          setHoveredDomain(null);
+          onDomainHover?.(null);
+        }
+
         // Get the corresponding visible segment path
         const visiblePath = d3
           .select(this.previousSibling as SVGGElement)
@@ -445,6 +488,15 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         startTransitionRef.current(() => {
           router.push(`${pathname}${queryString}`, { scroll: false });
         });
+
+        // Clear the click tracking after 300ms (well after click/mouseleave cycle is done)
+        if (clearClickedDomainTimeout) {
+          clearTimeout(clearClickedDomainTimeout);
+        }
+        clearClickedDomainTimeout = setTimeout(() => {
+          clickedDomain = null;
+          clearClickedDomainTimeout = null;
+        }, 300);
       };
 
       hitAreas

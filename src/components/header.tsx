@@ -326,7 +326,7 @@ const HeaderContent = () => {
 
           {/* PDF Download Button */}
           <a
-            href="/resume.pdf"
+            href="/daniel-terwiel-resume.pdf"
             download="Daniel-Terwiel-Resume.pdf"
             className="rounded-md p-2 hidden sm:inline text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download resume as PDF"
@@ -395,7 +395,7 @@ const HeaderContent = () => {
 
           {/* PDF Download Button */}
           <a
-            href="/resume.pdf"
+            href="/daniel-terwiel-resume.pdf"
             download="Daniel-Terwiel-Resume.pdf"
             className="rounded-md p-2 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download resume as PDF"
