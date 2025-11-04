@@ -51,7 +51,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "In my spare time, I’m building a containerized QMS in my spare time, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
+      "In my spare time, I’m building a containerized QMS, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
     stack: [
       createStackItem("Bash"),
       createStackItem("CSS"),
