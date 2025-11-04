@@ -96,19 +96,23 @@ const ProjectsContent = () => {
     );
 
     if (hasListChanged || hasStayProjects) {
-      // Detect Safari - it has rendering bugs with view transitions and sticky headers
+      // Detect Safari on macOS - it has rendering bugs with view transitions and sticky headers
       // The transition layer clips/hides sticky elements and breaks backdrop-filter effects
-      const isSafari =
-        /Safari/.test(navigator.userAgent) &&
-        !/Chrome/.test(navigator.userAgent);
+      // iOS Safari works fine with view transitions, so we only disable for macOS
+      const ua = navigator.userAgent;
+      const isSafariMac =
+        /Safari/i.test(ua) &&
+        /Macintosh/i.test(ua) &&
+        !/Chrome|Chromium|Edg/i.test(ua);
 
       // Use native View Transition API with proper abort handling
-      // DISABLED FOR SAFARI: Safari has critical bugs with view transitions causing:
+      // DISABLED FOR SAFARI MAC: Safari on macOS has critical bugs with view transitions causing:
       // 1. Sticky header disappears completely during transition
       // 2. Backdrop-filter effect becomes invisible
       // 3. Header gets clipped by the view transition layer
-      // Workaround: Disable view transitions on Safari, use instant updates instead
-      if ("startViewTransition" in document && !isSafari) {
+      // ENABLED FOR SAFARI iOS: iOS Safari handles view transitions correctly
+      // Workaround: Disable view transitions on Safari macOS, use instant updates instead
+      if ("startViewTransition" in document && !isSafariMac) {
         const vtAPI = document as Document & {
           startViewTransition: (callback: () => void) => ViewTransition;
         };
@@ -157,8 +161,9 @@ const ProjectsContent = () => {
             }
           });
       } else {
-        // Fallback for Safari and browsers without View Transitions
+        // Fallback for Safari macOS and browsers without View Transitions
         // Use instant DOM updates without animation
+        // Note: iOS Safari falls through here only if View Transitions API is not supported
         projectStateMapRef.current = newStateMap;
         setRenderingProjects(filtered);
         prevFilteredRef.current = filtered;

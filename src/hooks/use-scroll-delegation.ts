@@ -1,16 +1,18 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Detects if the browser is Safari on macOS
- * Uses feature detection approach to identify Safari and exclude Chrome-based browsers
+ * Detects if the browser is Safari on macOS (not iOS)
+ * Looks for "Macintosh" in user agent which indicates macOS
  */
-function isSafari(): boolean {
+function isSafariMac(): boolean {
   if (typeof window === "undefined") return false;
 
   const ua = navigator.userAgent;
-  // Safari contains "Safari" and "Mac", but not "Chrome", "Chromium", or "Edg"
+  // Safari on macOS has "Macintosh" in UA, but not "Chrome", "Chromium", or "Edg"
   return (
-    /Safari/i.test(ua) && /Mac/i.test(ua) && !/Chrome|Chromium|Edg/i.test(ua)
+    /Safari/i.test(ua) &&
+    /Macintosh/i.test(ua) &&
+    !/Chrome|Chromium|Edg/i.test(ua)
   );
 }
 
@@ -33,7 +35,7 @@ export function useScrollDelegation(targetRef: React.RefObject<HTMLElement>) {
     };
 
     checkDesktop();
-    isSafariRef.current = isSafari();
+    isSafariRef.current = isSafariMac();
     window.addEventListener("resize", checkDesktop);
 
     const handleWheel = (e: WheelEvent) => {

@@ -39,8 +39,9 @@
 
   /* Header view-transition configuration */
   /* CHROME: Participates in transition layer for z-index control */
-  /* SAFARI: View transitions are DISABLED in JavaScript to prevent rendering bugs */
+  /* SAFARI MAC: View transitions are DISABLED in JavaScript to prevent rendering bugs */
   /* (header disappears, backdrop-filter breaks, clipping occurs) */
+  /* SAFARI iOS: View transitions are ENABLED - iOS Safari handles them correctly */
   .glass-header {
     view-transition-name: glass-header;
     z-index: 50;
@@ -625,9 +626,10 @@
   animation: none;
 }
 
-/* View transitions are disabled for Safari in JavaScript */
-/* (src/components/projects.tsx: line ~101-110 detects Safari and skips startViewTransition) */
-/* This prevents critical rendering bugs: header disappearing, backdrop-filter breaking, clipping */
+/* View transitions are disabled for Safari Mac in JavaScript */
+/* (src/components/projects.tsx: line ~99-115 detects Safari on macOS and skips startViewTransition) */
+/* View transitions are ENABLED for Safari iOS - it handles them correctly */
+/* This prevents critical rendering bugs on macOS: header disappearing, backdrop-filter breaking, clipping */
 
 /* Completely disable root transition - we only want named element transitions */
 ::view-transition-group(root) {
