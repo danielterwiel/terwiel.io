@@ -20,7 +20,7 @@ export const PROJECTS: Project[] = [
     id: "PROJECT_10",
     company: "90 Percent of Everything",
     role: "Front-end Developer",
-    teamSize: 100,
+    teamSize: 200,
     industry: "Logistics",
     location: "London (Remote)",
     dateFrom: "2024-02-01",
@@ -134,13 +134,13 @@ export const PROJECTS: Project[] = [
     id: "PROJECT_6",
     company: "ING",
     role: "Senior Front-end Developer",
-    teamSize: 200,
+    teamSize: 20000,
     industry: "Finance",
     location: "Amsterdam (Remote)",
     dateFrom: "2021-06-01",
     dateTo: "2022-01-31",
     description:
-      "ING needed consistent authentication and faster project setup across many teams. I improved authentication flows and built a bootstrap tool that spins up new projects with platform standards baked in. This cut setup time and kept apps aligned with security and UI rules.",
+      "ING needed consistent developer tools and faster project setup used by all country-dedicated applications. I standardized authentication flows and built a bootstrap tool that spins up new projects with platform standards baked in. This cut setup time and kept apps aligned with security and UI rules.",
     url: "https://developer.ing.com/",
     stack: [
       createStackItem("CSS"),
@@ -187,7 +187,7 @@ export const PROJECTS: Project[] = [
     dateFrom: "2019-02-01",
     dateTo: "2020-06-01",
     description:
-      "At Sendcloud, I replaced legacy front-end sections with Vue, contributed to the design system, and co-built the consumer returns portal. The portal handles high traffic across Europe, and the design system made UI work more consistent across teams.",
+      "At Sendcloud, I replaced legacy front-end sections with Vue, contributed to the design system, and co-built the consumer returns portal. The portal handles high traffic across Europe (~45M pageview/month). And contributed to the design system.",
     url: "https://www.sendcloud.com/",
     stack: [
       createStackItem("CSS"),
