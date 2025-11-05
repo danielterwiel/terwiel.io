@@ -64,7 +64,6 @@ export function StackCloudContent() {
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
   const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
 
-  // Build experience cache once for instant toast lookups (O(1) instead of O(n))
   // This precomputes all domain and stack experiences to eliminate expensive
   // date parsing and overlap calculations during interactions
   useMemo(() => buildExperienceCache(PROJECTS), []);
