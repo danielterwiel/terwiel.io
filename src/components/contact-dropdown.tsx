@@ -1,6 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { clsx } from "clsx";
 
 import { useRef, useState } from "react";
 
@@ -88,7 +89,10 @@ const LinkDropdownItem = ({ link, onSelect }: DropdownItemProps) => {
     <DropdownMenu.Item onSelect={handleSelect}>
       <button
         type="button"
-        className={`flex items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover:bg-slate-50 hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer w-full text-left ${link.className || ""}`}
+        className={clsx(
+          "flex items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover:bg-slate-50 hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer w-full text-left",
+          link.className,
+        )}
         aria-label={ariaLabel}
         role="menuitem"
       >

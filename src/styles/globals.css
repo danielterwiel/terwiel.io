@@ -387,36 +387,6 @@
   transform: scale(1);
 }
 
-@keyframes animationFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 100;
-  }
-}
-
-@keyframes animation-slide-down {
-  from {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes float-subtle {
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
 @keyframes spinner-rotate-smooth {
   0% {
     transform: rotate(0deg);
@@ -435,30 +405,6 @@
   50% {
     stroke-dasharray: var(--dash-expanded) var(--dash-gap-shrink);
     opacity: 1;
-  }
-}
-
-@keyframes magnetic-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(0, 47, 167, 0.3);
-  }
-  50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 8px rgba(0, 47, 167, 0);
-  }
-}
-
-@keyframes magnetic-bounce {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-  100% {
-    transform: scale(1);
   }
 }
 
@@ -555,21 +501,6 @@
 }
 
 @layer utilities {
-  .animation-ring {
-    animation: animationRing 1s ease-in-out;
-  }
-  .animation-fade-in {
-    animation: animationFadeIn 1s ease-out forwards;
-  }
-  .animation-slide-down {
-    animation: animationSlideDown 0.5s ease-in-out forwards;
-  }
-  .animation-float-subtle {
-    animation: float-subtle 4s ease-in-out infinite;
-  }
-  .animation-magnetic-pulse {
-    animation: magnetic-pulse 2s ease-in-out infinite;
-  }
   /* Animation only applies on desktop - mobile search input takes full width so no bounce needed */
   .animation-magnetic-bounce {
     animation: none;
@@ -577,7 +508,7 @@
 
   @media (min-width: 768px) {
     .animation-magnetic-bounce {
-      animation: magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      @apply animate-magnetic-bounce;
     }
   }
 
@@ -817,13 +748,6 @@
 
 /* Header is excluded from View Transitions to avoid conflicts with its own animations */
 /* The header uses view-transition-name: none via inline style */
-
-@layer components {
-  /* Field sizing utility - allows form inputs to resize based on content */
-  .field-sizing-content {
-    field-sizing: content;
-  }
-}
 
 @layer utilities {
   /* Projects scrollable container - allow animations to be visible */

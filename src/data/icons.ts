@@ -43,7 +43,7 @@ export const ICON_COLORS = {
   Flow: "#2B8EEB",
   Jest: "#99425B",
   Knockout: "#DE4F4F",
-  Lit: "324FFF",
+  Lit: "#324FFF",
   MaterialUI: "#007FFF",
   Mocha: "#8D6748",
   Palette: "#F59E0B",
@@ -54,7 +54,7 @@ export const ICON_COLORS = {
   Svg: "#FFB13B",
   TestPipe: "#83664B",
   Webpack: "#8ED5FA",
-} as const satisfies Record<IconName, string>;
+} as const satisfies Record<IconName, `#${string}`>;
 
 export const STACK_ICONS = {
   "Claude Code": "ClaudeCode",

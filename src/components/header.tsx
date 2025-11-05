@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
@@ -278,17 +279,20 @@ const HeaderContent = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-transform duration-300 glass-header ${
-        isHeaderVisible ? "translate-y-0" : "-translate-y-full"
-      } ${hasSearchQuery ? "md:sticky" : ""}`}
+      className={clsx(
+        "sticky top-0 z-50 transition-transform duration-300 glass-header w-full",
+        isHeaderVisible ? "translate-y-0" : "-translate-y-full",
+        hasSearchQuery && "md:sticky",
+      )}
     >
       {/* Mobile: Full-width search overlay - positioned absolutely to not reserve space */}
       <div
-        className={`md:hidden absolute inset-x-0 top-0 flex items-center px-4 py-3 w-full box-border overflow-hidden transition-opacity duration-300 ${
+        className={clsx(
+          "md:hidden absolute inset-x-0 top-0 flex items-center px-4 py-3 w-full box-border overflow-hidden transition-opacity duration-300",
           showSearchInput || hasSearchQuery
             ? "opacity-100"
-            : "opacity-0 pointer-events-none"
-        }`}
+            : "opacity-0 pointer-events-none",
+        )}
       >
         <div ref={searchContainerRef} className="w-full magnetic-base">
           <SearchInputWrapper
@@ -301,11 +305,12 @@ const HeaderContent = () => {
 
       {/* Mobile: Asymmetric layout matching desktop - kept mounted to prevent unmount animation flicker */}
       <div
-        className={`md:hidden grid grid-cols-[1fr_2fr_1fr] items-center px-4 py-3 gap-4 transition-opacity duration-300 ${
+        className={clsx(
+          "md:hidden grid grid-cols-[1fr_2fr_1fr] items-center px-4 py-3 gap-4 transition-opacity duration-300",
           showSearchInput || hasSearchQuery
             ? "opacity-0 pointer-events-none"
-            : "opacity-100"
-        }`}
+            : "opacity-100",
+        )}
       >
         {/* Left column: Logo */}
         <div className="flex items-center justify-start">
@@ -354,7 +359,8 @@ const HeaderContent = () => {
       </div>
 
       {/* Desktop: Asymmetric layout with logo on left, centered title, and menu on right */}
-      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6 glass-header-content">
+      {/* Width constraints to prevent excessive stretching on large screens */}
+      <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr] md:items-center md:px-6 md:py-4 md:gap-6 glass-header-content mx-auto w-full 2xl:max-w-[1536px] 3xl:max-w-[1920px] 4k:max-w-[2560px] 5k:max-w-[3200px]">
         {/* Left column: Logo - matches width of right menu */}
         <div className="flex items-center justify-start">
           <Link
@@ -370,11 +376,12 @@ const HeaderContent = () => {
         <div className="flex flex-col items-center justify-center min-w-0 h-14 w-full relative">
           {/* Search Input - kept mounted to prevent unmount animation flicker */}
           <div
-            className={`w-full max-w-md transition-opacity duration-300 absolute ${
+            className={clsx(
+              "w-full max-w-md transition-opacity duration-300 absolute",
               hasSearchQuery || showSearchInput
                 ? "opacity-100"
-                : "opacity-0 pointer-events-none"
-            }`}
+                : "opacity-0 pointer-events-none",
+            )}
           >
             <div ref={searchContainerRef} className="w-full magnetic-base">
               <SearchInputWrapper
@@ -386,11 +393,12 @@ const HeaderContent = () => {
 
           {/* Title - kept mounted to prevent unmount animation flicker */}
           <div
-            className={`text-center transition-opacity duration-300 ${
+            className={clsx(
+              "text-center transition-opacity duration-300",
               hasSearchQuery || showSearchInput
                 ? "opacity-0 pointer-events-none"
-                : "opacity-100"
-            }`}
+                : "opacity-100",
+            )}
           >
             <h1 className="text-xl font-bold text-slate-900">Daniël Terwiel</h1>
             <p className="text-sm text-slate-600">Developer</p>

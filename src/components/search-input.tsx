@@ -221,7 +221,10 @@ const SearchInputContent = React.forwardRef<
               />
             </Form.Control>
             <Icon.Search
-              className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 ${isFocused || query ? "text-klein" : "text-slate-400"} group-hover:text-slate-600`}
+              className={clsx(
+                "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 group-hover:text-slate-600",
+                isFocused || query ? "text-klein" : "text-slate-400",
+              )}
               aria-hidden="true"
               focusable="false"
             />

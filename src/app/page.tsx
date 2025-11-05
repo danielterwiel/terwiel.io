@@ -7,6 +7,8 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen overflow-visible">
       <Header />
       {/* Main content area with full viewport height minus header on desktop */}
+      {/* Width constraints to prevent excessive stretching on large screens */}
+      {/* Ultra-wide variants: 3xl/4k/5k provide additional scaling for very large displays */}
       <main className="flex-1 flex flex-col md:flex-row landscape-mobile:flex-col p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 landscape-mobile:px-2 landscape-mobile:pt-0 landscape-mobile:pb-0 relative z-0 overflow-visible md:min-h-0">
         {/*
           Desktop layout adjustment:

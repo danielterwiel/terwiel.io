@@ -1,3 +1,5 @@
+import { clsx } from "clsx";
+
 import { useEffect, useRef, useState } from "react";
 
 import { KLEIN_BLUE } from "~/constants/colors";
@@ -103,7 +105,10 @@ export function ExperienceTicker({
       }}
     >
       <div
-        className={`flex w-full flex-col items-center transition-all duration-300 ${isAnimating ? "ticker-exit" : "ticker-enter"}`}
+        className={clsx(
+          "flex w-full flex-col items-center transition-all duration-300",
+          isAnimating ? "ticker-exit" : "ticker-enter",
+        )}
         style={{
           willChange: "transform, opacity",
         }}

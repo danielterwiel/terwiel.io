@@ -33,6 +33,13 @@ export default {
         "landscape-mobile": {
           raw: "(max-width: 1024px) and (max-height: 500px) and (orientation: landscape)",
         },
+        // Ultra-wide screen breakpoints for large displays
+        // 3xl: Standard large monitor (1920x1080 and wider monitors)
+        // 4k: 4K displays (2560px width)
+        // 5k: 5K displays and ultra-wide curved monitors (3200px+ width)
+        "3xl": "1600px",
+        "4k": "2560px",
+        "5k": "3200px",
       },
       fontFamily: {
         sans: [
@@ -57,6 +64,12 @@ export default {
       },
       animation: {
         "magnetic-ring": "magnetic-ring 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        "magnetic-bounce":
+          "magnetic-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "magnetic-pulse": "magnetic-pulse 2s ease-in-out infinite",
+        "float-subtle": "float-subtle 4s ease-in-out infinite",
+        "fade-in": "animationFadeIn 1s ease-out forwards",
+        "slide-down": "animation-slide-down 0.5s ease-in-out forwards",
       },
       backdropBlur: {
         xs: "2px",
@@ -90,6 +103,53 @@ export default {
           },
           "100%": {
             transform: "translate(-50%, -50%) scale(1)",
+            opacity: "1",
+          },
+        },
+        "magnetic-bounce": {
+          "0%": {
+            transform: "scale(1)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+          },
+          "100%": {
+            transform: "scale(1)",
+          },
+        },
+        "magnetic-pulse": {
+          "0%, 100%": {
+            transform: "scale(1)",
+            boxShadow: "0 0 0 0 rgba(0, 47, 167, 0.3)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+            boxShadow: "0 0 0 8px rgba(0, 47, 167, 0)",
+          },
+        },
+        "float-subtle": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-2px)",
+          },
+        },
+        animationFadeIn: {
+          from: {
+            opacity: "0",
+          },
+          to: {
+            opacity: "1",
+          },
+        },
+        "animation-slide-down": {
+          from: {
+            transform: "translateY(-100%)",
+            opacity: "0",
+          },
+          to: {
+            transform: "translateY(0)",
             opacity: "1",
           },
         },
@@ -196,6 +256,11 @@ export default {
         ".magnetic-input.magnetic-active": {
           borderColor: "oklch(37.85% 0.1954 263.23 / 0.5)",
           transform: "scale(0.995)", // Very subtle scale for inputs
+        },
+
+        // Field sizing utility - allows form inputs to resize based on content
+        ".field-sizing-content": {
+          fieldSizing: "content",
         },
       });
     },
