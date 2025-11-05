@@ -1,5 +1,7 @@
 "use client";
 
+import { clsx } from "clsx";
+
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 import { DOMAIN_COLORS_HEX, PRIMARY_COLOR } from "~/constants/colors";
 import { DOMAINS } from "~/constants/domains";
@@ -48,7 +50,10 @@ export function StackCloudLoader() {
             return (
               <circle
                 key={domain}
-                className={`spinner-ring-segment spinner-ring-segment-${index}`}
+                className={clsx(
+                  "spinner-ring-segment",
+                  `spinner-ring-segment-${index}`,
+                )}
                 cx={centerX}
                 cy={centerY}
                 r={ringRadiusPercent}
