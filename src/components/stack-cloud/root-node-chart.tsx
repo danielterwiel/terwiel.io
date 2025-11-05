@@ -349,11 +349,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         return isEqualDomain(matchedDomain, d.data.domain) ? "true" : "false";
       });
 
-    // Title for hover tooltip
-    hitAreas.append("title").text((d) => {
-      return `${d.data.domain}: ${d.data.percentage.toFixed(1)}%`;
-    });
-
     const setupHoverInteractions = () => {
       const transitionDuration = a11y.getTransitionDuration(150);
 
