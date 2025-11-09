@@ -67,22 +67,24 @@ export const Project = ({
             </Ring>
           </div>
           <h3 className="mt-2.5 pl-6 text-lg">
-            {project.url ? (
-              <a
-                href={project.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-1 hover:text-inherit"
-              >
+            <div className="flex items-center gap-1">
+              {project.url ? (
+                <a
+                  href={project.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1 hover:text-inherit"
+                >
+                  <HighlightedText>{project.company}</HighlightedText>
+                  <Icon.ExternalLink
+                    aria-hidden="true"
+                    className="h-6 w-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100 text-slate-500"
+                  />
+                </a>
+              ) : (
                 <HighlightedText>{project.company}</HighlightedText>
-                <Icon.ExternalLink
-                  aria-hidden="true"
-                  className="h-6 w-6 opacity-0 transition-opacity duration-200 group-hover:opacity-100 text-slate-500"
-                />
-              </a>
-            ) : (
-              <HighlightedText>{project.company}</HighlightedText>
-            )}
+              )}
+            </div>
           </h3>
           <div className="col-span-2 grid min-w-0 flex-1 grid-cols-1 justify-between md:pl-10">
             <div className="order-2 col-span-1">
@@ -127,9 +129,16 @@ export const Project = ({
               </div>
             </div>
           </div>
-          <div className="absolute right-0 order-first col-span-2 row-span-full whitespace-nowrap pt-3 text-right text-xs text-gray-600">
-            <div>{duration}</div>
-            <div>{timespan}</div>
+          <div className="absolute right-0 order-first col-span-2 row-span-full pt-3 text-right flex flex-col items-end gap-2">
+            <div className="whitespace-nowrap text-xs text-gray-600">
+              <div>{duration}</div>
+              <div>{timespan}</div>
+            </div>
+            {project.sideProject && (
+              <span className="inline-block px-2 py-0.5 text-xs font-medium text-slate-500 bg-slate-50 rounded border border-slate-200 print:hidden">
+                Side project
+              </span>
+            )}
           </div>
         </div>
       </div>

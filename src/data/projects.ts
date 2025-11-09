@@ -51,7 +51,8 @@ export const PROJECTS: Project[] = [
     dateFrom: "2025-07-01",
     dateTo: "present",
     description:
-      "In my spare time, I’m building a containerized QMS, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
+      "In my spare time, I'm building a containerized QMS, using Effect as standard library, Electric SQL for sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",
+    sideProject: true,
     stack: [
       createStackItem("Bash"),
       createStackItem("CSS"),
@@ -83,6 +84,7 @@ export const PROJECTS: Project[] = [
     description:
       "In my spare time, I developed a ransomware-resilient QMS using Rust for memory safety and XState for predictable logic, deployed on Dfinity's Internet Computer. The result is a secure prototype that is highly data resilient and abides by GxP regulations.",
     url: "https://github.com/danielterwiel/permatrust",
+    sideProject: true,
     stack: [
       createStackItem("Bash"),
       createStackItem("CSS"),

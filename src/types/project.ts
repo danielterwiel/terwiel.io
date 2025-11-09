@@ -32,4 +32,5 @@ export type Project = {
   stack: StackItem[];
   icon: string;
   url?: string;
+  sideProject?: boolean;
 };
