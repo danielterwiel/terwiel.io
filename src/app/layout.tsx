@@ -4,13 +4,13 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Daniël Terwiel - Developer",
-  description: "An accomplished web developer with 18 years of experience.",
+  description: "An accomplished developer with 18 years of experience.",
   icons: {
     icon: "/icon.svg",
   },
   openGraph: {
     title: "Daniël Terwiel - Developer",
-    description: "An accomplished web developer with 18 years of experience.",
+    description: "An accomplishe developer with 18 years of experience.",
     type: "website",
     locale: "en_US",
   },
