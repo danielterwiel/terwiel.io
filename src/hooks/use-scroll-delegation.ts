@@ -24,6 +24,11 @@ function isSafariMac(): boolean {
  * Special handling for Safari: Due to Safari's momentum scrolling and preventDefault() limitations,
  * we detect Safari and apply scroll delegation from the entire viewport in Safari.
  * Other browsers apply the standard delegated scroll approach.
+ *
+ * NOTE: This hook intentionally uses `passive: false` on the wheel event listener to allow
+ * preventDefault() calls. Browser console will show warnings about non-passive scroll listeners,
+ * but this is necessary for the dual-layout design to work correctly. The preventDefault() calls
+ * are performant because they're only executed on specific conditions (Safari or outside Projects area).
  */
 export function useScrollDelegation(targetRef: React.RefObject<HTMLElement>) {
   const isDesktop = useRef(false);

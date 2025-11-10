@@ -195,14 +195,3 @@ export function calculateSettlingTime(
   // Longer settling time for slower alpha decay
   return clamp(settlingTicks * 16, 300, 2000);
 }
-
-/**
- * Calculate change magnitude for selection transitions
- */
-export function calculateChangeMagnitude(nodes: SimulationNode[]): number {
-  if (nodes.length === 0) return 0;
-  const changedCount = nodes.filter(
-    (n) => (n.scaleFactor ?? 1.0) !== 1.0,
-  ).length;
-  return changedCount / nodes.length;
-}

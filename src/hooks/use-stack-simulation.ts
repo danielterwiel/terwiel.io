@@ -19,7 +19,6 @@ import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
 import {
   calculateAdaptivePhysics,
   calculateAlphaTarget,
-  calculateChangeMagnitude,
   calculateNodeStats,
   calculateSettlingTime,
   calculateViewportMetrics,
@@ -31,6 +30,16 @@ import {
   updateSimulationForces,
 } from "~/utils/stack-cloud/create-forces";
 import { calculateNodeAngleInSegment } from "~/utils/stack-cloud/distribute-nodes-in-segment";
+import {
+  calculateOptimalAlphaTarget,
+  calculateOptimalSettlingTime,
+  clearPositionCache,
+  clearRadiusCache,
+  forceNodeUpdate,
+  hasNodeMovedSignificantly,
+  isLargeSelectionChange,
+  TICKS_PER_FRAME,
+} from "~/utils/stack-cloud/performance-utils";
 import { seedPosition } from "~/utils/stack-cloud/seed-position";
 
 interface UseStackSimulationProps {
@@ -74,10 +83,9 @@ export function useStackSimulation({
   const rafIdRef = useRef<number | null>(null);
   const lastTickTimeRef = useRef<number>(0);
 
-  /**
-   * Handle simulation tick - update DOM transforms
-   * Throttled via requestAnimationFrame to prevent jitter
-   */
+  // Track simulation state for optimizations
+  const isSettlingRef = useRef(false);
+
   const handleTick = useCallback(() => {
     if (!simulationRef.current) return;
 
@@ -96,28 +104,36 @@ export function useStackSimulation({
 
       if (!simulationRef.current) return;
 
-      for (const node of simulationRef.current.nodes()) {
+      const sim = simulationRef.current;
+      const currentAlpha = sim.alpha();
+
+      // Run multiple physics ticks per frame during settling phase
+      if (currentAlpha > 0.05 && isSettlingRef.current) {
+        for (let i = 1; i < TICKS_PER_FRAME; i++) {
+          sim.tick();
+        }
+      }
+
+      // Only update nodes that have moved significantly
+      for (const node of sim.nodes()) {
+        // Skip nodes that haven't moved significantly
+        if (!hasNodeMovedSignificantly(node)) continue;
+
         const el = nodesRef.current.get(node.id);
         if (el && node.x !== undefined && node.y !== undefined) {
-          // Apply both translate and scale in a single transform
-          // Scale from node center: translate(x,y) then scale from that point
           const scale = node.scaleFactor ?? 1.0;
-          if (scale !== 1.0) {
-            el.setAttribute(
-              "transform",
-              `translate(${node.x}, ${node.y}) scale(${scale})`,
-            );
-          } else {
-            el.setAttribute("transform", `translate(${node.x}, ${node.y})`);
-          }
+          const transform =
+            scale !== 1.0
+              ? `translate3d(${node.x}px, ${node.y}px, 0) scale(${scale})`
+              : `translate3d(${node.x}px, ${node.y}px, 0)`;
+
+          (el as SVGGElement).style.transform = transform;
+          (el as SVGGElement).style.transformOrigin = "0 0";
         }
       }
     });
   }, []);
 
-  /**
-   * Initialize D3 simulation with all nodes and forces
-   */
   const initializeSimulation = useCallback(
     (measurements: Dimensions) => {
       const { centerX, centerY, rootRadius, stackRadius, width, height } =
@@ -243,15 +259,16 @@ export function useStackSimulation({
 
       simulationRef.current = simulation;
 
+      // Clear performance caches for fresh start
+      clearPositionCache();
+      clearRadiusCache();
+
       // Paint initial positions once
       handleTick();
     },
     [stacks, sizeFactors, scaleFactors, handleTick],
   );
 
-  /**
-   * Update simulation when dimensions change
-   */
   const updateSimulation = useCallback(
     (measurements: Dimensions) => {
       const sim = simulationRef.current;
@@ -320,6 +337,7 @@ export function useStackSimulation({
         handleTick();
       } else {
         const reheatAlphaTarget = calculateAlphaTarget(viewport.vmin);
+        isSettlingRef.current = true;
         sim.alphaTarget(reheatAlphaTarget).restart();
 
         const settlingTime = calculateSettlingTime(
@@ -328,7 +346,10 @@ export function useStackSimulation({
         );
 
         setTimeout(() => {
-          if (sim) sim.alphaTarget(0);
+          if (sim) {
+            sim.alphaTarget(0);
+            isSettlingRef.current = false;
+          }
         }, settlingTime);
       }
     },
@@ -399,9 +420,6 @@ export function useStackSimulation({
     };
   }, [dimensions, updateSimulation]);
 
-  /**
-   * Update scale factors for nodes (e.g., when selection changes)
-   */
   const updateNodeScaleFactors = useCallback(
     (scaleFactorMap: Map<string, number>) => {
       const sim = simulationRef.current;
@@ -409,7 +427,9 @@ export function useStackSimulation({
 
       const nodes = sim.nodes();
       let hasChanges = false;
+      const changedNodeIds: string[] = [];
 
+      // Update scale factors and track which nodes changed
       for (const node of nodes) {
         if (node.type === "stack") {
           const newScaleFactor = scaleFactorMap.get(node.id) ?? 1.0;
@@ -418,14 +438,19 @@ export function useStackSimulation({
           if (oldScaleFactor !== newScaleFactor) {
             node.scaleFactor = newScaleFactor;
             hasChanges = true;
+            changedNodeIds.push(node.id);
+
+            // Force position cache update for changed nodes
+            forceNodeUpdate(node.id);
           }
         }
       }
 
       if (!hasChanges) return;
 
-      // CRITICAL: Must reinitialize collision force when radii change
-      // The collision quadtree only rebuilds when initialize() is called
+      // Clear radius cache since effective radii changed
+      clearRadiusCache();
+
       const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
       if (collide) {
         collide.initialize(sim.nodes(), sim.randomSource());
@@ -443,29 +468,39 @@ export function useStackSimulation({
       } else {
         // Calculate viewport size and change magnitude for adaptive physics
         const stackNodeList = nodes.filter((n) => n.type === "stack");
-        const changeMagnitude = calculateChangeMagnitude(stackNodeList);
+        // Use actual changed count, not the helper function which has a bug
+        const changeMagnitude = changedNodeIds.length / stackNodeList.length;
+        const nodeCount = stackNodeList.length;
 
-        const vmin = dimensions
-          ? Math.min(dimensions.width, dimensions.height)
-          : 400;
+        const isLargeChange = isLargeSelectionChange(
+          changeMagnitude,
+          nodeCount,
+        );
 
-        const alphaTarget = calculateAlphaTarget(vmin, changeMagnitude);
+        const alphaTarget = calculateOptimalAlphaTarget(
+          changeMagnitude,
+          isLargeChange,
+        );
+
+        const settlingTime = calculateOptimalSettlingTime(
+          changeMagnitude,
+          isLargeChange,
+        );
+
+        // Mark that we're in settling phase for multiple ticks optimization
+        isSettlingRef.current = true;
 
         sim.alphaTarget(alphaTarget).restart();
-
-        const settlingTime = calculateSettlingTime(
-          sim.alpha(),
-          sim.alphaDecay(),
-        );
 
         setTimeout(() => {
           if (sim) {
             sim.alphaTarget(0);
+            isSettlingRef.current = false;
           }
         }, settlingTime);
       }
     },
-    [handleTick, dimensions],
+    [handleTick],
   );
 
   return {
