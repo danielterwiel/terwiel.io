@@ -8,6 +8,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import type { StackItem } from "~/types";
 
 import { Badge } from "~/components/badge";
+import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { getSearchFilter, getSearchQuery } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
@@ -60,6 +61,19 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   useEffect(() => {
     badgeMatchCache.current.clear();
   }, [filter, query]);
+
+  // Roving tabindex for keyboard navigation
+  // Convert StackItems to format expected by hook (add id property)
+  const itemsWithId = items.map((item, index) => ({
+    ...item,
+    id: `${item.name}-${index}`,
+  }));
+
+  const rovingTabindex = useRovingTabindex(itemsWithId, {
+    initialIndex: 0,
+    loop: true,
+    direction: "horizontal",
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -124,19 +138,32 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   }, []);
 
   return (
+    // biome-ignore lint/a11y/useSemanticElements: Using role="group" for WAI-ARIA roving tabindex pattern
     <div
       ref={stackRef}
       className={clsx("flex flex-wrap items-center gap-2", className)}
+      role="group"
+      aria-label="Technology badges - use arrow keys to navigate, Enter to filter"
+      onKeyDown={rovingTabindex.handleKeyDown}
+      onFocus={rovingTabindex.handleContainerFocus}
+      onBlur={rovingTabindex.handleContainerBlur}
     >
-      {items.map((item, index) => (
-        <Badge
-          key={`${item.name}-${index}`}
-          icon={item.icon}
-          name={item.name}
-          isAnimating={animatingIndices.has(index)}
-          isMatched={isBadgeMatched(item)}
-        />
-      ))}
+      {items.map((item, index) => {
+        const itemId = `${item.name}-${index}`;
+        const tabIndex = rovingTabindex.getTabIndex(itemId);
+
+        return (
+          <Badge
+            key={itemId}
+            icon={item.icon}
+            name={item.name}
+            isAnimating={animatingIndices.has(index)}
+            isMatched={isBadgeMatched(item)}
+            tabIndex={tabIndex}
+            badgeRef={(el) => rovingTabindex.registerItemRef(itemId, el)}
+          />
+        );
+      })}
     </div>
   );
 };

@@ -53,6 +53,7 @@ export const ICON_COLORS = {
   Stack: "#68D391",
   Svg: "#FFB13B",
   TestPipe: "#83664B",
+  Vitest: "#6E9F18",
   Webpack: "#8ED5FA",
 } as const satisfies Record<IconName, `#${string}`>;
 
@@ -97,7 +98,7 @@ export const STACK_ICONS = {
   Tanstack: "BrandTanstack",
   TypeScript: "BrandTypescript",
   Vite: "BrandVite",
-  Vitest: "BrandVite",
+  Vitest: "Vitest",
   Vue: "BrandVue",
   Webpack: "Webpack",
   XState: "BrandXstate",

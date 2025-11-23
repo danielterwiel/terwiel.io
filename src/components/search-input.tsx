@@ -217,6 +217,7 @@ const SearchInputContent = React.forwardRef<
                 onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                tabIndex={isFocused || query ? 0 : -1}
                 className="w-full border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"
               />
             </Form.Control>
@@ -232,6 +233,7 @@ const SearchInputContent = React.forwardRef<
             <button
               type="reset"
               onClick={clear}
+              tabIndex={isFocused || query ? 0 : -1}
               className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-1 text-slate-400 transition-colors duration-300 outline-offset-4 hover:text-klein focus:text-klein focus:outline-2"
             >
               <Icon.X aria-hidden="true" focusable="false" />

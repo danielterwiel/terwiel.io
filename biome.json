@@ -63,6 +63,10 @@
       },
       "nursery": {
         "noMisusedPromises": "error"
+      },
+      "a11y": {
+        "useSemanticElements": "warn",
+        "noNoninteractiveTabindex": "off"
       }
     }
   },

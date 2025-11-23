@@ -25,6 +25,11 @@ interface RootNodeProps {
     domain: Domain;
   } | null;
   isActiveHover?: boolean;
+  rovingTabindex?: {
+    registerItemRef: (id: string, element: SVGGElement | null) => void;
+    getTabIndex: (itemId: string) => number;
+    setActiveIndex: (index: number) => void;
+  };
 }
 
 interface PieSegmentData {
@@ -41,8 +46,14 @@ interface PieSegmentData {
  */
 // biome-ignore lint/style/useComponentExportOnlyModules: Component is exported via memo wrapper
 const RootNodeComponent = (props: RootNodeProps) => {
-  const { dimensions, nodeRef, onDomainHover, hoveredStack, isActiveHover } =
-    props;
+  const {
+    dimensions,
+    nodeRef,
+    onDomainHover,
+    hoveredStack,
+    isActiveHover,
+    rovingTabindex,
+  } = props;
   const searchParams = useSearchParams();
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
   const [isAnimating, setIsAnimating] = useState(true);
@@ -116,6 +127,9 @@ const RootNodeComponent = (props: RootNodeProps) => {
         onChartStateChange={() => {
           skipNextEffectRef.current = true;
         }}
+        registerSegmentRef={rovingTabindex?.registerItemRef}
+        getSegmentTabIndex={rovingTabindex?.getTabIndex}
+        onSegmentFocus={rovingTabindex?.setActiveIndex}
       />
 
       {/* Border circle */}
