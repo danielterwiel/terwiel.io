@@ -233,19 +233,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       // Bring selected segment's VISUAL elements to front to prevent border overlap
       // Only reorder segment-visual, NOT segment-group, to preserve roving tabindex
-      // First move all segments to back in order, then move selected to front
-      segments.each(function () {
-        if (this.parentNode) {
-          this.parentNode.appendChild(this);
-        }
-      });
-      // Now move selected segment to the very front
-      segments.each(function (d) {
-        const isSelected = isEqualDomain(matchedDomain, d.data.domain);
-        if (isSelected && this.parentNode) {
-          this.parentNode.appendChild(this);
-        }
-      });
+      // Use D3's raise() method - re-inserts element as last child of parent
+      segments
+        .filter((d) => isEqualDomain(matchedDomain, d.data.domain))
+        .raise();
 
       // Update paths with transition using tween for synchronized radius and stroke
       // With paint-order: stroke, fill and stroke are on the SAME element
@@ -577,21 +568,15 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       let clearClickedDomainTimeout: NodeJS.Timeout | null = null;
 
       // Helper function to bring segment VISUAL elements to front (SVG z-index fix)
-      // With the new two-layer structure, we just need to move the visual to the end of visuals-layer
+      // Uses D3's raise() method - re-inserts element as last child of parent
       const bringSegmentVisualToFront = (hitArea: SVGPathElement) => {
         // Get the domain from the hit area's data attribute
         const domain = hitArea.getAttribute("data-domain");
         if (!domain) return;
 
-        // Find the corresponding visual element in the visuals layer
+        // Find the corresponding visual element in the visuals layer and raise it
         const visualsLayer = svg.select(".visuals-layer");
-        const segmentVisual = visualsLayer.select(`[data-domain="${domain}"]`);
-
-        // Move it to the end of the visuals layer (renders on top)
-        const node = segmentVisual.node() as SVGGElement | null;
-        if (node?.parentNode) {
-          node.parentNode.appendChild(node);
-        }
+        visualsLayer.select(`[data-domain="${domain}"]`).raise();
       };
 
       const handleHoverStart = function (this: SVGPathElement) {
@@ -867,23 +852,14 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             .select(this)
             .datum() as d3.PieArcDatum<PieSegmentData>;
 
-          // Bring this segment's visual elements to front
-          const domain = this.getAttribute("data-domain");
-          if (domain) {
-            const visualsLayer = svg.select(".visuals-layer");
-            const segmentVisual = visualsLayer.select(
-              `[data-domain="${domain}"]`,
-            );
-            const node = segmentVisual.node() as SVGGElement | null;
-            if (node?.parentNode) {
-              node.parentNode.appendChild(node);
-            }
-          }
+          // Bring this segment's visual elements to front using D3's raise()
+          bringSegmentVisualToFront(this);
 
           // Get visual elements
+          const domain = this.getAttribute("data-domain");
           const visualsLayer = svg.select(".visuals-layer");
           const segmentVisual = visualsLayer.select(
-            `[data-domain="${this.getAttribute("data-domain")}"]`,
+            `[data-domain="${domain}"]`,
           );
           const visiblePath =
             segmentVisual.select<SVGPathElement>("path.pie-segment");

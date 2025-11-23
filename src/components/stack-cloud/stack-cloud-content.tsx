@@ -314,6 +314,8 @@ export function StackCloudContent() {
             userSelect: "none",
             WebkitUserSelect: "none",
             WebkitTouchCallout: "none",
+            // Prevent focus outline on container - only individual items should show focus
+            outline: "none",
           }}
         >
           {/* No SVG filters - using CSS drop-shadow for better performance */}
