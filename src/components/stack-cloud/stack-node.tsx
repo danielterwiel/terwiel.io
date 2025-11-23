@@ -139,6 +139,17 @@ const StackNodeComponent = (props: StackNodeProps) => {
     }
   };
 
+  // Handle touch end - blur the element to prevent stuck focus on iOS Safari
+  // iOS Safari has a known bug where focus states can get stuck after touch interactions
+  const handleTouchEnd = (event: React.TouchEvent<SVGGElement>) => {
+    // Blur after a short delay to allow the click to process
+    // This fixes the stuck focus ring issue on iOS Safari
+    const target = event.currentTarget;
+    requestAnimationFrame(() => {
+      target.blur();
+    });
+  };
+
   // Get CSS classes
   const nodeClasses = `stack-node ${a11y.getStateClasses({ selected: isSelected, highlighted: isHighlighted })}`;
   const circleClasses = `stack-node-circle ${a11y.getStateClasses({ selected: isSelected, highlighted: isHighlighted })}`;
@@ -169,6 +180,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       aria-pressed={isSelected}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
+      onTouchEnd={handleTouchEnd}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={{

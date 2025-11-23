@@ -229,6 +229,8 @@ export function StackCloudContent() {
   );
 
   // Create memoized factory function for stack mouse enter callbacks
+  // When hovering a stack, clear hoveredDomain to prevent domain-level highlighting
+  // This ensures only the specific hovered stack is highlighted, not all stacks in the domain
   const createStackMouseEnterCallback = useCallback(
     (stack: {
       id: string;
@@ -239,6 +241,7 @@ export function StackCloudContent() {
     }) =>
       () => {
         setHoveredStack(stack);
+        setHoveredDomain(null); // Clear domain hover when hovering a specific stack
       },
     [],
   );

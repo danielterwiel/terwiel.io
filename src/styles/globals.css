@@ -168,13 +168,15 @@
   /* All focus indicators use 3px width with 3:1 contrast ratio */
 
   /* Stack Node Focus Ring - Circular, domain-colored */
+  /* Use :focus-visible to only show on keyboard navigation, not touch/click */
+  /* This prevents stuck focus rings on iOS Safari after touch interactions */
   .stack-node-focus-ring {
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
     pointer-events: none;
   }
 
-  svg [role="button"]:focus .stack-node-focus-ring {
+  svg [role="button"]:focus-visible .stack-node-focus-ring {
     opacity: 1;
   }
 
@@ -354,22 +356,24 @@
   }
 
   /* Pie segment focus styling */
+  /* Use :focus-visible to only show on keyboard navigation, not touch/click */
+  /* This prevents stuck focus rings on iOS Safari after touch interactions */
   .pie-segment-hit-area:focus {
     outline: none; /* Remove browser default */
   }
 
-  /* Show focus ring when segment is focused */
-  .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+  /* Show focus ring when segment is focused via keyboard */
+  .pie-segment-hit-area:focus-visible ~ .pie-segment-focus-ring {
     opacity: 1;
   }
 
   /* Forced colors mode support */
-  .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+  .pie-segment-hit-area:focus-visible ~ .pie-segment-focus-ring {
     stroke: currentColor;
   }
 
   @media (forced-colors: active) {
-    .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+    .pie-segment-hit-area:focus-visible ~ .pie-segment-focus-ring {
       stroke: CanvasText;
     }
   }
