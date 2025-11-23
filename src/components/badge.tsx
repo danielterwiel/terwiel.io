@@ -20,7 +20,14 @@ export const Badge = ({
   name,
   isAnimating = false,
   isMatched = false,
-}: BadgeProps & { isAnimating?: boolean; isMatched?: boolean }) => {
+  tabIndex,
+  badgeRef,
+}: BadgeProps & {
+  isAnimating?: boolean;
+  isMatched?: boolean;
+  tabIndex?: number;
+  badgeRef?: (el: HTMLAnchorElement | null) => void;
+}) => {
   const searchParams = useSearchParams();
   const currentFilter = getSearchFilter(searchParams);
   const validatedIcon = validateIconName(icon);
@@ -69,7 +76,7 @@ export const Badge = ({
     colored &&
       !isSelected &&
       !isMatched &&
-      "group-hover:[color:var(--badge-color)] focus:[color:var(--badge-color)]",
+      "group-hover:[color:var(--badge-color)] group-focus-visible:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
@@ -77,9 +84,9 @@ export const Badge = ({
     "transition-all duration-500 ease-out",
     !isSelected &&
       !isMatched &&
-      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)] focus:underline focus:[text-decoration-color:var(--badge-color)]",
+      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)] group-focus-visible:underline group-focus-visible:[text-decoration-color:var(--badge-color)]",
     !colored &&
-      "group-hover:[text-decoration-color:#94A3B8] focus:[text-decoration-color:#94A3B8]",
+      "group-hover:[text-decoration-color:#94A3B8] group-focus-visible:[text-decoration-color:#94A3B8]",
   );
 
   // Set CSS custom properties for dynamic theming only when badge is colored
@@ -96,21 +103,23 @@ export const Badge = ({
 
   return (
     <Link
+      ref={badgeRef}
       href={href}
       scroll={false}
+      tabIndex={tabIndex}
       className={clsx(
         magneticClasses,
-        "group border-2 transition-all duration-500 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-klein",
+        "group border-2 transition-all duration-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-klein",
         (isAnimating || isSelected || isMatched) && colored
           ? "[border-color:rgba(var(--badge-rgb),0.3)]"
           : "border-slate-400/20",
         !isSelected &&
           !isMatched &&
-          "hover:border-slate-400/40 focus:border-slate-400/40",
+          "hover:border-slate-400/40 focus-visible:border-slate-400/40",
         colored &&
           !isSelected &&
           !isMatched &&
-          "hover:[border-color:rgba(var(--badge-rgb),0.6)] focus:[border-color:rgba(var(--badge-rgb),0.6)]",
+          "hover:[border-color:rgba(var(--badge-rgb),0.6)] focus-visible:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}
       aria-label={`Filter by ${name}`}

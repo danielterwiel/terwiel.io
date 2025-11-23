@@ -1,10 +1,12 @@
 import { Header } from "~/components/header";
 import { Projects } from "~/components/projects";
+import { SkipLinks } from "~/components/skip-links";
 import { StackCloud } from "~/components/stack-cloud";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen overflow-visible">
+      <SkipLinks />
       <Header />
       {/* Main content area with full viewport height minus header on desktop */}
       {/* Width constraints to prevent excessive stretching on large screens */}

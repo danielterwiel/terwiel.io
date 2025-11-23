@@ -23,6 +23,7 @@ interface StackNodeProps {
   selected?: boolean;
   highlighted?: boolean;
   isDirectlyHovered?: boolean;
+  tabIndex?: number;
   nodeRef: (el: SVGGElement | null) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
@@ -42,6 +43,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
     selected,
     highlighted,
     isDirectlyHovered,
+    tabIndex = 0,
     nodeRef,
     onMouseEnter,
     onMouseLeave,
@@ -162,7 +164,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       ref={nodeRef}
       className={nodeClasses}
       role="button"
-      tabIndex={0}
+      tabIndex={tabIndex}
       aria-label={`${stack.name} technology`}
       aria-pressed={isSelected}
       onClick={handleClick}
@@ -240,6 +242,7 @@ export const StackNode = memo(StackNodeComponent, (prevProps, nextProps) => {
     prevProps.selected === nextProps.selected &&
     prevProps.highlighted === nextProps.highlighted &&
     prevProps.isDirectlyHovered === nextProps.isDirectlyHovered &&
+    prevProps.tabIndex === nextProps.tabIndex &&
     prevProps.dimensions.stackRadius === nextProps.dimensions.stackRadius &&
     prevProps.dimensions.width === nextProps.dimensions.width &&
     prevProps.dimensions.height === nextProps.dimensions.height &&

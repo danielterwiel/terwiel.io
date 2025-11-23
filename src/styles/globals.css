@@ -118,14 +118,80 @@
 }
 
 @layer components {
+  /* Skip Links - WCAG 2.2 SC 2.4.1: Bypass Blocks */
+  /* Positioned off-screen by default, brought into view on focus */
+  .skip-links-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    /* Emergency layer - skip links must be above everything for accessibility */
+  }
+
+  .skip-link {
+    position: absolute;
+    top: -100vh;
+    left: 0;
+    padding: 1rem 1.5rem;
+    background-color: oklch(37.85% 0.1954 263.23);
+    /* Klein blue */
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 0.5rem 0;
+    /* Rounded bottom-right corner */
+    box-shadow: 0 4px 12px oklch(0% 0 0 / 0.3);
+    transition: top 0.2s ease-in-out;
+    /* Smooth slide-in */
+  }
+
+  .skip-link:focus {
+    top: 0;
+    /* Bring into view on focus */
+    outline: 3px solid white;
+    outline-offset: -6px;
+    /* Inner outline for contrast */
+  }
+
   /* Mobile menu - ensure dropdown is visible above StackCloud */
   .relative.z-50 {
     /* Don't hide overflow for dropdowns inside z-50 container */
   }
 
   /* Remove default focus outline from SVG interactive elements */
+  /* Custom focus rings are applied via specific classes */
   svg [role="button"]:focus {
     outline: none;
+  }
+
+  /* Consolidated Focus Styles - WCAG 2.2 Focus Appearance (Enhanced, AAA) */
+  /* All focus indicators use 3px width with 3:1 contrast ratio */
+
+  /* Stack Node Focus Ring - Circular, domain-colored */
+  .stack-node-focus-ring {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  svg [role="button"]:focus .stack-node-focus-ring {
+    opacity: 1;
+  }
+
+  /* Focus styles for standard interactive elements */
+  /* Using ring utilities for consistency with Tailwind */
+  .focus-standard {
+    @apply focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2;
+  }
+
+  /* Focus styles for buttons with subtle background */
+  .focus-button {
+    @apply focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:bg-slate-100;
+  }
+
+  /* Focus styles for badges and pills */
+  .focus-badge {
+    @apply focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-klein;
   }
 
   .icon-container {
@@ -287,13 +353,25 @@
     cursor: pointer;
   }
 
-  .pie-segment-hit-area:focus-visible {
-    outline: 3px solid oklch(45% 0.15 260);
-    outline-offset: 2px;
+  /* Pie segment focus styling */
+  .pie-segment-hit-area:focus {
+    outline: none; /* Remove browser default */
   }
 
-  .pie-segment-hit-area.forced-colors:focus-visible {
-    outline-color: CanvasText;
+  /* Show focus ring when segment is focused */
+  .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+    opacity: 1;
+  }
+
+  /* Forced colors mode support */
+  .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+    stroke: currentColor;
+  }
+
+  @media (forced-colors: active) {
+    .pie-segment-hit-area:focus ~ .pie-segment-focus-ring {
+      stroke: CanvasText;
+    }
   }
 
   /* Forced colors mode adjustments */
@@ -543,7 +621,7 @@
 /* we can control its z-index with ::view-transition-group(glass-header) */
 /* The key is setting a MUCH higher z-index than projects (which use z-index: 20) */
 ::view-transition-group(glass-header) {
-  z-index: 9999;
+  z-index: 40;
   animation: none;
   mix-blend-mode: normal;
 }

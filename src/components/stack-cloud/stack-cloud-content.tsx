@@ -19,7 +19,9 @@ import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
+import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
+import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
 import { buildExperienceCache } from "~/utils/experience-cache";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import {
@@ -63,6 +65,12 @@ export function StackCloudContent() {
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
   const sizeFactors = useMemo(() => calculateStackSizeFactors(PROJECTS), []);
+
+  // Calculate domain experiences for pie chart segments
+  const domainExperiences = useMemo(
+    () => calculateDomainExperiences(PROJECTS),
+    [],
+  );
 
   // This precomputes all domain and stack experiences to eliminate expensive
   // date parsing and overlap calculations during interactions
@@ -242,15 +250,61 @@ export function StackCloudContent() {
     setHoveredStack(hoverStack);
   }, [searchParams, stacks]);
 
+  // Roving tabindex for keyboard navigation (WAI-ARIA APG pattern)
+  // Single tab stop for entire StackCloud with SEGMENTS FIRST, then stack nodes
+  // This creates one unified navigation: segment-0, segment-1, ..., stack-0, stack-1, ...
+  const allNavigableItems = useMemo(() => {
+    // Segments come first in navigation order
+    const segmentItems = domainExperiences.map((exp, index) => ({
+      id: `segment-${index}`,
+      type: "segment" as const,
+      domain: exp.domain,
+    }));
+
+    // Stack nodes come after segments
+    const stackItems = stacks.map((stack) => ({
+      type: "stack" as const,
+      ...stack,
+    }));
+
+    return [...segmentItems, ...stackItems];
+  }, [domainExperiences, stacks]);
+
+  const rovingTabindex = useRovingTabindex(allNavigableItems, {
+    initialIndex: 0, // Start with first segment
+    loop: true,
+    direction: "both",
+    onActiveIndexChange: (index) => {
+      const item = allNavigableItems[index];
+      if (!item) return;
+
+      // Update hover state when keyboard navigating
+      if (item.type === "segment") {
+        // Hovering a segment - set domain hover
+        setHoveredDomain(item.domain as Domain);
+        setHoveredStack(null);
+      } else {
+        // Hovering a stack node
+        setHoveredStack(item);
+        setHoveredDomain(null);
+      }
+    },
+  });
+
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
       {!dimensions ? null : (
+        // biome-ignore lint/a11y/useSemanticElements: SVG with role="group" is required for WAI-ARIA roving tabindex pattern
         <svg
           ref={svgRef}
           className="stack-cloud-svg"
           viewBox={`0 0 ${dimensions.width} ${dimensions.height}`}
-          role="img"
-          aria-label="Technology stack visualization - interactive buttons to filter by technology"
+          role="group"
+          aria-label="Technology stack visualization - use arrow keys to navigate, Enter or Space to filter"
+          tabIndex={-1}
+          onKeyDown={rovingTabindex.handleKeyDown}
+          onFocus={rovingTabindex.handleContainerFocus}
+          onBlur={rovingTabindex.handleContainerBlur}
           style={{
             opacity: isVisible ? 1 : 0,
             transition: a11y.prefersReducedMotion
@@ -260,6 +314,8 @@ export function StackCloudContent() {
             userSelect: "none",
             WebkitUserSelect: "none",
             WebkitTouchCallout: "none",
+            // Prevent focus outline on container - only individual items should show focus
+            outline: "none",
           }}
         >
           {/* No SVG filters - using CSS drop-shadow for better performance */}
@@ -270,6 +326,7 @@ export function StackCloudContent() {
             onDomainHover={handleSetHoveredDomain}
             hoveredStack={hoveredStack}
             isActiveHover={isActiveHover}
+            rovingTabindex={rovingTabindex}
           />
 
           {stacks.map((stack) => {
@@ -316,6 +373,9 @@ export function StackCloudContent() {
               isDirectlyHovered ||
               (hoveredDomain !== null && stack.domain === hoveredDomain);
 
+            // Use roving tabindex for keyboard navigation
+            const tabIndex = rovingTabindex.getTabIndex(stack.id);
+
             return (
               <StackNode
                 key={stack.id}
@@ -325,7 +385,11 @@ export function StackCloudContent() {
                 selected={selected}
                 highlighted={highlighted}
                 isDirectlyHovered={isDirectlyHovered}
-                nodeRef={createStackNodeRefCallback(stack.id)}
+                tabIndex={tabIndex}
+                nodeRef={(el) => {
+                  createStackNodeRefCallback(stack.id)(el);
+                  rovingTabindex.registerItemRef(stack.id, el);
+                }}
                 onMouseEnter={createStackMouseEnterCallback(stack)}
                 onMouseLeave={handleStackMouseLeave}
               />
