@@ -616,6 +616,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         // Pre-select focus ring element for update
         const focusRingNode = focusRing.node();
 
+        // Check if this element is currently focused
+        const isFocused = document.activeElement === this;
+
         visiblePath
           .transition()
           .duration(transitionDuration)
@@ -632,6 +635,17 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             const radiusInterpolate = d3.interpolate(
               currentRadius,
               targetRadius,
+            );
+
+            // If focused, ensure ring stays visible. If not, ensure it stays hidden.
+            // This fixes the race condition where mouseleave interrupts blur
+            const currentOpacity = parseFloat(
+              focusRing.style("opacity") || "0",
+            );
+            const targetOpacity = isFocused ? 1 : 0;
+            const opacityInterpolate = d3.interpolate(
+              currentOpacity,
+              targetOpacity,
             );
 
             // Return tween function that updates attributes on same frame
@@ -658,7 +672,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
               // Update focus ring path to match
               if (focusRingNode) {
-                d3.select(focusRingNode).attr("d", newPath);
+                const ringSelection = d3.select(focusRingNode);
+                ringSelection.attr("d", newPath);
+                // Explicitly manage opacity during hover transition
+                ringSelection.style("opacity", opacityInterpolate(t));
               }
             };
           })
@@ -673,21 +690,26 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       const handleHoverEnd = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
 
-        // CRITICAL: If we just clicked this domain, DON'T clear the hover state
-        // The click handler has already set the correct hover state
-        if (clickedDomain === datum.data.domain) {
-          return;
-        }
-
         // Check if this segment's domain is selected
         const isSelected = isEqualDomain(
           matchedDomainRef.current,
           datum.data.domain,
         );
 
+        // PREDICTIVE STATE LOGIC:
+        // If this domain was just clicked, we need to predict its next state
+        // because the prop update hasn't arrived yet.
+        // - If it was selected, clicking it means we are DESELECTING -> target is default
+        // - If it was NOT selected, clicking it means we are SELECTING -> target is selected
+        let targetState: ArcState = isSelected ? "selected" : "default";
+
+        if (clickedDomain === datum.data.domain) {
+          // Invert the current state for the prediction
+          targetState = isSelected ? "default" : "selected";
+        }
+
         // When leaving any segment, always clear the hover domain
-        // Don't restore to selected domain - that's managed by RootNodeExperience's logic:
-        // It will show hoveredStack if hoveredDomain is null and hoveredStack is set
+        // Don't restore to selected domain - that's managed by RootNodeExperience's logic
         const restoreDomain = null;
 
         // Get the corresponding visible segment via data-domain attribute
@@ -705,17 +727,19 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         visiblePath.interrupt();
         focusRing.interrupt();
 
-        // Animate back to default or selected state - fill and stroke are on same element
-        const targetState: ArcState = isSelected ? "selected" : "default";
-
         // Pre-select focus ring element for update
         const focusRingNode = focusRing.node();
 
+        // Check if this element is currently focused
+        const isFocused = document.activeElement === this;
+
         // Target stroke color (instant)
-        const targetStrokeColor = isSelected
-          ? (DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
-            datum.data.color)
-          : "transparent";
+        // Use targetState to determine if we should show the stroke color
+        const targetStrokeColor =
+          targetState === "selected"
+            ? (DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
+              datum.data.color)
+            : "transparent";
 
         visiblePath
           .transition()
@@ -733,6 +757,17 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             const radiusInterpolate = d3.interpolate(
               currentRadius,
               targetRadius,
+            );
+
+            // If focused, ensure ring stays visible. If not, ensure it stays hidden.
+            // This fixes the race condition where mouseleave interrupts blur
+            const currentOpacity = parseFloat(
+              focusRing.style("opacity") || "0",
+            );
+            const targetOpacity = isFocused ? 1 : 0;
+            const opacityInterpolate = d3.interpolate(
+              currentOpacity,
+              targetOpacity,
             );
 
             // Return tween function that updates attributes on same frame
@@ -755,12 +790,18 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
               // Update focus ring path to match
               if (focusRingNode) {
-                d3.select(focusRingNode).attr("d", newPath);
+                const ringSelection = d3.select(focusRingNode);
+                ringSelection.attr("d", newPath);
+                // Explicitly manage opacity during hover transition
+                ringSelection.style("opacity", opacityInterpolate(t));
               }
             };
           })
-          .attr("opacity", isSelected ? "1.0" : "0.55")
-          .style("filter", isSelected ? `url(#${glowFilterId})` : "none");
+          .attr("opacity", targetState === "selected" ? "1.0" : "0.55")
+          .style(
+            "filter",
+            targetState === "selected" ? `url(#${glowFilterId})` : "none",
+          );
 
         // Focus ring is updated in the tween above for perfect sync
 
@@ -838,9 +879,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         const itemId = `segment-${i}`;
         // Get tabindex from parent if function provided, otherwise default to -1
         const tabIndex = getSegmentTabIndex ? getSegmentTabIndex(itemId) : -1;
-        console.log(
-          `[D3 Setup] Setting segment ${i} (${itemId}) tabindex=${tabIndex}`,
-        );
         return tabIndex;
       });
 

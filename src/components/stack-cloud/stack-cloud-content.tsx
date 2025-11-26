@@ -332,7 +332,7 @@ export function StackCloudContent() {
             rovingTabindex={rovingTabindex}
           />
 
-          {stacks.map((stack) => {
+          {stacks.map((stack, index) => {
             // Use selection index for O(1) lookup instead of isStackSelected O(n)
             // Use regular searchParams to show immediate visual feedback on clicks
             // Check BOTH query and filter parameters for selection
@@ -379,6 +379,9 @@ export function StackCloudContent() {
             // Use roving tabindex for keyboard navigation
             const tabIndex = rovingTabindex.getTabIndex(stack.id);
 
+            // Calculate global index for roving tabindex (segments + this stack)
+            const globalIndex = domainExperiences.length + index;
+
             return (
               <StackNode
                 key={stack.id}
@@ -395,6 +398,7 @@ export function StackCloudContent() {
                 }}
                 onMouseEnter={createStackMouseEnterCallback(stack)}
                 onMouseLeave={handleStackMouseLeave}
+                onFocus={() => rovingTabindex.setActiveIndex(globalIndex)}
               />
             );
           })}
