@@ -27,6 +27,7 @@ interface StackNodeProps {
   nodeRef: (el: SVGGElement | null) => void;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  onFocus?: () => void;
 }
 
 /**
@@ -47,6 +48,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
     nodeRef,
     onMouseEnter,
     onMouseLeave,
+    onFocus,
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -183,6 +185,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       onTouchEnd={handleTouchEnd}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
       style={{
         filter: getDropShadow(),
         transition: transitionStyle,
