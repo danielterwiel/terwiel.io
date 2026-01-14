@@ -226,7 +226,7 @@ const SearchInputContent = React.forwardRef<
             </Form.Control>
             <Icon.Search
               className={clsx(
-                "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 group-hover:text-slate-600",
+                "absolute left-3 top-1/2 -translate-y-1/2 transition-colors duration-300 group-hover-hover:text-slate-600",
                 isFocused || query ? "text-klein" : "text-slate-400",
               )}
               aria-hidden="true"
@@ -237,7 +237,7 @@ const SearchInputContent = React.forwardRef<
               type="reset"
               onClick={clear}
               tabIndex={isFocused || query ? 0 : -1}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-2.5 text-slate-400 transition-colors duration-300 hover:text-klein focus-visible:text-klein focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-2.5 text-slate-400 transition-colors duration-300 hover-hover:text-klein focus-visible:text-klein focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2"
             >
               <Icon.X aria-hidden="true" focusable="false" />
               <span className="sr-only">

@@ -76,7 +76,7 @@ export const Badge = ({
     colored &&
       !isSelected &&
       !isMatched &&
-      "group-hover:[color:var(--badge-color)] group-focus-visible:[color:var(--badge-color)]",
+      "group-hover-hover:[color:var(--badge-color)] group-focus-visible:[color:var(--badge-color)]",
   );
 
   const textClasses = clsx(
@@ -84,9 +84,9 @@ export const Badge = ({
     "transition-all duration-500 ease-out",
     !isSelected &&
       !isMatched &&
-      "group-hover:underline group-hover:[text-decoration-color:var(--badge-color)] group-focus-visible:underline group-focus-visible:[text-decoration-color:var(--badge-color)]",
+      "group-hover-hover:underline group-hover-hover:[text-decoration-color:var(--badge-color)] group-focus-visible:underline group-focus-visible:[text-decoration-color:var(--badge-color)]",
     !colored &&
-      "group-hover:[text-decoration-color:#94A3B8] group-focus-visible:[text-decoration-color:#94A3B8]",
+      "group-hover-hover:[text-decoration-color:#94A3B8] group-focus-visible:[text-decoration-color:#94A3B8]",
   );
 
   // Set CSS custom properties for dynamic theming only when badge is colored
@@ -115,11 +115,11 @@ export const Badge = ({
           : "border-slate-400/20",
         !isSelected &&
           !isMatched &&
-          "hover:border-slate-400/40 focus-visible:border-slate-400/40",
+          "hover-hover:border-slate-400/40 focus-visible:border-slate-400/40",
         colored &&
           !isSelected &&
           !isMatched &&
-          "hover:[border-color:rgba(var(--badge-rgb),0.6)] focus-visible:[border-color:rgba(var(--badge-rgb),0.6)]",
+          "hover-hover:[border-color:rgba(var(--badge-rgb),0.6)] focus-visible:[border-color:rgba(var(--badge-rgb),0.6)]",
       )}
       style={style}
       aria-label={`Filter by ${name}`}

@@ -90,7 +90,7 @@ const LinkDropdownItem = ({ link, onSelect }: DropdownItemProps) => {
       <button
         type="button"
         className={clsx(
-          "flex items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover:bg-slate-50 hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer w-full text-left",
+          "flex items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover-hover:bg-slate-50 hover-hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer w-full text-left",
           link.className,
         )}
         aria-label={ariaLabel}
@@ -132,7 +132,7 @@ export const ContactDropdown = () => {
         <DropdownMenu.Trigger asChild>
           <button
             type="button"
-            className="rounded-md p-2.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Contact options"
             aria-haspopup="menu"
             aria-expanded={isOpen}
@@ -152,7 +152,7 @@ export const ContactDropdown = () => {
               <button
                 type="button"
                 onClick={openContactDialog}
-                className="flex w-full items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover:bg-slate-50 hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer"
+                className="flex w-full items-center gap-3 px-4 py-2 text-slate-700 outline-none transition-colors hover-hover:bg-slate-50 hover-hover:text-klein focus:bg-slate-100 focus:text-klein cursor-pointer"
                 aria-label="Open contact form"
                 role="menuitem"
               >

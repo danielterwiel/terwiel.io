@@ -158,6 +158,19 @@ export default {
   },
   plugins: [
     require("@tailwindcss/typography"),
+    // Custom hover-hover: variant for hover styles that should only apply on hover-capable devices
+    // This prevents hover states from triggering on touch devices (mobile/tablet)
+    ({
+      addVariant,
+    }: {
+      addVariant: (name: string, definition: string) => void;
+    }) => {
+      addVariant("hover-hover", "@media (hover: hover) { &:hover }");
+      addVariant(
+        "group-hover-hover",
+        "@media (hover: hover) { :merge(.group):hover & }",
+      );
+    },
     ({
       addComponents,
       theme,

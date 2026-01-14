@@ -9,38 +9,6 @@
     background-color: white;
   }
 
-  /* ASCII Clouds Background - Subtle thinking sky pattern */
-  body::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    pointer-events: none;
-    opacity: 0.025; /* VERY subtle - like whispering clouds */
-    z-index: -1;
-    /* ASCII cloud pattern using inline SVG data URI */
-    /* Uses monospace font for authentic ASCII art look */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Cstyle%3Etext %7B font-family: 'Courier New', Courier, monospace; font-size: 12px; fill: %23002FA7; %7D%3C/style%3E%3Ctext x='20' y='40'%3E .-~~~-. %3C/text%3E%3Ctext x='20' y='55'%3E( o o )%3C/text%3E%3Ctext x='20' y='70'%3E `~V~' %3C/text%3E%3Ctext x='200' y='80'%3E ___ ___ %3C/text%3E%3Ctext x='200' y='95'%3E( )( )%3C/text%3E%3Ctext x='200' y='110'%3E \\_/ \\_/ %3C/text%3E%3Ctext x='280' y='160'%3E .-~~~-. %3C/text%3E%3Ctext x='280' y='175'%3E( ^ ^ )%3C/text%3E%3Ctext x='280' y='190'%3E `~U~' %3C/text%3E%3Ctext x='60' y='200'%3E ___ %3C/text%3E%3Ctext x='60' y='215'%3E ( )%3C/text%3E%3Ctext x='60' y='230'%3E \\_/ %3C/text%3E%3Ctext x='160' y='250'%3E .-~~~-. %3C/text%3E%3Ctext x='160' y='265'%3E( ' ' )%3C/text%3E%3Ctext x='160' y='280'%3E `~~~' %3C/text%3E%3C/svg%3E");
-    background-size: 400px 300px;
-    background-repeat: repeat;
-  }
-
-  /* Respect reduced motion - disable clouds if user prefers no animations/decorations */
-  @media (prefers-reduced-motion: reduce) {
-    body::before {
-      opacity: 0;
-    }
-  }
-
-  /* Hide clouds in print mode */
-  @media print {
-    body::before {
-      display: none;
-    }
-  }
-
   html {
     /* Prevent header movement on overscroll/bounce */
     overscroll-behavior: none;
@@ -124,8 +92,11 @@
     border-radius: 4px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: oklch(37.85% 0.1954 263.23 / 0.7);
+  /* Only apply hover styles on devices that support hover (not touch) */
+  @media (hover: hover) {
+    ::-webkit-scrollbar-thumb:hover {
+      background: oklch(37.85% 0.1954 263.23 / 0.7);
+    }
   }
 }
 
@@ -246,23 +217,27 @@
 
   /* Magnetic hover creates illusion of being "pulled" toward cursor */
   /* Use drop-shadow instead of box-shadow to properly respect border-radius */
-  /* Mobile-first: reduced glow on mobile (8px blur) */
-  .magnetic-base:hover:not(.magnetic-selected) {
-    transform: scale(1);
-    filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+  /* Only apply on devices that support hover (not touch) */
+  @media (hover: hover) {
+    /* Mobile-first: reduced glow on mobile (8px blur) */
+    .magnetic-base:hover:not(.magnetic-selected) {
+      transform: scale(1);
+      filter: drop-shadow(0 2px 8px oklch(37.85% 0.1954 263.23 / 0.25));
+    }
+
+    /* Input-specific hover styling */
+    .magnetic-input:hover:not(.magnetic-selected) {
+      border-color: oklch(37.85% 0.1954 263.23 / 0.4);
+    }
   }
 
   /* Desktop: apply scale effect and larger glow on md breakpoint and larger */
-  @media (min-width: 768px) {
+  /* Requires both hover capability and sufficient screen width */
+  @media (hover: hover) and (min-width: 768px) {
     .magnetic-base:hover:not(.magnetic-selected) {
       transform: scale(1.05);
       filter: drop-shadow(0 12px 32px oklch(37.85% 0.1954 263.23 / 0.35));
     }
-  }
-
-  /* Input-specific hover styling */
-  .magnetic-input:hover:not(.magnetic-selected) {
-    border-color: oklch(37.85% 0.1954 263.23 / 0.4);
   }
 
   /* Respect reduced motion */

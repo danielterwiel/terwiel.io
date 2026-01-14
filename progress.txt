@@ -312,3 +312,47 @@
 - Knip passes (no unused code)
 - Lint passes
 - All buttons and interactive elements now meet 44x44px minimum touch target
+
+## 2026-01-14: Hover States for Hover-Capable Devices Only
+
+### Task: Part 6 - Mobile-First Approach (Hover Media Query)
+
+### Changes Made:
+
+**Tailwind Config (`tailwind.config.ts`)**:
+- Added custom `hover-hover:` variant that wraps hover styles in `@media (hover: hover)`
+- Added custom `group-hover-hover:` variant for group hover interactions
+- These variants only apply hover styles on devices that support hover (mouse/trackpad), not touch devices
+
+**CSS (`src/styles/globals.css`)**:
+- Wrapped scrollbar thumb `:hover` in `@media (hover: hover)` (line 95-100)
+- Wrapped `.magnetic-base:hover` styles in `@media (hover: hover)` (line 221-232)
+- Wrapped `.magnetic-input:hover` in `@media (hover: hover)` (line 228-231)
+- Combined desktop breakpoint with hover capability: `@media (hover: hover) and (min-width: 768px)` (line 236-241)
+
+**Components Updated** (hover: → hover-hover:, group-hover: → group-hover-hover:):
+- `src/components/badge.tsx`: Icon color, text decoration, border color hover effects
+- `src/components/search-input.tsx`: Search icon and clear button hover effects
+- `src/components/contact-dialog.tsx`: Close button, submit button shadow, cancel button hover effects
+- `src/components/contact-dropdown.tsx`: Trigger button and menu item hover effects
+- `src/components/project.tsx`: Company link and external link icon hover effects
+- `src/components/header.tsx`: Logo, PDF download, and search button hover effects (mobile + desktop + fallback)
+
+### Implementation Details:
+- Mobile devices trigger `:hover` on first tap, causing unwanted visual feedback
+- `@media (hover: hover)` only applies styles when the device has a hover-capable pointing device
+- Touch-only devices (phones, tablets) skip these hover styles entirely
+- Focus states (`focus-visible:`) are preserved for keyboard navigation accessibility
+- Active states (`group-active:`) are preserved for touch feedback on project links
+
+### Rationale:
+- WCAG 2.2 Mobile-First best practice: "Avoid hover states on touch devices"
+- Improves mobile UX by preventing sticky/stuck hover states after tapping
+- Maintains visual feedback on desktop where hover is expected behavior
+- Focus states still work for keyboard users on all devices
+
+### Result:
+- Knip passes (no unused code)
+- Lint passes
+- Part 6 Mobile-First Approach officially marked as COMPLETED in PRD
+- All hover styles now only activate on hover-capable devices

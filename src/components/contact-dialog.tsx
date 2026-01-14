@@ -40,7 +40,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
         <button
           type="button"
           onClick={closeDialog}
-          className="rounded-md p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+          className="rounded-md p-1 text-slate-500 transition-colors hover-hover:bg-slate-100 hover-hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
           aria-label="Close dialog"
         >
           <Icon.X className="h-6 w-6" />
@@ -169,7 +169,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
               <Form.Submit asChild>
                 <button
                   type="submit"
-                  className="flex-1 relative flex h-10 items-center justify-center rounded-lg bg-klein font-medium text-white shadow-lg transition-all duration-200 hover:shadow-xl hover:shadow-klein/30 focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 relative flex h-10 items-center justify-center rounded-lg bg-klein font-medium text-white shadow-lg transition-all duration-200 hover-hover:shadow-xl hover-hover:shadow-klein/30 focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={state.submitting}
                 >
                   <span className="relative">
@@ -180,7 +180,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
               <button
                 type="button"
                 onClick={closeDialog}
-                className="flex-1 relative flex h-10 items-center justify-center rounded-lg border border-slate-300 font-medium text-slate-900 transition-colors hover:bg-slate-50 focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:outline-none"
+                className="flex-1 relative flex h-10 items-center justify-center rounded-lg border border-slate-300 font-medium text-slate-900 transition-colors hover-hover:bg-slate-50 focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:outline-none"
               >
                 Cancel
               </button>

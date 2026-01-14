@@ -316,7 +316,7 @@ const HeaderContent = () => {
         <div className="flex items-center justify-start">
           <Link
             href="/"
-            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+            className="flex items-center justify-center cursor-pointer transition-opacity hover-hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
             aria-label="Go to home"
           >
             <DtfdLogo className="h-12 w-12 text-klein" />
@@ -338,7 +338,7 @@ const HeaderContent = () => {
           <a
             href="/daniel-terwiel-resume.pdf"
             download="daniel-terwiel-resume.pdf"
-            className="rounded-md p-2.5 hidden sm:inline text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            className="rounded-md p-2.5 hidden sm:inline text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download PDF resume"
           >
             <Icon.FileCv className="h-6 w-6" />
@@ -350,7 +350,7 @@ const HeaderContent = () => {
             type="button"
             onMouseDown={handleSearchButtonMouseDown}
             onClick={handleSearchIconClick}
-            className="rounded-md p-2.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label={searchButtonLabel}
           >
             <Icon.Search className="h-6 w-6" />
@@ -365,7 +365,7 @@ const HeaderContent = () => {
         <div className="flex items-center justify-start">
           <Link
             href="/"
-            className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+            className="flex items-center justify-center cursor-pointer transition-opacity hover-hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
             aria-label="Go to home"
           >
             <DtfdLogo className="h-14 w-14 text-klein" />
@@ -414,7 +414,7 @@ const HeaderContent = () => {
           <a
             href="/daniel-terwiel-resume.pdf"
             download="daniel-terwiel-resume.pdf"
-            className="rounded-md p-2.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download PDF resume"
           >
             <Icon.FileCv className="h-6 w-6" />
@@ -426,7 +426,7 @@ const HeaderContent = () => {
             type="button"
             onMouseDown={handleSearchButtonMouseDown}
             onClick={handleSearchIconClick}
-            className="rounded-md p-2.5 text-slate-600 transition-colors hover:bg-slate-100 hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
+            className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label={searchButtonLabel}
           >
             <Icon.Search className="h-6 w-6" />
@@ -446,7 +446,7 @@ export const Header = () => {
             <div className="flex items-center justify-start">
               <Link
                 href="/"
-                className="flex items-center justify-center cursor-pointer transition-opacity hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
+                className="flex items-center justify-center cursor-pointer transition-opacity hover-hover:opacity-70 focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 rounded"
                 aria-label="Go to home"
               >
                 <DtfdLogo className="h-8 w-8 text-klein md:h-10 md:w-10" />
