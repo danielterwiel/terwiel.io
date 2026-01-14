@@ -170,3 +170,28 @@
 - TypeScript type checks pass
 - Knip passes (no unused code)
 - All interactive elements have WCAG-compliant focus indicators
+
+## 2026-01-14: Accessibility - Expanded Skip Links
+
+### Task: Part 5 - Accessibility (WCAG 2.2 SC 2.4.1 - Bypass Blocks)
+
+### Changes Made:
+- `src/components/stack-cloud/stack-cloud.tsx`: Added `id="stack"` to main container
+- `src/components/skip-links.tsx`: Added "Skip to stack" link before existing "Skip to projects" link
+
+### Implementation Details:
+- Skip links now provide two navigation targets: Stack and Projects
+- Stack section is the main visualization area on the left side of the page
+- Projects section is the project list on the right side
+- Both links are visually hidden but appear on keyboard focus
+- Links are in logical order (Stack appears first in DOM, Projects second)
+
+### Accessibility:
+- Complies with WCAG 2.2 SC 2.4.1 (Bypass Blocks) - Level A
+- Keyboard users can now quickly navigate to either main content section
+- Skip links appear in natural reading order (left to right content flow)
+
+### Result:
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- Skip navigation now covers both main content areas

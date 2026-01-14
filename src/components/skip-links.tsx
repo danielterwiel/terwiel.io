@@ -17,6 +17,9 @@
 export const SkipLinks = () => {
   return (
     <nav aria-label="Skip navigation links" className="skip-links-container">
+      <a href="#stack" className="skip-link">
+        Skip to stack
+      </a>
       <a href="#projects" className="skip-link">
         Skip to projects
       </a>

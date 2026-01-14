@@ -54,7 +54,7 @@ export function StackCloud() {
   }, [contentLoaded, mounted]);
 
   return (
-    <div className="flex flex-col h-full md:h-full">
+    <div id="stack" className="flex flex-col h-full md:h-full">
       <h2 className="pb-6 md:pb-0 text-2xl font-bold md:text-center md:pt-10 hidden md:block landscape-mobile:hidden">
         Stack
       </h2>
