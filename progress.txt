@@ -65,3 +65,77 @@
 - TypeScript type checks pass
 - Knip passes (no unused code)
 - Screen readers now announce project filtering results
+
+## 2026-01-14: Project Display Simplification
+
+### Task: Part 2 - Project Display (Make It Simple!)
+
+### Changes Made:
+- `src/components/projects.tsx`: Removed View Transitions API
+  - Removed `flushSync` import from react-dom
+  - Removed `ViewTransition` ref tracking
+  - Removed Safari macOS browser detection
+  - Removed `startViewTransition()` API usage
+  - Simplified to direct state updates with CSS animations
+- `src/components/project.tsx`: Removed view-transition-name
+  - Removed `--vt-project-name` CSS custom property
+  - Added `.project-enter` and `.project-stay` CSS classes based on state
+- `src/styles/globals.css`: Simplified animation CSS
+  - Removed 200+ lines of `::view-transition-*` pseudo-element selectors
+  - Removed hardcoded selectors for PROJECT_0 through PROJECT_10
+  - Removed old keyframes (vt-project-exit-old, vt-project-enter-new, etc.)
+  - Removed view-transition-name from header
+  - Added simple `@keyframes project-fade-in-up` and `@keyframes project-pulse`
+  - Simplified `.project-item` styles to just base + enter/stay animations
+  - Simplified `.empty-state-container` to simple fade transition
+  - Updated reduced-motion preferences for new animation classes
+
+### Rationale:
+- View Transitions API caused Safari-specific bugs requiring browser detection hacks
+- Complex z-index management (z-19 to z-22) was hard to maintain
+- 200+ lines of hardcoded CSS selectors for each project was not scalable
+- Simple CSS animations work everywhere without browser-specific workarounds
+
+### New Animation System:
+- `.project-enter`: Fade in + translateY(20px) animation, staggered by index (50ms per item)
+- `.project-stay`: Subtle scale pulse (1 → 1.02 → 1) to indicate item remains
+- Both respect `prefers-reduced-motion: reduce`
+
+### Result:
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- Build succeeds
+- CSS reduced from ~1070 lines to ~625 lines
+- No more Safari-specific hacks needed
+- Simpler, more maintainable animation system
+
+## 2026-01-14: Accessibility - ARIA Hidden for Decorative SVG Elements
+
+### Task: Part 5 - Accessibility (WCAG 2.2 SC 1.1.1 - Non-text Content)
+
+### Changes Made:
+- `src/components/stack-cloud/stack-node.tsx`: Added `aria-hidden="true"` to decorative SVG elements
+- `src/components/stack-cloud/root-node-experience.tsx`: Added `aria-hidden="true"` to decorative icon containers
+
+### Implementation Details:
+- Stack node SVG elements marked as decorative:
+  - Main node circle (line 203-211)
+  - Inner fill circle for selected state (line 215-222)
+  - Focus ring circle (line 225-232)
+  - Icon group (line 236-251)
+- Root node experience icons marked as decorative:
+  - Default mode chart pie icon (line 120-133)
+  - Stack mode technology icon (line 149-169)
+  - Domain mode domain icon (line 190-210)
+
+### Rationale:
+- These visual elements are decorative - the semantic meaning is provided by:
+  - Parent `<g>` with `aria-label` for stack nodes
+  - Adjacent text labels for experience icons
+- Screen readers should skip decorative elements to avoid verbose/confusing output
+- Follows WCAG 2.2 best practice: "Decorative images should have empty alt or aria-hidden"
+
+### Result:
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- Screen readers will skip decorative SVG elements, providing cleaner navigation

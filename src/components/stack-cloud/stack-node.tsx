@@ -199,7 +199,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
         contain: "paint",
       }}
     >
-      {/* Main node circle */}
+      {/* Main node circle - decorative, parent g has aria-label */}
       <circle
         className={circleClasses}
         r={nodeRadius}
@@ -207,6 +207,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
         stroke={borderColor}
         strokeWidth={borderWidth}
         shapeRendering="geometricPrecision"
+        aria-hidden="true"
       />
 
       {/* Inner fill for selected state - subtle background tint for multi-modal feedback */}
@@ -216,19 +217,21 @@ const StackNodeComponent = (props: StackNodeProps) => {
           fill={borderColor}
           opacity={0.15}
           style={{ pointerEvents: "none" }}
+          aria-hidden="true"
         />
       )}
 
-      {/* Focus ring - visible only on keyboard focus */}
+      {/* Focus ring - visible only on keyboard focus, decorative */}
       <circle
         className={focusRingClasses}
         r={nodeRadius + 4}
         fill="none"
         stroke={focusColor}
         strokeWidth={3}
+        aria-hidden="true"
       />
 
-      {/* Icon */}
+      {/* Icon - decorative, parent g has aria-label */}
       {IconComponent && (
         <g
           className={iconClasses}
@@ -241,6 +244,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
                 : "none",
           }}
           opacity={iconStyle.opacity}
+          aria-hidden="true"
         >
           <IconComponent width={24} height={24} viewBox="0 0 24 24" />
         </g>

@@ -123,6 +123,7 @@ export function RootNodeExperience({
                   height: iconSize,
                   color,
                 }}
+                aria-hidden="true"
               >
                 <Icon.ChartPie
                   width={iconSize}
@@ -151,6 +152,7 @@ export function RootNodeExperience({
                     height: iconSize,
                     color,
                   }}
+                  aria-hidden="true"
                 >
                   {(() => {
                     const IconComponent =
@@ -191,6 +193,7 @@ export function RootNodeExperience({
                       height: iconSize,
                       color,
                     }}
+                    aria-hidden="true"
                   >
                     {(() => {
                       const IconComponent =

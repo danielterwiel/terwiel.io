@@ -54,45 +54,23 @@ I want the website to:
 
 **Ralph's Pick**: **Option A (Chart.js)** or **Option C (Custom Canvas)** - Chart.js if we want pretty out-of-box, Custom if we want ultimate zoom zoom!
 
-### Part 2: Project Display (Make It Simple!)
+### Part 2: Project Display (Make It Simple!) ✅ DONE
 
-**Current Complexity**:
-- View Transitions API
-- State diffing (diffProjectStates)
-- Complex z-index management (z-19 to z-22)
-- Safari-specific hacks
-- Intersection observers
+**Changes Made**:
+- Removed View Transitions API from `projects.tsx` (no more `flushSync`, `startViewTransition`, or `ViewTransition` refs)
+- Removed Safari-specific browser detection hacks
+- Removed `view-transition-name` CSS custom property from `project.tsx`
+- Replaced 200+ lines of `::view-transition-*` CSS selectors with simple animations
+- Simplified to just two CSS animation classes: `.project-enter` and `.project-stay`
+- Removed complex z-index management (z-19 to z-22) in favor of natural stacking
+- Kept `diffProjectStates` utility for determining enter/stay states
+- Added screen reader announcement for filter results (WCAG 2.2 SC 4.1.3)
 
-**New Approach - The Ralph Way (Keep It Simple, Silly!)**:
-
-```tsx
-// Instead of complex view transitions, use simple CSS animations!
-// The browser is smart! Let it do the work!
-
-const ProjectsList = () => {
-  const projects = useFilteredProjects(); // One source of truth!
-
-  return (
-    <div className="projects-grid">
-      {projects.map((project) => (
-        <ProjectCard
-          key={project.id}
-          project={project}
-          // Simple fade-in animation with CSS
-          className="animate-fade-in"
-        />
-      ))}
-    </div>
-  );
-};
-```
-
-**Key Simplifications**:
-1. Remove view transitions API (use CSS `@keyframes` instead - supported everywhere!)
-2. Remove z-index complexity (natural stacking with flexbox/grid)
-3. Remove Safari-specific hacks (test on Safari, fix only what breaks)
-4. Use CSS Grid with `auto-fit` for responsive layout (mobile-first!)
-5. Simple fade/slide animations with `transform` and `opacity` (GPU-accelerated!)
+**New Simple Approach**:
+- `project-enter`: Fade in with subtle upward movement, staggered by item index
+- `project-stay`: Subtle pulse animation for items that remain visible
+- Works on all browsers without Safari-specific hacks
+- Respects `prefers-reduced-motion` for accessibility
 
 ### Part 3: URL/History Management Fix (The Big Bug!) ✅ DONE
 
@@ -165,6 +143,7 @@ body::before {
 
 **Progress:**
 - ✅ Live Regions - Project filtering announcements implemented
+- ✅ ARIA Hidden - Decorative SVG elements marked for screen readers
 
 **Critical Requirements** (From my research! I'm so smart!):
 
