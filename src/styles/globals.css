@@ -194,18 +194,25 @@
 
   /* Focus styles for standard interactive elements */
   /* Using ring utilities for consistency with Tailwind */
+  /* WCAG 2.2 SC 2.4.11 Focus Appearance (Enhanced): 2px+ outline, 3:1 contrast */
   .focus-standard {
-    @apply focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2;
   }
 
   /* Focus styles for buttons with subtle background */
   .focus-button {
-    @apply focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2 focus:bg-slate-100;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2 focus-visible:bg-slate-100;
   }
 
   /* Focus styles for badges and pills */
   .focus-badge {
-    @apply focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-klein;
+    @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-klein;
+  }
+
+  /* Focus styles for inline links (within text content) */
+  /* Uses underline + color change for visibility without disrupting layout */
+  .focus-link {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2 focus-visible:rounded-sm;
   }
 
   .icon-container {

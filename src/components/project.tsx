@@ -76,7 +76,7 @@ export const Project = ({
                   href={project.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1 hover:text-inherit"
+                  className="group inline-flex items-center gap-1 hover:text-inherit focus-link"
                 >
                   <HighlightedText>{project.company}</HighlightedText>
                   <Icon.ExternalLink

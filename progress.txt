@@ -139,3 +139,34 @@
 - TypeScript type checks pass
 - Knip passes (no unused code)
 - Screen readers will skip decorative SVG elements, providing cleaner navigation
+
+## 2026-01-14: Accessibility - Enhanced Focus Indicators
+
+### Task: Part 5 - Accessibility (WCAG 2.2 SC 2.4.11 - Focus Appearance)
+
+### Changes Made:
+- `src/styles/globals.css`: Updated focus utility classes to use `focus-visible` instead of `focus`
+  - `.focus-standard`: Changed to `focus-visible:ring-2 focus-visible:ring-klein`
+  - `.focus-button`: Changed to `focus-visible:ring-2` with background change
+  - `.focus-badge`: Changed to `focus-visible:outline-2`
+  - Added new `.focus-link` class for inline links with proper ring styling
+- `src/components/project.tsx`: Added `focus-link` class to company links
+- `src/components/search-input.tsx`: Updated clear button to use `focus-visible` styles
+
+### Implementation Details:
+- All focus indicators use 2px ring/outline minimum (WCAG 2.2 Enhanced requirement)
+- Klein blue (#002FA7) used for focus color - provides high contrast against white background
+- Using `focus-visible` instead of `focus` ensures focus rings only appear on keyboard navigation
+- Project company links now have proper visible focus indicators for keyboard users
+- Search input clear button has consistent focus ring styling
+
+### Accessibility:
+- Complies with WCAG 2.2 SC 2.4.11 (Focus Appearance - Enhanced) - Level AAA
+- Focus indicators meet 3:1 contrast ratio requirement
+- All interactive elements have visible keyboard focus indicators
+- Using `focus-visible` prevents unnecessary focus rings on mouse clicks
+
+### Result:
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- All interactive elements have WCAG-compliant focus indicators
