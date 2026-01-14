@@ -200,6 +200,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       }}
     >
       {/* Main node circle - decorative, parent g has aria-label */}
+      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: Child SVG elements are not focusable, only parent g is */}
       <circle
         className={circleClasses}
         r={nodeRadius}
@@ -212,6 +213,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
       {/* Inner fill for selected state - subtle background tint for multi-modal feedback */}
       {isSelected && a11y.shouldShowSelectionIndicator && (
+        // biome-ignore lint/a11y/noAriaHiddenOnFocusable: Child SVG elements are not focusable, only parent g is
         <circle
           r={nodeRadius * 0.88}
           fill={borderColor}
@@ -222,6 +224,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       )}
 
       {/* Focus ring - visible only on keyboard focus, decorative */}
+      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: Child SVG elements are not focusable, only parent g is */}
       <circle
         className={focusRingClasses}
         r={nodeRadius + 4}
@@ -233,6 +236,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
       {/* Icon - decorative, parent g has aria-label */}
       {IconComponent && (
+        // biome-ignore lint/a11y/noAriaHiddenOnFocusable: Child SVG elements are not focusable, only parent g is
         <g
           className={iconClasses}
           transform={`translate(${-iconSize / 2},${-iconSize / 2}) scale(${iconScale})`}

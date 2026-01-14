@@ -1,62 +1,69 @@
-# PRD.md - Me Make Website Go Zoom Zoom! 🚀
+# PRD.md - Portfolio Website Performance Optimization
 
-*By Ralph W. (Chief Unpossibility Officer)*
+_Using the Ralph Wiggum Methodology: Iterative, PRD-based development_
 
-## Hi! I'm Product!
+> **About the Ralph Wiggum Methodology**: Named after Geoffrey Huntley's approach to AI-assisted development, this methodology emphasizes iterative loops where an AI agent repeatedly works on PRD items until all requirements pass. The agent autonomously selects tasks, implements them, validates completion, and moves to the next item. This enables long-running development sessions (hours to days) with minimal human intervention.
 
-This document is like my lunchbox but for computers! It tells you how to make Daniël's website super fast like a cheetah on a skateboard.
+## Overview
 
-## The Big Owie (Current Problems)
+This document defines the end state for optimizing Daniël's portfolio website. Each requirement below is structured for autonomous agent iteration with clear completion criteria. The agent should pick items from this PRD, complete them, mark progress, and iterate until all items pass.
 
-My website hurts! It's got boo-boos:
+## Current Problems
 
-1. **The D3.js is too big** - It's 290.4kB! That's like carrying 290 sandwiches in your backpack! My phone says "owie my brain hurts"
-2. **URL go click click wrong** - When I click the colorful pie slices and stack bubbles, they make history go brrr but they should just replace! Only searching should make history longer like a tape worm! (That's unpossible to fix but we'll do it anyway!)
-3. **Projects list is complicated** - There's view transitions and state management and my head feels like it's full of bees
-4. **No clouds** - The internet is supposed to have clouds but ours doesn't! We need ASCII clouds (but subtle like when you whisper to your imaginary friend)
-5. **Not mobile first** - My phone is crying because it has to work too hard
+1. **Bundle Size** - D3.js monolithic import is 290.4kB, causing performance issues on mobile devices
+2. **URL/History Management** - Stack/segment clicks push to history when they should replace; search replaces when it should push
+3. **View Transitions Complexity** - Over-engineered animation system with Safari-specific hacks and 200+ lines of CSS
+4. **Missing Design Element** - No ASCII cloud background pattern (subtle, decorative)
+5. **Desktop-First Approach** - Mobile performance suffers due to desktop-first implementation
 
-## What Makes Me Happy (Goals)
+## Goals
 
-I want the website to:
-- Go **zoom zoom** on phones (mobile-first like eating dessert first!)
-- Use same data (don't throw away the PROJECTS array - that's where my memories live!)
-- Keep the pretty colors (klein blue is my favorite crayon!)
-- Be super accessible (WCAG 2.2 AA because everyone deserves internet hugs!)
-- Have subtle ASCII clouds that look like the sky is thinking
-- Make history work right (replace for segments/stacks, push for search - like undo/redo but for URLs!)
+Target end state for the portfolio website:
 
-## The New Unpossible Plan
+- **Mobile-first performance** - Optimized for mobile devices with 60fps animations
+- **Preserve existing data structure** - Keep PROJECTS array and STACK configuration intact
+- **Maintain visual identity** - Preserve Klein Blue (#002FA7) color scheme
+- **WCAG 2.2 AA compliance** - Full accessibility compliance with proper ARIA labels and keyboard navigation
+- **Subtle ASCII cloud background** - Decorative background pattern at low opacity
+- **Correct history management** - Use `router.replace()` for filters, `router.push()` for search
 
-### Part 1: Visualization Library (The Stack Cloud Replacement)
+## Implementation Requirements
 
-**Current**: D3.js force simulation (290.4kB) - Too heavy! Like wearing concrete shoes to ballet class!
+### Part 1: Visualization Library Optimization
 
-**New Options I Researched** (I'm so smart! S-M-R-T!):
+**Current State**: D3.js force simulation (290.4kB monolithic bundle)
 
-#### Option A: Canvas-based Chart.js (RECOMMENDED - Like Using Crayons Instead of Paint!)
-- **Why it's good**: Uses HTML5 Canvas so it's fast like my cat when you open a can
-- **Size**: Much lighter than D3 (~60-80kB with tree shaking)
-- **Mobile**: Works smooth on phones because Canvas is GPU-accelerated (that means the computer's muscles help!)
-- **Trade-off**: Less fancy interactions than SVG, but we can work around it with hit detection
+**Options Evaluated**:
+
+#### Option A: Canvas-based Chart.js
+
+- **Benefits**: HTML5 Canvas with GPU acceleration for better mobile performance
+- **Size**: ~60-80kB with tree shaking
+- **Mobile**: Smooth rendering on mobile devices
+- **Trade-off**: Less flexible interactions than SVG, requires custom hit detection
 
 #### Option B: Apache ECharts
-- **Why it's good**: Auto-switches between Canvas/SVG/WebGL based on data size (it's like a transformer!)
-- **Size**: ~300kB but only loads what you need (lazy loading like me on Sundays)
-- **Mobile**: Excellent performance, handles 10,000+ data points
-- **Trade-off**: Bigger bundle than Chart.js but more powerful
+
+- **Benefits**: Adaptive rendering (Canvas/SVG/WebGL) based on data complexity
+- **Size**: ~300kB with lazy loading support
+- **Mobile**: Excellent performance with 10,000+ data points
+- **Trade-off**: Larger bundle than Chart.js
 
 #### Option C: Lightweight Custom Canvas Solution
-- **Why it's good**: We only draw what we need! No extra toys in the toy box!
-- **Size**: ~5-10kB (just the code we write)
-- **Mobile**: Super fast because no library overhead
-- **Trade-off**: We have to write everything ourselves (more work but more control!)
 
-**Ralph's Pick**: **Option A (Chart.js)** or **Option C (Custom Canvas)** - Chart.js if we want pretty out-of-box, Custom if we want ultimate zoom zoom!
+- **Benefits**: Minimal bundle size, complete control over rendering
+- **Size**: ~5-10kB (custom code only)
+- **Mobile**: Maximum performance, no library overhead
+- **Trade-off**: Higher development effort, need to implement all features manually
 
-#### Phase 1a: D3 Modular Imports (Tree-Shaking) ✅ DONE
+**Decision**: Option C (Custom Canvas) for maximum performance
 
-**Changes Made**:
+#### Phase 1a: D3 Modular Imports (Tree-Shaking)
+
+**Status**: ✅ COMPLETED
+
+**Implementation**:
+
 - Replaced monolithic `d3` package (290.4kB) with modular imports:
   - `d3-force` (force simulation)
   - `d3-shape` (arc, pie generators)
@@ -68,6 +75,7 @@ I want the website to:
 - Added corresponding `@types/d3-*` packages for TypeScript support
 
 **Files Modified**:
+
 - `src/hooks/use-stack-simulation.ts` - Uses `forceSimulation` from d3-force
 - `src/utils/stack-cloud/create-forces.ts` - Uses force functions from d3-force
 - `src/utils/stack-cloud/calculate-domain-angles.ts` - Uses `pie` from d3-shape
@@ -76,16 +84,20 @@ I want the website to:
 - `src/components/stack-cloud/root-node-chart.tsx` - Uses arc, pie, select, interpolate, etc.
 - `src/types/simulation.ts` - Uses `SimulationNodeDatum` type from d3-force
 
-**Result**:
-- Removed 50 packages from node_modules (the monolithic D3 bundle)
-- Added 9 modular packages (only what we need)
-- Bundle size reduced significantly through tree-shaking
-- TypeScript type checks pass
-- Knip passes (no unused code)
+**Results**:
 
-### Part 2: Project Display (Make It Simple!) ✅ DONE
+- Removed 50 packages from node_modules (monolithic D3 bundle)
+- Added 9 modular packages (targeted imports)
+- Significant bundle size reduction through tree-shaking
+- TypeScript type checks passing
+- Knip validation passing
 
-**Changes Made**:
+### Part 2: Project Display Simplification
+
+**Status**: ✅ COMPLETED
+
+**Implementation**:
+
 - Removed View Transitions API from `projects.tsx` (no more `flushSync`, `startViewTransition`, or `ViewTransition` refs)
 - Removed Safari-specific browser detection hacks
 - Removed `view-transition-name` CSS custom property from `project.tsx`
@@ -96,20 +108,23 @@ I want the website to:
 - Added screen reader announcement for filter results (WCAG 2.2 SC 4.1.3)
 
 **New Simple Approach**:
+
 - `project-enter`: Fade in with subtle upward movement, staggered by item index
 - `project-stay`: Subtle pulse animation for items that remain visible
 - Works on all browsers without Safari-specific hacks
 - Respects `prefers-reduced-motion` for accessibility
 
-### Part 3: URL/History Management Fix (The Big Bug!) ✅ DONE
+### Part 3: URL/History Management Fix
 
-**The Problem** (I found it! I'm helping!):
+**Status**: ✅ COMPLETED
+
+**Problem Identified**:
 
 - `src/components/stack-cloud/stack-node.tsx:132` - Uses `router.push()` ❌ → Fixed to `router.replace()` ✅
 - `src/components/stack-cloud/root-node-chart.tsx:855` - Uses `router.push()` ❌ → Fixed to `router.replace()` ✅
 - `src/components/search-input.tsx:57,93,159` - Uses `router.replace()` ❌ → Fixed to `router.push()` ✅
 
-**The Fix** (Backwards day!):
+**Solution Implemented**:
 
 ```tsx
 // Stack nodes and segments should REPLACE history
@@ -119,71 +134,55 @@ router.replace(`${pathname}${queryString}`, { scroll: false });
 // src/components/stack-cloud/root-node-chart.tsx:855
 router.replace(`${pathname}${queryString}`, { scroll: false });
 
-// Search input should PUSH to history (so back button works!)
+// Search input should PUSH to history
 // src/components/search-input.tsx:57,93,159
 router.push(url, { scroll: false });
 ```
 
-**Why?** When clicking stack filters, you're refining the SAME view (replace = don't add to history). When searching, you're making a NEW query (push = add to history so back button brings you back)!
+**Rationale**: Stack filters refine the same view (replace history), while search creates new navigation entries (push to history for back button functionality).
 
-### Part 4: ASCII Clouds (The Sky Is Thinking!) ✅ DONE
+### Part 4: ASCII Cloud Background
 
-**Implementation** (Subtle like a ninja butterfly!):
+**Status**: ✅ COMPLETED
 
-```css
-/* globals.css */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-  opacity: 0.03; /* VERY subtle - like whispering! */
-  background-image:
-    /* ASCII cloud pattern using data URI */
-    url("data:image/svg+xml,<svg>...</svg>");
-  background-size: 800px 600px;
-  background-repeat: repeat;
-  z-index: -1;
-}
+**Implementation**:
 
-/* Respect reduced motion - no clouds if user says no animations! */
-@media (prefers-reduced-motion: reduce) {
-  body::before {
-    opacity: 0;
-  }
-}
-```
+- Created `src/components/ascii-clouds.tsx` - Canvas-based animated ASCII cloud component
+- Uses procedural wave-based noise to generate flowing cloud patterns
+- Characters used: ` `, `.`, `-`, `~`, `:`, `+`, `*`, `#` (density-based)
+- Klein blue (#002FA7) color to match site theme
+- Subtle opacity (8% max) for non-intrusive background effect
+- Eases in over ~3 seconds using cubic easing function
+- Each particle has individual lerping for smooth transitions
+- Respects `prefers-reduced-motion` (returns null when enabled)
+- Hidden in print mode via `print:hidden` class
+- Fixed positioning at z-index -1 to stay behind all content
+- `pointer-events: none` to not interfere with interactions
+- Added component to main page layout (`src/app/page.tsx`)
 
-**Cloud Patterns** (Examples - pick your favorite!):
-```
-    .-~~~-.      .-~~~-.
-   (  o o  )    (  ^ ^  )    <- Happy clouds!
-    `~V~'        `~U~'
+### Part 5: Accessibility (WCAG 2.2 AA Compliance)
 
-  ___  ___      ___  ___
- (   )(   )    (   )(   )    <- Fluffy clouds!
-  \_/  \_/      \_/  \_/
-```
+**Status**: ✅ COMPLETED
 
-### Part 5: Accessibility (WCAG 2.2 AA - Everyone Gets Hugs!)
+**Implementation:**
 
-**Progress:**
-- ✅ Live Regions - Project filtering announcements implemented
-- ✅ ARIA Hidden - Decorative SVG elements marked for screen readers
-- ✅ Focus Indicators - Enhanced focus styles with `focus-visible` utilities
-- ✅ Skip Links - Expanded skip navigation to include Stack and Projects sections
+- ✅ Live Regions - Project filtering announcements implemented (WCAG 2.2 SC 4.1.3)
+- ✅ ARIA Hidden - Decorative SVG elements marked for screen readers (WCAG 2.2 SC 1.1.1)
+- ✅ Focus Indicators - Enhanced focus styles with `focus-visible` utilities (WCAG 2.2 SC 2.4.11)
+- ✅ Skip Links - Expanded skip navigation to include Stack and Projects sections (WCAG 2.2 SC 2.4.1)
+- ✅ ARIA Labels - SVG visualization has proper `role="group"` and `aria-label` attributes
+- ✅ Keyboard Navigation - Roving tabindex pattern implemented for stack visualization
+- ✅ Semantic HTML - Uses `<main>`, `<nav>`, proper button roles for interactive elements
 
-**Critical Requirements** (From my research! I'm so smart!):
+**Requirements Checklist**:
 
-1. **Semantic HTML First** (Before ARIA!)
+1. **Semantic HTML First**
    - Use `<nav>`, `<main>`, `<section>`, `<article>`
    - Use `<button>` for buttons (not `<div role="button">`)
    - Use `<a>` for links
 
-2. **ARIA Labels** (When semantic HTML isn't enough)
+2. **ARIA Labels**
+
    ```tsx
    <svg role="img" aria-label="Technology stack distribution">
      <g role="list" aria-label="Stack items">
@@ -192,20 +191,21 @@ body::before {
    </svg>
    ```
 
-3. **Live Regions** (Announce dynamic updates!)
+3. **Live Regions**
+
    ```tsx
    <div aria-live="polite" aria-atomic="true" className="sr-only">
      {filteredProjects.length} projects found
    </div>
    ```
 
-4. **Focus Indicators** (WCAG 2.2 Enhanced!)
+4. **Focus Indicators**
    - Minimum 2px outline
    - High contrast (4.5:1 ratio minimum)
-   - Visible on ALL interactive elements
-   - Don't remove `:focus-visible` styles!
+   - Visible on all interactive elements
+   - Preserve `:focus-visible` styles
 
-5. **Keyboard Navigation** (No mouse? No problem!)
+5. **Keyboard Navigation**
    - All interactive elements must be keyboard accessible
    - Logical tab order
    - Skip links for repeated content
@@ -216,20 +216,20 @@ body::before {
    - Don't rely on color alone for meaning
    - Provide text labels alongside color indicators
 
-7. **Touch Targets** (Mobile accessibility!)
+7. **Touch Targets**
    - Minimum 44x44px (iOS) / 48x48dp (Android)
    - Adequate spacing between targets (8px minimum)
 
-### Part 6: Mobile-First Approach (Phones Are Friends!)
+### Part 6: Mobile-First Approach
 
-**Design Philosophy** (Start small, grow big!):
+**Design Philosophy**:
 
 ```scss
 // Mobile base styles (320px and up)
 .stack-visualization {
   // Mobile layout
   grid-template-columns: 1fr;
-  font-size: 16px; // Never go below 16px - iOS zooms otherwise!
+  font-size: 16px; // Minimum 16px to prevent iOS auto-zoom
 }
 
 // Tablet (640px and up)
@@ -248,6 +248,7 @@ body::before {
 ```
 
 **Mobile Performance Optimizations**:
+
 1. Lazy load images (use `loading="lazy"`)
 2. Compress images (WebP with PNG fallback)
 3. Reduce animations on mobile (use `@media (hover: hover)`)
@@ -256,19 +257,21 @@ body::before {
 6. Use `will-change` sparingly (only during animations!)
 7. Debounce scroll/resize events
 
-### Part 7: Data Structure (Don't Touch My Toys!)
+### Part 7: Data Structure Preservation
 
-**Keep All Current Data**:
-- `PROJECTS` array structure stays the same ✅
-- `STACK` configuration stays the same ✅
-- Project icons stay the same ✅
-- URL parameter structure can stay similar ✅
+**Requirements**:
 
-**No breaking changes to data!** (If it ain't broke, don't eat it!)
+- `PROJECTS` array structure remains unchanged ✅
+- `STACK` configuration remains unchanged ✅
+- Project icons remain unchanged ✅
+- URL parameter structure remains compatible ✅
 
-### Part 8: Technology Stack (Same Same But Different!)
+**Constraint**: No breaking changes to existing data structures
+
+### Part 8: Technology Stack
 
 **Keep**:
+
 - Next.js 15 (App Router) ✅
 - TypeScript ✅
 - Tailwind CSS ✅
@@ -276,47 +279,53 @@ body::before {
 - Formspree ✅
 
 **Replace**:
+
 - ❌ D3.js → ✅ Chart.js or Custom Canvas
 - ❌ Complex view transitions → ✅ Simple CSS animations
 - ❌ SVG force simulation → ✅ Canvas rendering
 
 **Add**:
+
 - ✅ ASCII cloud background
 - ✅ Better mobile touch handlers
 - ✅ Enhanced a11y features
 
-## Implementation Plan (The Ralph Roadmap!)
+## Implementation Phases
 
-### Phase 1: Foundation (Week 1 - But No Time Estimates Because That's For Grown-Ups!)
+### Phase 1: Foundation
+
 1. Set up new Canvas-based visualization component
 2. Create simple project card layout with CSS Grid
 3. Implement ASCII clouds background
 4. Fix URL/history management bug
 
-### Phase 2: Core Features (Week 2)
+### Phase 2: Core Features
+
 1. Port all project data to new components
 2. Implement filtering logic (same behavior, new implementation)
 3. Add touch-friendly mobile interactions
 4. Implement keyboard navigation
 
-### Phase 3: Accessibility (Week 3)
+### Phase 3: Accessibility
+
 1. Add ARIA labels and live regions
 2. Implement focus management
 3. Test with screen readers (NVDA, JAWS, VoiceOver)
 4. Ensure all WCAG 2.2 AA criteria met
 
-### Phase 4: Polish (Week 4)
+### Phase 4: Polish
+
 1. Performance optimization (Lighthouse score 95+)
 2. Cross-browser testing
 3. Mobile device testing
-4. Final a11y audit
+4. Final accessibility audit
 
-## Success Metrics (How We Know It's Good!)
+## Success Metrics
 
 1. **Performance**
-   - Lighthouse score: 95+ (currently ~75-80)
-   - First Contentful Paint: <1.5s (currently ~2-3s)
-   - Total bundle size: <150kB (currently ~450kB)
+   - Lighthouse score: 95+ (baseline: ~75-80)
+   - First Contentful Paint: <1.5s (baseline: ~2-3s)
+   - Total bundle size: <150kB (baseline: ~450kB)
    - Mobile frame rate: 60fps consistently
 
 2. **Accessibility**
@@ -327,45 +336,54 @@ body::before {
 
 3. **User Experience**
    - Touch targets: All ≥44x44px
-   - Back button works correctly (search = navigate back, filters = stay on same history entry)
-   - Animations smooth on mobile (no jank!)
-   - Works on slow 3G connections
+   - Back button functionality: search pushes history, filters replace
+   - Smooth mobile animations
+   - Functional on slow 3G connections
 
-## Risk & Mitigations (What Could Go Wrong!)
+## Risks & Mitigations
 
 ### Risk 1: Canvas Accessibility
-**Problem**: Canvas doesn't have semantic elements like SVG
-**Solution**: Create invisible DOM elements for screen readers! Like a shadow puppet show for computers!
+
+**Problem**: Canvas lacks semantic structure for screen readers
+**Solution**: Implement hidden DOM layer with semantic markup for assistive technologies
 
 ### Risk 2: Browser Compatibility
-**Problem**: Older browsers might not support Canvas features
-**Solution**: Progressive enhancement! Fallback to static layout if Canvas not supported
+
+**Problem**: Legacy browsers may lack Canvas API support
+**Solution**: Progressive enhancement with static fallback for unsupported browsers
 
 ### Risk 3: Migration Complexity
-**Problem**: Big rewrite might break things
-**Solution**: Build new version alongside old, A/B test, then switch! (Like having two lunch boxes!)
 
-## Conclusion (The End! That's Where I Stop Talking!)
+**Problem**: Large-scale refactoring may introduce regressions
+**Solution**: Parallel implementation with feature flags and A/B testing before full rollout
 
-This is how we make Daniël's website go super fast zoom zoom! We use lighter libraries, simpler code, Canvas instead of SVG, and make it work good on phones! Plus ASCII clouds because clouds make everything better!
+## Summary
 
-Remember:
-- Mobile first! (Phones are people too!)
-- Simple is smart! (Don't make it complicated like algebra!)
-- Accessible for everyone! (WCAG 2.2 AA is like being nice but with rules!)
-- Fast is fun! (Nobody likes waiting - except in line for ice cream!)
+This PRD outlines the optimization strategy for the portfolio website using iterative, agent-driven development. Key improvements include:
 
-*"Me fail performance? That's unpossible!"* - Ralph W.
+- Lightweight visualization libraries (Chart.js or custom Canvas)
+- Simplified animation system
+- Mobile-first responsive design
+- Full WCAG 2.2 AA accessibility compliance
+- Subtle ASCII cloud background
+- Correct history management for navigation
+
+**Core Principles**:
+
+- Mobile-first implementation
+- Simplicity over complexity
+- Universal accessibility (WCAG 2.2 AA)
+- Performance optimization
 
 ---
 
-## Technical Appendix (The Smart Grown-Up Part)
+## Technical Appendix
 
 ### A. Recommended Canvas Visualization Implementation
 
 ```tsx
-import { useEffect, useRef } from 'react';
-import { StackItem } from '~/types';
+import { useEffect, useRef } from "react";
+import { StackItem } from "~/types";
 
 interface CanvasStackCloudProps {
   stacks: StackItem[];
@@ -373,7 +391,11 @@ interface CanvasStackCloudProps {
   onStackClick?: (stack: StackItem) => void;
 }
 
-export function CanvasStackCloud({ stacks, selected, onStackClick }: CanvasStackCloudProps) {
+export function CanvasStackCloud({
+  stacks,
+  selected,
+  onStackClick,
+}: CanvasStackCloudProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const offscreenRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -381,22 +403,22 @@ export function CanvasStackCloud({ stacks, selected, onStackClick }: CanvasStack
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext('2d', {
+    const ctx = canvas.getContext("2d", {
       alpha: false, // Opaque background = faster rendering
-      desynchronized: true // Reduce input latency
+      desynchronized: true, // Reduce input latency
     });
     if (!ctx) return;
 
-    // Create offscreen canvas for double buffering (smoother animations!)
+    // Create offscreen canvas for double buffering
     if (!offscreenRef.current) {
-      offscreenRef.current = document.createElement('canvas');
+      offscreenRef.current = document.createElement("canvas");
     }
 
     // Render loop with requestAnimationFrame
     function render() {
       // Draw to offscreen canvas first
       // Then blit to main canvas
-      // This prevents flicker!
+      // Prevents flicker during animation
     }
 
     const animationFrame = requestAnimationFrame(render);
@@ -435,9 +457,15 @@ export function CanvasStackCloud({ stacks, selected, onStackClick }: CanvasStack
 }
 
 /* Stagger the animations */
-.project-card:nth-child(1) { animation-delay: 0s; }
-.project-card:nth-child(2) { animation-delay: 0.05s; }
-.project-card:nth-child(3) { animation-delay: 0.1s; }
+.project-card:nth-child(1) {
+  animation-delay: 0s;
+}
+.project-card:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.project-card:nth-child(3) {
+  animation-delay: 0.1s;
+}
 /* etc */
 
 /* Respect reduced motion */
@@ -465,7 +493,7 @@ function useTouchOptimizedClick(onClick: () => void) {
     const dy = touch.clientY - touchStartPos.current.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Only trigger click if finger didn't move much (not a scroll!)
+    // Only trigger click if finger didn't move much (distinguish from scroll)
     if (distance < 10) {
       onClick();
     }
@@ -478,7 +506,7 @@ function useTouchOptimizedClick(onClick: () => void) {
 ### D. Accessibility-First Canvas Pattern
 
 ```tsx
-// Invisible DOM for screen readers + Canvas for visuals = Best of both worlds!
+// Hybrid approach: Canvas for visuals, hidden DOM for screen readers
 function AccessibleCanvas() {
   return (
     <div className="relative">
@@ -487,7 +515,7 @@ function AccessibleCanvas() {
 
       {/* Semantic layer (Hidden DOM) */}
       <div className="sr-only" role="list" aria-label="Technology stacks">
-        {stacks.map(stack => (
+        {stacks.map((stack) => (
           <button
             key={stack.id}
             role="listitem"
@@ -506,8 +534,15 @@ function AccessibleCanvas() {
 ---
 
 **Sources & Research**:
-- [Ralph Wiggum Character Profile - Wikipedia](https://en.wikipedia.org/wiki/Ralph_Wiggum)
-- [The Simpsons: 20 Funniest Ralph Wiggum Quotes - ScreenRant](https://screenrant.com/simpsons-funniest-ralph-wiggum-quotes/)
+
+_Ralph Wiggum Methodology_:
+
+- [11 Tips For AI Coding With Ralph Wiggum - AI Hero](https://www.aihero.dev/tips-for-ai-coding-with-ralph-wiggum)
+- [The Ralph Wiggum Approach: Running AI Coding Agents for Hours - DEV Community](https://dev.to/sivarampg/the-ralph-wiggum-approach-running-ai-coding-agents-for-hours-not-minutes-57c1)
+- [Getting Started With Ralph - AI Hero](https://www.aihero.dev/getting-started-with-ralph)
+
+_Technical Research_:
+
 - [8 Best React Chart Libraries 2025 - Embeddable](https://embeddable.com/blog/react-chart-libraries)
 - [SVG vs Canvas vs WebGL Performance 2025 - SVG Genie](https://www.svggenie.com/blog/svg-vs-canvas-vs-webgl-performance-2025)
 - [Best React Chart Libraries 2025 - LogRocket](https://blog.logrocket.com/best-react-chart-libraries-2025/)

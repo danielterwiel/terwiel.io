@@ -134,14 +134,9 @@ const ProjectsContent = () => {
     // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
     <article className="prose max-w-none" id="projects">
       {/* Screen reader announcement for filter results (WCAG 2.2 SC 4.1.3) */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
+      <output aria-live="polite" aria-atomic="true" className="sr-only">
         {announcement}
-      </div>
+      </output>
       <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>
