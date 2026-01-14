@@ -64,7 +64,7 @@ export const Badge = ({
     shape: "rounded-lg",
     className: clsx(
       "inline-flex items-center gap-2 transition-all duration-500 ease-out",
-      "select-none cursor-pointer px-3 py-2 h-10",
+      "select-none cursor-pointer px-3 py-2 min-h-11",
     ),
   });
 
