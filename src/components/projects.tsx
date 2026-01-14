@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 
 import type React from "react";
 import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 
 import type { Domain } from "~/types";
 
@@ -57,7 +56,7 @@ const ProjectsContent = () => {
     return result;
   }, [activeSearchTerm, domain, selectionIndex]);
 
-  // Track previous filtered list to calculate project states for transitions
+  // Track previous filtered list to calculate project states for CSS animations
   const prevFilteredRef = useRef<typeof filtered>([]);
   const projectStateMapRef = useRef(
     new Map<string, "exit" | "enter" | "stay">(),
@@ -67,8 +66,6 @@ const ProjectsContent = () => {
   );
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
-  // Track ongoing view transition to prevent concurrent transitions
-  const ongoingTransitionRef = useRef<ViewTransition | null>(null);
 
   // Show skeleton for minimum time to prevent flash
   useEffect(() => {
@@ -78,7 +75,7 @@ const ProjectsContent = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Update project states when filtered list changes
+  // Update project states when filtered list changes - using simple CSS animations
   useEffect(() => {
     // Mark initial load as complete on first render
     if (isInitialLoad) {
@@ -96,84 +93,37 @@ const ProjectsContent = () => {
     );
 
     if (hasListChanged || hasStayProjects) {
-      // Detect Safari on macOS - it has rendering bugs with view transitions and sticky headers
-      // The transition layer clips/hides sticky elements and breaks backdrop-filter effects
-      // iOS Safari works fine with view transitions, so we only disable for macOS
-      const ua = navigator.userAgent;
-      const isSafariMac =
-        /Safari/i.test(ua) &&
-        /Macintosh/i.test(ua) &&
-        !/Chrome|Chromium|Edg/i.test(ua);
-
-      // Use native View Transition API with proper abort handling
-      // DISABLED FOR SAFARI MAC: Safari on macOS has critical bugs with view transitions causing:
-      // 1. Sticky header disappears completely during transition
-      // 2. Backdrop-filter effect becomes invisible
-      // 3. Header gets clipped by the view transition layer
-      // ENABLED FOR SAFARI iOS: iOS Safari handles view transitions correctly
-      // Workaround: Disable view transitions on Safari macOS, use instant updates instead
-      if ("startViewTransition" in document && !isSafariMac) {
-        const vtAPI = document as Document & {
-          startViewTransition: (callback: () => void) => ViewTransition;
-        };
-
-        // Abort any ongoing transition to prevent conflicts
-        if (ongoingTransitionRef.current) {
-          // Suppress the error from skipTransition by catching it
-          ongoingTransitionRef.current.finished.catch(() => {
-            // Silently handle the skip error - this is expected
-          });
-          // Only call skipTransition if the transition is still pending
-          try {
-            ongoingTransitionRef.current.skipTransition();
-          } catch {
-            // Silently handle any errors from skipTransition
-          }
-        }
-
-        // Start the new transition
-        const transition = vtAPI.startViewTransition(() => {
-          // Inside the transition callback, update state synchronously
-          flushSync(() => {
-            // Update the project state map
-            projectStateMapRef.current = newStateMap;
-            // Update rendering to show only filtered projects
-            setRenderingProjects(filtered);
-            // Mark that we've processed this update
-            prevFilteredRef.current = filtered;
-          });
-        });
-
-        // Track this transition
-        ongoingTransitionRef.current = transition;
-
-        // Clear the reference when transition finishes
-        transition.finished
-          .then(() => {
-            if (ongoingTransitionRef.current === transition) {
-              ongoingTransitionRef.current = null;
-            }
-          })
-          .catch(() => {
-            // Handle abortion or other errors
-            if (ongoingTransitionRef.current === transition) {
-              ongoingTransitionRef.current = null;
-            }
-          });
-      } else {
-        // Fallback for Safari macOS and browsers without View Transitions
-        // Use instant DOM updates without animation
-        // Note: iOS Safari falls through here only if View Transitions API is not supported
-        projectStateMapRef.current = newStateMap;
-        setRenderingProjects(filtered);
-        prevFilteredRef.current = filtered;
-      }
+      // Simple state update - CSS handles the animations via classes
+      projectStateMapRef.current = newStateMap;
+      setRenderingProjects(filtered);
+      prevFilteredRef.current = filtered;
     }
   }, [filtered, isInitialLoad]);
 
   const projectsId = useId();
   const listRef = useRef<HTMLOListElement>(null);
   const emptyStateRef = useRef<HTMLDivElement>(null);
+
+  // State for screen reader announcements (WCAG 2.2 SC 4.1.3 - Status Messages)
+  const [announcement, setAnnouncement] = useState("");
+
+  // Announce filter results to screen readers
+  useEffect(() => {
+    // Skip announcement on initial load
+    if (isInitialLoad) return;
+
+    // Build announcement message
+    let message: string;
+    if (renderingProjects.length === 0 && activeSearchTerm) {
+      message = `No projects found for "${activeSearchTerm}"`;
+    } else if (activeSearchTerm) {
+      message = `${renderingProjects.length} ${renderingProjects.length === 1 ? "project" : "projects"} found for "${activeSearchTerm}"`;
+    } else {
+      message = `Showing all ${renderingProjects.length} projects`;
+    }
+
+    setAnnouncement(message);
+  }, [renderingProjects.length, activeSearchTerm, isInitialLoad]);
 
   // Show skeleton during initial load or while minimum display time hasn't elapsed
   if (showSkeleton || (isInitialLoad && renderingProjects.length === 0)) {
@@ -183,25 +133,25 @@ const ProjectsContent = () => {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
     <article className="prose max-w-none" id="projects">
+      {/* Screen reader announcement for filter results (WCAG 2.2 SC 4.1.3) */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {announcement}
+      </div>
       <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>
       <div className="flow-root space-y-4 overflow-visible">
         {renderingProjects.length === 0 && activeSearchTerm ? (
-          <div
-            ref={emptyStateRef}
-            className="empty-state-container visible vt-empty-state"
-          >
+          <div ref={emptyStateRef} className="empty-state-container visible">
             <ProjectsEmptyState query={activeSearchTerm} />
           </div>
         ) : (
-          <ol
-            className="ml-0 list-none pl-0"
-            ref={listRef}
-            style={
-              { viewTransitionName: "projects-list" } as React.CSSProperties
-            }
-          >
+          <ol className="ml-0 list-none pl-0" ref={listRef}>
             {renderingProjects.map((project, idx) => (
               <Project
                 key={project.id}

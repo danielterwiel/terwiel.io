@@ -33,12 +33,16 @@ export const Project = ({
   const IconProject =
     Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
 
-  const className =
-    `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""}`.trim();
+  // Build class names based on project state for CSS animations
+  const stateClass =
+    projectState === "enter"
+      ? "project-enter"
+      : projectState === "stay"
+        ? "project-stay"
+        : "";
 
-  // Create unique transition name per project and state to satisfy View Transitions API uniqueness requirement
-  // The API requires each element with view-transition-name to have a unique name
-  const vtProjectName = `project-${project.id}-${projectState}`;
+  const className =
+    `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""} ${stateClass}`.trim();
 
   return (
     <li
@@ -48,7 +52,6 @@ export const Project = ({
         {
           "--item-index": String(projectIdx),
           "--total-items": String(totalLength),
-          "--vt-project-name": vtProjectName,
         } as React.CSSProperties
       }
       {...attrs}
