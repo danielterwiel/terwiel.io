@@ -852,7 +852,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         );
 
         startTransitionRef.current(() => {
-          router.push(`${pathname}${queryString}`, { scroll: false });
+          router.replace(`${pathname}${queryString}`, { scroll: false });
         });
 
         // Clear the click tracking after 300ms (well after click/mouseleave cycle is done)

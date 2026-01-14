@@ -53,8 +53,9 @@ const SearchInputContent = React.forwardRef<
           ? `${pathname}?query=${encodedValue}`
           : pathname;
         // Wrap router navigation in startTransition to trigger view transitions
+        // Use push so back button returns to previous search
         startTransition(() => {
-          router.replace(url, {
+          router.push(url, {
             scroll: false,
           });
         });
@@ -87,10 +88,11 @@ const SearchInputContent = React.forwardRef<
     debouncedSetSearchParamsRef.current?.cancel();
 
     // Trigger search immediately without debounce
+    // Use push so back button returns to previous search
     const encodedValue = encodeURIComponent(searchValue);
     const url = encodedValue ? `${pathname}?query=${encodedValue}` : pathname;
     startTransition(() => {
-      router.replace(url, {
+      router.push(url, {
         scroll: false,
       });
     });
@@ -155,8 +157,9 @@ const SearchInputContent = React.forwardRef<
       setQuery("");
       const url = pathname;
       // Wrap router navigation in startTransition to trigger view transitions
+      // Use push so back button returns to previous search
       startTransition(() => {
-        router.replace(url, {
+        router.push(url, {
           scroll: false,
         });
       });

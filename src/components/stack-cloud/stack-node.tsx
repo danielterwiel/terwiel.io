@@ -129,7 +129,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
 
     const queryString = toggleFilterParam(currentFilter, stack.name);
     startTransition(() => {
-      router.push(`${pathname}${queryString}`, { scroll: false });
+      router.replace(`${pathname}${queryString}`, { scroll: false });
     });
   };
 

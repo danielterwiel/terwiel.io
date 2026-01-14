@@ -1,0 +1,17 @@
+## 2026-01-14: URL/History Management Fix
+
+### Task: Part 3 - URL/History Management Fix (The Big Bug!)
+
+### Changes Made:
+- `src/components/stack-cloud/stack-node.tsx:132`: Changed `router.push()` to `router.replace()`
+- `src/components/stack-cloud/root-node-chart.tsx:855`: Changed `router.push()` to `router.replace()`
+- `src/components/search-input.tsx:57,94,162`: Changed `router.replace()` to `router.push()`
+
+### Rationale:
+- Stack nodes and pie chart segments now use `router.replace()` - when clicking filters, you're refining the SAME view, so we don't add to browser history
+- Search input now uses `router.push()` - when searching, you're making a NEW query, so back button should return to previous search
+
+### Result:
+- TypeScript type checks pass
+- Back button now works correctly for search (push = add to history)
+- Filter clicks don't pollute browser history (replace = stay on same history entry)
