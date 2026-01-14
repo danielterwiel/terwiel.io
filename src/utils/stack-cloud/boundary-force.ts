@@ -1,4 +1,4 @@
-import type { Force } from "d3";
+import type { Force } from "d3-force";
 
 import type { SimulationNode } from "~/types/simulation";
 import { BOUNDARY_PADDING } from "~/constants/stack-cloud-physics";

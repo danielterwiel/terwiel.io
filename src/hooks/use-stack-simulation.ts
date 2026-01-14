@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+import { type ForceCollide, forceSimulation, type Simulation } from "d3-force";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -65,7 +65,7 @@ export function useStackSimulation({
   sizeFactors,
   scaleFactors,
 }: UseStackSimulationProps) {
-  const simulationRef = useRef<d3.Simulation<SimulationNode, undefined> | null>(
+  const simulationRef = useRef<Simulation<SimulationNode, undefined> | null>(
     null,
   );
   const nodesRef = useRef<Map<string, SVGGElement>>(new Map());
@@ -244,8 +244,7 @@ export function useStackSimulation({
       boundaryForceRef.current = forces.boundary;
       rootExclusionForceRef.current = forces.rootExclusion;
 
-      const simulation = d3
-        .forceSimulation<SimulationNode>(allNodes)
+      const simulation = forceSimulation<SimulationNode>(allNodes)
         .force("x", forces.forceX)
         .force("y", forces.forceY)
         .force("collide", forces.collide)
@@ -451,7 +450,7 @@ export function useStackSimulation({
       // Clear radius cache since effective radii changed
       clearRadiusCache();
 
-      const collide = sim.force("collide") as d3.ForceCollide<SimulationNode>;
+      const collide = sim.force("collide") as ForceCollide<SimulationNode>;
       if (collide) {
         collide.initialize(sim.nodes(), sim.randomSource());
       }

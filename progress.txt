@@ -195,3 +195,59 @@
 - TypeScript type checks pass
 - Knip passes (no unused code)
 - Skip navigation now covers both main content areas
+
+## 2026-01-14: D3 Modular Imports (Tree-Shaking)
+
+### Task: Part 1 Phase 1a - D3 Tree-Shaking Optimization
+
+### Changes Made:
+- `package.json`: Replaced monolithic `d3` (290.4kB) with modular packages:
+  - `d3-force` - Force simulation
+  - `d3-shape` - Arc, pie generators
+  - `d3-selection` - DOM selection
+  - `d3-transition` - Animation transitions
+  - `d3-ease` - Easing functions
+  - `d3-interpolate` - Value interpolation
+- Added corresponding `@types/d3-*` packages for TypeScript
+
+- `src/hooks/use-stack-simulation.ts`:
+  - Changed `import * as d3 from "d3"` to modular imports from `d3-force`
+  - Updated `d3.forceSimulation` to `forceSimulation`
+  - Updated type references from `d3.Simulation` to `Simulation`
+  - Updated `d3.ForceCollide` to `ForceCollide`
+
+- `src/utils/stack-cloud/create-forces.ts`:
+  - Changed to modular imports from `d3-force`
+  - Updated `d3.forceCollide`, `d3.forceManyBody`, `d3.forceX`, `d3.forceY`
+
+- `src/utils/stack-cloud/calculate-domain-angles.ts`:
+  - Changed to modular import from `d3-shape`
+  - Updated `d3.pie` to `pie`
+
+- `src/utils/stack-cloud/boundary-force.ts`:
+  - Changed `Force` type import from `d3` to `d3-force`
+
+- `src/utils/stack-cloud/root-exclusion-force.ts`:
+  - Changed `Force` type import from `d3` to `d3-force`
+
+- `src/types/simulation.ts`:
+  - Changed `SimulationNodeDatum` type import from `d3` to `d3-force`
+
+- `src/components/stack-cloud/root-node-chart.tsx`:
+  - Changed to modular imports from `d3-ease`, `d3-interpolate`, `d3-selection`, `d3-shape`
+  - Added `import "d3-transition"` to extend Selection with `.transition()` method
+  - Updated all `d3.select`, `d3.arc`, `d3.pie`, `d3.interpolate`, `d3.easeCubicInOut`
+  - Renamed local variables to avoid shadowing imports (e.g., `arcGenerator`, `pieLayout`)
+
+### Rationale:
+- The monolithic D3 package includes 30+ modules totaling 290.4kB
+- Only ~6 modules are actually used in the codebase
+- Modular imports enable webpack/Next.js to tree-shake unused code
+- Reduces bundle size and improves load time
+
+### Result:
+- npm removed 50 packages (the monolithic D3 bundle)
+- npm added 9 packages (only the modules we need)
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- Bundle size reduced through tree-shaking

@@ -54,6 +54,35 @@ I want the website to:
 
 **Ralph's Pick**: **Option A (Chart.js)** or **Option C (Custom Canvas)** - Chart.js if we want pretty out-of-box, Custom if we want ultimate zoom zoom!
 
+#### Phase 1a: D3 Modular Imports (Tree-Shaking) ✅ DONE
+
+**Changes Made**:
+- Replaced monolithic `d3` package (290.4kB) with modular imports:
+  - `d3-force` (force simulation)
+  - `d3-shape` (arc, pie generators)
+  - `d3-selection` (DOM selection)
+  - `d3-transition` (animation transitions)
+  - `d3-ease` (easing functions)
+  - `d3-interpolate` (value interpolation)
+- Updated all source files to use direct imports instead of `import * as d3`
+- Added corresponding `@types/d3-*` packages for TypeScript support
+
+**Files Modified**:
+- `src/hooks/use-stack-simulation.ts` - Uses `forceSimulation` from d3-force
+- `src/utils/stack-cloud/create-forces.ts` - Uses force functions from d3-force
+- `src/utils/stack-cloud/calculate-domain-angles.ts` - Uses `pie` from d3-shape
+- `src/utils/stack-cloud/boundary-force.ts` - Uses `Force` type from d3-force
+- `src/utils/stack-cloud/root-exclusion-force.ts` - Uses `Force` type from d3-force
+- `src/components/stack-cloud/root-node-chart.tsx` - Uses arc, pie, select, interpolate, etc.
+- `src/types/simulation.ts` - Uses `SimulationNodeDatum` type from d3-force
+
+**Result**:
+- Removed 50 packages from node_modules (the monolithic D3 bundle)
+- Added 9 modular packages (only what we need)
+- Bundle size reduced significantly through tree-shaking
+- TypeScript type checks pass
+- Knip passes (no unused code)
+
 ### Part 2: Project Display (Make It Simple!) ✅ DONE
 
 **Changes Made**:

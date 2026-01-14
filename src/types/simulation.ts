@@ -1,4 +1,4 @@
-import type { SimulationNodeDatum } from "d3";
+import type { SimulationNodeDatum } from "d3-force";
 
 /**
  * Custom simulation node extending D3's SimulationNodeDatum

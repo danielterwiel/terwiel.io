@@ -1,4 +1,4 @@
-import * as d3 from "d3";
+import { pie } from "d3-shape";
 
 import type { Domain, DomainAngleRange, DomainExperience } from "~/types";
 
@@ -14,13 +14,12 @@ export function calculateDomainAngles(
 ): Map<Domain, DomainAngleRange> {
   const angleMap = new Map<Domain, DomainAngleRange>();
 
-  const pie = d3
-    .pie<DomainExperience>()
+  const pieGenerator = pie<DomainExperience>()
     .value((d) => d.totalMonths)
     .sort(null); // Maintain order
 
   // Generate pie segments
-  const arcs = pie(domainExperiences);
+  const arcs = pieGenerator(domainExperiences);
 
   // Store full angular range for each segment
   for (const arc of arcs) {

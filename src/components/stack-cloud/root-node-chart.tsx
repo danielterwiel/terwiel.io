@@ -1,4 +1,10 @@
-import * as d3 from "d3";
+import { easeCubicInOut } from "d3-ease";
+import { interpolate } from "d3-interpolate";
+import { type Selection, select } from "d3-selection";
+import { type Arc, arc, type PieArcDatum, pie } from "d3-shape";
+// Import d3-transition to extend Selection with .transition() method
+import "d3-transition";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useDeferredValue, useEffect, useRef, useTransition } from "react";
@@ -27,7 +33,7 @@ type ArcState = "default" | "selected" | "hover" | "focus";
 
 // Extended type for arc data with state-driven radius (D3 best practice)
 // The outerRadius is derived from the state property, ensuring consistency
-type ArcDatumWithRadius = d3.PieArcDatum<PieSegmentData> & {
+type ArcDatumWithRadius = PieArcDatum<PieSegmentData> & {
   outerRadius?: number;
   state?: ArcState; // Single source of truth for arc appearance
   strokeWidth?: number; // Current stroke width for synchronized transitions
@@ -180,7 +186,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       matchedDomainRef.current = matchedDomain;
 
-      const svg = d3.select(pieChartRef.current);
+      const svg = select(pieChartRef.current);
 
       // Calculate inner radius using same formula as initial render
       const RING_THICKNESS = pieRadius * 0.08;
@@ -189,8 +195,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       // Single arc generator that reads outerRadius from datum
       // With paint-order: stroke, fill covers inner half of stroke
       // outerRadius is calculated from the state property using getArcRadiusForState
-      const arc = d3
-        .arc<ArcDatumWithRadius>()
+      const arcGenerator = arc<ArcDatumWithRadius>()
         .innerRadius(innerRadius)
         .outerRadius((d) => {
           if (d.outerRadius) return d.outerRadius;
@@ -198,10 +203,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         });
 
       // Batch DOM updates together
-      const segments = svg.selectAll<
-        SVGGElement,
-        d3.PieArcDatum<PieSegmentData>
-      >("g.segment-visual");
+      const segments = svg.selectAll<SVGGElement, PieArcDatum<PieSegmentData>>(
+        "g.segment-visual",
+      );
 
       // PERFORMANCE: Batch ALL DOM reads first (prevents layout thrashing)
       const pathElements = segments.select<SVGPathElement>("path.pie-segment");
@@ -210,7 +214,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       );
       const hitAreas = svg.selectAll<
         SVGPathElement,
-        d3.PieArcDatum<PieSegmentData>
+        PieArcDatum<PieSegmentData>
       >(".pie-segment-hit-area");
 
       // Now batch ALL DOM writes together (prevents reflow/repaint churn)
@@ -244,7 +248,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       pathElements
         .transition()
         .duration(transitionDuration)
-        .ease(d3.easeCubicInOut) // Smooth easing for synchronized transitions
+        .ease(easeCubicInOut) // Smooth easing for synchronized transitions
         .tween("arc-with-stroke", function (d) {
           const datum = d as ArcDatumWithRadius;
           const isSelected = isEqualDomain(matchedDomain, datum.data.domain);
@@ -262,7 +266,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             getArcRadiusForState(pieRadius, datum.state || "default");
           const targetRadius = getArcRadiusForState(pieRadius, targetState);
 
-          const radiusInterpolate = d3.interpolate(currentRadius, targetRadius);
+          const radiusInterpolate = interpolate(currentRadius, targetRadius);
 
           // Target stroke color (instant, no interpolation)
           const targetStrokeColor = isSelected
@@ -281,16 +285,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             }
 
             // Calculate new path ONCE
-            const newPath = arc(datum) ?? "";
+            const newPath = arcGenerator(datum) ?? "";
 
             // Apply updates to DOM - fill, stroke, and path all on same element
-            const selection = d3.select(this);
+            const selection = select(this);
             selection.attr("d", newPath);
             selection.attr("stroke", targetStrokeColor);
 
             // Update focus ring path to match
             if (focusRingNode) {
-              d3.select(focusRingNode).attr("d", newPath);
+              select(focusRingNode).attr("d", newPath);
             }
           };
         })
@@ -325,7 +329,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     // Clear hover state when recreating the pie chart
     onDomainHover?.(null);
 
-    const svg = d3.select(pieChartRef.current);
+    const svg = select(pieChartRef.current);
 
     // Read from refs to get latest search values without retriggering effect
     // Check query first (from SearchInput), then filter (from StackCloud) if no query match
@@ -345,8 +349,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     svg.selectAll("*").remove();
 
     // Create pie layout
-    const pie = d3
-      .pie<PieSegmentData>()
+    const pieLayout = pie<PieSegmentData>()
       .value((d) => d.value)
       .sort(null); // Maintain order
 
@@ -357,8 +360,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     // Single arc generator that reads radius from datum's state
     // This is D3 best practice: one arc generator, interpolate radius values
     // outerRadius accounts for stroke offset to keep outer edge consistent
-    const arc = d3
-      .arc<ArcDatumWithRadius>()
+    const arcGenerator = arc<ArcDatumWithRadius>()
       .innerRadius(innerRadius)
       .outerRadius((d) => {
         if (d.outerRadius) return d.outerRadius;
@@ -366,13 +368,12 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       });
 
     // Invisible hit area arc: always full segment for better mobile interaction
-    const hitAreaArc = d3
-      .arc<d3.PieArcDatum<PieSegmentData>>()
+    const hitAreaArc = arc<PieArcDatum<PieSegmentData>>()
       .innerRadius(0)
       .outerRadius(pieRadius);
 
     // Generate pie segments and initialize state, outerRadius, and strokeWidth on each datum
-    const arcs = pie(pieData);
+    const arcs = pieLayout(pieData);
     arcs.forEach((d) => {
       const datum = d as ArcDatumWithRadius;
       // Set initial state based on whether this domain is selected
@@ -395,9 +396,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
     let clipPathId: string | undefined;
     let sweepPath:
-      | d3.Selection<SVGPathElement, SweepDatum, null, undefined>
+      | Selection<SVGPathElement, SweepDatum, null, undefined>
       | undefined;
-    let sweepArc: d3.Arc<unknown, SweepDatum> | undefined;
+    let sweepArc: Arc<unknown, SweepDatum> | undefined;
 
     if (shouldAnimate) {
       // Create clip path for pie chart radar sweep animation
@@ -409,8 +410,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       clipPathId = clipPath.attr("id");
 
       // Create sweep arc (a wedge that grows from 0° to 360°)
-      sweepArc = d3
-        .arc<SweepDatum>()
+      sweepArc = arc<SweepDatum>()
         .innerRadius(0)
         .outerRadius(pieRadius * 1.5); // Larger than pie to ensure full coverage
 
@@ -493,7 +493,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         isEqualDomain(matchedDomain, d.data.domain) ? "1.0" : "0.55",
       ) // Moderate contrast for multiple selections
       .attr("pointer-events", "none")
-      .attr("d", arc) // Arc generator reads state from datum
+      .attr("d", arcGenerator) // Arc generator reads state from datum
       // Stroke on same element - paint-order ensures outer stroke effect
       .attr("stroke", (d) => {
         const isSelected = isEqualDomain(matchedDomain, d.data.domain);
@@ -523,7 +523,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       .attr("stroke-linecap", "round")
       .attr("stroke-linejoin", "round")
       .attr("pointer-events", "none")
-      .attr("d", arc) // Uses same arc generator for perfect alignment
+      .attr("d", arcGenerator) // Uses same arc generator for perfect alignment
       .style("opacity", 0) // Hidden by default, shown on focus
       .style("transition", "opacity 0.2s ease-in-out");
 
@@ -580,7 +580,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       };
 
       const handleHoverStart = function (this: SVGPathElement) {
-        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        const datum = select(this).datum() as PieArcDatum<PieSegmentData>;
 
         // Bring this segment's visual elements to front to prevent border overlap
         bringSegmentVisualToFront(this);
@@ -622,7 +622,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         visiblePath
           .transition()
           .duration(transitionDuration)
-          .ease(d3.easeCubicInOut)
+          .ease(easeCubicInOut)
           .tween("arc-with-stroke", function (d) {
             const datum = d as ArcDatumWithRadius;
 
@@ -632,10 +632,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               getArcRadiusForState(pieRadius, datum.state || "default");
             const targetRadius = getArcRadiusForState(pieRadius, targetState);
 
-            const radiusInterpolate = d3.interpolate(
-              currentRadius,
-              targetRadius,
-            );
+            const radiusInterpolate = interpolate(currentRadius, targetRadius);
 
             // If focused, ensure ring stays visible. If not, ensure it stays hidden.
             // This fixes the race condition where mouseleave interrupts blur
@@ -643,7 +640,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               focusRing.style("opacity") || "0",
             );
             const targetOpacity = isFocused ? 1 : 0;
-            const opacityInterpolate = d3.interpolate(
+            const opacityInterpolate = interpolate(
               currentOpacity,
               targetOpacity,
             );
@@ -659,10 +656,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               }
 
               // Calculate new path
-              const newPath = arc(datum) ?? "";
+              const newPath = arcGenerator(datum) ?? "";
 
               // Apply updates to DOM - fill, stroke, and path all on same element
-              const selection = d3.select(this);
+              const selection = select(this);
               selection.attr("d", newPath);
               selection.attr(
                 "stroke",
@@ -672,7 +669,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
               // Update focus ring path to match
               if (focusRingNode) {
-                const ringSelection = d3.select(focusRingNode);
+                const ringSelection = select(focusRingNode);
                 ringSelection.attr("d", newPath);
                 // Explicitly manage opacity during hover transition
                 ringSelection.style("opacity", opacityInterpolate(t));
@@ -688,7 +685,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       };
 
       const handleHoverEnd = function (this: SVGPathElement) {
-        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        const datum = select(this).datum() as PieArcDatum<PieSegmentData>;
 
         // Check if this segment's domain is selected
         const isSelected = isEqualDomain(
@@ -744,7 +741,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         visiblePath
           .transition()
           .duration(transitionDuration)
-          .ease(d3.easeCubicInOut)
+          .ease(easeCubicInOut)
           .tween("arc-with-stroke", function (d) {
             const datum = d as ArcDatumWithRadius;
 
@@ -754,10 +751,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               getArcRadiusForState(pieRadius, datum.state || "default");
             const targetRadius = getArcRadiusForState(pieRadius, targetState);
 
-            const radiusInterpolate = d3.interpolate(
-              currentRadius,
-              targetRadius,
-            );
+            const radiusInterpolate = interpolate(currentRadius, targetRadius);
 
             // If focused, ensure ring stays visible. If not, ensure it stays hidden.
             // This fixes the race condition where mouseleave interrupts blur
@@ -765,7 +759,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               focusRing.style("opacity") || "0",
             );
             const targetOpacity = isFocused ? 1 : 0;
-            const opacityInterpolate = d3.interpolate(
+            const opacityInterpolate = interpolate(
               currentOpacity,
               targetOpacity,
             );
@@ -781,16 +775,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               }
 
               // Calculate new path
-              const newPath = arc(datum) ?? "";
+              const newPath = arcGenerator(datum) ?? "";
 
               // Apply updates to DOM - fill, stroke, and path all on same element
-              const selection = d3.select(this);
+              const selection = select(this);
               selection.attr("d", newPath);
               selection.attr("stroke", targetStrokeColor);
 
               // Update focus ring path to match
               if (focusRingNode) {
-                const ringSelection = d3.select(focusRingNode);
+                const ringSelection = select(focusRingNode);
                 ringSelection.attr("d", newPath);
                 // Explicitly manage opacity during hover transition
                 ringSelection.style("opacity", opacityInterpolate(t));
@@ -811,7 +805,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       };
 
       const handleClick = function (this: SVGPathElement) {
-        const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        const datum = select(this).datum() as PieArcDatum<PieSegmentData>;
 
         // Check if this click is selecting or deselecting
         const isCurrentlySelected =
@@ -886,9 +880,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .on("mouseenter", handleHoverStart)
         .on("mouseleave", handleHoverEnd)
         .on("focus", function (this: SVGPathElement) {
-          const datum = d3
-            .select(this)
-            .datum() as d3.PieArcDatum<PieSegmentData>;
+          const datum = select(this).datum() as PieArcDatum<PieSegmentData>;
 
           // Bring this segment's visual elements to front using D3's raise()
           bringSegmentVisualToFront(this);
@@ -916,7 +908,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           visiblePath
             .transition()
             .duration(transitionDuration)
-            .ease(d3.easeCubicInOut)
+            .ease(easeCubicInOut)
             .tween("arc-focus", function (d) {
               const arcDatum = d as ArcDatumWithRadius;
 
@@ -925,13 +917,13 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
                 getArcRadiusForState(pieRadius, arcDatum.state || "default");
               const targetRadius = getArcRadiusForState(pieRadius, targetState);
 
-              const radiusInterpolate = d3.interpolate(
+              const radiusInterpolate = interpolate(
                 currentRadius,
                 targetRadius,
               );
 
               // Interpolate focus ring opacity from 0 to 1
-              const opacityInterpolate = d3.interpolate(0, 1);
+              const opacityInterpolate = interpolate(0, 1);
 
               return (t: number) => {
                 arcDatum.outerRadius = radiusInterpolate(t);
@@ -940,10 +932,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
                   arcDatum.state = targetState;
                 }
 
-                const newPath = arc(arcDatum) ?? "";
+                const newPath = arcGenerator(arcDatum) ?? "";
 
                 // Update main segment path and stroke
-                const selection = d3.select(this);
+                const selection = select(this);
                 selection.attr("d", newPath);
                 selection.attr(
                   "stroke",
@@ -953,7 +945,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
                 // Update focus ring path AND opacity together
                 if (focusRingNode) {
-                  const ringSelection = d3.select(focusRingNode);
+                  const ringSelection = select(focusRingNode);
                   ringSelection.attr("d", newPath);
                   ringSelection.style("opacity", opacityInterpolate(t));
                 }
@@ -971,9 +963,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           }
         })
         .on("blur", function (this: SVGPathElement) {
-          const datum = d3
-            .select(this)
-            .datum() as d3.PieArcDatum<PieSegmentData>;
+          const datum = select(this).datum() as PieArcDatum<PieSegmentData>;
 
           // Check if this segment is selected (should stay expanded)
           const isSelected = isEqualDomain(
@@ -1009,7 +999,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           visiblePath
             .transition()
             .duration(transitionDuration)
-            .ease(d3.easeCubicInOut)
+            .ease(easeCubicInOut)
             .tween("arc-blur", function (d) {
               const arcDatum = d as ArcDatumWithRadius;
 
@@ -1018,13 +1008,13 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
                 getArcRadiusForState(pieRadius, arcDatum.state || "focus");
               const targetRadius = getArcRadiusForState(pieRadius, targetState);
 
-              const radiusInterpolate = d3.interpolate(
+              const radiusInterpolate = interpolate(
                 currentRadius,
                 targetRadius,
               );
 
               // Interpolate focus ring opacity from 1 to 0
-              const opacityInterpolate = d3.interpolate(1, 0);
+              const opacityInterpolate = interpolate(1, 0);
 
               return (t: number) => {
                 arcDatum.outerRadius = radiusInterpolate(t);
@@ -1033,16 +1023,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
                   arcDatum.state = targetState;
                 }
 
-                const newPath = arc(arcDatum) ?? "";
+                const newPath = arcGenerator(arcDatum) ?? "";
 
                 // Update main segment path and stroke
-                const selection = d3.select(this);
+                const selection = select(this);
                 selection.attr("d", newPath);
                 selection.attr("stroke", targetStrokeColor);
 
                 // Update focus ring path AND opacity together
                 if (focusRingNode) {
-                  const ringSelection = d3.select(focusRingNode);
+                  const ringSelection = select(focusRingNode);
                   ringSelection.attr("d", newPath);
                   ringSelection.style("opacity", opacityInterpolate(t));
                 }
@@ -1105,9 +1095,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .transition()
         .duration(1500)
         .attrTween("d", (d) => {
-          const interpolate = d3.interpolate(0, Math.PI * 2);
+          const angleInterpolate = interpolate(0, Math.PI * 2);
           return (t) => {
-            d.endAngle = interpolate(t);
+            d.endAngle = angleInterpolate(t);
             return (sweepArc?.(d) as string) ?? "";
           };
         })

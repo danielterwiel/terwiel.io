@@ -1,4 +1,11 @@
-import * as d3 from "d3";
+import {
+  type ForceCollide,
+  forceCollide,
+  forceManyBody,
+  forceX,
+  forceY,
+  type Simulation,
+} from "d3-force";
 
 import type { SimulationNode } from "~/types/simulation";
 import type { AdaptivePhysicsParams } from "./adaptive-physics";
@@ -30,15 +37,13 @@ export function createSimulationForces(params: {
     params;
 
   // Collision force with adaptive padding
-  const collide = d3
-    .forceCollide<SimulationNode>()
+  const collide = forceCollide<SimulationNode>()
     .radius((d) => d.radius * (d.scaleFactor ?? 1) + physics.collisionPadding)
     .strength(COLLISION_STRENGTH)
     .iterations(COLLISION_ITERATIONS);
 
   // Charge force scaled by node mass (radius²)
-  const charge = d3
-    .forceManyBody<SimulationNode>()
+  const charge = forceManyBody<SimulationNode>()
     .strength((d) => {
       if (d.type === "root") return 0;
       const massFactor = calculateMassFactor(d.radius, avgRadius);
@@ -57,13 +62,13 @@ export function createSimulationForces(params: {
   const massDampen = makeMassDampenForce(avgRadius, MASS_DAMPEN_BASE);
 
   // Positioning forces scaled by mass
-  const forceX = d3.forceX<SimulationNode>(centerX).strength((d) => {
+  const xForce = forceX<SimulationNode>(centerX).strength((d) => {
     if (d.type === "root") return 0;
     const massFactor = calculateMassFactor(d.radius, avgRadius);
     return physics.positioningStrength * massFactor;
   });
 
-  const forceY = d3.forceY<SimulationNode>(centerY).strength((d) => {
+  const yForce = forceY<SimulationNode>(centerY).strength((d) => {
     if (d.type === "root") return 0;
     const massFactor = calculateMassFactor(d.radius, avgRadius);
     return physics.positioningStrength * massFactor;
@@ -75,8 +80,8 @@ export function createSimulationForces(params: {
     boundary,
     rootExclusion,
     massDampen,
-    forceX,
-    forceY,
+    forceX: xForce,
+    forceY: yForce,
   };
 }
 
@@ -84,7 +89,7 @@ export function createSimulationForces(params: {
  * Updates existing forces when simulation parameters change
  */
 export function updateSimulationForces(
-  simulation: d3.Simulation<SimulationNode, undefined>,
+  simulation: Simulation<SimulationNode, undefined>,
   params: {
     centerX: number;
     centerY: number;
@@ -109,7 +114,7 @@ export function updateSimulationForces(
   // Update positioning forces
   simulation.force(
     "x",
-    d3.forceX<SimulationNode>(centerX).strength((d) => {
+    forceX<SimulationNode>(centerX).strength((d) => {
       if (d.type === "root") return 0;
       const massFactor = calculateMassFactor(d.radius, avgRadius);
       return physics.positioningStrength * massFactor;
@@ -118,7 +123,7 @@ export function updateSimulationForces(
 
   simulation.force(
     "y",
-    d3.forceY<SimulationNode>(centerY).strength((d) => {
+    forceY<SimulationNode>(centerY).strength((d) => {
       if (d.type === "root") return 0;
       const massFactor = calculateMassFactor(d.radius, avgRadius);
       return physics.positioningStrength * massFactor;
@@ -128,8 +133,7 @@ export function updateSimulationForces(
   // Update charge force
   simulation.force(
     "charge",
-    d3
-      .forceManyBody<SimulationNode>()
+    forceManyBody<SimulationNode>()
       .strength((d) => {
         if (d.type === "root") return 0;
         const massFactor = calculateMassFactor(d.radius, avgRadius);
@@ -146,11 +150,11 @@ export function updateSimulationForces(
   );
 
   // Update collision force
-  const collide = simulation.force(
+  const collideForce = simulation.force(
     "collide",
-  ) as d3.ForceCollide<SimulationNode>;
-  if (collide?.radius) {
-    collide
+  ) as ForceCollide<SimulationNode>;
+  if (collideForce?.radius) {
+    collideForce
       .radius(
         (d: SimulationNode) =>
           d.radius * (d.scaleFactor ?? 1) + physics.collisionPadding,
@@ -158,8 +162,7 @@ export function updateSimulationForces(
       .strength(COLLISION_STRENGTH)
       .iterations(COLLISION_ITERATIONS);
   } else {
-    const newCollide = d3
-      .forceCollide<SimulationNode>()
+    const newCollide = forceCollide<SimulationNode>()
       .radius((d) => d.radius * (d.scaleFactor ?? 1) + physics.collisionPadding)
       .strength(COLLISION_STRENGTH)
       .iterations(COLLISION_ITERATIONS);
