@@ -15,3 +15,27 @@
 - TypeScript type checks pass
 - Back button now works correctly for search (push = add to history)
 - Filter clicks don't pollute browser history (replace = stay on same history entry)
+
+## 2026-01-14: ASCII Clouds Background
+
+### Task: Part 4 - ASCII Clouds (The Sky Is Thinking!)
+
+### Changes Made:
+- `src/styles/globals.css`: Added `body::before` pseudo-element with ASCII cloud pattern
+
+### Implementation Details:
+- Uses SVG data URI with ASCII art cloud patterns in monospace font
+- Cloud colors use Klein blue (#002FA7) to match site theme
+- Very subtle opacity (0.025) for non-intrusive background effect
+- Fixed positioning with `z-index: -1` to stay behind all content
+- `pointer-events: none` to not interfere with interactions
+- Pattern repeats seamlessly across the viewport
+
+### Accessibility:
+- Respects `prefers-reduced-motion: reduce` by hiding clouds
+- Hidden in print mode to save ink and reduce visual noise
+
+### Result:
+- TypeScript type checks pass
+- Knip passes (no unused code)
+- Subtle ASCII clouds visible in background as decorative element

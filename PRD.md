@@ -119,7 +119,7 @@ router.push(url, { scroll: false });
 
 **Why?** When clicking stack filters, you're refining the SAME view (replace = don't add to history). When searching, you're making a NEW query (push = add to history so back button brings you back)!
 
-### Part 4: ASCII Clouds (The Sky Is Thinking!)
+### Part 4: ASCII Clouds (The Sky Is Thinking!) ✅ DONE
 
 **Implementation** (Subtle like a ninja butterfly!):
 
