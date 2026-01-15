@@ -56,6 +56,10 @@
   top: 50%;
   transform-style: preserve-3d;
   cursor: pointer;
+  /* Flexbox centering for icon */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   /* Isolate repaints to this element */
   contain: paint;
   /* Hint GPU layer during animation - will be toggled via JS */

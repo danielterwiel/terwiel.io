@@ -190,16 +190,12 @@ const StackSphereItemComponent = forwardRef<
         )}
       </svg>
 
-      {/* Icon */}
+      {/* Icon - centered via flexbox on parent */}
       {IconComponent && (
-        <div
+        <IconComponent
+          width={iconSize}
+          height={iconSize}
           style={{
-            position: "absolute",
-            left: "50%",
-            top: "50%",
-            transform: "translate(-50%, -50%)",
-            width: iconSize,
-            height: iconSize,
             color: finalIconColor,
             opacity: iconStyle.opacity,
             transition:
@@ -207,9 +203,7 @@ const StackSphereItemComponent = forwardRef<
                 ? `color ${transitionDuration}ms ease-in-out`
                 : "none",
           }}
-        >
-          <IconComponent width={iconSize} height={iconSize} />
-        </div>
+        />
       )}
     </button>
   );

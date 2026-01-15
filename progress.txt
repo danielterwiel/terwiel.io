@@ -268,3 +268,28 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Sphere renders correctly after hydration
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - BUG_001 Complete
+
+**Task:** Fix icon centering within sphere item containers
+
+**What was done:**
+1. Added flexbox centering to `.stack-sphere-item` class in CSS
+2. Removed wrapper div with absolute positioning from icon in TSX
+3. Icon component now directly uses flexbox centering from parent
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere.css` - Added `display: flex; align-items: center; justify-content: center;` to `.stack-sphere-item`
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Removed wrapper div, applied styles directly to IconComponent
+
+**Key changes:**
+- Previous: Icon wrapped in div with `position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%)`
+- Now: Parent button uses flexbox, icon centered automatically
+
+**Acceptance criteria met:**
+- Icons are visually centered in their containers
+- Centering works across all item sizes (flexbox centering is size-agnostic)
+
+**Status:** PASSES
