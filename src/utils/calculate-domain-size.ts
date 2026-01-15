@@ -4,10 +4,10 @@ import type { Domain, DomainExperience, Project } from "~/types";
 
 /**
  * Calculate project duration in months
- * Handles "present" as current date and adds 1 to include the current month
+ * Handles "Present" as current date and adds 1 to include the current month
  */
 function calculateProjectDuration(dateFrom: string, dateTo: string): number {
-  const isPresent = dateTo === "present";
+  const isPresent = dateTo === "Present";
   const from = parseISO(dateFrom);
   const to = parseISO(isPresent ? new Date().toISOString() : dateTo);
   return differenceInMonths(to, from) + 1;

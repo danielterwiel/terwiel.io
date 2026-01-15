@@ -49,7 +49,7 @@ export const PROJECTS: Project[] = [
     industry: "Auditing",
     location: "Home",
     dateFrom: "2025-07-01",
-    dateTo: "present",
+    dateTo: "Present",
     url: "https://www.currentflow.eu",
     description:
       "In my spare time, I'm building a bare-metal self-hosted QMS, using Effect as standard library, NixOS as a base, Electric SQL For sync, and TanStack DB for offline storage. The aim is a maintainable, real-time, offline-first app with type-safe data and side effects end to end.",

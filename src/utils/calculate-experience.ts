@@ -12,11 +12,11 @@ import type { ExperienceDuration } from "~/types";
 /**
  * Calculate the duration of a project from its date range
  *
- * Handles the special case of "present" for ongoing projects by using
+ * Handles the special case of "Present" for ongoing projects by using
  * the current date. Adds 1 to include the starting month in the count.
  *
  * @param dateFrom - Start date in ISO format (e.g., "2023-01")
- * @param dateTo - End date in ISO format or "present" for ongoing projects
+ * @param dateTo - End date in ISO format or "Present" for ongoing projects
  * @returns ExperienceDuration object with totalMonths, years, months, and formatted duration
  *
  * @example
@@ -26,7 +26,7 @@ import type { ExperienceDuration } from "~/types";
  * // { totalMonths: 18, years: 1, months: 6, duration: "1 year 6 months" }
  *
  * // Ongoing project
- * calculateProjectDuration("2024-01", "present");
+ * calculateProjectDuration("2024-01", "Present");
  * // { totalMonths: 12, years: 1, months: 0, duration: "1 year" }
  * ```
  */
@@ -34,7 +34,7 @@ export function calculateProjectDuration(
   dateFrom: string,
   dateTo: string,
 ): ExperienceDuration {
-  const isPresent = dateTo === "present";
+  const isPresent = dateTo === "Present";
   const from = parseISO(dateFrom);
   const to = parseISO(isPresent ? new Date().toISOString() : dateTo);
   const totalMonths = differenceInMonths(to, from) + 1;
