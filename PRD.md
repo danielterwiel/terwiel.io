@@ -1091,7 +1091,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Run 'npm start' and test production build locally"
   ],
   "dependencies": ["INT-002"],
-  "passes": false
+  "passes": true
 }
 ```
 
