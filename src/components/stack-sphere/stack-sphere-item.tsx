@@ -27,6 +27,7 @@ interface StackSphereItemProps {
   position: SpherePosition;
   sizeFactor: number;
   baseRadius: number;
+  experience?: { years: number; months: number };
   selected?: boolean;
   highlighted?: boolean;
   isDirectlyHovered?: boolean;
@@ -52,6 +53,7 @@ const StackSphereItemComponent = forwardRef<
     position,
     sizeFactor,
     baseRadius,
+    experience,
     selected = false,
     highlighted = false,
     isDirectlyHovered = false,
@@ -210,6 +212,30 @@ const StackSphereItemComponent = forwardRef<
                 : "none",
           }}
         />
+      )}
+
+      {/* Experience tooltip - shown on hover */}
+      {isDirectlyHovered && experience && (
+        <span
+          className="stack-sphere-item-tooltip"
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            bottom: "-1.5rem",
+            left: "50%",
+            transform: "translateX(-50%)",
+            whiteSpace: "nowrap",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            color: borderColor,
+            pointerEvents: "none",
+          }}
+        >
+          {experience.years > 0 && `${experience.years}y`}
+          {experience.years > 0 && experience.months > 0 && " "}
+          {experience.months > 0 && `${experience.months}m`}
+          {experience.years === 0 && experience.months === 0 && "< 1m"}
+        </span>
       )}
     </button>
   );

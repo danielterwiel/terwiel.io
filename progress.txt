@@ -327,3 +327,33 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Icons maintain aspect ratio at all sizes (scale is uniform x/y)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - HOVER_002 Complete
+
+**Task:** Show experience tooltip on individual item hover
+
+**What was done:**
+1. Added `experience` prop to StackSphereItem component
+2. Added tooltip span with `.stack-sphere-item-tooltip` class
+3. Calculated and memoized experience for each stack in parent component
+4. Passed experience data through to each item
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Added experience prop and tooltip display
+- `src/components/stack-sphere/stack-sphere.tsx` - Added experience calculation with useMemo, pass to items
+
+**Key implementation details:**
+- Tooltip positioned absolutely below item (`bottom: -1.5rem`)
+- Shows years/months format (e.g., "5y 3m", "8m", "< 1m")
+- Uses `adjustExperience()` for proper display rounding
+- `aria-hidden="true"` since experience is already in center display
+- Colored with border color to match item state
+- Only shows when `isDirectlyHovered` is true (not domain hover)
+
+**Acceptance criteria met:**
+- Hovering item shows experience value near the item (tooltip positioned below)
+- Tooltip shows correct experience for each stack (uses calculateStackExperience)
+
+**Status:** PASSES

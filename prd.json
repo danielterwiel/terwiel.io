@@ -547,7 +547,7 @@
           "agent_browser_test": "agent-browser find text JavaScript hover && agent-browser wait 300 && agent-browser get text '.stack-sphere-item-tooltip'"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "INTERACT_001",

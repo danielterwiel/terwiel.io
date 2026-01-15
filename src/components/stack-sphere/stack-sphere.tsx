@@ -1,12 +1,14 @@
 "use client";
 
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useMemo, useState } from "react";
 
 import type { Domain, Stack } from "~/types";
 
 import { DOMAINS } from "~/constants/domains";
 import { PROJECTS } from "~/data/projects";
 import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
+import { adjustExperience } from "~/utils/adjust-experience";
+import { calculateStackExperience } from "~/utils/calculate-stack-experience";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { StackSphereExperience } from "./stack-sphere-experience";
@@ -55,6 +57,18 @@ function StackSphereInner() {
 
   // Calculate size factors based on experience
   const sizeFactors = calculateStackSizeFactors(PROJECTS);
+
+  // Calculate experience for each stack (memoized)
+  const stackExperiences = useMemo(() => {
+    const experiences = new Map<string, { years: number; months: number }>();
+    for (const stack of stacks) {
+      const exp = adjustExperience(
+        calculateStackExperience(PROJECTS, stack.name),
+      );
+      experiences.set(stack.name, exp);
+    }
+    return experiences;
+  }, [stacks]);
 
   // Calculate sphere positions for all items
   const positions = useSpherePositions(stacks.length, SPHERE_RADIUS);
@@ -119,6 +133,7 @@ function StackSphereInner() {
               position={position}
               sizeFactor={sizeFactor}
               baseRadius={BASE_ITEM_RADIUS}
+              experience={stackExperiences.get(stack.name)}
               tabIndex={getTabIndex(stack.id)}
               isDirectlyHovered={isHovered}
               highlighted={isHovered || isDomainHighlighted}
