@@ -256,6 +256,53 @@
     position: relative;
   }
 
+  /* Stack Item Animations - VIZ-004 */
+  /* GPU-accelerated transforms for 60fps performance */
+  .stack-item {
+    /* Enable GPU layer for smooth transforms via translate3d */
+    transform: translate3d(0, 0, 0) scale(1);
+    will-change: transform;
+    transform-origin: center center;
+    /* Smooth transition with spring easing for playful feel */
+    transition:
+      transform 200ms cubic-bezier(0.25, 1.65, 0.65, 1),
+      border-color 200ms cubic-bezier(0.4, 0, 0.2, 1),
+      background-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Highlighted state (selected or hovered via JS) - scale up */
+  .stack-item.stack-item-highlighted {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+
+  /* Active/pressed state - scale down for tactile feedback */
+  /* Override highlighted state when pressed */
+  .stack-item:active {
+    transform: translate3d(0, 0, 0) scale(0.95) !important;
+  }
+
+  /* Hover state - only on hover-capable devices */
+  /* This provides hover feedback on desktop even without JS highlighting */
+  @media (hover: hover) {
+    .stack-item:hover:not(:active):not(.stack-item-highlighted) {
+      transform: translate3d(0, 0, 0) scale(1.02);
+    }
+  }
+
+  /* Respect reduced motion preferences - CSS fallback for when JS fails */
+  @media (prefers-reduced-motion: reduce) {
+    .stack-item {
+      transition: none;
+      will-change: auto;
+    }
+
+    .stack-item:active,
+    .stack-item:hover,
+    .stack-item.stack-item-highlighted {
+      transform: none !important;
+    }
+  }
+
   .stack-cloud-svg {
     width: 100%;
     height: 100%;
@@ -334,15 +381,33 @@
     opacity: 1;
   }
 
-  /* Pie segment states */
+  /* Pie segment states - VIZ-004 GPU-accelerated animations */
   .pie-segment {
+    /* GPU acceleration via transform */
+    /* Note: SVG elements use transformOrigin in inline style for center positioning */
+    will-change: transform, opacity;
     transition:
-      opacity 0.2s ease,
-      d 0.2s ease;
+      transform 200ms cubic-bezier(0.25, 1.65, 0.65, 1),
+      opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .pie-segment.pie-segment-highlighted {
+    transform: scale(1.05);
+  }
+
+  /* Active/pressed state for pie segments - tactile feedback */
+  .pie-segment-group:active .pie-segment {
+    transform: scale(0.95) !important;
+  }
+
+  /* Reduced motion support */
   .pie-segment.prefers-reduced-motion {
     transition: none;
+    will-change: auto;
+  }
+
+  .pie-segment-group.prefers-reduced-motion .pie-segment {
+    transform: none !important;
   }
 
   .pie-segment-hit-area {

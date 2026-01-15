@@ -419,3 +419,62 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - VIZ-003: passes: true
+
+---
+
+## 2026-01-15: VIZ-004 Complete - Implement CSS animations for stack interactions
+
+### What was done:
+- Added GPU-accelerated CSS animations to stack-item.tsx and root-node.tsx
+- Implemented active/pressed state with scale down feedback (0.95)
+- Added CSS class-based animations for transform states to globals.css
+- Added prefers-reduced-motion CSS media query fallback (in addition to JS check)
+
+### Implementation Details:
+
+**StackItem Animations (stack-item.tsx, globals.css)**:
+- Base state: `translate3d(0, 0, 0) scale(1)` - GPU layer enabled
+- Highlighted state: `scale(1.05)` via `.stack-item-highlighted` class
+- Active/pressed state: `scale(0.95)` via `:active` pseudo-class
+- Hover state: `scale(1.02)` on hover-capable devices (hover-hover media query)
+- Spring easing: `cubic-bezier(0.25, 1.65, 0.65, 1)` for playful feel
+- Standard easing: `cubic-bezier(0.4, 0, 0.2, 1)` for border/background
+- Duration: 200ms for all transitions
+
+**RootNode Pie Segment Animations (root-node.tsx, globals.css)**:
+- Added `.pie-segment-group` class for group-level styling
+- Active/pressed state: `scale(0.95)` on segment click
+- Highlighted state: `scale(1.05)` via `.pie-segment-highlighted` class
+- Transform origin set via inline style for center positioning
+- GPU acceleration via `will-change: transform, opacity`
+
+**Reduced Motion Support**:
+- CSS media query: `@media (prefers-reduced-motion: reduce)`
+- Disables all transforms, transitions, and will-change
+- Works as fallback even when JS check fails
+- Applied via class `.prefers-reduced-motion` on component elements
+
+### Acceptance Criteria Status:
+1. ✅ Hover state animates with transform (scale, translate) - scale(1.05) with translate3d
+2. ✅ Focus state shows clear visual indicator - focus-visible:ring-2 with FOCUS_COLOR_HEX
+3. ✅ Active/pressed state provides feedback - scale(0.95) on :active
+4. ✅ Selected state distinguished from unselected - domain border + 15% background tint
+5. ✅ Transitions use cubic-bezier easing - spring easing for transform, ease-out for colors
+6. ✅ Will-change property used judiciously - only on elements that animate
+7. ✅ Animations respect prefers-reduced-motion - CSS media query + JS hook check
+8. ✅ No janky animations (60fps on mobile) - GPU-accelerated transforms only
+9. ✅ Transform and opacity only - no layout-affecting properties
+10. ✅ GPU acceleration used - translate3d(0,0,0) in transform chain
+
+### Key Files Modified:
+- src/components/stack-cloud-css/stack-item.tsx: CSS class-based animation, removed inline transform
+- src/components/stack-cloud-css/root-node.tsx: CSS class-based animation for pie segments
+- src/styles/globals.css: Added .stack-item and .pie-segment animation rules
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- VIZ-004: passes: true

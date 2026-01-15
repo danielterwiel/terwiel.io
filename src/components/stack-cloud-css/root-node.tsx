@@ -217,12 +217,9 @@ export function RootNode({
               onMouseEnter={() => onDomainHover(segment.domain)}
               onMouseLeave={() => onDomainHover(null)}
               onFocus={() => rovingTabindex.setActiveIndex(index)}
-              className="cursor-pointer outline-none"
-              style={{
-                transition: a11y.prefersReducedMotion
-                  ? "none"
-                  : "transform 200ms ease-out, opacity 200ms ease-out",
-              }}
+              className={`pie-segment-group cursor-pointer outline-none ${
+                a11y.prefersReducedMotion ? "prefers-reduced-motion" : ""
+              }`}
             >
               <path
                 d={getArcPath(
@@ -237,12 +234,11 @@ export function RootNode({
                 stroke={KLEIN_BLUE}
                 strokeWidth={0.5}
                 opacity={isHighlighted ? 1 : 0.7}
+                className={`pie-segment ${isHighlighted ? "pie-segment-highlighted" : ""} ${
+                  a11y.prefersReducedMotion ? "prefers-reduced-motion" : ""
+                }`}
                 style={{
-                  transform: isHighlighted ? "scale(1.05)" : "scale(1)",
                   transformOrigin: `${center}px ${center}px`,
-                  transition: a11y.prefersReducedMotion
-                    ? "none"
-                    : "transform 200ms ease-out, opacity 200ms ease-out",
                 }}
               />
               {/* Focus ring for keyboard navigation */}

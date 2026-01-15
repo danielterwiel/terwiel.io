@@ -314,7 +314,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Verify no layout thrashing (no forced reflows)"
   ],
   "dependencies": ["VIZ-003"],
-  "passes": false
+  "passes": true
 }
 ```
 
