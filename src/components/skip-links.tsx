@@ -6,13 +6,34 @@
  * Provides keyboard navigation shortcuts to bypass repetitive content
  * and jump directly to main sections of the page.
  *
- * WCAG 2.2 SC 2.4.1: Bypass Blocks (Level A)
- * - Visually hidden by default, visible on keyboard focus
- * - First interactive element in tab order
- * - Updated March 2025: Essential for keyboard-only users
+ * ## WCAG 2.2 Compliance
+ *
+ * - **SC 2.4.1 Bypass Blocks (Level A)**: Skip links allow users to bypass
+ *   repetitive content like headers and navigation
+ * - **SC 2.1.1 Keyboard (Level A)**: All skip links are keyboard accessible
+ * - **SC 2.4.7 Focus Visible (Level AA)**: Focus indicators clearly visible
+ *
+ * ## Keyboard Navigation
+ *
+ * - **Tab**: Focus skip links (visible when focused)
+ * - **Enter/Space**: Activate skip link, jump to target section
+ * - **Tab** again: Continue to next skip link or first interactive element
+ *
+ * ## Visual Behavior
+ *
+ * - Hidden by default (positioned off-screen at `top: -100vh`)
+ * - Slides into view when focused (CSS transition)
+ * - High contrast styling: Klein blue background, white text
+ * - Inner outline for focus visibility (3px white outline)
+ *
+ * ## Target Sections
+ *
+ * - `#stack`: Technology stack visualization (StackCloud component)
+ * - `#projects`: Projects list section
  *
  * @see https://www.w3.org/WAI/WCAG22/Understanding/bypass-blocks.html
  * @see https://www.tpgi.com/when-is-a-skip-link-needed/
+ * @see globals.css for `.skip-link` and `.skip-links-container` styles
  */
 export const SkipLinks = () => {
   return (

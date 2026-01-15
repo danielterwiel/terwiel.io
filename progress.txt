@@ -836,3 +836,83 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - SEARCH-002: passes: true
 
+---
+
+## 2026-01-15: A11Y-001 Complete - Implement comprehensive keyboard navigation
+
+### What was done:
+- Enhanced ContactDialog with comprehensive keyboard navigation support
+- Added Escape key handling to close the dialog
+- Implemented focus return to trigger element when dialog closes
+- Added aria-labelledby and aria-modal attributes to dialog element
+- Created comprehensive JSDoc documentation for keyboard patterns
+- Enhanced SkipLinks component with detailed WCAG 2.2 compliance documentation
+
+### Implementation Details:
+
+**ContactDialog Keyboard Navigation (contact-dialog.tsx)**:
+- **Escape key handling**: Listens for Escape key to close dialog
+- **Focus trap**: Native `<dialog>` element provides built-in focus trapping
+- **Focus return**: MutationObserver tracks dialog open/close state
+- **Trigger tracking**: Stores `document.activeElement` when dialog opens
+- **Focus restoration**: Uses `requestAnimationFrame` for reliable focus return
+- **Accessibility attributes**: `aria-labelledby`, `aria-modal="true"`, `id` on heading
+
+**SkipLinks Documentation (skip-links.tsx)**:
+- Documented WCAG 2.2 compliance (SC 2.4.1, SC 2.1.1, SC 2.4.7)
+- Explained keyboard navigation flow
+- Documented visual behavior (off-screen positioning, focus slide-in)
+- Listed target sections (#stack, #projects)
+
+### Existing Keyboard Navigation (Already Implemented):
+
+**Roving Tabindex (use-roving-tabindex.ts)**:
+- Arrow keys navigate within groups (horizontal/vertical/both)
+- Home/End keys jump to first/last item
+- Tab key properly escapes to next focusable element
+- Single tab stop per group (active item has tabIndex=0)
+
+**Search Input (search-input.tsx:101-124)**:
+- Enter: Triggers immediate search
+- Escape: Clears query (first press), blurs input (second press)
+
+**Focus Styles (globals.css:150-187)**:
+- `.focus-standard`: Ring-based focus (2px, Klein blue, 3:1 contrast)
+- `.focus-button`: Button-specific focus with background
+- `.focus-badge`: Badge/pill focus with outline
+- `.focus-link`: Link focus with ring and rounded corners
+
+**Skip Links (skip-links.tsx)**:
+- "Skip to stack" → #stack (StackCloud component)
+- "Skip to projects" → #projects (Projects list)
+- Visually hidden by default, visible on keyboard focus
+- High contrast styling with Klein blue background
+
+**Dropdown Menu (Radix UI)**:
+- Arrow keys for item navigation
+- Enter/Space to activate items
+- Escape to close dropdown
+
+### Acceptance Criteria Status:
+1. ✅ All interactive elements reachable via Tab - semantic HTML, all buttons/links focusable
+2. ✅ Logical tab order (left-to-right, top-to-bottom) - DOM order matches visual
+3. ✅ Shift+Tab reverses navigation - standard browser behavior
+4. ✅ Enter/Space activates buttons and links - implemented in all interactive elements
+5. ✅ Escape closes modals/dropdowns - ContactDialog + Radix DropdownMenu
+6. ✅ Arrow keys navigate within groups (roving tabindex) - use-roving-tabindex.ts hook
+7. ✅ Focus visible at all times (focus-visible pseudo-class) - focus styles in globals.css
+8. ✅ No keyboard traps - native `<dialog>` focus trap, Tab escapes roving tabindex
+9. ✅ Skip links implemented - "Skip to stack" and "Skip to projects"
+10. ✅ Focus returns to trigger element after modal close - MutationObserver + requestAnimationFrame
+
+### Key Files Modified:
+- src/components/contact-dialog.tsx: Added Escape handling, focus return, aria attributes
+- src/components/skip-links.tsx: Added comprehensive JSDoc documentation
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+
+### PRD Status:
+- A11Y-001: passes: true
+

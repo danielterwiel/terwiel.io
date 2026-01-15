@@ -3,19 +3,113 @@
 import { useForm } from "@formspree/react";
 import * as Form from "@radix-ui/react-form";
 
-import { forwardRef, useId, useRef, useState } from "react";
+import { forwardRef, useEffect, useId, useRef, useState } from "react";
 
 import { Icon } from "~/components/icon";
 import { getMagneticClasses } from "~/utils/icon-colors";
 
+/**
+ * ContactDialog - Accessible modal dialog for contact form
+ *
+ * ## Keyboard Navigation (WCAG 2.2 SC 2.1.1, 2.1.2)
+ *
+ * - **Escape**: Closes dialog, returns focus to trigger element
+ * - **Tab**: Cycles through focusable elements within dialog
+ * - **Shift+Tab**: Reverse tab navigation
+ * - **Enter**: Submits form when focused on submit button
+ *
+ * ## Focus Management
+ *
+ * - Focus traps within dialog while open (native `<dialog>` behavior)
+ * - Focus returns to trigger element when closed
+ * - First focusable element receives focus on open
+ *
+ * ## Accessibility Features
+ *
+ * - Uses native `<dialog>` element for built-in accessibility
+ * - `aria-label` on close button
+ * - `aria-live="polite"` for error messages
+ * - Form validation messages associated with fields
+ *
+ * @see https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/
+ */
 export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
   const [state, handleSubmit] = useForm("mgejggnl");
   const internalRef = useRef<HTMLDialogElement>(null);
   const dialogRef = (ref || internalRef) as React.RefObject<HTMLDialogElement>;
+  const triggerElementRef = useRef<Element | null>(null);
   const emailInputId = useId();
   const questionInputId = useId();
   const [emailValue, setEmailValue] = useState("");
   const [questionValue, setQuestionValue] = useState("");
+
+  // Store trigger element when dialog opens, restore focus when closed
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleOpen = () => {
+      // Store the element that had focus before dialog opened
+      triggerElementRef.current = document.activeElement;
+    };
+
+    const handleClose = () => {
+      // Return focus to trigger element when dialog closes
+      if (
+        triggerElementRef.current &&
+        triggerElementRef.current instanceof HTMLElement
+      ) {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+          (triggerElementRef.current as HTMLElement).focus();
+        });
+      }
+      triggerElementRef.current = null;
+    };
+
+    // Listen for dialog open/close events
+    // Note: 'open' attribute change is detected via MutationObserver
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "open"
+        ) {
+          if (dialog.open) {
+            handleOpen();
+          } else {
+            handleClose();
+          }
+        }
+      }
+    });
+
+    observer.observe(dialog, { attributes: true });
+
+    // Also listen for 'close' event as fallback
+    dialog.addEventListener("close", handleClose);
+
+    return () => {
+      observer.disconnect();
+      dialog.removeEventListener("close", handleClose);
+    };
+  }, [dialogRef]);
+
+  // Handle Escape key to close dialog
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && dialog.open) {
+        event.preventDefault();
+        dialog.close();
+      }
+    };
+
+    dialog.addEventListener("keydown", handleKeyDown);
+    return () => dialog.removeEventListener("keydown", handleKeyDown);
+  }, [dialogRef]);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,13 +124,19 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
     dialogRef.current?.close();
   };
 
+  const headingId = useId();
+
   return (
     <dialog
       ref={dialogRef}
       className="backdrop:bg-black/50 w-full max-w-md rounded-lg border border-slate-200 bg-white p-0 shadow-2xl open:animate-in open:fade-in open:zoom-in-95 open:duration-200 open:backdrop:animate-in open:backdrop:fade-in"
+      aria-labelledby={headingId}
+      aria-modal="true"
     >
       <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-        <h2 className="text-xl font-semibold text-slate-900">Contact Me</h2>
+        <h2 id={headingId} className="text-xl font-semibold text-slate-900">
+          Contact Me
+        </h2>
         <button
           type="button"
           onClick={closeDialog}
