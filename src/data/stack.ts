@@ -2,6 +2,36 @@ import type { Domain, StackName } from "~/types";
 
 import { STACK_ICONS } from "./icons";
 
+/**
+ * Central registry of all technology stacks used across projects.
+ *
+ * ## Structure
+ *
+ * Each entry is keyed by the display name (StackName) and contains:
+ * - `domain`: Category for visual grouping (Front-end, Back-end, etc.)
+ * - `icon`: SVG icon key from STACK_ICONS
+ * - `parent`: (optional) Parent technology for hierarchical grouping
+ *
+ * ## Hierarchical Relationships
+ *
+ * Some technologies form parent-child relationships:
+ * - **Tanstack** → Tanstack Query, Tanstack Router, Tanstack Start, Tanstack DB
+ * - **Redux** → Redux-saga
+ * - **SQL** → SQL Server
+ * - **React** → Preact
+ *
+ * The visualization merges children with their parent, showing only the parent
+ * node. This is handled by `extractUniqueStacks()` in `src/utils/extract-stacks.ts`.
+ *
+ * ## Usage
+ *
+ * Projects reference stacks by name via `createStackItem(stackName)`, which
+ * pulls domain, icon, and parent from this registry.
+ *
+ * @see src/types/stack.ts - Stack type definition with full documentation
+ * @see src/data/projects.ts - How stacks are used in projects
+ * @see src/utils/extract-stacks.ts - Stack extraction and parent merging
+ */
 export const STACK = {
   "Claude Code": {
     domain: "AI",

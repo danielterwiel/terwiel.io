@@ -64,7 +64,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Check 'src/components/' for new structure",
     "Verify old files are marked for deletion"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -112,7 +112,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "TypeScript compilation passes"
   ],
   "dependencies": ["SETUP-002"],
-  "passes": false
+  "passes": true
 }
 ```
 
