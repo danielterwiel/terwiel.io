@@ -70,6 +70,20 @@
   pointer-events: none;
 }
 
+/* Domain segment indicators */
+.stack-sphere-segment {
+  font-family: inherit;
+}
+
+.stack-sphere-segment:hover {
+  opacity: 1;
+}
+
+.stack-sphere-segment:focus-visible {
+  outline: 2px solid var(--focus-color, #005fcc);
+  outline-offset: 2px;
+}
+
 /* Reduced motion - disable all animations */
 @media (prefers-reduced-motion: reduce) {
   .stack-sphere {
@@ -77,6 +91,10 @@
   }
 
   .stack-sphere-item {
+    transition: none !important;
+  }
+
+  .stack-sphere-segment {
     transition: none !important;
   }
 }

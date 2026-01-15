@@ -98,3 +98,37 @@
 - Focus ring visible only on keyboard focus (not mouse)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - SEGMENT_001 Complete
+
+**Task:** Add domain segment indicators around sphere
+
+**What was done:**
+1. Created StackSphereSegment component for domain labels
+2. Positioned 6 domain segments around sphere perimeter
+3. Wired click handlers to filter by domain via URL params
+4. Added hover state that highlights all items matching hovered domain
+
+**Files created:**
+- `src/components/stack-sphere/stack-sphere-segment.tsx` - Domain segment button component
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere.tsx` - Added segments, domain hover state
+- `src/components/stack-sphere/stack-sphere.css` - Added segment hover/focus styles
+
+**Key implementation details:**
+- Segments positioned absolutely around sphere container at cardinal/intercardinal points
+- Uses existing `toggleFilterParam()` for URL-based domain filtering
+- `hoveredDomain` state propagates to StackSphereItem's `highlighted` prop
+- Domain-specific border colors via `useAccessibility().getBorderColor()`
+- Keyboard accessible with focus ring styling
+- Reduced motion support for transition disabling
+
+**Acceptance criteria met:**
+- Domain segments visible around sphere (6 segments rendered)
+- Click segment filters to that domain (toggles `?filter=DevOps` etc.)
+- Segment hover highlights related items (sets `data-highlighted=true`)
+
+**Status:** PASSES

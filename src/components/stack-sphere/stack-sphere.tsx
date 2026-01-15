@@ -2,13 +2,15 @@
 
 import { Suspense, useCallback, useState } from "react";
 
-import type { Stack } from "~/types";
+import type { Domain, Stack } from "~/types";
 
+import { DOMAINS } from "~/constants/domains";
 import { PROJECTS } from "~/data/projects";
 import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { StackSphereItem } from "./stack-sphere-item";
+import { StackSphereSegment } from "./stack-sphere-segment";
 import { useSpherePositions } from "./use-sphere-positions";
 
 import "./stack-sphere.css";
@@ -21,8 +23,28 @@ const BASE_ITEM_RADIUS = 24; // Base radius for individual items
  * Inner component that uses hooks
  * Wrapped in Suspense for useSearchParams compatibility
  */
+// Position segments around the sphere perimeter
+const SEGMENT_POSITIONS: Record<
+  Domain,
+  {
+    top?: string;
+    right?: string;
+    bottom?: string;
+    left?: string;
+    transform?: string;
+  }
+> = {
+  "Front-end": { top: "-28px", left: "50%", transform: "translateX(-50%)" },
+  "Back-end": { bottom: "-28px", left: "50%", transform: "translateX(-50%)" },
+  DevOps: { top: "50%", right: "-48px", transform: "translateY(-50%)" },
+  Design: { top: "50%", left: "-40px", transform: "translateY(-50%)" },
+  QA: { top: "15%", right: "-24px" },
+  AI: { bottom: "15%", left: "-16px" },
+};
+
 function StackSphereInner() {
   const [hoveredStack, setHoveredStack] = useState<string | null>(null);
+  const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
 
   // Extract stacks from projects
   const stacks = extractUniqueStacks(PROJECTS);
@@ -50,6 +72,14 @@ function StackSphereInner() {
     setHoveredStack(null);
   }, []);
 
+  const handleDomainMouseEnter = useCallback((domain: Domain) => {
+    setHoveredDomain(domain);
+  }, []);
+
+  const handleDomainMouseLeave = useCallback(() => {
+    setHoveredDomain(null);
+  }, []);
+
   return (
     <div className="stack-sphere-container">
       <div
@@ -66,6 +96,7 @@ function StackSphereInner() {
 
           const sizeFactor = sizeFactors.get(stack.name) ?? 1.0;
           const isHovered = hoveredStack === stack.name;
+          const isDomainHighlighted = hoveredDomain === stack.domain;
 
           return (
             <StackSphereItem
@@ -77,7 +108,7 @@ function StackSphereInner() {
               baseRadius={BASE_ITEM_RADIUS}
               tabIndex={getTabIndex(stack.id)}
               isDirectlyHovered={isHovered}
-              highlighted={isHovered}
+              highlighted={isHovered || isDomainHighlighted}
               onMouseEnter={() => handleMouseEnter(stack.name)}
               onMouseLeave={handleMouseLeave}
               onKeyDown={handleKeyDown}
@@ -85,6 +116,17 @@ function StackSphereInner() {
           );
         })}
       </div>
+
+      {/* Domain segment indicators around the sphere */}
+      {DOMAINS.map((domain) => (
+        <StackSphereSegment
+          key={domain}
+          domain={domain}
+          position={SEGMENT_POSITIONS[domain]}
+          onMouseEnter={() => handleDomainMouseEnter(domain)}
+          onMouseLeave={handleDomainMouseLeave}
+        />
+      ))}
     </div>
   );
 }
