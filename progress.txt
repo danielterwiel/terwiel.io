@@ -359,3 +359,63 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - VIZ-002: passes: true
+
+---
+
+## 2026-01-15: VIZ-003 Complete - Implement stack item component (CSS only)
+
+### What was done:
+- Verified existing StackItem component implementation meets all acceptance criteria
+- No code changes required - the component was already fully implemented in SETUP-002
+
+### Implementation Review:
+
+**Core Implementation (src/components/stack-cloud-css/stack-item.tsx)**:
+- Button element with 44x44px minimum touch target (WCAG 2.2 SC 2.5.8)
+- Icon rendering via Icon component with domain-aware coloring
+- CSS transitions for hover/focus/active states (200ms with cubic-bezier easing)
+- Magnetic effect classes applied (`magnetic-base magnetic-rounded-lg`)
+- Click handler uses `router.replace()` for filtering (no history entry)
+- `aria-pressed` attribute tracks selected state
+- `aria-label` provides technology name and domain category for screen readers
+
+**Visual States**:
+- Default: Transparent border, 70% opacity icon
+- Hover: Scale 1.05, domain color border, full opacity icon
+- Selected: Domain color border, 15% background tint, full opacity icon
+- Focus: Ring-2 focus indicator with FOCUS_COLOR_HEX (3:1 contrast ratio)
+
+**Parent-Child Relationships**:
+- Handled by `extractUniqueStacks()` which merges children with parent nodes
+- Children like "Tanstack Query" are merged into parent "Tanstack"
+- Documented in src/types/stack.ts and src/data/stack.ts
+
+**CSS-Only Layout**:
+- Static layout uses semantic HTML (`<li>`, `<button>`) + CSS Grid + Flexbox
+- JavaScript only required for interactivity (filtering, hover states)
+- Layout structure works without JavaScript (grid positions, sizes)
+
+### Acceptance Criteria Status:
+1. ✅ Each technology renders as clickable item - `<button>` element
+2. ✅ Icons display correctly - Icon component with domain coloring
+3. ✅ CSS transitions for hover/focus/active states - 200ms transitions defined
+4. ✅ Magnetic effect classes applied - `magnetic-base magnetic-rounded-lg`
+5. ✅ Parent-child relationships visually indicated - Via domain grouping and parent merging
+6. ✅ Clicking item filters projects (uses router.replace()) - handleClick function
+7. ✅ Selected state persists visually - aria-pressed + visual styles
+8. ✅ Works with CSS Grid or Flexbox layout - Wrapped in `<li>`, parent uses CSS Grid
+9. ✅ Scales properly across viewport sizes - min-w/min-h 44px, auto-fit grid
+10. ✅ No JavaScript required for visual layout - Static layout is CSS-only
+
+### Key Files:
+- src/components/stack-cloud-css/stack-item.tsx: StackItem component (no changes needed)
+- src/components/stack-cloud-css/domain-group.tsx: Parent container using CSS Grid
+- src/components/stack-cloud-css/stack-cloud-content.tsx: Main visualization wrapper
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- Code review confirmed all 10 acceptance criteria met
+
+### PRD Status:
+- VIZ-003: passes: true

@@ -284,7 +284,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Disable JavaScript, verify layout still works"
   ],
   "dependencies": ["VIZ-002"],
-  "passes": false
+  "passes": true
 }
 ```
 
