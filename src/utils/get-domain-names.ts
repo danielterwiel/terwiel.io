@@ -44,17 +44,3 @@ export function matchesDomainName(
 
   return null;
 }
-
-/**
- * Check if two domain names are equal (case-insensitive comparison)
- * Used for consistent domain comparison across the application
- */
-export function isEqualDomain(
-  domain1: string | null,
-  domain2: string | null,
-): boolean {
-  if (domain1 === null || domain2 === null) {
-    return domain1 === domain2;
-  }
-  return domain1.toLowerCase() === domain2.toLowerCase();
-}

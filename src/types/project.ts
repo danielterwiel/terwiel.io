@@ -24,19 +24,6 @@ export type Domain =
   | "AI";
 
 /**
- * All valid domain values as an array for runtime iteration.
- * Useful for validation and exhaustive domain processing.
- */
-export const DOMAINS: readonly Domain[] = [
-  "Front-end",
-  "Back-end",
-  "DevOps",
-  "Design",
-  "QA",
-  "AI",
-] as const;
-
-/**
  * Props for badge components (used in project cards).
  */
 export type BadgeProps = {

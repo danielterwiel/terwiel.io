@@ -975,7 +975,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Manually verify deleted files are gone"
   ],
   "dependencies": ["DOC-002"],
-  "passes": false
+  "passes": true
 }
 ```
 

@@ -5,7 +5,6 @@ import {
   type Oklch,
   oklchToHex,
   toOklchString,
-  toSegmentOutline,
 } from "../utils/color-conversions";
 
 /**
@@ -86,27 +85,8 @@ export const FOCUS_COLOR_HEX = oklchToHex(FOCUS_COLOR_OKLCH);
 // Domain colors - all variations generated from OKLCH
 const domainColorVariations = generateDomainColors(DOMAIN_COLORS_OKLCH);
 
-// Generate segment outline colors (darker and more saturated for better visibility)
-const DOMAIN_OUTLINE_OKLCH = Object.entries(DOMAIN_COLORS_OKLCH).reduce(
-  (acc, [domain, color]) => {
-    acc[domain as Domain] = toSegmentOutline(color);
-    return acc;
-  },
-  {} as Record<Domain, Oklch>,
-);
-
-// Convert outline colors to hex
-const DOMAIN_OUTLINE_COLORS_HEX = Object.entries(DOMAIN_OUTLINE_OKLCH).reduce(
-  (acc, [domain, color]) => {
-    acc[domain as Domain] = oklchToHex(color);
-    return acc;
-  },
-  {} as Record<Domain, string>,
-);
-
 export const DOMAIN_COLORS = domainColorVariations.colors;
 export const DOMAIN_COLORS_HEX = domainColorVariations.colorsHex;
 export const DOMAIN_BORDERS_SUBTLE_HEX = domainColorVariations.bordersSubtleHex;
 export const DOMAIN_COLORS_HIGH_CONTRAST_HEX =
   domainColorVariations.highContrastHex;
-export const DOMAIN_OUTLINE_HEX = DOMAIN_OUTLINE_COLORS_HEX;

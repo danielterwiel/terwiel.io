@@ -1867,3 +1867,50 @@ implemented and verified. The codebase is ready for live CWV validation upon dep
 ### PRD Status:
 - DOC-002: passes: true
 
+---
+
+## 2026-01-15: CLEAN-001 Complete - Remove old D3-based components
+
+### What was done:
+- Deleted src/types/simulation.ts (Dimensions and SimulationNode types - D3 remnants)
+- Removed unused exports from src/types/experience.ts:
+  - DateRange, MergedExperience, StackExperience, DomainExperienceSimple, TotalExperience, DomainAngleRange
+- Removed DOMAINS constant from src/types/project.ts (duplicate of src/constants/domains.ts)
+- Removed DEFAULT_STACK_GRID_CONFIG and StackGridConfig from src/types/stack.ts
+- Removed DOMAIN_OUTLINE_HEX and toSegmentOutline from color-conversions (D3 outline colors)
+- Removed DOMAIN_ICONS from src/data/icons.ts (was for D3 visualization)
+- Removed isEqualDomain from src/utils/get-domain-names.ts (unused utility)
+- Updated src/types/index.ts to remove all dead type exports
+
+### Files Deleted:
+- src/types/simulation.ts
+
+### Files Modified:
+- src/types/index.ts: Cleaned up exports
+- src/types/experience.ts: Removed 6 unused types
+- src/types/project.ts: Removed duplicate DOMAINS constant
+- src/types/stack.ts: Removed StackGridConfig type and DEFAULT_STACK_GRID_CONFIG
+- src/constants/colors.ts: Removed DOMAIN_OUTLINE_HEX and toSegmentOutline import
+- src/utils/color-conversions.ts: Removed toSegmentOutline function
+- src/data/icons.ts: Removed DOMAIN_ICONS
+- src/utils/get-domain-names.ts: Removed isEqualDomain function
+
+### Acceptance Criteria Status:
+1. ✅ src/components/stack-cloud/ directory removed - Done in SETUP-002
+2. ✅ src/hooks/use-stack-simulation.ts removed - Done in SETUP-002
+3. ✅ src/utils/stack-cloud/ directory removed - Done in SETUP-002
+4. ✅ src/types/simulation.ts removed - Done in this task
+5. ✅ All imports to deleted files removed - Verified via typecheck
+6. ✅ No dead code remaining - npm run knip shows 0 issues
+7. ✅ TypeScript compilation succeeds - npm run typecheck: PASS
+8. ✅ npm run knip shows no unused files - Clean output
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS (77 files checked)
+- npm run knip: PASS (0 issues)
+- npm run build: PASS (94.6 kB page, 218 kB first load)
+
+### PRD Status:
+- CLEAN-001: passes: true
+

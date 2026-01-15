@@ -1,4 +1,4 @@
-import type { Domain, IconName, StackName } from "~/types";
+import type { IconName, StackName } from "~/types";
 
 export const ICON_COLORS = {
   Ai: "#10A37F",
@@ -103,12 +103,3 @@ export const STACK_ICONS = {
   Webpack: "Webpack",
   XState: "BrandXstate",
 } as const satisfies Record<StackName, IconName>;
-
-export const DOMAIN_ICONS = {
-  "Front-end": "Code",
-  Design: "Palette",
-  "Back-end": "ServerCog",
-  DevOps: "CloudCog",
-  QA: "TestPipe",
-  AI: "Ai",
-} as const satisfies Record<Domain, IconName>;
