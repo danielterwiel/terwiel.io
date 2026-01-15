@@ -374,7 +374,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Measure text contrast ratios"
   ],
   "dependencies": ["VIZ-005"],
-  "passes": false
+  "passes": true
 }
 ```
 

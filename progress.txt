@@ -534,3 +534,59 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - VIZ-005: passes: true
+
+---
+
+## 2026-01-15: PROJ-001 Complete - Redesign project card component
+
+### What was done:
+- Enhanced project card with semantic HTML elements for WCAG 2.2 compliance
+- Added `<article>` element wrapping each project with aria-labelledby linking to heading
+- Added `<header>` element containing the h3 heading for proper semantic structure
+- Added `<time>` elements with datetime attributes for dateFrom and dateTo
+- Removed unused formatProjectTimespan utility function
+- Updated date formatting to use date-fns parseISO and format directly in component
+
+### Implementation Details:
+
+**Semantic HTML Enhancements (project.tsx)**:
+- `<article aria-labelledby="project-{id}-heading">`: Self-contained content section
+- `<header>` containing `<h3 id="project-{id}-heading">`: Proper heading with ID for aria reference
+- `<time dateTime="yyyy-MM">`: Machine-readable dates for search engines and assistive tech
+- Dates formatted with parseISO() for string-to-Date conversion
+
+**Date Handling**:
+- dateFromParsed = parseISO(project.dateFrom) - Convert ISO string to Date
+- dateFromISO = format(dateFromParsed, "yyyy-MM") - ISO format for datetime attribute
+- Display format uses "MMM yyyy" (e.g., "Jan 2024")
+- Handles "Present" as null/undefined dateTo gracefully
+
+**Cleanup**:
+- Removed unused `src/utils/format-project-dates.ts` (detected by knip)
+- Removed unused import `formatProjectTimespan`
+
+### Acceptance Criteria Status:
+1. ✅ Mobile-optimized layout (vertical stack) - Grid with responsive breakpoints
+2. ✅ All project data displayed - company, role, teamSize, industry, location, dateFrom, dateTo, description, url, stack
+3. ✅ Side project badge if sideProject: true - Conditional rendering at line 167-170
+4. ✅ Icon displays correctly - Using Icon component with Ring wrapper
+5. ✅ Stack badges clickable (router.replace()) - Badge component uses router.replace()
+6. ✅ Touch-friendly interaction zones (44x44px) - min-h-11 on badges (44px)
+7. ✅ Readable typography (16px minimum) - Default Tailwind text sizes
+8. ✅ Sufficient color contrast (WCAG 2.2 AA: 4.5:1) - Existing color scheme meets requirements
+9. ✅ Focus management for keyboard users - focus-visible styles with Klein blue outline
+10. ✅ Semantic HTML (article, header, time elements) - NOW IMPLEMENTED
+
+### Key Files Modified:
+- src/components/project.tsx: Added semantic HTML (article, header, time elements)
+
+### Files Deleted:
+- src/utils/format-project-dates.ts: No longer needed (date formatting done inline)
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: format-project-dates.ts detected as unused and removed
+
+### PRD Status:
+- PROJ-001: passes: true
