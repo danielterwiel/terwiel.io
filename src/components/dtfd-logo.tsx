@@ -2,6 +2,25 @@
 
 import { useId } from "react";
 
+/**
+ * DTFD Logo Component
+ *
+ * Renders the custom DTFD (Daniël Terwiel Front-end Developer) logo as an SVG.
+ * The logo features decorative circles with wave-like paths and color inversion
+ * effects using SVG filters and masks.
+ *
+ * @remarks
+ * - Uses unique IDs (via useId) for SVG filters/masks to prevent conflicts
+ *   when multiple logos are rendered on the same page
+ * - The logo uses an invert filter effect where circles overlap the wave paths
+ * - Colors: Circles are #231f20 (dark), waves are #7c5cdb (purple) with lighten blend
+ * - Viewbox is 24x32 with content translated for proper positioning
+ *
+ * @example
+ * ```tsx
+ * <DtfdLogo className="h-8 w-6" />
+ * ```
+ */
 export const DtfdLogo = ({ className }: { className?: string }) => {
   const uniqueId = useId();
   const filterId = `dtfd-invertFilter-${uniqueId}`;

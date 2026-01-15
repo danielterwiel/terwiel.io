@@ -1,15 +1,40 @@
+/**
+ * Icon Color Utilities
+ *
+ * Provides functions for working with icon colors and magnetic effect styling.
+ * Uses Zod for runtime validation of icon names against the ICON_COLORS registry.
+ *
+ * @see ICON_COLORS in src/data/icons.ts for the color registry
+ * @see getMagneticClasses for the magnetic effect styling system
+ */
+
 import clsx from "clsx";
 import { z } from "zod";
 
 import { ICON_COLORS } from "../data/icons";
 
+/** Valid icon name from the ICON_COLORS registry */
 type IconName = keyof typeof ICON_COLORS;
 
 // Create a Zod enum from the ICON_COLORS keys for runtime validation
 const iconColorKeys = Object.keys(ICON_COLORS) as [IconName, ...IconName[]];
 const IconNameSchema = z.enum(iconColorKeys);
 
-// Safe function that validates input and returns undefined for invalid icons
+/**
+ * Validates an icon name string against the ICON_COLORS registry
+ *
+ * Uses Zod for runtime validation to ensure the icon name exists.
+ * Returns undefined for invalid icons, allowing graceful fallbacks.
+ *
+ * @param icon - The icon name string to validate
+ * @returns The validated icon name, or undefined if invalid
+ *
+ * @example
+ * ```ts
+ * const valid = validateIconName("BrandReact"); // "BrandReact"
+ * const invalid = validateIconName("InvalidIcon"); // undefined
+ * ```
+ */
 export function validateIconName(icon: string): IconName | undefined {
   const result = IconNameSchema.safeParse(icon);
   return result.success ? result.data : undefined;

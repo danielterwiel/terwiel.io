@@ -947,7 +947,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Read through codebase as if new developer"
   ],
   "dependencies": ["DOC-001"],
-  "passes": false
+  "passes": true
 }
 ```
 

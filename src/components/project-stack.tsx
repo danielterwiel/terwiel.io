@@ -12,6 +12,12 @@ import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { getSearchFilter, getSearchQuery } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
+/**
+ * Props for the ProjectStack component
+ *
+ * @property items - Array of technology stack items to display as badges
+ * @property className - Optional CSS class name for the container
+ */
 type ProjectStackProps = {
   items: StackItem[];
   className?: string;
@@ -168,6 +174,34 @@ const ProjectStackContent = ({ items, className }: ProjectStackProps) => {
   );
 };
 
+/**
+ * ProjectStack Component
+ *
+ * Displays a collection of technology badges for a project's tech stack.
+ * Badges support filtering (click to filter projects), wave animation on scroll,
+ * and keyboard navigation via roving tabindex.
+ *
+ * ## Features
+ *
+ * - **Wave Animation**: Badges animate in sequence when scrolled into view
+ * - **Filtering**: Click a badge to filter projects by that technology (uses router.replace)
+ * - **Keyboard Navigation**: Arrow keys navigate between badges (roving tabindex pattern)
+ * - **Match Highlighting**: Badges matching current filter/query are highlighted
+ *
+ * ## Accessibility (WCAG 2.2)
+ *
+ * - Roving tabindex for keyboard navigation (SC 2.1.1)
+ * - aria-label describes the group and keyboard controls
+ * - Individual badges have aria-pressed state
+ *
+ * @example
+ * ```tsx
+ * <ProjectStack
+ *   items={project.stack}
+ *   className="mt-4"
+ * />
+ * ```
+ */
 export const ProjectStack = (props: ProjectStackProps) => {
   return (
     <Suspense

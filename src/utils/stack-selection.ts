@@ -1,3 +1,13 @@
+/**
+ * Stack Selection Utilities
+ *
+ * Determines which stacks should be visually selected/highlighted
+ * based on URL search parameters. Used by the stack visualization
+ * to show which technologies match the current filter.
+ *
+ * @see getSearchFilter in src/utils/search-params.ts for URL param extraction
+ */
+
 import type { ReadonlyURLSearchParams } from "next/navigation";
 
 import type { Project, Stack } from "~/types";
@@ -10,18 +20,43 @@ import { getSearchFilter } from "~/utils/search-params";
 
 /**
  * Normalize stack name to a URL-friendly slug
- * Examples: "React" -> "react", "Next" -> "nextjs"
+ *
+ * @param name - The stack name to normalize
+ * @returns Lowercase, dot-free, hyphenated slug
  */
 function normalizeStackName(name: string): string {
   return name.toLowerCase().replace(/\./g, "").replace(/\s+/g, "-").trim();
 }
 
 /**
- * Determine if a stack should be selected based on URL filter parameter
- * A stack is selected if:
- * 1. Its name matches the filter (case-insensitive, word start)
- * 2. Its domain matches the filter (case-insensitive)
- * 3. It's used in projects that match the filter (BUT NOT if the filter directly matches a stack name or domain)
+ * Determine if a stack should be visually selected based on URL filter
+ *
+ * Selection priority:
+ * 1. **Direct name match**: Filter starts with stack name (case-insensitive)
+ * 2. **Domain match**: Filter matches stack's domain
+ * 3. **Indirect match**: Stack is used in filtered projects (only if filter
+ *    doesn't directly match any stack name or domain)
+ *
+ * ## Why indirect matching is limited
+ *
+ * If the filter directly matches a stack name like "React", we only select
+ * that stack, not all stacks used in React projects. This prevents visual
+ * clutter where too many stacks would be highlighted.
+ *
+ * @param stack - The stack to check for selection
+ * @param searchParams - URL search parameters (from useSearchParams())
+ * @param projects - All projects (needed for domain/indirect matching)
+ * @returns true if the stack should be visually highlighted
+ *
+ * @example
+ * ```ts
+ * // URL: /?filter=React
+ * isStackSelected(reactStack, searchParams, projects); // true
+ * isStackSelected(tsStack, searchParams, projects);    // false (unless indirect)
+ *
+ * // URL: /?filter=Front-end
+ * isStackSelected(reactStack, searchParams, projects); // true (domain match)
+ * ```
  */
 export function isStackSelected(
   stack: Stack,

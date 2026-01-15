@@ -1,3 +1,29 @@
+/**
+ * Icon Registry
+ *
+ * Centralized collection of all SVG icons used throughout the application.
+ * Icons are imported as React components via @svgr/webpack and can be used
+ * with standard SVG props (className, aria-*, etc.).
+ *
+ * @example
+ * ```tsx
+ * import { Icon } from "~/components/icon";
+ *
+ * // Use as a React component
+ * <Icon.BrandReact className="h-6 w-6" aria-hidden="true" />
+ *
+ * // With accessibility
+ * <Icon.Search aria-label="Search" role="img" />
+ * ```
+ *
+ * @remarks
+ * - All icons are tree-shaken at build time (only used icons are bundled)
+ * - Icons should include aria-hidden="true" when decorative
+ * - Icons should include aria-label when they convey meaning
+ * - Icon colors can be controlled via Tailwind text-* classes
+ *
+ * @see ICON_COLORS in src/data/icons.ts for icon-specific color mappings
+ */
 import Accessible from "../images/icons/accessible.svg";
 import Ai from "../images/icons/ai.svg";
 import AntDesign from "../images/icons/ant-design.svg";
@@ -176,4 +202,14 @@ const icons = {
   X,
 } satisfies Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>>;
 
+/**
+ * Icon component registry object.
+ * Access icons as `Icon.IconName` where IconName matches the import name.
+ *
+ * @example
+ * ```tsx
+ * <Icon.BrandReact className="h-6 w-6" />
+ * <Icon.Search aria-label="Search" />
+ * ```
+ */
 export const Icon = icons;
