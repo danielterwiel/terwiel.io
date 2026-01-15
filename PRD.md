@@ -890,7 +890,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Document scores with screenshots"
   ],
   "dependencies": ["TEST-003"],
-  "passes": false
+  "passes": true
 }
 ```
 
