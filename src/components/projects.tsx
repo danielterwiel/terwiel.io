@@ -61,6 +61,8 @@ const ProjectsContent = () => {
   const projectStateMapRef = useRef(
     new Map<string, "exit" | "enter" | "stay">(),
   );
+  // Store exiting projects separately so they can animate out
+  const [exitingProjects, setExitingProjects] = useState<typeof filtered>([]);
   const [renderingProjects, setRenderingProjects] = useState<typeof filtered>(
     [],
   );
@@ -84,6 +86,11 @@ const ProjectsContent = () => {
     // Calculate the new state map to handle projects that stay (for scale animation)
     const newStateMap = diffProjectStates(prevFilteredRef.current, filtered);
 
+    // Find exiting projects (were visible but now filtered out)
+    const exiting = prevFilteredRef.current.filter(
+      (p) => newStateMap.get(p.id) === "exit",
+    );
+
     // Check if filtered list actually changed OR if we have any "stay" projects (for scale animation)
     const hasListChanged =
       prevFilteredRef.current.length !== filtered.length ||
@@ -96,6 +103,18 @@ const ProjectsContent = () => {
       // Simple state update - CSS handles the animations via classes
       projectStateMapRef.current = newStateMap;
       setRenderingProjects(filtered);
+
+      // Set exiting projects to animate out (only if there are any)
+      if (exiting.length > 0) {
+        setExitingProjects(exiting);
+        // Clear exiting projects after animation completes (200ms exit duration)
+        const timer = setTimeout(() => {
+          setExitingProjects([]);
+        }, 200);
+        // Cleanup timer on unmount or re-run
+        return () => clearTimeout(timer);
+      }
+
       prevFilteredRef.current = filtered;
     }
   }, [filtered, isInitialLoad]);
@@ -146,7 +165,20 @@ const ProjectsContent = () => {
             <ProjectsEmptyState query={activeSearchTerm} />
           </div>
         ) : (
-          <ol className="ml-0 list-none pl-0" ref={listRef}>
+          <ol className="ml-0 list-none pl-0 relative" ref={listRef}>
+            {/* Render exiting projects first (position: absolute, animate out) */}
+            {exitingProjects.map((project) => (
+              <Project
+                key={`exit-${project.id}`}
+                project={project}
+                projectIdx={0}
+                totalLength={exitingProjects.length}
+                isVisible={false}
+                projectState="exit"
+                aria-hidden="true"
+              />
+            ))}
+            {/* Render current visible projects */}
             {renderingProjects.map((project, idx) => (
               <Project
                 key={project.id}

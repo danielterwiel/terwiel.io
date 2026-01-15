@@ -33,13 +33,15 @@ export const Project = ({
   const IconProject =
     Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
 
-  // Build class names based on project state for CSS animations
+  // Build class names based on project state for CSS animations (PROJ-002)
   const stateClass =
     projectState === "enter"
       ? "project-enter"
-      : projectState === "stay"
-        ? "project-stay"
-        : "";
+      : projectState === "exit"
+        ? "project-exit"
+        : projectState === "stay"
+          ? "project-stay"
+          : "";
 
   const className =
     `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""} ${stateClass}`.trim();

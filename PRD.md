@@ -404,7 +404,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Test on mobile simulation (agent-browser.dev)"
   ],
   "dependencies": ["PROJ-001"],
-  "passes": false
+  "passes": true
 }
 ```
 

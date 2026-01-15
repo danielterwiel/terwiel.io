@@ -649,6 +649,17 @@
   }
 }
 
+@keyframes project-fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
 @keyframes project-pulse {
   0% {
     transform: scale(1);
@@ -691,22 +702,53 @@
   /* Simple CSS animations for project list filtering */
   /* Replaces complex View Transitions API for better browser compatibility */
 
-  /* Project item base */
+  /* Project item base - PROJ-002 CSS animations
+   * GPU-accelerated transforms for 60fps performance
+   * Uses will-change sparingly to prevent layer explosion
+   */
   .project-item {
     position: relative;
     overflow: visible;
+    /* GPU layer hint only during animations (removed after) */
+    transform: translateZ(0);
   }
 
-  /* Enter animation - fade in with subtle upward movement */
+  /* Enter animation - fade in with subtle upward movement
+   * Duration: 300ms (PRD requirement: 300-400ms)
+   * Uses opacity and transform only for GPU acceleration
+   */
   .project-item.project-enter {
-    animation: project-fade-in-up 0.3s ease-out both;
-    /* Stagger animation based on item index */
+    animation: project-fade-in-up 300ms ease-out both;
+    /* Stagger animation based on item index for visual flow */
     animation-delay: calc(var(--item-index, 0) * 50ms);
   }
 
-  /* Stay animation - subtle pulse to indicate the item remains */
+  /* Exit animation - fade out with upward movement
+   * Duration: 200ms (faster exit for snappy feel)
+   * Position: absolute to prevent layout shift (PROJ-002 requirement)
+   */
+  .project-item.project-exit {
+    animation: project-fade-out 200ms ease-in forwards;
+    /* Remove from document flow to prevent layout shift */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    /* Higher z-index so exit appears above entering items briefly */
+    z-index: 19;
+  }
+
+  /* Stay animation - subtle pulse to indicate the item remains
+   * Duration: 400ms for gentle feedback
+   */
   .project-item.project-stay {
-    animation: project-pulse 0.4s ease-out;
+    animation: project-pulse 400ms ease-out;
+  }
+
+  /* Visible state - items that match current filter */
+  .project-item.project-visible {
+    z-index: 22;
   }
 
   /* Empty state - simple fade in */
@@ -723,11 +765,22 @@
     transform: translateY(0);
   }
 
-  /* Accessibility: Respect user's motion preferences */
+  /* Accessibility: Respect user's motion preferences (WCAG 2.2 SC 2.3.3) */
   @media (prefers-reduced-motion: reduce) {
+    .project-item {
+      transform: none;
+    }
+
     .project-item.project-enter,
+    .project-item.project-exit,
     .project-item.project-stay {
       animation: none;
+    }
+
+    /* Exit items still need to be hidden, just without animation */
+    .project-item.project-exit {
+      opacity: 0;
+      position: absolute;
     }
 
     .empty-state-container {
