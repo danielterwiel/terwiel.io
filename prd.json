@@ -1,0 +1,534 @@
+{
+  "title": "StackCloud CSS 3D Sphere Refactor",
+  "description": "Replace D3 force simulation with pure CSS 3D sphere visualization. Keep data structure, remove heavy library, add a11y goodness. My cat's breath smells like performance.",
+  "created": "2026-01-15",
+  "items": [
+    {
+      "id": "RESEARCH_001",
+      "category": "Research",
+      "priority": 1,
+      "description": "Research CSS 3D sphere positioning algorithms. I'm learnding!",
+      "context": "Before writing code, deeply understand Fibonacci sphere algorithm for even distribution of points on sphere surface. The dome looks like a circle from outer space!",
+      "research_links": [
+        "https://www.cssscript.com/3d-rotating-sphere-tags-cloud/",
+        "https://css-tricks.com/animating-css-grid-how-to-examples/",
+        "https://alvaromontoro.com/blog/67945/create-a-tag-cloud-with-html-and-css",
+        "https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/"
+      ],
+      "do_more_research": [
+        "Search: 'Fibonacci sphere point distribution algorithm CSS'",
+        "Search: 'golden angle sphere surface point placement'",
+        "Search: 'CSS perspective transform-style preserve-3d examples'",
+        "Read: Wikipedia article on Fibonacci lattice for spheres"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Document chosen algorithm in code comments",
+          "agent_browser_test": null
+        }
+      ],
+      "passes": true
+    },
+    {
+      "id": "SETUP_001",
+      "category": "Setup",
+      "priority": 2,
+      "description": "Create new CSS-only sphere component file structure. I bent my Wookie!",
+      "context": "Create component shell that mirrors current StackCloud interface but uses CSS transforms instead of D3. Keep all existing props and data flow intact.",
+      "files_to_create": [
+        "src/components/stack-sphere/stack-sphere.tsx",
+        "src/components/stack-sphere/stack-sphere-item.tsx",
+        "src/components/stack-sphere/stack-sphere.css",
+        "src/components/stack-sphere/use-sphere-positions.ts"
+      ],
+      "files_to_preserve": [
+        "src/data/projects.ts",
+        "src/utils/stack-cloud/calculate-stack-size.ts",
+        "src/utils/extract-stacks.ts"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Component files exist and TypeScript compiles",
+          "agent_browser_test": "agent-browser eval \"document.querySelector('.stack-sphere-wrapper') !== null\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "CORE_001",
+      "category": "Core",
+      "priority": 3,
+      "description": "Implement Fibonacci sphere point distribution hook. That's where I saw the leprechaun!",
+      "context": "Create useSpherePositions hook that calculates X, Y, Z coordinates for each stack item using golden angle distribution. Returns CSS transform strings for each item.",
+      "algorithm": "For n points: phi = (1 + sqrt(5)) / 2, for i in 0..n: theta = 2 * PI * i / phi, y = 1 - (i / (n-1)) * 2, radius = sqrt(1 - y*y), x = cos(theta) * radius, z = sin(theta) * radius",
+      "research_links": [
+        "https://css-irl.info/animated-grid-tracks-with-has/",
+        "https://web.dev/articles/css-animated-grid-layouts/"
+      ],
+      "do_more_research": [
+        "Search: 'golden ratio sphere distribution JavaScript implementation'",
+        "Search: 'convert 3D coordinates to CSS rotateX rotateY translateZ'"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Hook returns transform strings for all stacks",
+          "agent_browser_test": null
+        },
+        {
+          "description": "Points are visually distributed evenly on sphere",
+          "agent_browser_test": "agent-browser screenshot sphere-distribution.png --full"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "CORE_002",
+      "category": "Core",
+      "priority": 4,
+      "description": "Implement base sphere container with CSS perspective. Me fail English? That's unpossible!",
+      "context": "Create parent container with perspective, preserve-3d, and auto-rotation animation. The sphere should slowly rotate when not interacted with.",
+      "css_properties": {
+        "container": {
+          "perspective": "800px",
+          "perspective-origin": "50% 50%"
+        },
+        "sphere": {
+          "transform-style": "preserve-3d",
+          "animation": "sphere-rotate 30s linear infinite"
+        }
+      },
+      "research_links": [
+        "https://www.lexo.ch/blog/2025/01/boost-css-performance-with-will-change-and-transform-translate3d-why-gpu-acceleration-matters/",
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Scroll-driven_animations"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Sphere rotates smoothly at 60fps",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser wait 3000 && agent-browser eval \"window.performance.now()\""
+        },
+        {
+          "description": "Container has correct perspective",
+          "agent_browser_test": "agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere-container')).perspective\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "CORE_003",
+      "category": "Core",
+      "priority": 5,
+      "description": "Implement individual stack items with 3D positioning. I'm a unitard!",
+      "context": "Each stack item positioned on sphere surface using rotateX, rotateY, translateZ. Items face outward from sphere center for readability.",
+      "transform_formula": "transform: rotateY(${theta}deg) rotateX(${phi}deg) translateZ(${radius}px)",
+      "research_links": [
+        "https://www.smashingmagazine.com/2012/06/play-with-hardware-accelerated-css/"
+      ],
+      "do_more_research": [
+        "Search: 'CSS 3D transform face camera billboard technique'",
+        "Search: 'CSS backface-visibility sphere tag cloud'"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "All stack items visible on sphere",
+          "agent_browser_test": "agent-browser snapshot -i && agent-browser get count '.stack-sphere-item'"
+        },
+        {
+          "description": "Items face outward (readable)",
+          "agent_browser_test": "agent-browser screenshot sphere-items.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "SIZE_001",
+      "category": "Feature",
+      "priority": 6,
+      "description": "Integrate experience-based variable sizing. When I grow up I want to be a principal or a caterpillar!",
+      "context": "Reuse existing calculateStackSizeFactors() which applies recency multiplier (-25% old to +25% recent) and normalizes to constant surface area. Items with more experience are larger (0.75x-2.5x baseline).",
+      "files_to_reuse": ["src/utils/stack-cloud/calculate-stack-size.ts"],
+      "sizing_algorithm_notes": "Current algo: base factor = totalMonths/medianMonths, multiply by (1 + recencyMultiplier), constrain 0.75-2.5, normalize to constant total area. Consider tweaking recency range from ±25% to ±15% for subtler effect.",
+      "acceptance_criteria": [
+        {
+          "description": "React items render with different sizes based on experience",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item')).map(el => getComputedStyle(el).getPropertyValue('--size-factor')).filter((v,i,a) => a.indexOf(v) === i).length > 1\""
+        },
+        {
+          "description": "JavaScript (high experience) is visibly larger than Knockout (low experience)",
+          "agent_browser_test": "agent-browser find text JavaScript hover && agent-browser screenshot js-size.png && agent-browser find text Knockout hover && agent-browser screenshot knockout-size.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "HOVER_001",
+      "category": "Feature",
+      "priority": 7,
+      "description": "Implement hover states with icon color activation. The doctor said I wouldn't have so many nosebleeds if I kept my finger outta there!",
+      "context": "On hover: pause sphere rotation, highlight item, show original icon color (getIconHexColor). Preserve existing hover state management from useAccessibility hook.",
+      "research_links": [
+        "https://freefrontend.com/css-hover-effects/",
+        "https://css-tricks.com/create-a-tag-cloud-with-some-simple-css-and-even-simpler-javascript/"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Sphere rotation pauses on hover",
+          "agent_browser_test": "agent-browser find role button hover && agent-browser wait 1000 && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere')).animationPlayState === 'paused'\""
+        },
+        {
+          "description": "Hovered item shows brand color",
+          "agent_browser_test": "agent-browser find text React hover && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere-item:hover .icon')).color\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "SELECT_001",
+      "category": "Feature",
+      "priority": 8,
+      "description": "Implement selection via URL params. I sleep in a drawer!",
+      "context": "Click to toggle filter URL param (same as current). Selected items stay highlighted, use existing isExactParamMatch logic. Works with both ?query= and ?filter= params.",
+      "files_to_reuse": [
+        "src/utils/search-params.ts",
+        "src/utils/search-params-match.ts"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Click adds ?filter= param to URL",
+          "agent_browser_test": "agent-browser find text React click && agent-browser get url"
+        },
+        {
+          "description": "Selected item stays highlighted after click",
+          "agent_browser_test": "agent-browser find text React click && agent-browser wait 500 && agent-browser is visible '.stack-sphere-item[data-selected=true]'"
+        },
+        {
+          "description": "Second click removes filter",
+          "agent_browser_test": "agent-browser find text React click && agent-browser find text React click && agent-browser get url"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "A11Y_001",
+      "category": "Accessibility",
+      "priority": 9,
+      "description": "Implement reduced motion support. My face is on fire!",
+      "context": "Respect prefers-reduced-motion: disable sphere rotation, use instant transitions. Critical for vestibular disorders.",
+      "research_links": [
+        "https://dev.to/alvaromontoro/create-a-tag-cloud-with-html-and-css-1e90",
+        "https://auto-animate.formkit.com/"
+      ],
+      "css_media_query": "@media (prefers-reduced-motion: reduce) { .stack-sphere { animation: none; } .stack-sphere-item { transition: none; } }",
+      "acceptance_criteria": [
+        {
+          "description": "Animations disabled when prefers-reduced-motion is reduce",
+          "agent_browser_test": "agent-browser set media prefers-reduced-motion reduce && agent-browser reload && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere')).animationDuration === '0s'\""
+        },
+        {
+          "description": "Component still fully functional without animation",
+          "agent_browser_test": "agent-browser set media prefers-reduced-motion reduce && agent-browser find text React click && agent-browser get url"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "A11Y_002",
+      "category": "Accessibility",
+      "priority": 10,
+      "description": "Implement keyboard navigation with roving tabindex. I'm Idaho!",
+      "context": "Single tab stop for container, arrow keys navigate between items. Reuse existing useRovingTabindex hook. Enter/Space to select.",
+      "files_to_reuse": ["src/hooks/use-roving-tabindex.ts"],
+      "research_links": [
+        "https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Tab focuses sphere container once",
+          "agent_browser_test": "agent-browser press Tab && agent-browser press Tab && agent-browser eval \"document.activeElement.classList.contains('stack-sphere-wrapper')\""
+        },
+        {
+          "description": "Arrow keys navigate between items",
+          "agent_browser_test": "agent-browser press Tab && agent-browser press ArrowRight && agent-browser press ArrowRight && agent-browser eval \"document.activeElement.getAttribute('aria-label')\""
+        },
+        {
+          "description": "Enter selects focused item",
+          "agent_browser_test": "agent-browser press Tab && agent-browser press ArrowRight && agent-browser press Enter && agent-browser get url"
+        },
+        {
+          "description": "Focus ring visible on keyboard focus",
+          "agent_browser_test": "agent-browser press Tab && agent-browser press ArrowRight && agent-browser screenshot focus-ring.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "A11Y_003",
+      "category": "Accessibility",
+      "priority": 11,
+      "description": "Implement screen reader support. Wax never lies!",
+      "context": "Proper ARIA labels, role=button, aria-pressed for selection state. Announce item names and experience when focused.",
+      "aria_attributes": {
+        "container": "role='group' aria-label='Technology stack visualization'",
+        "item": "role='button' aria-label='{name} technology, {years} years experience' aria-pressed='{selected}'"
+      },
+      "acceptance_criteria": [
+        {
+          "description": "All items have aria-label with name",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item')).every(el => el.getAttribute('aria-label')?.includes('technology'))\""
+        },
+        {
+          "description": "Selected state announced via aria-pressed",
+          "agent_browser_test": "agent-browser find text React click && agent-browser eval \"document.querySelector('[aria-label*=React]').getAttribute('aria-pressed')\""
+        },
+        {
+          "description": "Container has descriptive group label",
+          "agent_browser_test": "agent-browser eval \"document.querySelector('.stack-sphere-wrapper').getAttribute('aria-label')\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_001",
+      "category": "Performance",
+      "priority": 12,
+      "description": "Add CSS containment and will-change optimization. I'm a furniture!",
+      "context": "Use contain: paint on items to isolate repaints. will-change: transform only when animating. Remove when idle to free GPU memory.",
+      "research_links": [
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Using",
+        "https://www.smashingmagazine.com/2019/12/browsers-containment-css-contain-property/",
+        "https://web.dev/articles/content-visibility"
+      ],
+      "css_optimizations": {
+        "items": "contain: paint;",
+        "items_animating": "will-change: transform;",
+        "items_idle": "will-change: auto;"
+      },
+      "acceptance_criteria": [
+        {
+          "description": "Items have contain: paint",
+          "agent_browser_test": "agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere-item')).contain.includes('paint')\""
+        },
+        {
+          "description": "GPU layers created only during animation",
+          "agent_browser_test": "agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere:not(:hover) .stack-sphere-item')).willChange === 'auto'\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_002",
+      "category": "Performance",
+      "priority": 13,
+      "description": "Ensure GPU-accelerated transforms only. Super Nintendo Chalmers!",
+      "context": "Only animate transform and opacity (compositor-friendly). Never animate width, height, top, left, box-shadow. Use translateZ(0) to force GPU layer if needed.",
+      "research_links": [
+        "https://www.viget.com/articles/animation-performance-101-browser-under-the-hood/",
+        "https://developer.chrome.com/blog/hardware-accelerated-animations"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "No layout-triggering properties animated",
+          "agent_browser_test": "agent-browser eval \"!getComputedStyle(document.querySelector('.stack-sphere-item')).transition.includes('width') && !getComputedStyle(document.querySelector('.stack-sphere-item')).transition.includes('height')\""
+        },
+        {
+          "description": "Smooth 60fps during interaction",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser trace start perf-trace.zip && agent-browser find text React hover && agent-browser wait 2000 && agent-browser find text TypeScript hover && agent-browser wait 2000 && agent-browser trace stop perf-trace.zip"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "SEGMENT_001",
+      "category": "Feature",
+      "priority": 14,
+      "description": "Add domain segment indicators around sphere. It tastes like burning!",
+      "context": "Show domain segments (Languages, Frameworks, etc.) as colored arcs or badges around the sphere perimeter. Clickable to filter by domain.",
+      "do_more_research": [
+        "Search: 'CSS circular menu around center element'",
+        "Search: 'CSS arc segment border-radius technique'"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Domain segments visible around sphere",
+          "agent_browser_test": "agent-browser get count '.stack-sphere-segment'"
+        },
+        {
+          "description": "Click segment filters to that domain",
+          "agent_browser_test": "agent-browser find text Languages click && agent-browser get url"
+        },
+        {
+          "description": "Segment hover highlights related items",
+          "agent_browser_test": "agent-browser find text Languages hover && agent-browser get count '.stack-sphere-item[data-highlighted=true]'"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "CENTER_001",
+      "category": "Feature",
+      "priority": 15,
+      "description": "Add center experience display. My doctor says my nose wouldn't bleed so much if I kept my finger out of there!",
+      "context": "Reuse RootNodeExperience component logic - show total experience by default, stack-specific on hover. Animate ticker on value change.",
+      "files_to_reuse": [
+        "src/components/stack-cloud/root-node-experience.tsx",
+        "src/components/stack-cloud/experience-ticker.tsx",
+        "src/utils/calculate-stack-experience.ts"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "Center shows total experience by default",
+          "agent_browser_test": "agent-browser get text '.stack-sphere-experience'"
+        },
+        {
+          "description": "Hover shows stack-specific experience",
+          "agent_browser_test": "agent-browser find text React hover && agent-browser wait 500 && agent-browser get text '.stack-sphere-experience'"
+        },
+        {
+          "description": "Experience ticker animates on change",
+          "agent_browser_test": "agent-browser find text React hover && agent-browser screenshot experience-ticker.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "INTEGRATE_001",
+      "category": "Integration",
+      "priority": 16,
+      "description": "Replace StackCloud with StackSphere in main layout. Go banana!",
+      "context": "Swap component in page.tsx and/or wherever StackCloud is rendered. Ensure all existing functionality works with new component.",
+      "acceptance_criteria": [
+        {
+          "description": "StackSphere renders in place of StackCloud",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser is visible '.stack-sphere-wrapper'"
+        },
+        {
+          "description": "All stack items rendered",
+          "agent_browser_test": "agent-browser get count '.stack-sphere-item' > 30"
+        },
+        {
+          "description": "Search input filters sphere items",
+          "agent_browser_test": "agent-browser fill '[name=search]' 'React' && agent-browser wait 500 && agent-browser get count '.stack-sphere-item[data-selected=true]'"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "CLEANUP_001",
+      "category": "Cleanup",
+      "priority": 17,
+      "description": "Remove D3 dependency and old StackCloud files. I bent my wookie!",
+      "context": "Delete D3-related code, remove from package.json, run npm prune. Keep only reusable utilities.",
+      "files_to_delete": [
+        "src/components/stack-cloud/stack-cloud.tsx",
+        "src/components/stack-cloud/stack-cloud-content.tsx",
+        "src/components/stack-cloud/stack-cloud-loader.tsx",
+        "src/components/stack-cloud/stack-node.tsx",
+        "src/components/stack-cloud/root-node.tsx",
+        "src/hooks/use-stack-simulation.ts"
+      ],
+      "dependencies_to_remove": [
+        "d3",
+        "d3-force",
+        "@types/d3",
+        "@types/d3-force"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "D3 not in package.json",
+          "agent_browser_test": null
+        },
+        {
+          "description": "npm run build succeeds without D3",
+          "agent_browser_test": null
+        },
+        {
+          "description": "Bundle size reduced",
+          "agent_browser_test": null
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "TEST_001",
+      "category": "Testing",
+      "priority": 18,
+      "description": "Full integration test suite. Tastes like grandma!",
+      "context": "Run comprehensive agent-browser test suite covering all acceptance criteria. Document any failures.",
+      "acceptance_criteria": [
+        {
+          "description": "All hover states work",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser find text React hover && agent-browser wait 500 && agent-browser screenshot hover-test.png"
+        },
+        {
+          "description": "All keyboard navigation works",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser press Tab && agent-browser press ArrowRight && agent-browser press ArrowRight && agent-browser press Enter && agent-browser get url"
+        },
+        {
+          "description": "Reduced motion respected",
+          "agent_browser_test": "agent-browser set media prefers-reduced-motion reduce && agent-browser open http://localhost:3000 && agent-browser screenshot reduced-motion.png"
+        },
+        {
+          "description": "Mobile viewport works",
+          "agent_browser_test": "agent-browser set device 'iPhone 14' && agent-browser open http://localhost:3000 && agent-browser screenshot mobile.png"
+        },
+        {
+          "description": "Performance trace shows no jank",
+          "agent_browser_test": "agent-browser trace start final-perf.zip && agent-browser open http://localhost:3000 && agent-browser wait 5000 && agent-browser trace stop final-perf.zip"
+        }
+      ],
+      "passes": false
+    }
+  ],
+  "research_summary": {
+    "css_3d_transforms": {
+      "key_insight": "CSS transforms (rotateX, rotateY, translateZ) are GPU-accelerated and run on compositor thread, not blocking main thread",
+      "links": [
+        "https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/",
+        "https://www.lexo.ch/blog/2025/01/boost-css-performance-with-will-change-and-transform-translate3d-why-gpu-acceleration-matters/"
+      ]
+    },
+    "css_containment": {
+      "key_insight": "contain: paint isolates repaints to subtree, dramatically improving performance with many elements",
+      "links": [
+        "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Using",
+        "https://www.smashingmagazine.com/2019/12/browsers-containment-css-contain-property/"
+      ]
+    },
+    "reduced_motion": {
+      "key_insight": "@media (prefers-reduced-motion) is critical for vestibular disorders - disable all animations",
+      "links": [
+        "https://dev.to/alvaromontoro/create-a-tag-cloud-with-html-and-css-1e90"
+      ]
+    },
+    "sphere_distribution": {
+      "key_insight": "Fibonacci/golden angle distribution gives most uniform point spread on sphere surface",
+      "links": ["https://www.cssscript.com/3d-rotating-sphere-tags-cloud/"]
+    },
+    "accessibility": {
+      "key_insight": "Roving tabindex with role=button, aria-pressed, and visible focus rings meets WCAG 2.2",
+      "links": [
+        "https://www.w3.org/WAI/ARIA/apg/practices/names-and-descriptions/"
+      ]
+    },
+    "animation_libraries_considered": {
+      "rejected": {
+        "d3": "Current problem - heavy, main thread blocking",
+        "framer_motion": "Still JS-driven, can cause jank with many elements",
+        "react_spring": "Performance issues documented with many elements"
+      },
+      "considered_alternatives": {
+        "motion_one": "5kb WAAPI-based, GPU-accelerated - good fallback if pure CSS insufficient",
+        "auto_animate": "Zero-config drop-in - useful for list filtering animations"
+      },
+      "links": [
+        "https://motion.dev/",
+        "https://auto-animate.formkit.com/",
+        "https://github.com/react-spring/react-spring/issues/786"
+      ]
+    }
+  },
+  "notes": {
+    "ralph_says": "Hi, Super Nintendo Chalmers! I'm learnding to make CSS go zoom zoom instead of JavaScript go boom boom!",
+    "sizing_algorithm_tweak": "Current recency multiplier is ±25%. Consider reducing to ±15% for subtler visual difference between old and new tech. Also consider capping max size factor at 2.0 instead of 2.5 to prevent any single item dominating.",
+    "browser_support": "CSS preserve-3d has excellent support. Fallback for older browsers: flat grid layout without 3D effect."
+  }
+}

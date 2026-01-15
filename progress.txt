@@ -1,0 +1,34 @@
+## Progress Log - StackCloud CSS 3D Sphere Refactor
+
+### 2026-01-15 - RESEARCH_001 Complete
+
+**Task:** Research CSS 3D sphere positioning algorithms
+
+**What was done:**
+1. Researched Fibonacci sphere (Golden Spiral) algorithm for even point distribution
+2. Studied improved epsilon offset technique that improves packing by 8.3%
+3. Researched CSS 3D transform mapping (rotateY, rotateX, translateZ)
+4. Documented GPU acceleration best practices
+
+**Key findings:**
+- Golden angle = π(3 - √5) ≈ 137.508° - creates spiral pattern that never aligns into rows
+- Improved distribution uses epsilon offset to push points away from poles:
+  - n < 24: ε = 0.33
+  - n < 177: ε = 1.33
+  - n < 890: ε = 3.33
+  - n ≥ 890: ε = 10
+- CSS transforms (rotateY, rotateX, translateZ) run on compositor thread = 60fps smooth
+
+**Output:**
+- Created `src/components/stack-sphere/use-sphere-positions.ts` with:
+  - Comprehensive algorithm documentation in JSDoc comments
+  - `calculateSpherePositions()` function implementing Fibonacci sphere with epsilon offset
+  - `useSpherePositions()` React hook for memoized position calculation
+  - Full type definitions for SpherePosition
+
+**References documented:**
+- https://extremelearning.com.au/how-to-evenly-distribute-points-on-a-sphere-more-effectively-than-the-canonical-fibonacci-lattice/
+- https://www.cssscript.com/3d-rotating-sphere-tags-cloud/
+- https://www.smashingmagazine.com/2016/12/gpu-animation-doing-it-right/
+
+**Status:** PASSES
