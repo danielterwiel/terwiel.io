@@ -1,10 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 
 import type { Stack } from "~/types";
 
 import { PROJECTS } from "~/data/projects";
+import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { StackSphereItem } from "./stack-sphere-item";
@@ -32,13 +33,22 @@ function StackSphereInner() {
   // Calculate sphere positions for all items
   const positions = useSpherePositions(stacks.length, SPHERE_RADIUS);
 
-  const handleMouseEnter = (stackName: string) => {
-    setHoveredStack(stackName);
-  };
+  // Roving tabindex for keyboard navigation
+  const { getTabIndex, handleKeyDown, registerItemRef } = useRovingTabindex(
+    stacks,
+    {
+      direction: "both",
+      loop: true,
+    },
+  );
 
-  const handleMouseLeave = () => {
+  const handleMouseEnter = useCallback((stackName: string) => {
+    setHoveredStack(stackName);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
     setHoveredStack(null);
-  };
+  }, []);
 
   return (
     <div className="stack-sphere-container">
@@ -59,15 +69,18 @@ function StackSphereInner() {
 
           return (
             <StackSphereItem
+              ref={(el) => registerItemRef(stack.id, el)}
               key={stack.id}
               stack={stack}
               position={position}
               sizeFactor={sizeFactor}
               baseRadius={BASE_ITEM_RADIUS}
+              tabIndex={getTabIndex(stack.id)}
               isDirectlyHovered={isHovered}
               highlighted={isHovered}
               onMouseEnter={() => handleMouseEnter(stack.name)}
               onMouseLeave={handleMouseLeave}
+              onKeyDown={handleKeyDown}
             />
           );
         })}

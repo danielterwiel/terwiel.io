@@ -67,3 +67,34 @@
 - `src/utils/extract-stacks.ts`
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - A11Y_002 Complete
+
+**Task:** Implement keyboard navigation with roving tabindex
+
+**What was done:**
+1. Integrated existing `useRovingTabindex` hook into StackSphere component
+2. Updated StackSphereItem to use `forwardRef` for focus management
+3. Connected keyboard event handlers for arrow key navigation
+4. Wired up tabIndex from roving tabindex hook to each item
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere.tsx` - Added useRovingTabindex integration
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Added forwardRef, external keydown handler
+
+**Key implementation details:**
+- Single tab stop: only one item has tabIndex=0 at a time, rest are -1
+- Arrow keys (all directions) navigate between items with loop enabled
+- Enter/Space selects the focused item (triggers URL filter)
+- Focus ring already styled in CSS via `:focus-visible::after`
+- Tab/Shift+Tab escapes the sphere to next focusable element (WAI-ARIA APG compliant)
+
+**Accessibility features:**
+- Roving tabindex pattern per WAI-ARIA APG keyboard interface guidelines
+- Home/End keys jump to first/last items
+- Focus automatically follows active index when using arrow keys
+- Focus ring visible only on keyboard focus (not mouse)
+
+**Status:** PASSES

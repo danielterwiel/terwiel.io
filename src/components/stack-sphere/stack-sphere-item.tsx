@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { memo, useTransition } from "react";
+import { forwardRef, memo, useTransition } from "react";
 
 import type { Domain } from "~/types";
 
@@ -31,15 +31,19 @@ interface StackSphereItemProps {
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
   onFocus?: () => void;
+  onKeyDown?: (event: React.KeyboardEvent) => void;
 }
 
 /**
  * Individual item on the sphere surface
  * Positioned using CSS 3D transforms (rotateY, rotateX, translateZ)
  * Memoized to prevent unnecessary re-renders
+ * Uses forwardRef for roving tabindex focus management
  */
-// biome-ignore lint/style/useComponentExportOnlyModules: Component is exported via memo wrapper
-function StackSphereItemComponent(props: StackSphereItemProps) {
+const StackSphereItemComponent = forwardRef<
+  HTMLButtonElement,
+  StackSphereItemProps
+>(function StackSphereItemComponent(props, ref) {
   const {
     stack,
     position,
@@ -52,6 +56,7 @@ function StackSphereItemComponent(props: StackSphereItemProps) {
     onMouseEnter,
     onMouseLeave,
     onFocus,
+    onKeyDown: externalKeyDown,
   } = props;
 
   const router = useRouter();
@@ -108,10 +113,14 @@ function StackSphereItemComponent(props: StackSphereItemProps) {
 
   // Handle keyboard interaction
   const handleKeyDown = (event: React.KeyboardEvent) => {
+    // Enter/Space selects the item
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       handleClick();
+      return;
     }
+    // Pass arrow keys to parent for roving tabindex navigation
+    externalKeyDown?.(event);
   };
 
   // Opacity based on z-depth (items at back are slightly faded)
@@ -119,6 +128,7 @@ function StackSphereItemComponent(props: StackSphereItemProps) {
 
   return (
     <button
+      ref={ref}
       type="button"
       className={`stack-sphere-item ${a11y.getStateClasses({ selected, highlighted })}`}
       tabIndex={tabIndex}
@@ -200,21 +210,7 @@ function StackSphereItemComponent(props: StackSphereItemProps) {
       )}
     </button>
   );
-}
+});
 
 // Memoize with custom comparison to prevent re-renders
-export const StackSphereItem = memo(
-  StackSphereItemComponent,
-  (prevProps, nextProps) => {
-    return (
-      prevProps.stack.id === nextProps.stack.id &&
-      prevProps.selected === nextProps.selected &&
-      prevProps.highlighted === nextProps.highlighted &&
-      prevProps.isDirectlyHovered === nextProps.isDirectlyHovered &&
-      prevProps.tabIndex === nextProps.tabIndex &&
-      prevProps.sizeFactor === nextProps.sizeFactor &&
-      prevProps.baseRadius === nextProps.baseRadius &&
-      prevProps.position.transform === nextProps.position.transform
-    );
-  },
-);
+export const StackSphereItem = memo(StackSphereItemComponent);

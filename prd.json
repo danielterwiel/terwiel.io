@@ -258,7 +258,7 @@
           "agent_browser_test": "agent-browser press Tab && agent-browser press ArrowRight && agent-browser screenshot focus-ring.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "A11Y_003",
