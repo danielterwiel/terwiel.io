@@ -196,7 +196,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Use agent-browser.dev to verify behavior"
   ],
   "dependencies": ["LAYOUT-001"],
-  "passes": false
+  "passes": true
 }
 ```
 

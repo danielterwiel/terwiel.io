@@ -1,8 +1,9 @@
 "use client";
 
 import { clsx } from "clsx";
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+
+import { startTransition } from "react";
 
 import type { BadgeProps } from "~/types";
 
@@ -26,8 +27,10 @@ export const Badge = ({
   isAnimating?: boolean;
   isMatched?: boolean;
   tabIndex?: number;
-  badgeRef?: (el: HTMLAnchorElement | null) => void;
+  badgeRef?: (el: HTMLButtonElement | null) => void;
 }) => {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const currentFilter = getSearchFilter(searchParams);
   const validatedIcon = validateIconName(icon);
@@ -55,9 +58,14 @@ export const Badge = ({
   const rgb = hexToRgb(hexColor);
   const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 
-  // Generate href using toggleFilterParam to clear filter if badge is already selected
-  const queryString = toggleFilterParam(currentFilter, name);
-  const href = `/${queryString}`;
+  // Handle click to toggle URL filter params using router.replace
+  // Uses replace instead of push so back button returns to previous search, not previous stack selection
+  const handleClick = () => {
+    const queryString = toggleFilterParam(currentFilter, name);
+    startTransition(() => {
+      router.replace(`${pathname}${queryString}`, { scroll: false });
+    });
+  };
 
   const magneticClasses = getMagneticClasses(undefined, {
     component: "button",
@@ -102,10 +110,10 @@ export const Badge = ({
   }
 
   return (
-    <Link
+    <button
       ref={badgeRef}
-      href={href}
-      scroll={false}
+      type="button"
+      onClick={handleClick}
       tabIndex={tabIndex}
       className={clsx(
         magneticClasses,
@@ -123,6 +131,7 @@ export const Badge = ({
       )}
       style={style}
       aria-label={`Filter by ${name}`}
+      aria-pressed={isSelected}
     >
       <IconComponent
         className={iconClasses}
@@ -132,6 +141,6 @@ export const Badge = ({
         focusable="false"
       />
       <span className={textClasses}>{name}</span>
-    </Link>
+    </button>
   );
 };

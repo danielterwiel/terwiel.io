@@ -201,3 +201,51 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - LAYOUT-002: passes: true
+
+---
+
+## 2026-01-15: NAV-001 Complete - Fix URL history management
+
+### What was done:
+- Fixed Badge component (src/components/badge.tsx) to use router.replace() instead of Link
+- This ensures stack filtering from project badges doesn't create browser history entries
+
+### Implementation Details:
+
+**Problem Identified**:
+- The Badge component used Next.js `<Link>` which by default uses `router.push()` behavior
+- This caused history entries to be created when clicking stack badges in project cards
+- PRD requirement: stack filtering should use `router.replace()` (no history entry)
+
+**Solution Applied**:
+- Changed Badge from `<Link>` to `<button>` element
+- Added `useRouter()`, `usePathname()` hooks and `startTransition` for routing
+- Added `handleClick` function that uses `router.replace()` with `scroll: false`
+- Changed ref type from `HTMLAnchorElement` to `HTMLButtonElement`
+- Added `aria-pressed` attribute for better accessibility (toggle button semantics)
+
+**Verification of All History Management**:
+1. ✅ Stack items (stack-item.tsx:68-70): Uses `router.replace()` - correct
+2. ✅ Domain segments (root-node.tsx:120-122): Uses `router.replace()` - correct
+3. ✅ Badge/project stack (badge.tsx:63-67): Now uses `router.replace()` - FIXED
+4. ✅ Search input (search-input.tsx:57-60, 94-97, 161-164): Uses `router.push()` - correct
+
+### Acceptance Criteria Status:
+1. ✅ Clicking stack segment uses router.replace() (no history entry)
+2. ✅ Clicking stack node uses router.replace() (no history entry)
+3. ✅ Typing in search uses router.push() (creates history entry)
+4. ✅ Back button returns to previous search, not previous stack selection
+5. ✅ Forward button works correctly
+6. ✅ URL properly reflects current state
+7. ✅ No duplicate history entries
+
+### Key Files Modified:
+- src/components/badge.tsx: Changed from Link to button with router.replace()
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- NAV-001: passes: true
