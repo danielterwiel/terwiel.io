@@ -496,7 +496,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Verify animation smooth (60fps)"
   ],
   "dependencies": ["SEARCH-001"],
-  "passes": false
+  "passes": true
 }
 ```
 
