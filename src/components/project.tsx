@@ -10,6 +10,29 @@ import { ProjectStack } from "~/components/project-stack";
 import { Ring } from "~/components/ring";
 import { calculateProjectDuration } from "~/utils/calculate-experience";
 
+/**
+ * Project Component - Individual project card for the portfolio
+ *
+ * ## Accessibility (WCAG 2.2 A11Y-005 - Screen Reader Optimization)
+ *
+ * - Uses semantic HTML: `<article>` with `aria-labelledby` linking to heading
+ * - Proper heading hierarchy: `<h3>` within the projects `<article>` container
+ * - `<header>` element wraps the company/project heading
+ * - `<time>` elements with `datetime` attributes for machine-readable dates
+ * - `<dl>`, `<dt>`, `<dd>` for structured definition lists (role, team, etc.)
+ * - All icons use `aria-hidden="true"` and `focusable="false"` (decorative)
+ * - External links include `target="_blank"` with `rel="noopener noreferrer"`
+ * - External link icon hidden from screen readers (decorative indicator)
+ *
+ * ## Screen Reader Experience
+ *
+ * A screen reader will announce:
+ * 1. "Article: [Company Name]" (via aria-labelledby)
+ * 2. "[Duration]" and "[Date range]"
+ * 3. Definition list: "Role: [role], Team: [size] developers, Industry: [industry], Location: [location]"
+ * 4. Description paragraph
+ * 5. Stack badges (each as "Filter by [technology]" button)
+ */
 export const Project = ({
   project,
   projectIdx,
@@ -97,6 +120,7 @@ export const Project = ({
                       <HighlightedText>{project.company}</HighlightedText>
                       <Icon.ExternalLink
                         aria-hidden="true"
+                        focusable="false"
                         className="h-6 w-6 opacity-0 transition-opacity duration-200 group-hover-hover:opacity-100 group-focus-visible:opacity-100 group-active:opacity-100 text-slate-500"
                       />
                     </a>

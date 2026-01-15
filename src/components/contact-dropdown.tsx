@@ -96,7 +96,11 @@ const LinkDropdownItem = ({ link, onSelect }: DropdownItemProps) => {
         aria-label={ariaLabel}
         role="menuitem"
       >
-        <LinkIcon className="h-6 w-6 flex-shrink-0 stroke-[1.5]" />
+        <LinkIcon
+          className="h-6 w-6 flex-shrink-0 stroke-[1.5]"
+          aria-hidden="true"
+          focusable="false"
+        />
         <div className="flex items-center justify-between gap-1.5 w-full">
           <span className="text-sm font-medium">{link.label}</span>
           {isExternal && (
@@ -137,7 +141,11 @@ export const ContactDropdown = () => {
             aria-haspopup="menu"
             aria-expanded={isOpen}
           >
-            <Icon.Mail className="h-6 w-6" />
+            <Icon.Mail
+              className="h-6 w-6"
+              aria-hidden="true"
+              focusable="false"
+            />
           </button>
         </DropdownMenu.Trigger>
 
@@ -156,7 +164,11 @@ export const ContactDropdown = () => {
                 aria-label="Open contact form"
                 role="menuitem"
               >
-                <Icon.Mail className="h-6 w-6 flex-shrink-0 stroke-[1.5]" />
+                <Icon.Mail
+                  className="h-6 w-6 flex-shrink-0 stroke-[1.5]"
+                  aria-hidden="true"
+                  focusable="false"
+                />
                 <span className="text-sm font-medium">Email</span>
               </button>
             </DropdownMenu.Item>

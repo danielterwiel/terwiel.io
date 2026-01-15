@@ -22,6 +22,30 @@ import {
 } from "~/utils/search-params";
 import { buildSelectionIndex } from "~/utils/selection-index";
 
+/**
+ * Projects Component - Main project list with filtering and animations
+ *
+ * ## Accessibility (WCAG 2.2 A11Y-005 - Screen Reader Optimization)
+ *
+ * ### Live Region Announcements (SC 4.1.3)
+ * - Uses `<output aria-live="polite" aria-atomic="true">` for filter announcements
+ * - Announces: "[X] projects found for '[term]'" or "No projects found for '[term]'"
+ * - Skips announcement on initial load to avoid noise
+ *
+ * ### Semantic Structure
+ * - `<article>` container with id="projects" for skip link navigation
+ * - `<h2>` heading for section identification
+ * - `<ol>` ordered list for project items (semantic list structure)
+ *
+ * ### Animation Accessibility
+ * - Exit animations use `aria-hidden="true"` on fading items
+ * - All animations respect `prefers-reduced-motion` (via CSS)
+ * - GPU-accelerated transforms only (no layout thrashing)
+ *
+ * ### Loading State
+ * - ProjectsSkeleton announces "Loading projects" via `role="status"`
+ * - Skeleton visual content hidden from screen readers
+ */
 const ProjectsContent = () => {
   const searchParams = useSearchParams();
   const query = getSearchQuery(searchParams);

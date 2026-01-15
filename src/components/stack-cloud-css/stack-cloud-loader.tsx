@@ -8,20 +8,33 @@ import { DOMAINS } from "~/constants/domains";
 /**
  * Loading state for StackCloud
  * Ring-style animation with domain colors
+ *
+ * ## Accessibility (WCAG 2.2 SC 4.1.3 - Status Messages)
+ *
+ * - Uses `<output>` element with `aria-live="polite"` to announce loading state
+ * - Screen readers will announce "Loading technology stack" when this renders
+ * - Animation respects prefers-reduced-motion (via CSS in globals.css)
+ * - SVG is decorative (aria-hidden) since text provides accessible content
  */
 export function StackCloudLoader() {
   const colors = DOMAINS.map((domain) => DOMAIN_COLORS_HEX[domain]);
 
   return (
-    <div className="stack-cloud-wrapper w-full flex items-center justify-center min-h-[300px] md:min-h-[400px]">
+    <output
+      className="stack-cloud-wrapper w-full flex items-center justify-center min-h-[300px] md:min-h-[400px]"
+      aria-live="polite"
+      aria-label="Loading technology stack visualization"
+    >
+      {/* Screen reader announcement */}
+      <span className="sr-only">Loading technology stack, please wait...</span>
       <div className="relative w-32 h-32 md:w-40 md:h-40">
-        {/* Animated ring segments */}
+        {/* Animated ring segments - decorative, hidden from screen readers */}
         <svg
           className="w-full h-full animate-spin"
           style={{ animationDuration: "3s" }}
           viewBox="0 0 100 100"
-          role="img"
-          aria-label="Loading technology stack visualization"
+          aria-hidden="true"
+          focusable="false"
         >
           {DOMAINS.map((domain, index) => {
             const circumference = 2 * Math.PI * 40;
@@ -56,6 +69,6 @@ export function StackCloudLoader() {
           </span>
         </div>
       </div>
-    </div>
+    </output>
   );
 }

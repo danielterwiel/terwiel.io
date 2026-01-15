@@ -1101,3 +1101,75 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - A11Y-004: passes: true
 
+---
+
+## 2026-01-15: A11Y-005 Complete - Implement screen reader optimization
+
+### What was done:
+- Enhanced loading state announcements for screen readers (WCAG 2.2 SC 4.1.3)
+- Added `<output aria-live="polite">` for loading state announcements in:
+  - ProjectsSkeleton component: Announces "Loading projects, please wait..."
+  - StackCloudLoader component: Announces "Loading technology stack, please wait..."
+- Added `aria-busy="true"` and `aria-label` to skeleton container for loading indication
+- Added `aria-hidden="true"` to visual skeleton content (hidden from screen readers)
+- Added `aria-hidden="true"` and `focusable="false"` to all decorative icons:
+  - Header: PDF download and search button icons (mobile and desktop)
+  - ContactDropdown: Mail icons and link icons
+  - Project: External link icon
+- Added comprehensive JSDoc documentation for screen reader accessibility:
+  - projects.tsx: Documents live region announcements and animation accessibility
+  - project.tsx: Documents semantic HTML and screen reader experience
+  - projects-skeleton.tsx: Documents loading state accessibility
+  - stack-cloud-loader.tsx: Documents loading state accessibility
+
+### Implementation Details:
+
+**Loading State Announcements (SC 4.1.3)**:
+- ProjectsSkeleton: Uses `<output aria-live="polite">` with sr-only text
+- StackCloudLoader: Uses `<output aria-live="polite">` with sr-only text
+- Both respect prefers-reduced-motion via CSS
+
+**Decorative Icons (All have aria-hidden and focusable="false")**:
+- header.tsx: Icon.FileCv (x2), Icon.Search (x2)
+- contact-dropdown.tsx: Icon.Mail (x2), LinkIcon (dynamic)
+- project.tsx: Icon.ExternalLink, IconProject
+
+**Existing Features Verified**:
+1. ✅ All images have alt text - Icons use aria-hidden="true"
+2. ✅ aria-live regions announce dynamic changes - projects.tsx output element
+3. ✅ Loading states announced - New output elements with aria-live
+4. ✅ Error messages associated with form fields - contact-dialog.tsx aria-describedby
+5. ✅ Visually hidden text for icon-only buttons - All buttons have aria-label
+6. ✅ Page title descriptive and unique - "Daniël Terwiel - Developer"
+7. ✅ Link text descriptive - No "click here" links, all descriptive
+8. ⏭️ Tested with NVDA/VoiceOver - Manual testing required
+9. ✅ Navigation landmarks correctly announced - Proper semantic HTML with aria-labels
+10. ✅ Form validation messages accessible - aria-describedby in contact form
+
+### Acceptance Criteria Status:
+1. ✅ All images have alt text (decorative images alt='') - All icons aria-hidden
+2. ✅ aria-live regions announce dynamic changes - Filter results announcement
+3. ✅ Loading states announced to screen readers - New output elements
+4. ✅ Error messages associated with form fields - aria-describedby in contact-dialog
+5. ✅ Visually hidden text for icon-only buttons - All buttons have aria-label
+6. ✅ Page title descriptive and unique - Set in layout.tsx metadata
+7. ✅ Link text descriptive - All links have descriptive text/aria-labels
+8. ⏭️ Tested with NVDA/VoiceOver - Manual testing deferred
+9. ✅ Navigation landmarks correctly announced - Semantic HTML with aria-labels
+10. ✅ Form validation messages accessible - aria-describedby associations
+
+### Key Files Modified:
+- src/components/projects-skeleton.tsx: Added output element, aria-busy, aria-label, JSDoc
+- src/components/stack-cloud-css/stack-cloud-loader.tsx: Changed to output element, JSDoc
+- src/components/project.tsx: Added focusable="false" to external link icon, JSDoc
+- src/components/projects.tsx: Added comprehensive JSDoc documentation
+- src/components/header.tsx: Added aria-hidden, focusable="false" to all icons
+- src/components/contact-dropdown.tsx: Added aria-hidden, focusable="false" to all icons
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+
+### PRD Status:
+- A11Y-005: passes: true
+

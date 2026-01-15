@@ -341,7 +341,11 @@ const HeaderContent = () => {
             className="rounded-md p-2.5 hidden sm:inline text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download PDF resume"
           >
-            <Icon.FileCv className="h-6 w-6" />
+            <Icon.FileCv
+              className="h-6 w-6"
+              aria-hidden="true"
+              focusable="false"
+            />
           </a>
 
           {/* Search Button */}
@@ -353,7 +357,11 @@ const HeaderContent = () => {
             className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label={searchButtonLabel}
           >
-            <Icon.Search className="h-6 w-6" />
+            <Icon.Search
+              className="h-6 w-6"
+              aria-hidden="true"
+              focusable="false"
+            />
           </button>
         </div>
       </div>
@@ -417,7 +425,11 @@ const HeaderContent = () => {
             className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label="Download PDF resume"
           >
-            <Icon.FileCv className="h-6 w-6" />
+            <Icon.FileCv
+              className="h-6 w-6"
+              aria-hidden="true"
+              focusable="false"
+            />
           </a>
 
           {/* Search Button */}
@@ -429,7 +441,11 @@ const HeaderContent = () => {
             className="rounded-md p-2.5 text-slate-600 transition-colors hover-hover:bg-slate-100 hover-hover:text-klein focus:bg-slate-100 focus:text-klein focus:outline-none focus:ring-2 focus:ring-klein focus:ring-offset-2"
             aria-label={searchButtonLabel}
           >
-            <Icon.Search className="h-6 w-6" />
+            <Icon.Search
+              className="h-6 w-6"
+              aria-hidden="true"
+              focusable="false"
+            />
           </button>
         </div>
       </div>

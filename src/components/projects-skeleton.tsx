@@ -1,15 +1,33 @@
 /**
  * Skeleton loader for Projects component
  * Mimics the structure of the actual project list with pulse animation
+ *
+ * ## Accessibility (WCAG 2.2 SC 4.1.3 - Status Messages)
+ *
+ * - Uses `aria-busy="true"` to indicate loading state to screen readers
+ * - Uses `aria-label` to provide descriptive loading message
+ * - Screen readers will announce "Loading projects" when this component renders
+ * - The `<output>` element with `aria-live="polite"` announces the loading state
+ *   without interrupting the current screen reader output
+ * - Visual skeleton content is hidden from screen readers with `aria-hidden`
  */
 export const ProjectsSkeleton = () => {
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: Skeleton is only shown during initial load, never rendered multiple times
-    <article className="prose max-w-none" id="projects">
+    <article
+      className="prose max-w-none"
+      id="projects"
+      aria-busy="true"
+      aria-label="Loading projects"
+    >
+      {/* Screen reader announcement for loading state */}
+      <output aria-live="polite" className="sr-only">
+        Loading projects, please wait...
+      </output>
       <h2 className="mb-6 text-2xl font-bold md:text-center">Projects</h2>
       <div className="flow-root space-y-4 overflow-visible">
-        <ol className="ml-0 list-none pl-0">
-          {/* Render 3 skeleton project items */}
+        <ol className="ml-0 list-none pl-0" aria-hidden="true">
+          {/* Render 3 skeleton project items - hidden from screen readers */}
           {[0, 1, 2].map((idx) => (
             <ProjectItemSkeleton key={idx} isLast={idx === 2} />
           ))}

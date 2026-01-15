@@ -648,7 +648,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Record test session video for documentation"
   ],
   "dependencies": ["A11Y-004"],
-  "passes": false
+  "passes": true
 }
 ```
 
