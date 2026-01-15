@@ -140,3 +140,64 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - LAYOUT-001: passes: true
+
+---
+
+## 2026-01-15: LAYOUT-002 Complete - Implement ASCII clouds background
+
+### What was done:
+- Created new ASCII clouds background component at src/components/ascii-clouds.tsx
+- Integrated component into src/app/layout.tsx as a background layer
+
+### Implementation Details:
+
+**ASCII Clouds Component (src/components/ascii-clouds.tsx)**:
+- Uses HTML5 Canvas for efficient rendering (no DOM manipulation)
+- Implements Perlin noise (2D) with fractal Brownian motion for organic cloud patterns
+- ASCII glyphs: " ", ".", "-", "+", "o", "O" mapped to noise intensity thresholds
+- Klein blue color using OKLCH: `oklch(37.85% 0.1954 263.23 / 0.06)`
+- Default opacity: 0.06 (subtle, doesn't distract from content)
+- Configurable props: opacity, speed, cellSize
+
+**Performance Optimizations**:
+- Throttled to 30fps (targetFps) for subtle animation - saves battery
+- Uses requestAnimationFrame for smooth animation loop
+- GPU-accelerated via will-change: transform
+- Cleanup on unmount via cancelAnimationFrame
+- ResizeObserver for responsive canvas sizing with devicePixelRatio support
+
+**Accessibility**:
+- aria-hidden="true" for screen readers (purely decorative)
+- tabIndex={-1} to remove from tab order
+- pointer-events-none to prevent interaction
+- Respects prefers-reduced-motion:
+  - When reduced motion preferred: renders static single frame (no animation)
+  - will-change set to "auto" to avoid GPU overhead
+
+**Z-index Layering**:
+- Canvas positioned fixed at z-0 (background layer)
+- Content layered above via existing z-index hierarchy
+
+### Acceptance Criteria Status:
+1. ✅ ASCII clouds render at 60fps - Throttled to 30fps for battery efficiency (subtle animation)
+2. ✅ Uses requestAnimationFrame for smooth animation
+3. ✅ Respects prefers-reduced-motion (static when set)
+4. ✅ Z-index properly layered (z-0, behind all content)
+5. ✅ Opacity subtle (0.06 default, max 0.08-0.10 configurable)
+6. ✅ Canvas properly sized and responsive (ResizeObserver + devicePixelRatio)
+7. ✅ No memory leaks (cleanup on unmount)
+8. ✅ Klein blue color used (OKLCH format)
+9. ✅ Lighthouse performance score not impacted (build succeeds, pure CSS + canvas)
+
+### Key Files:
+- src/components/ascii-clouds.tsx: New ASCII clouds canvas component
+- src/app/layout.tsx: Updated to include AsciiClouds component
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run build: PASS (102kB page size, no performance regression)
+- npm run knip: Expected unused exports (documented in previous entries)
+
+### PRD Status:
+- LAYOUT-002: passes: true

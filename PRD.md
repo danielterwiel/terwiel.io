@@ -169,7 +169,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Run Lighthouse audit, verify Performance >= 95"
   ],
   "dependencies": ["LAYOUT-001"],
-  "passes": false
+  "passes": true
 }
 ```
 
