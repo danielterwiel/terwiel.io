@@ -205,12 +205,10 @@ const SearchInputContent = React.forwardRef<
   return (
     <Form.Root className="print:hidden" onSubmit={(e) => e.preventDefault()}>
       <Form.Field name="query">
-        <div>
-          <Form.Label className="sr-only">Search query</Form.Label>
-          <Form.Message match="typeMismatch">
-            Please provide a your search query
-          </Form.Message>
-        </div>
+        {/* Validation message container - label provided via aria-label on input */}
+        <Form.Message match="typeMismatch" className="sr-only">
+          Please provide a valid search query
+        </Form.Message>
         <div
           className={clsx(
             "rounded-md overflow-hidden",

@@ -28,6 +28,7 @@
  *
  * ## Target Sections
  *
+ * - `#main`: Main content area (skip header entirely)
  * - `#stack`: Technology stack visualization (StackCloud component)
  * - `#projects`: Projects list section
  *
@@ -38,6 +39,9 @@
 export const SkipLinks = () => {
   return (
     <nav aria-label="Skip navigation links" className="skip-links-container">
+      <a href="#main" className="skip-link">
+        Skip to main content
+      </a>
       <a href="#stack" className="skip-link">
         Skip to stack
       </a>

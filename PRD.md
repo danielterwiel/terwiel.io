@@ -558,7 +558,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Verify all interactive elements have accessible names"
   ],
   "dependencies": ["A11Y-001"],
-  "passes": false
+  "passes": true
 }
 ```
 

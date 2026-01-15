@@ -916,3 +916,64 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - A11Y-001: passes: true
 
+---
+
+## 2026-01-15: A11Y-002 Complete - Implement ARIA labels and semantic HTML
+
+### What was done:
+- Removed redundant sr-only label from search-input.tsx (aria-label on input is sufficient)
+- Added `id="main"` and `aria-label="Portfolio content"` to main element in page.tsx
+- Added "Skip to main content" skip link in skip-links.tsx
+- Added `aria-describedby` associations for form validation messages in contact-dialog.tsx
+- Updated skip-links.tsx documentation to include main section
+
+### Implementation Details:
+
+**Search Input Cleanup (search-input.tsx)**:
+- Removed redundant `<Form.Label className="sr-only">Search query</Form.Label>`
+- The `aria-label="Search projects by technology, year, or industry"` on input is more descriptive
+- Kept `<Form.Message>` for validation errors (screen reader only)
+
+**Main Element Enhancement (page.tsx)**:
+- Added `id="main"` for skip link targeting
+- Added `aria-label="Portfolio content"` for landmark identification
+- Added biome-ignore comment (static ID required for skip links, page rendered once)
+
+**Skip Links Enhancement (skip-links.tsx)**:
+- Added "Skip to main content" link as first option
+- Updated JSDoc documentation to list #main as target section
+- Skip link order: main → stack → projects
+
+**Form Validation Accessibility (contact-dialog.tsx)**:
+- Added `emailErrorId` and `questionErrorId` using useId()
+- Added `id` attributes to error message spans
+- Added `aria-describedby` on email input pointing to emailErrorId
+- Added `aria-describedby` on question textarea pointing to questionErrorId
+- Screen readers now announce validation errors when inputs are focused
+
+### Acceptance Criteria Status:
+1. ✅ Semantic HTML used: header, nav, main, article, section - all implemented
+2. ✅ Headings hierarchical (h1 → h2 → h3) - no skipped levels
+3. ✅ Landmarks properly labeled - main has aria-label, nav has aria-label
+4. ✅ Buttons use `<button>`, links use `<a>` - consistent throughout
+5. ✅ Forms use proper labels - htmlFor, aria-label, aria-describedby
+6. ✅ Interactive elements have accessible names - all buttons/links labeled
+7. ✅ Dynamic content uses aria-live regions - filter results, form errors
+8. ✅ aria-expanded, aria-controls used - dropdown, dialog
+9. ✅ No redundant ARIA - removed sr-only label in favor of aria-label
+10. ✅ Valid HTML5 - semantic elements, proper nesting
+
+### Key Files Modified:
+- src/components/search-input.tsx: Removed redundant sr-only label
+- src/app/page.tsx: Added id="main" and aria-label to main element
+- src/components/skip-links.tsx: Added "Skip to main content" link, updated docs
+- src/components/contact-dialog.tsx: Added aria-describedby for form validation
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- A11Y-002: passes: true
+

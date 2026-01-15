@@ -39,7 +39,9 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
   const dialogRef = (ref || internalRef) as React.RefObject<HTMLDialogElement>;
   const triggerElementRef = useRef<Element | null>(null);
   const emailInputId = useId();
+  const emailErrorId = useId();
   const questionInputId = useId();
+  const questionErrorId = useId();
   const [emailValue, setEmailValue] = useState("");
   const [questionValue, setQuestionValue] = useState("");
 
@@ -165,12 +167,12 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                   <span className="text-xs text-slate-400">(required)</span>
                 </Form.Label>
                 <Form.Message match="valueMissing">
-                  <span className="text-xs text-red-600">
+                  <span id={emailErrorId} className="text-xs text-red-600">
                     Please enter your email
                   </span>
                 </Form.Message>
                 <Form.Message match="typeMismatch">
-                  <span className="text-xs text-red-600">
+                  <span id={emailErrorId} className="text-xs text-red-600">
                     Please provide a valid email
                   </span>
                 </Form.Message>
@@ -193,6 +195,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                       <input
                         type="email"
                         id={emailInputId}
+                        aria-describedby={emailErrorId}
                         autoComplete="email"
                         placeholder="e.g. yourname@domain.com"
                         value={emailValue}
@@ -216,7 +219,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                   <span className="text-xs text-slate-400">(required)</span>
                 </Form.Label>
                 <Form.Message match="valueMissing">
-                  <span className="text-xs text-red-600">
+                  <span id={questionErrorId} className="text-xs text-red-600">
                     Please enter a question
                   </span>
                 </Form.Message>
@@ -238,6 +241,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                     <Form.Control asChild>
                       <textarea
                         id={questionInputId}
+                        aria-describedby={questionErrorId}
                         value={questionValue}
                         onChange={(e) => setQuestionValue(e.target.value)}
                         className="field-sizing-content resize-none w-full border-0 bg-transparent py-1 pl-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none min-h-24"

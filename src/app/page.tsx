@@ -11,7 +11,12 @@ export default function HomePage() {
       {/* Main content area with full viewport height minus header on desktop */}
       {/* Width constraints to prevent excessive stretching on large screens */}
       {/* Ultra-wide variants: 3xl/4k/5k provide additional scaling for very large displays */}
-      <main className="flex-1 flex flex-col md:flex-row landscape-mobile:flex-col p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 landscape-mobile:px-2 landscape-mobile:pt-0 landscape-mobile:pb-0 relative z-0 overflow-visible md:min-h-0">
+      {/* biome-ignore lint/correctness/useUniqueElementIds: Static ID required for skip links - page is rendered once */}
+      <main
+        id="main"
+        aria-label="Portfolio content"
+        className="flex-1 flex flex-col md:flex-row landscape-mobile:flex-col p-4 md:px-6 md:pt-6 md:pb-0 md:gap-0 landscape-mobile:px-2 landscape-mobile:pt-0 landscape-mobile:pb-0 relative z-0 overflow-visible md:min-h-0"
+      >
         {/*
           Desktop layout adjustment:
           - StackCloud: calc(50% - half of right menu width from header)
