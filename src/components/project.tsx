@@ -2,6 +2,8 @@
 
 import { format, parseISO } from "date-fns";
 
+import { memo, useMemo } from "react";
+
 import type { Project as ProjectType } from "~/types";
 
 import { HighlightedText } from "~/components/highlighted";
@@ -12,6 +14,17 @@ import { calculateProjectDuration } from "~/utils/calculate-experience";
 
 /**
  * Project Component - Individual project card for the portfolio
+ *
+ * ## Performance Optimization (PERF-004)
+ *
+ * This component is wrapped in `React.memo` to prevent unnecessary re-renders when:
+ * - Parent re-renders but project data hasn't changed
+ * - Other projects in the list update their state
+ *
+ * Expensive calculations are memoized:
+ * - `duration` calculation via `useMemo`
+ * - `IconProject` lookup via `useMemo`
+ * - Date parsing and formatting via `useMemo`
  *
  * ## Accessibility (WCAG 2.2 A11Y-005 - Screen Reader Optimization)
  *
@@ -33,7 +46,7 @@ import { calculateProjectDuration } from "~/utils/calculate-experience";
  * 4. Description paragraph
  * 5. Stack badges (each as "Filter by [technology]" button)
  */
-export const Project = ({
+export const Project = memo(function Project({
   project,
   projectIdx,
   totalLength,
@@ -47,14 +60,18 @@ export const Project = ({
   isVisible?: boolean;
   projectState?: "exit" | "enter" | "stay";
   [key: string]: unknown;
-}) => {
-  const { duration } = calculateProjectDuration(
-    project.dateFrom,
-    project.dateTo,
+}) {
+  // Memoize duration calculation - expensive and only depends on project dates (PERF-004)
+  const { duration } = useMemo(
+    () => calculateProjectDuration(project.dateFrom, project.dateTo),
+    [project.dateFrom, project.dateTo],
   );
 
-  const IconProject =
-    Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
+  // Memoize icon lookup - prevents lookup on every render (PERF-004)
+  const IconProject = useMemo(
+    () => Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark,
+    [project.icon],
+  );
 
   // Build class names based on project state for CSS animations (PROJ-002)
   const stateClass =
@@ -69,14 +86,23 @@ export const Project = ({
   const className =
     `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""} ${stateClass}`.trim();
 
-  // Parse and format dates for datetime attribute (ISO 8601)
-  const dateFromParsed = parseISO(project.dateFrom);
-  const dateFromISO = format(dateFromParsed, "yyyy-MM");
-  const dateToParsed =
-    project.dateTo && project.dateTo !== "Present"
-      ? parseISO(project.dateTo)
-      : null;
-  const dateToISO = dateToParsed ? format(dateToParsed, "yyyy-MM") : null;
+  // Memoize date parsing and formatting - expensive parseISO/format calls (PERF-004)
+  const { dateFromParsed, dateFromISO, dateToParsed, dateToISO } =
+    useMemo(() => {
+      const fromParsed = parseISO(project.dateFrom);
+      const fromISO = format(fromParsed, "yyyy-MM");
+      const toParsed =
+        project.dateTo && project.dateTo !== "Present"
+          ? parseISO(project.dateTo)
+          : null;
+      const toISO = toParsed ? format(toParsed, "yyyy-MM") : null;
+      return {
+        dateFromParsed: fromParsed,
+        dateFromISO: fromISO,
+        dateToParsed: toParsed,
+        dateToISO: toISO,
+      };
+    }, [project.dateFrom, project.dateTo]);
 
   return (
     <li
@@ -201,4 +227,4 @@ export const Project = ({
       </article>
     </li>
   );
-};
+});

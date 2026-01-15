@@ -3,7 +3,7 @@
 import { clsx } from "clsx";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { startTransition } from "react";
+import { memo, startTransition, useCallback, useMemo } from "react";
 
 import type { BadgeProps } from "~/types";
 
@@ -16,7 +16,32 @@ import {
 import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
-export const Badge = ({
+/**
+ * Convert hex color to RGB object
+ * Memoized at module level since it's a pure function (PERF-004)
+ */
+const hexToRgb = (hex: string) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result?.[1] && result[2] && result[3]
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 148, g: 163, b: 184 }; // slate-400 fallback
+};
+
+/**
+ * Badge Component - Technology stack badge with filtering capability
+ *
+ * ## Performance Optimization (PERF-004)
+ *
+ * - Wrapped in `React.memo` to prevent re-renders when props haven't changed
+ * - `hexToRgb` moved to module scope (pure function, no need for per-instance)
+ * - `useMemo` for RGB conversion result and style object
+ * - `useCallback` for click handler to prevent recreation on each render
+ */
+export const Badge = memo(function Badge({
   icon,
   name,
   isAnimating = false,
@@ -28,7 +53,7 @@ export const Badge = ({
   isMatched?: boolean;
   tabIndex?: number;
   badgeRef?: (el: HTMLButtonElement | null) => void;
-}) => {
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -43,29 +68,20 @@ export const Badge = ({
     isAnimating || isMatched || isSelected || validatedIcon !== undefined;
   const hexColor = colored ? getIconHexColor(icon) : "#94A3B8";
 
-  // Convert hex to RGB for dynamic coloring
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result?.[1] && result[2] && result[3]
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : { r: 148, g: 163, b: 184 }; // slate-400 fallback
-  };
+  // Memoize RGB conversion - only recalculate when hexColor changes (PERF-004)
+  const rgbString = useMemo(() => {
+    const rgb = hexToRgb(hexColor);
+    return `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+  }, [hexColor]);
 
-  const rgb = hexToRgb(hexColor);
-  const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
-
-  // Handle click to toggle URL filter params using router.replace
+  // Memoize click handler - prevents recreation on each render (PERF-004)
   // Uses replace instead of push so back button returns to previous search, not previous stack selection
-  const handleClick = () => {
+  const handleClick = useCallback(() => {
     const queryString = toggleFilterParam(currentFilter, name);
     startTransition(() => {
       router.replace(`${pathname}${queryString}`, { scroll: false });
     });
-  };
+  }, [currentFilter, name, pathname, router]);
 
   const magneticClasses = getMagneticClasses(undefined, {
     component: "button",
@@ -97,13 +113,17 @@ export const Badge = ({
       "group-hover-hover:[text-decoration-color:#94A3B8] group-focus-visible:[text-decoration-color:#94A3B8]",
   );
 
-  // Set CSS custom properties for dynamic theming only when badge is colored
-  const style: React.CSSProperties & Record<string, string> = colored
-    ? {
-        "--badge-color": hexColor,
-        "--badge-rgb": rgbString,
-      }
-    : {};
+  // Memoize style object - prevents object recreation on each render (PERF-004)
+  const style = useMemo(
+    (): React.CSSProperties & Record<string, string> =>
+      colored
+        ? {
+            "--badge-color": hexColor,
+            "--badge-rgb": rgbString,
+          }
+        : ({} as React.CSSProperties & Record<string, string>),
+    [colored, hexColor, rgbString],
+  );
 
   if (!IconComponent) {
     return null;
@@ -143,4 +163,4 @@ export const Badge = ({
       <span className={textClasses}>{name}</span>
     </button>
   );
-};
+});

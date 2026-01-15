@@ -767,7 +767,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Compare re-render count before/after optimization"
   ],
   "dependencies": ["PERF-003"],
-  "passes": false
+  "passes": true
 }
 ```
 

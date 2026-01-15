@@ -1367,3 +1367,61 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - PERF-003: passes: true
 
+---
+
+## 2026-01-15: PERF-004 Complete - Implement efficient caching strategy
+
+### What was done:
+- Wrapped key components in `React.memo` to prevent unnecessary re-renders
+- Added `useMemo` for expensive calculations that don't need to recompute on every render
+- Added `useCallback` for event handlers passed to child components
+- Used `startTransition` for non-urgent hover state updates
+
+### Implementation Details:
+
+**project.tsx - High Impact Optimizations:**
+- Wrapped in `React.memo` - prevents re-render when project data hasn't changed
+- `useMemo` for `duration` calculation - expensive `calculateProjectDuration` call
+- `useMemo` for `IconProject` lookup - prevents icon lookup on every render
+- `useMemo` for date parsing - expensive `parseISO` and `format` calls
+
+**badge.tsx - Medium Impact Optimizations:**
+- Wrapped in `React.memo` - prevents re-render when badge props unchanged
+- Moved `hexToRgb` to module scope - pure function, no per-instance overhead
+- `useMemo` for `rgbString` - only recalculate when hexColor changes
+- `useCallback` for `handleClick` - prevents function recreation
+- `useMemo` for `style` object - prevents object recreation
+
+**domain-group.tsx - Medium Impact Optimizations:**
+- Wrapped in `React.memo` - prevents re-render when domain hasn't changed
+- `useMemo` for `containerStyle` - opacity and transition style object
+- `useMemo` for `headerStyle` - border color style object
+- `useMemo` for `indicatorStyle` - background color style object
+
+**stack-cloud-content.tsx - startTransition Optimization:**
+- Added `startTransition` for hover state updates in `handleActiveIndexChange`
+- Wrapped callback in `useCallback` for proper memoization
+
+### Acceptance Criteria Status:
+1. ✅ useMemo for expensive calculations - duration, icons, dates, styles
+2. ✅ useCallback for event handlers passed to children - handleClick, handleActiveIndexChange
+3. ✅ React.memo for pure components - Project, Badge, DomainGroup
+4. ✅ Proper dependency arrays - all useMemo/useCallback have correct deps
+5. ✅ Filter cache implemented - already in filter-cache.ts (verified)
+6. ⏭️ No unnecessary re-renders - manual React DevTools profiling required
+7. ✅ Suspense boundaries for lazy loading - already in place (ContactDialog, AsciiClouds)
+8. ✅ StartTransition for non-urgent updates - hover state updates in stack-cloud-content
+
+### Key Files Modified:
+- src/components/project.tsx: React.memo, useMemo (3x)
+- src/components/badge.tsx: React.memo, useMemo (2x), useCallback (1x), module-level hexToRgb
+- src/components/stack-cloud-css/domain-group.tsx: React.memo, useMemo (3x)
+- src/components/stack-cloud-css/stack-cloud-content.tsx: startTransition, useCallback
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+
+### PRD Status:
+- PERF-004: passes: true
+

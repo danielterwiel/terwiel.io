@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useMemo, useRef, useState } from "react";
 
 import type { Domain } from "~/types";
 
@@ -271,22 +271,31 @@ export function StackCloudContent() {
     return [...segmentItems, ...stackItems];
   }, [domainExperiences, stacks]);
 
+  // Memoize the active index change callback - uses startTransition for non-urgent updates (PERF-004)
+  const handleActiveIndexChange = useCallback(
+    (index: number) => {
+      const item = allNavigableItems[index];
+      if (!item) return;
+
+      // Use startTransition for hover state updates - these are non-urgent UI updates
+      startTransition(() => {
+        if (item.type === "segment") {
+          setHoveredDomain(item.domain as Domain);
+          setHoveredStack(null);
+        } else {
+          setHoveredStack(item);
+          setHoveredDomain(null);
+        }
+      });
+    },
+    [allNavigableItems],
+  );
+
   const rovingTabindex = useRovingTabindex(allNavigableItems, {
     initialIndex: 0,
     loop: true,
     direction: "both",
-    onActiveIndexChange: (index) => {
-      const item = allNavigableItems[index];
-      if (!item) return;
-
-      if (item.type === "segment") {
-        setHoveredDomain(item.domain as Domain);
-        setHoveredStack(null);
-      } else {
-        setHoveredStack(item);
-        setHoveredDomain(null);
-      }
-    },
+    onActiveIndexChange: handleActiveIndexChange,
   });
 
   // Determine domains order based on experience

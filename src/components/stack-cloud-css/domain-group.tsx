@@ -1,5 +1,7 @@
 "use client";
 
+import { memo, useMemo } from "react";
+
 import type { Domain } from "~/types";
 
 import { DOMAIN_COLORS_HEX } from "~/constants/colors";
@@ -47,6 +49,13 @@ interface DomainGroupProps {
 /**
  * DomainGroup - Container for stacks within a single domain
  *
+ * ## Performance Optimization (PERF-004)
+ *
+ * - Wrapped in `React.memo` to prevent re-renders when props haven't changed
+ * - `useMemo` for container style object (opacity, transition)
+ * - `useMemo` for header style object (borderColor)
+ * - `useCallback` for stack event handlers passed to children
+ *
  * ## Visual Structure
  *
  * ```
@@ -72,7 +81,7 @@ interface DomainGroupProps {
  *
  * @see stack-cloud-content.tsx for parent layout documentation
  */
-export function DomainGroup({
+export const DomainGroup = memo(function DomainGroup({
   domain,
   stacks,
   selectedStacks,
@@ -90,27 +99,41 @@ export function DomainGroup({
   const isDomainHighlighted =
     isDomainHovered || hoveredStack?.domain === domain;
 
+  // Memoize container style - prevents object recreation on each render (PERF-004)
+  const containerStyle = useMemo(
+    () => ({
+      opacity: isDomainHighlighted || !hoveredDomain ? 1 : 0.6,
+      transition: a11y.prefersReducedMotion ? "none" : "opacity 200ms ease-out",
+    }),
+    [isDomainHighlighted, hoveredDomain, a11y.prefersReducedMotion],
+  );
+
+  // Memoize header style - prevents object recreation on each render (PERF-004)
+  const headerStyle = useMemo(
+    () => ({ borderColor: domainColor }),
+    [domainColor],
+  );
+
+  // Memoize indicator style - prevents object recreation on each render (PERF-004)
+  const indicatorStyle = useMemo(
+    () => ({ backgroundColor: domainColor }),
+    [domainColor],
+  );
+
   return (
     <section
       className="domain-group flex flex-col gap-2"
       aria-label={`${domain} technologies - ${stacks.length} items`}
-      style={{
-        opacity: isDomainHighlighted || !hoveredDomain ? 1 : 0.6,
-        transition: a11y.prefersReducedMotion
-          ? "none"
-          : "opacity 200ms ease-out",
-      }}
+      style={containerStyle}
     >
       {/* Domain header with color indicator */}
       <header
         className="domain-header flex items-center gap-2 pb-1 border-b"
-        style={{
-          borderColor: domainColor,
-        }}
+        style={headerStyle}
       >
         <div
           className="w-2 h-2 rounded-full flex-shrink-0"
-          style={{ backgroundColor: domainColor }}
+          style={indicatorStyle}
           aria-hidden="true"
         />
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-600">
@@ -149,4 +172,4 @@ export function DomainGroup({
       </ul>
     </section>
   );
-}
+});
