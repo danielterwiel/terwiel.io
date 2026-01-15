@@ -387,7 +387,7 @@
           "agent_browser_test": "agent-browser find text React hover && agent-browser screenshot experience-ticker.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "INTEGRATE_001",

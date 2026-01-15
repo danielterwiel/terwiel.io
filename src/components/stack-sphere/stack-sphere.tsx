@@ -9,6 +9,7 @@ import { PROJECTS } from "~/data/projects";
 import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
+import { StackSphereExperience } from "./stack-sphere-experience";
 import { StackSphereItem } from "./stack-sphere-item";
 import { StackSphereSegment } from "./stack-sphere-segment";
 import { useSpherePositions } from "./use-sphere-positions";
@@ -43,7 +44,10 @@ const SEGMENT_POSITIONS: Record<
 };
 
 function StackSphereInner() {
-  const [hoveredStack, setHoveredStack] = useState<string | null>(null);
+  const [hoveredStack, setHoveredStack] = useState<{
+    name: string;
+    iconKey: string;
+  } | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
 
   // Extract stacks from projects
@@ -64,9 +68,12 @@ function StackSphereInner() {
     },
   );
 
-  const handleMouseEnter = useCallback((stackName: string) => {
-    setHoveredStack(stackName);
-  }, []);
+  const handleMouseEnter = useCallback(
+    (stack: { name: string; iconKey: string }) => {
+      setHoveredStack(stack);
+    },
+    [],
+  );
 
   const handleMouseLeave = useCallback(() => {
     setHoveredStack(null);
@@ -82,6 +89,12 @@ function StackSphereInner() {
 
   return (
     <div className="stack-sphere-container">
+      {/* Center experience display - positioned absolutely, doesn't rotate */}
+      <StackSphereExperience
+        hoveredStack={hoveredStack}
+        hoveredDomain={hoveredDomain}
+      />
+
       <div
         className="stack-sphere"
         style={{
@@ -95,7 +108,7 @@ function StackSphereInner() {
           if (!position) return null;
 
           const sizeFactor = sizeFactors.get(stack.name) ?? 1.0;
-          const isHovered = hoveredStack === stack.name;
+          const isHovered = hoveredStack?.name === stack.name;
           const isDomainHighlighted = hoveredDomain === stack.domain;
 
           return (
@@ -109,7 +122,9 @@ function StackSphereInner() {
               tabIndex={getTabIndex(stack.id)}
               isDirectlyHovered={isHovered}
               highlighted={isHovered || isDomainHighlighted}
-              onMouseEnter={() => handleMouseEnter(stack.name)}
+              onMouseEnter={() =>
+                handleMouseEnter({ name: stack.name, iconKey: stack.iconKey })
+              }
               onMouseLeave={handleMouseLeave}
               onKeyDown={handleKeyDown}
             />

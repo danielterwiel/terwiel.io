@@ -132,3 +132,37 @@
 - Segment hover highlights related items (sets `data-highlighted=true`)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - CENTER_001 Complete
+
+**Task:** Add center experience display
+
+**What was done:**
+1. Created StackSphereExperience component for center display
+2. Integrated into StackSphere (positioned absolutely, doesn't rotate)
+3. Added CSS positioning styles for centering
+
+**Files created:**
+- `src/components/stack-sphere/stack-sphere-experience.tsx` - Center experience display
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere.tsx` - Added experience component, track full stack info on hover
+- `src/components/stack-sphere/stack-sphere.css` - Added .stack-sphere-experience positioning
+
+**Key implementation details:**
+- Reuses existing `ExperienceTicker` component for animated number transitions
+- Shows total experience by default (with ChartPie icon)
+- Shows stack-specific experience on item hover (with stack icon + name)
+- Shows domain-specific experience on domain segment hover (with domain icon + name)
+- Uses `adjustExperience()` to round long tenures appropriately
+- Positioned at sphere center via absolute positioning (doesn't rotate with sphere)
+- pointer-events: none to not interfere with sphere item clicks
+
+**Acceptance criteria met:**
+- Center shows total experience by default
+- Hover shows stack-specific experience
+- Experience ticker animates on change (via ExperienceTicker)
+
+**Status:** PASSES

@@ -9,6 +9,19 @@
 .stack-sphere-container {
   perspective: 800px;
   perspective-origin: 50% 50%;
+  position: relative;
+}
+
+/* Center experience display - doesn't rotate with sphere */
+.stack-sphere-experience {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+  text-align: center;
+  user-select: none;
 }
 
 /* The sphere element that rotates */
