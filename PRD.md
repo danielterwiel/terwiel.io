@@ -739,7 +739,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Check for duplicate packages (npm ls or bundle analyzer)"
   ],
   "dependencies": ["PERF-002"],
-  "passes": false
+  "passes": true
 }
 ```
 

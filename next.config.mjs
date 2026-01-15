@@ -4,6 +4,12 @@
  */
 await import("./src/env.mjs");
 
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
+
 // /** @type {import("next").NextConfig} */
 const config = {
   experimental: {
@@ -64,4 +70,4 @@ const config = {
   },
 };
 
-export default config;
+export default withBundleAnalyzer(config);

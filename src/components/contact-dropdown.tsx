@@ -2,11 +2,24 @@
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { clsx } from "clsx";
+import dynamic from "next/dynamic";
 
 import { useRef, useState } from "react";
 
-import { ContactDialog } from "~/components/contact-dialog";
 import { Icon } from "~/components/icon";
+
+/**
+ * ContactDialog is dynamically imported to reduce initial bundle size.
+ * The dialog is only loaded when the user opens the contact dropdown,
+ * and the Formspree dependency is deferred until then.
+ */
+const ContactDialog = dynamic(
+  () =>
+    import("~/components/contact-dialog").then((mod) => ({
+      default: mod.ContactDialog,
+    })),
+  { ssr: false },
+);
 
 interface ContactLink {
   id: string;

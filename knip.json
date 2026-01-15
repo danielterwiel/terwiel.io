@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignoreDependencies": ["@svgr/webpack", "@types/webpack"],
+  "ignoreDependencies": ["@svgr/webpack", "@types/webpack", "agent-browser"],
   "ignoreExportsUsedInFile": true,
   "ignore": ["src/env.mjs"]
 }
