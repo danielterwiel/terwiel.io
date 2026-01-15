@@ -399,3 +399,32 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Auto-rotation resumes after idle period (3s timeout)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - VISUAL_001 Complete
+
+**Task:** Add depth-based visual effects for items
+
+**What was done:**
+1. Updated depth opacity formula to provide stronger depth cue
+2. Changed opacity range from [0.6, 1.0] to [0.3, 1.0]
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Updated depthOpacity calculation
+
+**Key changes:**
+- Previous: `depthOpacity = 0.6 + (1 - position.depth) * 0.4` (range 0.6-1.0)
+- Now: `depthOpacity = 0.3 + (1 - position.depth) * 0.7` (range 0.3-1.0)
+
+**Why this range:**
+- 0.3 minimum opacity keeps back items visible but clearly receded
+- 1.0 maximum opacity ensures front items are fully clear
+- 0.7 range provides strong depth perception without being gimmicky
+
+**Acceptance criteria met:**
+- Items at back of sphere are more transparent (opacity 0.3 for depth=1)
+- Items at front are fully opaque (opacity 1.0 for depth=0)
+- Depth effect visible during rotation (opacity applied via inline style)
+
+**Status:** PASSES

@@ -131,8 +131,10 @@ const StackSphereItemComponent = forwardRef<
     externalKeyDown?.(event);
   };
 
-  // Opacity based on z-depth (items at back are slightly faded, rounded for hydration)
-  const depthOpacity = round(0.6 + (1 - position.depth) * 0.4);
+  // Opacity based on z-depth for natural depth perception
+  // Maps depth (0=front, 1=back) to opacity (1.0 → 0.3)
+  // Range [0.3, 1.0] provides clear depth cue without making back items unreadable
+  const depthOpacity = round(0.3 + (1 - position.depth) * 0.7);
 
   return (
     <button

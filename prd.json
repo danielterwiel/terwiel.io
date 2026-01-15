@@ -616,7 +616,7 @@
           "agent_browser_test": "agent-browser wait 2000 && agent-browser screenshot depth-effect.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "PERF_003",
