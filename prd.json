@@ -584,7 +584,7 @@
           "agent_browser_test": "agent-browser find '.stack-sphere' drag 50 0 && agent-browser wait 3000 && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere')).animationPlayState === 'running'\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "VISUAL_001",

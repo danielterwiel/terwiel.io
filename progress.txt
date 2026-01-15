@@ -357,3 +357,45 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Tooltip shows correct experience for each stack (uses calculateStackExperience)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - INTERACT_001 Complete
+
+**Task:** Implement drag-to-rotate sphere interaction
+
+**What was done:**
+1. Created `useDragRotation` hook for mouse/touch drag tracking
+2. Implemented inertia physics with configurable friction
+3. Added auto-rotation resume after idle timeout
+4. Integrated hook into StackSphere component
+
+**Files created:**
+- `src/components/stack-sphere/use-drag-rotation.ts` - Drag rotation hook with inertia
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere.tsx` - Integrated drag rotation hook, applied rotation transform
+- `src/components/stack-sphere/stack-sphere.css` - Added `.stack-sphere--manual` class to disable CSS animation during drag
+
+**Key implementation details:**
+- Maps deltaX → rotateY, deltaY → rotateX (intuitive drag direction)
+- Tracks velocity for inertia on release
+- Uses requestAnimationFrame for smooth 60fps inertia decay
+- Friction coefficient 0.95 for natural deceleration
+- Auto-rotation resumes after 3s idle (configurable)
+- Touch events use same logic as mouse events
+- `grab`/`grabbing` cursor indicates interactivity
+- Manual rotation mode disables CSS animation to prevent conflicts
+
+**Implementation approach:**
+- useRef for position/velocity tracking (no re-renders during drag)
+- Document-level event listeners for drag continuation outside element
+- Cleanup timers and animation frames on unmount via callbacks
+
+**Acceptance criteria met:**
+- Sphere rotates when dragged with mouse
+- Sphere has inertia after release
+- Touch drag works on mobile (touchstart/touchmove/touchend)
+- Auto-rotation resumes after idle period (3s timeout)
+
+**Status:** PASSES

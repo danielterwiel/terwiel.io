@@ -14,6 +14,7 @@ import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-s
 import { StackSphereExperience } from "./stack-sphere-experience";
 import { StackSphereItem } from "./stack-sphere-item";
 import { StackSphereSegment } from "./stack-sphere-segment";
+import { useDragRotation } from "./use-drag-rotation";
 import { useSpherePositions } from "./use-sphere-positions";
 
 import "./stack-sphere.css";
@@ -51,6 +52,13 @@ function StackSphereInner() {
     iconKey: string;
   } | null>(null);
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
+
+  // Drag-to-rotate interaction
+  const { rotation, disableAutoRotation, handlers } = useDragRotation({
+    sensitivity: 0.5,
+    friction: 0.95,
+    idleTimeout: 3000,
+  });
 
   // Extract stacks from projects
   const stacks = extractUniqueStacks(PROJECTS);
@@ -109,13 +117,21 @@ function StackSphereInner() {
         hoveredDomain={hoveredDomain}
       />
 
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: drag interaction on presentation element, items inside have proper roles */}
       <div
-        className="stack-sphere"
+        className={`stack-sphere${disableAutoRotation ? " stack-sphere--manual" : ""}`}
         style={{
           width: SPHERE_RADIUS * 2 + BASE_ITEM_RADIUS * 4,
           height: SPHERE_RADIUS * 2 + BASE_ITEM_RADIUS * 4,
           margin: "0 auto",
+          // Apply manual rotation when dragging or inertia active
+          ...(disableAutoRotation && {
+            transform: `rotateX(${rotation.rotateX.toFixed(2)}deg) rotateY(${rotation.rotateY.toFixed(2)}deg)`,
+          }),
+          cursor: rotation.isDragging ? "grabbing" : "grab",
         }}
+        onMouseDown={handlers.onMouseDown}
+        onTouchStart={handlers.onTouchStart}
       >
         {stacks.map((stack: Stack, index: number) => {
           const position = positions[index];

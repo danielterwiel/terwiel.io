@@ -39,6 +39,11 @@
   animation-play-state: paused;
 }
 
+/* Manual rotation mode - disable CSS animation, use JS transform */
+.stack-sphere--manual {
+  animation: none;
+}
+
 /* Slow rotation animation */
 @keyframes sphere-rotate {
   from {
