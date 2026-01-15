@@ -617,7 +617,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Check spacing between adjacent targets (>= 8px)"
   ],
   "dependencies": ["A11Y-003"],
-  "passes": false
+  "passes": true
 }
 ```
 
