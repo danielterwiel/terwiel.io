@@ -919,7 +919,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Verify no outdated references to D3"
   ],
   "dependencies": ["TEST-004"],
-  "passes": false
+  "passes": true
 }
 ```
 

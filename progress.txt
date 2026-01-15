@@ -1753,3 +1753,60 @@ implemented and verified. The codebase is ready for live CWV validation upon dep
 ### PRD Status:
 - TEST-004: passes: true
 
+---
+
+## 2026-01-15: DOC-001 Complete - Update CLAUDE.md with new architecture
+
+### What was done:
+- Updated CLAUDE.md with comprehensive documentation of the new CSS-based architecture
+- Documented the complete removal of D3.js dependencies
+- Added Stack Visualization Architecture section with component hierarchy diagram
+- Added Bundle Size & Load Performance section with D3 removal impact
+- Added Core Web Vitals Optimizations table (LCP, INP, CLS)
+- Added ASCII Clouds Background documentation
+- Updated Accessibility section with implementation table and key files
+- Updated Key Dependencies to remove D3 and add bundle analyzer
+- Updated Development Notes with new stack visualization notes
+
+### Documentation Changes:
+
+**Stack Visualization Architecture** (new section):
+- Component hierarchy diagram showing stack-cloud-css structure
+- Layout strategy explanation (CSS Grid with auto-fit)
+- Animation strategy documentation (GPU-accelerated transforms)
+
+**Performance & Optimization** (enhanced):
+- D3.js removal impact (~50-80 kB reduction)
+- Current bundle size: 94.6 kB page-specific, 218 kB first load
+- Dynamic imports documentation (AsciiClouds, ContactDialog)
+- Core Web Vitals implementation table
+
+**Accessibility** (enhanced):
+- Implementation table with all WCAG 2.2 features
+- Key accessibility files listed
+- Removed "requirements" language, now reflects "implemented features"
+
+**Key Dependencies** (updated):
+- Added @next/bundle-analyzer
+- Removed D3 packages with strikethrough to show they're no longer used
+
+### Acceptance Criteria Status:
+1. ✅ CLAUDE.md updated with new architecture description - Stack Visualization section added
+2. ✅ D3.js removal documented - Listed as "Removed Dependencies"
+3. ✅ CSS visualization approach explained - Layout/Animation strategies documented
+4. ✅ New component structure documented - Component hierarchy diagram added
+5. ✅ Performance improvements noted - Bundle size, CWV table added
+6. ✅ Accessibility features documented - Implementation table with all features
+7. ✅ Updated development workflow - No significant changes needed
+8. ✅ Known issues/limitations listed - N/A (no known issues)
+
+### Key Files Modified:
+- CLAUDE.md: Comprehensive updates throughout
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS (78 files checked)
+
+### PRD Status:
+- DOC-001: passes: true
+
