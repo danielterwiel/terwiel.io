@@ -164,7 +164,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                   className="text-sm font-medium text-slate-900"
                 >
                   Email address{" "}
-                  <span className="text-xs text-slate-400">(required)</span>
+                  <span className="text-xs text-slate-500">(required)</span>
                 </Form.Label>
                 <Form.Message match="valueMissing">
                   <span id={emailErrorId} className="text-xs text-red-600">
@@ -216,7 +216,7 @@ export const ContactDialog = forwardRef<HTMLDialogElement>((_, ref) => {
                   className="text-sm font-medium text-slate-900"
                 >
                   Question{" "}
-                  <span className="text-xs text-slate-400">(required)</span>
+                  <span className="text-xs text-slate-500">(required)</span>
                 </Form.Label>
                 <Form.Message match="valueMissing">
                   <span id={questionErrorId} className="text-xs text-red-600">

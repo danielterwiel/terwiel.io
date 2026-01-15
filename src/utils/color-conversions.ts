@@ -1,5 +1,23 @@
+/**
+ * Color Conversion Utilities
+ *
+ * This module provides OKLCH to sRGB/hex color conversions with WCAG 2.2 compliance
+ * in mind. All derived colors (high-contrast, outline) are designed to meet:
+ *
+ * - WCAG 2.2 SC 1.4.3 (AA): 4.5:1 for normal text, 3:1 for large text
+ * - WCAG 2.2 SC 1.4.11 (AA): 3:1 for UI components and focus indicators
+ *
+ * @see https://www.w3.org/WAI/WCAG22/quickref/#contrast-minimum
+ */
+
 import type { Domain } from "~/types";
 
+/**
+ * OKLCH color representation
+ * @property l - Lightness (0-1)
+ * @property c - Chroma (0-0.4 typical range)
+ * @property h - Hue (0-360 degrees)
+ */
 export type Oklch = { l: number; c: number; h: number };
 
 // Matrix types for 3x3 matrices and 3D vectors
@@ -129,12 +147,16 @@ export const toSubtleBorder = (color: Oklch): string => {
 /**
  * Create a high-contrast version by darkening
  * Useful for better visibility on light backgrounds
- * For already saturated colors, maintain chroma and reduce lightness more
+ * Ensures WCAG 2.2 AA compliance (4.5:1 contrast ratio against white)
+ * For very light colors (L > 0.8), darken more aggressively
  */
 export const toHighContrast = (color: Oklch): string => {
+  // Calculate target lightness based on source lightness
+  // Very light colors need more darkening to achieve 4.5:1 contrast
+  const darkenAmount = color.l > 0.8 ? 0.48 : 0.25;
   const highContrastColor = {
     ...color,
-    l: Math.max(0.4, color.l - 0.25), // Darken by 25%, minimum 40% lightness
+    l: Math.max(0.35, color.l - darkenAmount), // Darken, minimum 35% lightness for 4.5:1
     c: color.c * 0.95, // Slightly reduce chroma for better contrast
   };
   return toOklchString(highContrastColor);
@@ -179,9 +201,11 @@ export const generateDomainColors = (domainColors: Record<Domain, Oklch>) => {
       c: Math.max(0.015, color.c * 0.08),
     });
     highContrast[domain] = toHighContrast(color);
+    // Match toHighContrast logic: very light colors need more darkening for 4.5:1 contrast
+    const darkenAmount = color.l > 0.8 ? 0.48 : 0.25;
     highContrastHex[domain] = oklchToHex({
       ...color,
-      l: Math.max(0.4, color.l - 0.25),
+      l: Math.max(0.35, color.l - darkenAmount),
       c: color.c * 0.95,
     });
   }

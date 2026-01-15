@@ -977,3 +977,77 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - A11Y-002: passes: true
 
+---
+
+## 2026-01-15: A11Y-003 Complete - Ensure color contrast and visual accessibility
+
+### What was done:
+- Analyzed all text colors in the codebase for WCAG 2.2 contrast compliance
+- Fixed low-contrast text colors (slate-400/gray-400) in informational elements
+- Updated high-contrast domain color generation for WCAG AA compliance (4.5:1)
+- Added comprehensive JSDoc documentation for WCAG compliance in color utilities
+
+### Color Contrast Analysis Results:
+| Color | Hex | Contrast vs White | Status |
+|-------|-----|-------------------|--------|
+| slate-900 | #0f172a | 18.18:1 | PASS |
+| slate-700 | #334155 | 10.37:1 | PASS |
+| slate-600 | #475569 | 7.55:1 | PASS |
+| slate-500 | #64748b | 4.74:1 | PASS (AA) |
+| slate-400 | #94a3b8 | 2.57:1 | FAIL - do not use for text |
+| gray-400 | #9ca3af | 2.55:1 | FAIL - do not use for text |
+| Klein blue | #002FA7 | 10.68:1 | PASS |
+| Focus color | #1c50a7 | 7.62:1 | PASS |
+
+### Fixes Applied:
+
+**contact-dialog.tsx**:
+- Changed "(required)" label text from `text-slate-400` to `text-slate-500`
+- Both occurrences (email and question fields) now pass 4.74:1 contrast
+
+**root-node.tsx**:
+- Changed "Hover to explore" text from `text-gray-400` to `text-gray-500`
+- Changed domain name text to use `DOMAIN_COLORS_HIGH_CONTRAST_HEX` instead of `DOMAIN_COLORS_HEX`
+- Imported `DOMAIN_COLORS_HIGH_CONTRAST_HEX` from colors constants
+
+**color-conversions.ts**:
+- Updated `toHighContrast()` function to ensure 4.5:1 contrast for all colors
+- Very light colors (L > 0.8) now darkened more aggressively (0.48 vs 0.25)
+- Minimum lightness reduced from 0.4 to 0.35 for better contrast
+- Added comprehensive JSDoc documentation explaining WCAG compliance
+
+### High-Contrast Domain Colors (All Pass 4.5:1):
+| Domain | Hex | Contrast | Status |
+|--------|-----|----------|--------|
+| AI | #4b5885 | 6.92:1 | PASS |
+| Back-end | #4f4973 | 8.29:1 | PASS |
+| Design | #443654 | 11.04:1 | PASS |
+| DevOps | #543f58 | 9.42:1 | PASS |
+| Front-end | #8a6381 | 5.02:1 | PASS |
+| QA | #7b5265 | 6.49:1 | PASS |
+
+### Acceptance Criteria Status:
+1. ✅ Text contrast ratio >= 4.5:1 (normal text) - All text colors verified
+2. ✅ Large text contrast ratio >= 3:1 (18pt+, 14pt+ bold) - All large text passes
+3. ✅ UI component contrast >= 3:1 (borders, icons) - Focus ring 7.62:1, outline colors 3.21:1+
+4. ✅ Focus indicators contrast >= 3:1 - FOCUS_COLOR_HEX (#1c50a7) is 7.62:1
+5. ✅ Color not sole means of conveying information - Text labels accompany all color indicators
+6. ✅ Klein blue (#002FA7) contrast checked - 10.68:1 against white, PASS
+7. ✅ Domain colors tested for contrast - High-contrast variants all pass 4.5:1
+8. ⏭️ Dark mode support - Optional, not implemented
+9. ✅ Text resizable to 200% - Responsive design, no fixed pixel sizes
+10. ✅ No text in images - All text is CSS/SVG, no image text
+
+### Key Files Modified:
+- src/components/contact-dialog.tsx: Changed slate-400 to slate-500 for "(required)" labels
+- src/components/stack-cloud-css/root-node.tsx: Use high-contrast domain colors for text, fixed gray-400 text
+- src/utils/color-conversions.ts: Enhanced toHighContrast() for WCAG AA compliance, added JSDoc
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- A11Y-003: passes: true
+

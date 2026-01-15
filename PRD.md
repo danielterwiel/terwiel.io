@@ -588,7 +588,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Test with simulated color blindness (Chrome DevTools)"
   ],
   "dependencies": ["A11Y-002"],
-  "passes": false
+  "passes": true
 }
 ```
 

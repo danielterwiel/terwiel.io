@@ -8,6 +8,7 @@ import type { Domain, DomainExperience } from "~/types";
 
 import {
   DOMAIN_COLORS_HEX,
+  DOMAIN_COLORS_HIGH_CONTRAST_HEX,
   KLEIN_BLUE,
   PRIMARY_COLOR,
 } from "~/constants/colors";
@@ -294,7 +295,7 @@ export function RootNode({
           <>
             <div
               className="text-sm font-semibold"
-              style={{ color: DOMAIN_COLORS_HEX[displayDomain] }}
+              style={{ color: DOMAIN_COLORS_HIGH_CONTRAST_HEX[displayDomain] }}
             >
               {displayDomain}
             </div>
@@ -305,7 +306,7 @@ export function RootNode({
             </div>
           </>
         ) : (
-          <div className="text-xs text-gray-400">Hover to explore</div>
+          <div className="text-xs text-gray-500">Hover to explore</div>
         )}
       </div>
     </div>
