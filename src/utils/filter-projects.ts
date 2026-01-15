@@ -1,6 +1,6 @@
 import type { Domain, Project } from "~/types";
 
-import type { SelectionIndex } from "./stack-cloud/selection-index";
+import type { SelectionIndex } from "./selection-index";
 import { projectHasDomain } from "./project-has-domain";
 
 const PROJECT_KEY_DISALLOWED = ["stack"];

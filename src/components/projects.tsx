@@ -20,7 +20,7 @@ import {
   getSearchFilter,
   getSearchQuery,
 } from "~/utils/search-params";
-import { buildSelectionIndex } from "~/utils/stack-cloud/selection-index";
+import { buildSelectionIndex } from "~/utils/selection-index";
 
 const ProjectsContent = () => {
   const searchParams = useSearchParams();

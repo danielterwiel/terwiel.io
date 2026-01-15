@@ -1,7 +1,7 @@
 import { Header } from "~/components/header";
 import { Projects } from "~/components/projects";
 import { SkipLinks } from "~/components/skip-links";
-import { StackCloud } from "~/components/stack-cloud";
+import { StackCloud } from "~/components/stack-cloud-css";
 
 export default function HomePage() {
   return (
