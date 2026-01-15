@@ -1,14 +1,14 @@
 {
   "title": "StackCloud CSS 3D Sphere Refactor",
-  "description": "Replace D3 force simulation with pure CSS 3D sphere visualization. Keep data structure, remove heavy library, add a11y goodness. My cat's breath smells like performance.",
+  "description": "Replace D3 force simulation with pure CSS 3D sphere visualization. Keep data structure, remove heavy library, add a11y goodness.",
   "created": "2026-01-15",
   "items": [
     {
       "id": "RESEARCH_001",
       "category": "Research",
       "priority": 1,
-      "description": "Research CSS 3D sphere positioning algorithms. I'm learnding!",
-      "context": "Before writing code, deeply understand Fibonacci sphere algorithm for even distribution of points on sphere surface. The dome looks like a circle from outer space!",
+      "description": "Research CSS 3D sphere positioning algorithms.",
+      "context": "Before writing code, deeply understand Fibonacci sphere algorithm for even distribution of points on sphere surface.",
       "research_links": [
         "https://www.cssscript.com/3d-rotating-sphere-tags-cloud/",
         "https://css-tricks.com/animating-css-grid-how-to-examples/",
@@ -33,7 +33,7 @@
       "id": "SETUP_001",
       "category": "Setup",
       "priority": 2,
-      "description": "Create new CSS-only sphere component file structure. I bent my Wookie!",
+      "description": "Create new CSS-only sphere component file structure.",
       "context": "Create component shell that mirrors current StackCloud interface but uses CSS transforms instead of D3. Keep all existing props and data flow intact.",
       "files_to_create": [
         "src/components/stack-sphere/stack-sphere.tsx",
@@ -52,13 +52,13 @@
           "agent_browser_test": "agent-browser eval \"document.querySelector('.stack-sphere-wrapper') !== null\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CORE_001",
       "category": "Core",
       "priority": 3,
-      "description": "Implement Fibonacci sphere point distribution hook. That's where I saw the leprechaun!",
+      "description": "Implement Fibonacci sphere point distribution hook.",
       "context": "Create useSpherePositions hook that calculates X, Y, Z coordinates for each stack item using golden angle distribution. Returns CSS transform strings for each item.",
       "algorithm": "For n points: phi = (1 + sqrt(5)) / 2, for i in 0..n: theta = 2 * PI * i / phi, y = 1 - (i / (n-1)) * 2, radius = sqrt(1 - y*y), x = cos(theta) * radius, z = sin(theta) * radius",
       "research_links": [
@@ -85,7 +85,7 @@
       "id": "CORE_002",
       "category": "Core",
       "priority": 4,
-      "description": "Implement base sphere container with CSS perspective. Me fail English? That's unpossible!",
+      "description": "Implement base sphere container with CSS perspective.",
       "context": "Create parent container with perspective, preserve-3d, and auto-rotation animation. The sphere should slowly rotate when not interacted with.",
       "css_properties": {
         "container": {
@@ -117,7 +117,7 @@
       "id": "CORE_003",
       "category": "Core",
       "priority": 5,
-      "description": "Implement individual stack items with 3D positioning. I'm a unitard!",
+      "description": "Implement individual stack items with 3D positioning.",
       "context": "Each stack item positioned on sphere surface using rotateX, rotateY, translateZ. Items face outward from sphere center for readability.",
       "transform_formula": "transform: rotateY(${theta}deg) rotateX(${phi}deg) translateZ(${radius}px)",
       "research_links": [
@@ -143,7 +143,7 @@
       "id": "SIZE_001",
       "category": "Feature",
       "priority": 6,
-      "description": "Integrate experience-based variable sizing. When I grow up I want to be a principal or a caterpillar!",
+      "description": "Integrate experience-based variable sizing.",
       "context": "Reuse existing calculateStackSizeFactors() which applies recency multiplier (-25% old to +25% recent) and normalizes to constant surface area. Items with more experience are larger (0.75x-2.5x baseline).",
       "files_to_reuse": ["src/utils/stack-cloud/calculate-stack-size.ts"],
       "sizing_algorithm_notes": "Current algo: base factor = totalMonths/medianMonths, multiply by (1 + recencyMultiplier), constrain 0.75-2.5, normalize to constant total area. Consider tweaking recency range from ±25% to ±15% for subtler effect.",
@@ -163,7 +163,7 @@
       "id": "HOVER_001",
       "category": "Feature",
       "priority": 7,
-      "description": "Implement hover states with icon color activation. The doctor said I wouldn't have so many nosebleeds if I kept my finger outta there!",
+      "description": "Implement hover states with icon color activation.",
       "context": "On hover: pause sphere rotation, highlight item, show original icon color (getIconHexColor). Preserve existing hover state management from useAccessibility hook.",
       "research_links": [
         "https://freefrontend.com/css-hover-effects/",
@@ -185,7 +185,7 @@
       "id": "SELECT_001",
       "category": "Feature",
       "priority": 8,
-      "description": "Implement selection via URL params. I sleep in a drawer!",
+      "description": "Implement selection via URL params.",
       "context": "Click to toggle filter URL param (same as current). Selected items stay highlighted, use existing isExactParamMatch logic. Works with both ?query= and ?filter= params.",
       "files_to_reuse": [
         "src/utils/search-params.ts",
@@ -211,7 +211,7 @@
       "id": "A11Y_001",
       "category": "Accessibility",
       "priority": 9,
-      "description": "Implement reduced motion support. My face is on fire!",
+      "description": "Implement reduced motion support.",
       "context": "Respect prefers-reduced-motion: disable sphere rotation, use instant transitions. Critical for vestibular disorders.",
       "research_links": [
         "https://dev.to/alvaromontoro/create-a-tag-cloud-with-html-and-css-1e90",
@@ -234,7 +234,7 @@
       "id": "A11Y_002",
       "category": "Accessibility",
       "priority": 10,
-      "description": "Implement keyboard navigation with roving tabindex. I'm Idaho!",
+      "description": "Implement keyboard navigation with roving tabindex.",
       "context": "Single tab stop for container, arrow keys navigate between items. Reuse existing useRovingTabindex hook. Enter/Space to select.",
       "files_to_reuse": ["src/hooks/use-roving-tabindex.ts"],
       "research_links": [
@@ -264,7 +264,7 @@
       "id": "A11Y_003",
       "category": "Accessibility",
       "priority": 11,
-      "description": "Implement screen reader support. Wax never lies!",
+      "description": "Implement screen reader support.",
       "context": "Proper ARIA labels, role=button, aria-pressed for selection state. Announce item names and experience when focused.",
       "aria_attributes": {
         "container": "role='group' aria-label='Technology stack visualization'",
@@ -290,7 +290,7 @@
       "id": "PERF_001",
       "category": "Performance",
       "priority": 12,
-      "description": "Add CSS containment and will-change optimization. I'm a furniture!",
+      "description": "Add CSS containment and will-change optimization.",
       "context": "Use contain: paint on items to isolate repaints. will-change: transform only when animating. Remove when idle to free GPU memory.",
       "research_links": [
         "https://developer.mozilla.org/en-US/docs/Web/CSS/Guides/Containment/Using",
@@ -318,7 +318,7 @@
       "id": "PERF_002",
       "category": "Performance",
       "priority": 13,
-      "description": "Ensure GPU-accelerated transforms only. Super Nintendo Chalmers!",
+      "description": "Ensure GPU-accelerated transforms only.",
       "context": "Only animate transform and opacity (compositor-friendly). Never animate width, height, top, left, box-shadow. Use translateZ(0) to force GPU layer if needed.",
       "research_links": [
         "https://www.viget.com/articles/animation-performance-101-browser-under-the-hood/",
@@ -340,7 +340,7 @@
       "id": "SEGMENT_001",
       "category": "Feature",
       "priority": 14,
-      "description": "Add domain segment indicators around sphere. It tastes like burning!",
+      "description": "Add domain segment indicators around sphere.",
       "context": "Show domain segments (Languages, Frameworks, etc.) as colored arcs or badges around the sphere perimeter. Clickable to filter by domain.",
       "do_more_research": [
         "Search: 'CSS circular menu around center element'",
@@ -366,7 +366,7 @@
       "id": "CENTER_001",
       "category": "Feature",
       "priority": 15,
-      "description": "Add center experience display. My doctor says my nose wouldn't bleed so much if I kept my finger out of there!",
+      "description": "Add center experience display.",
       "context": "Reuse RootNodeExperience component logic - show total experience by default, stack-specific on hover. Animate ticker on value change.",
       "files_to_reuse": [
         "src/components/stack-cloud/root-node-experience.tsx",
@@ -393,7 +393,7 @@
       "id": "INTEGRATE_001",
       "category": "Integration",
       "priority": 16,
-      "description": "Replace StackCloud with StackSphere in main layout. Go banana!",
+      "description": "Replace StackCloud with StackSphere in main layout.",
       "context": "Swap component in page.tsx and/or wherever StackCloud is rendered. Ensure all existing functionality works with new component.",
       "acceptance_criteria": [
         {
@@ -415,7 +415,7 @@
       "id": "CLEANUP_001",
       "category": "Cleanup",
       "priority": 17,
-      "description": "Remove D3 dependency and old StackCloud files. I bent my wookie!",
+      "description": "Remove D3 dependency and old StackCloud files.",
       "context": "Delete D3-related code, remove from package.json, run npm prune. Keep only reusable utilities.",
       "files_to_delete": [
         "src/components/stack-cloud/stack-cloud.tsx",
@@ -451,7 +451,7 @@
       "id": "TEST_001",
       "category": "Testing",
       "priority": 18,
-      "description": "Full integration test suite. Tastes like grandma!",
+      "description": "Full integration test suite.",
       "context": "Run comprehensive agent-browser test suite covering all acceptance criteria. Document any failures.",
       "acceptance_criteria": [
         {
@@ -527,7 +527,6 @@
     }
   },
   "notes": {
-    "ralph_says": "Hi, Super Nintendo Chalmers! I'm learnding to make CSS go zoom zoom instead of JavaScript go boom boom!",
     "sizing_algorithm_tweak": "Current recency multiplier is ±25%. Consider reducing to ±15% for subtler visual difference between old and new tech. Also consider capping max size factor at 2.0 instead of 2.5 to prevent any single item dominating.",
     "browser_support": "CSS preserve-3d has excellent support. Fallback for older browsers: flat grid layout without 3D effect."
   }

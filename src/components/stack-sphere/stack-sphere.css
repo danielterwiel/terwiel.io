@@ -1,0 +1,82 @@
+/**
+ * StackSphere CSS - Pure CSS 3D sphere visualization
+ *
+ * Uses CSS transforms (rotateY, rotateX, translateZ) for GPU-accelerated
+ * positioning. All animations run on the compositor thread for 60fps.
+ */
+
+/* Container with perspective for 3D effect */
+.stack-sphere-container {
+  perspective: 800px;
+  perspective-origin: 50% 50%;
+}
+
+/* The sphere element that rotates */
+.stack-sphere {
+  transform-style: preserve-3d;
+  animation: sphere-rotate 30s linear infinite;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Pause rotation when container is hovered or focused */
+.stack-sphere-wrapper:hover .stack-sphere,
+.stack-sphere-wrapper:focus-within .stack-sphere {
+  animation-play-state: paused;
+}
+
+/* Slow rotation animation */
+@keyframes sphere-rotate {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Individual item on the sphere surface */
+.stack-sphere-item {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  /* Isolate repaints to this element */
+  contain: paint;
+  /* Hint GPU layer during animation - will be toggled via JS */
+  will-change: auto;
+}
+
+/* Active state - hint GPU layer for smooth interaction */
+.stack-sphere-item:hover,
+.stack-sphere-item:focus,
+.stack-sphere-item[data-selected="true"] {
+  will-change: transform, filter;
+}
+
+/* Focus ring - visible only on keyboard focus */
+.stack-sphere-item:focus-visible {
+  outline: none;
+}
+
+.stack-sphere-item:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border: 3px solid var(--focus-color, #005fcc);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Reduced motion - disable all animations */
+@media (prefers-reduced-motion: reduce) {
+  .stack-sphere {
+    animation: none;
+  }
+
+  .stack-sphere-item {
+    transition: none !important;
+  }
+}
