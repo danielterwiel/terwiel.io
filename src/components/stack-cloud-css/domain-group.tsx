@@ -35,8 +35,32 @@ interface DomainGroupProps {
 }
 
 /**
- * Domain group component - displays stacks grouped by domain
- * Uses CSS Flexbox for responsive layout within each domain
+ * DomainGroup - Container for stacks within a single domain
+ *
+ * ## Visual Structure
+ *
+ * ```
+ * ┌────────────────────────────────────┐
+ * │ [●] FRONT-END (12)                 │ ← Header with color indicator
+ * │ ──────────────────────────────────│ ← Border in domain color
+ * │ [■][■][■][■][■][■]                │ ← Stack items (flex-wrap)
+ * │ [■][■][■][■][■][■]                │
+ * └────────────────────────────────────┘
+ * ```
+ *
+ * ## CSS Layout
+ *
+ * - **Container**: `flex flex-col gap-2`
+ * - **Header**: `flex items-center gap-2` with border-bottom
+ * - **Items**: `flex flex-wrap gap-2` for automatic wrapping
+ *
+ * ## Accessibility
+ *
+ * - Domain groups are visually distinct via color-coded borders
+ * - Opacity dims non-hovered domains (0.6 opacity) for focus guidance
+ * - Respects prefers-reduced-motion for opacity transitions
+ *
+ * @see stack-cloud-content.tsx for parent layout documentation
  */
 export function DomainGroup({
   domain,

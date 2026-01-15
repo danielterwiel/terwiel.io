@@ -225,7 +225,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Test keyboard navigation (Tab, Enter, Arrow keys)"
   ],
   "dependencies": ["SETUP-003"],
-  "passes": false
+  "passes": true
 }
 ```
 

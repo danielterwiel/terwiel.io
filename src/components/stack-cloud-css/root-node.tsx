@@ -36,8 +36,51 @@ interface RootNodeProps {
 }
 
 /**
- * Root node with domain pie chart - Pure SVG without D3
- * Uses CSS conic-gradient approach rendered as SVG paths
+ * RootNode - Domain distribution pie chart (Pure SVG, no D3)
+ *
+ * ## Visual Structure
+ *
+ * ```
+ *        ┌─────────────┐
+ *       ╱    DevOps    ╲
+ *      │ ╭─────────────╮ │
+ *      │ │             │ │ ← Donut chart
+ *   QA │ │   center    │ │ Back-end
+ *      │ │    hole     │ │
+ *      │ ╰─────────────╯ │
+ *       ╲   Front-end   ╱
+ *        └─────────────┘
+ *          [Domain: X%]   ← Live label (aria-live)
+ * ```
+ *
+ * ## SVG Implementation
+ *
+ * - **Size**: 160x160px viewBox
+ * - **Outer radius**: 60px
+ * - **Inner radius**: 40px (creates donut hole)
+ * - **Arc paths**: Generated with pure JavaScript math (no D3)
+ *
+ * ## Segment Calculation
+ *
+ * 1. Start angle at -90° (12 o'clock position)
+ * 2. Each segment's angle = (percentage / total) * 360
+ * 3. Arc paths use SVG `A` command for curved segments
+ *
+ * ## Interaction
+ *
+ * - **Click**: Toggle domain filter via router.replace()
+ * - **Hover**: Highlight segment (scale 1.05, full opacity)
+ * - **Focus**: Focus ring drawn as slightly larger arc path
+ * - **Keyboard**: Roving tabindex, Enter/Space to activate
+ *
+ * ## Accessibility
+ *
+ * - Each segment has `role="button"` and `aria-label` with domain + percentage
+ * - `aria-pressed` indicates selected state
+ * - Live region below chart announces hovered domain
+ * - Focus indicators visible for keyboard navigation
+ *
+ * @see stack-cloud-content.tsx for full visualization documentation
  */
 export function RootNode({
   domainExperiences,

@@ -32,9 +32,44 @@ interface StackItemProps {
 }
 
 /**
- * Individual stack item component - Pure CSS, no D3
- * Displays a technology icon with click-to-filter functionality
- * WCAG 2.2 compliant with 44x44px minimum touch target
+ * StackItem - Interactive technology button
+ *
+ * ## Visual States
+ *
+ * ```
+ * Default:    [   ■   ]     Gray border, muted icon
+ * Hover:      [   ■   ]     Scale 1.05, domain border visible
+ * Selected:   [  ■    ]     Domain border, 15% background tint
+ * Focus:      [┌──■──┐]     Ring-2 focus indicator
+ *             [└─────┘]
+ * ```
+ *
+ * ## Touch Target (WCAG 2.2 SC 2.5.8)
+ *
+ * Minimum 44x44px touch target achieved via:
+ * - `min-w-[44px] min-h-[44px]` on button element
+ * - `p-2` padding around 24x24px icon
+ *
+ * ## Animation Properties
+ *
+ * | Property         | Duration | Easing                            |
+ * |------------------|----------|-----------------------------------|
+ * | transform: scale | 200ms    | cubic-bezier(0.25, 1.65, 0.65, 1) |
+ * | border-color     | 200ms    | ease-out                          |
+ * | background-color | 200ms    | ease-out                          |
+ * | color (icon)     | 200ms    | ease-out                          |
+ * | opacity          | 200ms    | ease-out                          |
+ *
+ * All animations disabled when `prefers-reduced-motion: reduce`.
+ *
+ * ## Interaction
+ *
+ * - **Click**: Toggles filter via router.replace() (no history entry)
+ * - **Enter/Space**: Same as click (keyboard activation)
+ * - **Tab**: Roving tabindex within visualization
+ * - **Hover**: Shows tooltip below button
+ *
+ * @see stack-cloud-content.tsx for full visualization documentation
  */
 export const StackItem = forwardRef<HTMLButtonElement, StackItemProps>(
   function StackItem(
