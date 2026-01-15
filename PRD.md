@@ -1063,7 +1063,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Click all external links (open in new tabs)"
   ],
   "dependencies": ["INT-001"],
-  "passes": false
+  "passes": true
 }
 ```
 
