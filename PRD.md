@@ -254,7 +254,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Measure CLS in Lighthouse (should be 0)"
   ],
   "dependencies": ["VIZ-001"],
-  "passes": false
+  "passes": true
 }
 ```
 

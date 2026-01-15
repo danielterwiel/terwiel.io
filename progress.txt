@@ -308,3 +308,54 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - VIZ-001: passes: true
+
+---
+
+## 2026-01-15: VIZ-002 Complete - Implement domain grouping component
+
+### What was done:
+- Enhanced DomainGroup component with full accessibility support
+- Added semantic HTML elements (section, header, h3, ul, li) for screen readers
+- Added ARIA labels and proper structure for WCAG 2.2 compliance
+- Enhanced StackItem with proper focus ring color (FOCUS_COLOR_HEX for 3:1 contrast)
+- Added will-change and transform-origin for zero CLS during animations
+- Added hover-hover variant to tooltip for touch device compatibility
+- Added JSDoc documentation to all props in DomainGroupProps
+
+### Implementation Details:
+
+**Accessibility Enhancements (domain-group.tsx)**:
+- Changed container from `<div>` to `<section>` with aria-label
+- Changed header text to `<h3>` for proper heading hierarchy
+- Changed items container from `<div role="list">` to semantic `<ul>`
+- Count span marked with aria-hidden to avoid redundant screen reader announcements
+
+**Focus and Touch Improvements (stack-item.tsx)**:
+- Added `--tw-ring-color` CSS variable set to FOCUS_COLOR_HEX for 3:1 contrast focus ring
+- Added aria-label with both technology name and domain category
+- Changed wrapper from `<div role="listitem">` to semantic `<li>`
+- Added `willChange: "transform"` and `transformOrigin: "center center"` for CLS prevention
+- Changed tooltip to use `group-hover-hover:` variant (only shows on hover-capable devices)
+
+### Acceptance Criteria Status:
+1. ✅ Each domain rendered as distinct visual group - section with colored border
+2. ✅ Domain colors from DOMAIN_COLORS constant used - via DOMAIN_COLORS_HEX
+3. ✅ Accessible labels (aria-label, role attributes) - section with aria-label, semantic h3
+4. ✅ Keyboard navigable (Tab order logical) - roving tabindex implementation
+5. ✅ Focus indicators visible and meet WCAG 2.2 SC 2.4.7 - FOCUS_COLOR_HEX with 3:1 contrast
+6. ✅ Touch-friendly on mobile (44x44px minimum) - min-w-[44px] min-h-[44px] on buttons
+7. ✅ Smooth transitions on interaction (300ms max) - 200ms transitions
+8. ✅ Hover states only on devices that support hover - group-hover-hover variant
+9. ✅ No layout shift on interaction (CLS = 0) - transform with will-change and center origin
+
+### Key Files Modified:
+- src/components/stack-cloud-css/domain-group.tsx: Semantic HTML, ARIA labels, documentation
+- src/components/stack-cloud-css/stack-item.tsx: Focus ring color, hover-hover, CLS prevention
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- VIZ-002: passes: true
