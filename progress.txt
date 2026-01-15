@@ -237,3 +237,34 @@ Types:
 - Bundle size reduced (removed 87 packages)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - BUG_000 Complete
+
+**Task:** Fix React hydration mismatch in sphere items
+
+**Root cause:**
+Server and client JavaScript engines produce slightly different floating-point values for the same Math operations (e.g., 51.16368433036698 vs 51.16368430511891). These raw floats were used directly in inline style props, causing React hydration mismatches.
+
+**What was done:**
+1. Added `round()` helper function to round values to 2 decimal places
+2. Applied rounding to all floating-point values used in styles:
+   - `itemSize` - button width/height
+   - `iconSize` - icon dimensions
+   - `depthOpacity` - opacity based on z-depth
+   - SVG circle `r` attribute for selection indicator
+3. Rounded `depth` at source in `useSpherePositions` hook
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Added round() helper, applied to itemSize, iconSize, depthOpacity, SVG r
+- `src/components/stack-sphere/use-sphere-positions.ts` - Rounded depth calculation
+
+**Key insight:**
+The `transform` string was already safe (used `.toFixed(2)` since initial implementation), but derived values like `depth`, `itemSize`, `iconSize`, and `depthOpacity` were not rounded.
+
+**Acceptance criteria met:**
+- No hydration warnings in console (floating-point values now consistent)
+- Sphere renders correctly after hydration
+
+**Status:** PASSES

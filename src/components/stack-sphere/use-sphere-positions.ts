@@ -179,7 +179,8 @@ export function calculateSpherePositions(
 
     // Depth for visual effects (0 = front, 1 = back)
     // z=1 is front, z=-1 is back
-    const depth = (1 - z) / 2;
+    // Round to 2 decimal places to prevent hydration mismatch
+    const depth = Math.round(((1 - z) / 2) * 100) / 100;
 
     positions.push({
       index: i,

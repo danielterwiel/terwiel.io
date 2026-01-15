@@ -13,6 +13,9 @@ import { getIconHexColor } from "~/utils/icon-colors";
 import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
+/** Round to 2 decimal places to prevent hydration mismatches from floating-point variance */
+const round = (value: number): number => Math.round(value * 100) / 100;
+
 interface StackSphereItemProps {
   stack: {
     id: string;
@@ -68,9 +71,9 @@ const StackSphereItemComponent = forwardRef<
   const IconComponent = Icon[stack.iconKey as keyof typeof Icon];
   const currentFilter = getSearchFilter(searchParams);
 
-  // Calculate item size based on sizeFactor
-  const itemSize = baseRadius * sizeFactor * 2;
-  const iconSize = itemSize * 0.7;
+  // Calculate item size based on sizeFactor (rounded to prevent hydration mismatch)
+  const itemSize = round(baseRadius * sizeFactor * 2);
+  const iconSize = round(itemSize * 0.7);
 
   // Determine state for styling
   const state = selected ? "selected" : highlighted ? "highlighted" : "default";
@@ -123,8 +126,8 @@ const StackSphereItemComponent = forwardRef<
     externalKeyDown?.(event);
   };
 
-  // Opacity based on z-depth (items at back are slightly faded)
-  const depthOpacity = 0.6 + (1 - position.depth) * 0.4;
+  // Opacity based on z-depth (items at back are slightly faded, rounded for hydration)
+  const depthOpacity = round(0.6 + (1 - position.depth) * 0.4);
 
   return (
     <button
@@ -180,7 +183,7 @@ const StackSphereItemComponent = forwardRef<
           <circle
             cx={itemSize / 2}
             cy={itemSize / 2}
-            r={(itemSize / 2) * 0.88}
+            r={round((itemSize / 2) * 0.88)}
             fill={borderColor}
             opacity={0.15}
           />
