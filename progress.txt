@@ -645,3 +645,80 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - PROJ-002: passes: true
 
+---
+
+## 2026-01-15: PROJ-003 Complete - Implement project filtering logic
+
+### What was done:
+- Verified existing implementation meets all acceptance criteria
+- No code changes required - filtering system was already fully implemented
+
+### Implementation Review:
+
+**Filter by stack item (filter-projects.ts)**:
+- `hasFullWordMatch()` function with word boundaries (whitespace, hyphens, dots, slashes)
+- RegExp pattern: `(^|[\s\-.,/])(query)([\s\-.,/]|$)` with case-insensitive flag
+
+**Filter by domain (filter-projects.ts:30-44)**:
+- O(1) lookup via SelectionIndex for fast domain checking
+- Fallback to `projectHasDomain()` if index unavailable
+
+**Filter by search query (filter-projects.ts:57-67)**:
+- Searches all project properties (company, role, industry, description, stack names)
+- Excludes "stack" array from string matching (uses stack item names instead)
+
+**Case-insensitive matching**:
+- RegExp uses `"i"` flag (line 17)
+
+**Combines filters correctly (AND logic)**:
+- Domain filter applied first (lines 30-50)
+- Then text search if query doesn't match domain name
+
+**Empty state (projects-empty-state.tsx)**:
+- Shows when `renderingProjects.length === 0 && activeSearchTerm`
+- Displays search term and helpful message
+
+**Screen reader announcements (projects.tsx:126-158)**:
+- `<output aria-live="polite" aria-atomic="true">` for dynamic announcements
+- Messages: "X projects found for Y" or "No projects found for Y"
+- Skips announcement on initial load to avoid noise
+
+**URL state synced (search-params.ts)**:
+- `?query=` parameter for search input (router.push)
+- `?filter=` parameter for stack filtering (router.replace)
+
+**Filter cache (filter-cache.ts)**:
+- LRU cache with max 50 entries
+- Cache key: `${query}|${domain ?? ''}`
+
+**Debounced search input (search-input.tsx:50-62)**:
+- 1000ms (1 second) delay via custom debounce utility
+- Cancelable with `.cancel()` method for immediate Enter key search
+
+### Acceptance Criteria Status:
+1. ✅ Filter by stack item (exact match) - hasFullWordMatch with word boundaries
+2. ✅ Filter by domain - O(1) SelectionIndex lookup
+3. ✅ Filter by search query - Searches company, role, industry, description, stack names
+4. ✅ Case-insensitive matching - RegExp "i" flag
+5. ✅ Combines filters correctly (AND logic) - Domain first, then text search
+6. ✅ Empty state shown when no matches - ProjectsEmptyState component
+7. ✅ Screen reader announcements (aria-live) - <output aria-live="polite">
+8. ✅ URL state synced (query parameter) - ?query= and ?filter= params
+9. ✅ Filter cache for performance - LRU cache with 50 max entries
+10. ✅ Debounced search input (1s delay) - 1000ms debounce
+
+### Key Files (no modifications needed):
+- src/utils/filter-projects.ts: Main filtering logic
+- src/utils/filter-cache.ts: LRU cache for performance
+- src/utils/search-params.ts: URL parameter extraction
+- src/components/projects.tsx: aria-live announcements, empty state rendering
+- src/components/projects-empty-state.tsx: Empty state UI
+- src/components/search-input.tsx: 1s debounced input
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+
+### PRD Status:
+- PROJ-003: passes: true
+

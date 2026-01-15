@@ -435,7 +435,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Check URL updates correctly"
   ],
   "dependencies": ["PROJ-002"],
-  "passes": false
+  "passes": true
 }
 ```
 
