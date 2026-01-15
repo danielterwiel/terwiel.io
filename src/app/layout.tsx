@@ -2,7 +2,7 @@ import "~/styles/globals.css";
 
 import type { Metadata } from "next";
 
-import { AsciiClouds } from "~/components/ascii-clouds";
+import { AsciiCloudsWrapper } from "~/components/ascii-clouds-wrapper";
 
 export const metadata: Metadata = {
   title: "Daniël Terwiel - Developer",
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans selection:bg-klein selection:text-white print:max-w-full">
-        <AsciiClouds />
+        <AsciiCloudsWrapper />
         {children}
       </body>
     </html>

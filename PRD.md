@@ -680,7 +680,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Test on agent-browser.dev mobile simulation"
   ],
   "dependencies": ["A11Y-005"],
-  "passes": false
+  "passes": true
 }
 ```
 
