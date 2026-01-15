@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 
 import type { Stack } from "~/types";
 
-import { projects } from "~/data/projects";
+import { PROJECTS } from "~/data/projects";
 import { extractUniqueStacks } from "~/utils/extract-stacks";
 import { calculateStackSizeFactors } from "~/utils/stack-cloud/calculate-stack-size";
 import { StackSphereItem } from "./stack-sphere-item";
@@ -24,10 +24,10 @@ function StackSphereInner() {
   const [hoveredStack, setHoveredStack] = useState<string | null>(null);
 
   // Extract stacks from projects
-  const stacks = extractUniqueStacks(projects);
+  const stacks = extractUniqueStacks(PROJECTS);
 
   // Calculate size factors based on experience
-  const sizeFactors = calculateStackSizeFactors(projects);
+  const sizeFactors = calculateStackSizeFactors(PROJECTS);
 
   // Calculate sphere positions for all items
   const positions = useSpherePositions(stacks.length, SPHERE_RADIUS);

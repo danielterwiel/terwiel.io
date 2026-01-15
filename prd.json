@@ -79,7 +79,7 @@
           "agent_browser_test": "agent-browser screenshot sphere-distribution.png --full"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CORE_002",
@@ -111,7 +111,7 @@
           "agent_browser_test": "agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere-container')).perspective\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CORE_003",
@@ -137,7 +137,7 @@
           "agent_browser_test": "agent-browser screenshot sphere-items.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SIZE_001",
@@ -157,7 +157,7 @@
           "agent_browser_test": "agent-browser find text JavaScript hover && agent-browser screenshot js-size.png && agent-browser find text Knockout hover && agent-browser screenshot knockout-size.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "HOVER_001",
@@ -179,7 +179,7 @@
           "agent_browser_test": "agent-browser find text React hover && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere-item:hover .icon')).color\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SELECT_001",
@@ -205,7 +205,7 @@
           "agent_browser_test": "agent-browser find text React click && agent-browser find text React click && agent-browser get url"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "A11Y_001",
@@ -228,7 +228,7 @@
           "agent_browser_test": "agent-browser set media prefers-reduced-motion reduce && agent-browser find text React click && agent-browser get url"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "A11Y_002",
@@ -284,7 +284,7 @@
           "agent_browser_test": "agent-browser eval \"document.querySelector('.stack-sphere-wrapper').getAttribute('aria-label')\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "PERF_001",
@@ -312,7 +312,7 @@
           "agent_browser_test": "agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere:not(:hover) .stack-sphere-item')).willChange === 'auto'\""
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "PERF_002",
@@ -334,7 +334,7 @@
           "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser trace start perf-trace.zip && agent-browser find text React hover && agent-browser wait 2000 && agent-browser find text TypeScript hover && agent-browser wait 2000 && agent-browser trace stop perf-trace.zip"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "SEGMENT_001",
@@ -409,7 +409,7 @@
           "agent_browser_test": "agent-browser fill '[name=search]' 'React' && agent-browser wait 500 && agent-browser get count '.stack-sphere-item[data-selected=true]'"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "CLEANUP_001",
