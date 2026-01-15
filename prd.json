@@ -476,6 +476,147 @@
         }
       ],
       "passes": false
+    },
+    {
+      "id": "BUG_000",
+      "category": "Bug",
+      "priority": 19,
+      "description": "Fix React hydration mismatch in sphere items.",
+      "context": "Server/client render different floating point values for transforms, sizes, and opacity (e.g., 51.16368433036698 vs 51.16368430511891). Caused by Math operations producing slightly different results. Fix by rounding/truncating values to consistent precision (e.g., 2 decimal places) or using CSS variables instead of inline calculated values.",
+      "acceptance_criteria": [
+        {
+          "description": "No hydration warnings in console",
+          "agent_browser_test": "agent-browser open http://localhost:3000 && agent-browser eval \"!window.__NEXT_DATA__.err\""
+        },
+        {
+          "description": "Sphere renders correctly after hydration",
+          "agent_browser_test": "agent-browser screenshot post-hydration.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUG_001",
+      "category": "Bug",
+      "priority": 20,
+      "description": "Fix icon centering within sphere item containers.",
+      "context": "Icons are not horizontally and vertically centered within their .stack-sphere-item containers. Use flexbox centering or absolute positioning with transforms.",
+      "acceptance_criteria": [
+        {
+          "description": "Icons are visually centered in their containers",
+          "agent_browser_test": "agent-browser screenshot icon-centering.png"
+        },
+        {
+          "description": "Centering works across all item sizes",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item')).every(el => getComputedStyle(el).display === 'flex' && getComputedStyle(el).alignItems === 'center' && getComputedStyle(el).justifyContent === 'center')\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "BUG_002",
+      "category": "Bug",
+      "priority": 21,
+      "description": "Fix icon sizing relative to container size.",
+      "context": "Icons don't scale proportionally to their container size. Larger items (high experience) should have proportionally larger icons. Use CSS custom property --size-factor to scale icon dimensions.",
+      "acceptance_criteria": [
+        {
+          "description": "Icons scale with container size",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item svg')).map(svg => svg.getBoundingClientRect().width).filter((v,i,a) => a.indexOf(v) === i).length > 3\""
+        },
+        {
+          "description": "Icons maintain aspect ratio at all sizes",
+          "agent_browser_test": "agent-browser screenshot icon-sizing.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "HOVER_002",
+      "category": "Feature",
+      "priority": 22,
+      "description": "Show experience tooltip on individual item hover.",
+      "context": "Display years/months of experience directly on or near the hovered item (tooltip or label beneath icon). Separate from CENTER_001 which shows experience in sphere center.",
+      "acceptance_criteria": [
+        {
+          "description": "Hovering item shows experience value near the item",
+          "agent_browser_test": "agent-browser find text React hover && agent-browser wait 300 && agent-browser is visible '.stack-sphere-item-tooltip'"
+        },
+        {
+          "description": "Tooltip shows correct experience for each stack",
+          "agent_browser_test": "agent-browser find text JavaScript hover && agent-browser wait 300 && agent-browser get text '.stack-sphere-item-tooltip'"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "INTERACT_001",
+      "category": "Feature",
+      "priority": 23,
+      "description": "Implement drag-to-rotate sphere interaction.",
+      "context": "Users can click and drag to manually rotate the sphere. Track mouse/touch movement delta, convert to rotateX/rotateY degrees. Use requestAnimationFrame for smooth 60fps. Add inertia on release for natural feel.",
+      "research_links": [
+        "https://armandocanals.com/posts/CSS-transform-rotating-a-3D-object-perspective-based-on-mouse-position.html",
+        "https://codepen.io/Chokcoco/pen/mdpGXjj",
+        "https://codepen.io/agelber/pen/ARgyEz",
+        "https://www.cssscript.com/3d-interactive-sphere-photo-gallery/"
+      ],
+      "implementation_notes": {
+        "approach": "Track mousedown/mousemove/mouseup events. Calculate delta from last position. Map deltaX to rotateY, deltaY to rotateX. Store accumulated rotation in state. Apply via inline transform or CSS variable.",
+        "inertia": "On mouseup, store velocity. Use requestAnimationFrame to gradually decay velocity and apply remaining rotation for smooth coast-to-stop.",
+        "touch_support": "Use touchstart/touchmove/touchend with same logic. Consider Hammer.js for gesture detection if complex gestures needed."
+      },
+      "acceptance_criteria": [
+        {
+          "description": "Sphere rotates when dragged with mouse",
+          "agent_browser_test": "agent-browser find '.stack-sphere' drag 100 50 && agent-browser screenshot drag-rotate.png"
+        },
+        {
+          "description": "Sphere has inertia after release",
+          "agent_browser_test": "agent-browser find '.stack-sphere' drag 200 0 && agent-browser wait 500 && agent-browser screenshot inertia.png"
+        },
+        {
+          "description": "Touch drag works on mobile",
+          "agent_browser_test": "agent-browser set device 'iPhone 14' && agent-browser find '.stack-sphere' drag 100 50 && agent-browser screenshot touch-drag.png"
+        },
+        {
+          "description": "Auto-rotation resumes after idle period",
+          "agent_browser_test": "agent-browser find '.stack-sphere' drag 50 0 && agent-browser wait 3000 && agent-browser eval \"getComputedStyle(document.querySelector('.stack-sphere')).animationPlayState === 'running'\""
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "VISUAL_001",
+      "category": "Feature",
+      "priority": 24,
+      "description": "Add depth-based visual effects for items.",
+      "context": "Items at the back of the sphere (negative Z) should appear more faded/smaller to enhance 3D perception. Use opacity and/or scale based on Z position. Creates natural depth cue without being gimmicky.",
+      "research_links": [
+        "https://www.cssscript.com/3d-rotating-sphere-tags-cloud/",
+        "https://www.cssscript.com/animated-sphere-tag-cloud/",
+        "https://www.cssscript.com/3d-interactive-tags-cloud/"
+      ],
+      "implementation_notes": {
+        "approach": "Calculate Z position from transform. Map Z range [-radius, +radius] to opacity [0.3, 1.0] and scale [0.7, 1.0]. Apply via CSS custom properties updated on each frame.",
+        "performance": "Update only when rotation changes. Use will-change: opacity, transform on items. Consider using CSS calc() with custom properties if possible to avoid JS updates.",
+        "alternatives_considered": "Blur effect on far items (too expensive), color desaturation (doesn't work well with monochrome icons)"
+      },
+      "acceptance_criteria": [
+        {
+          "description": "Items at back of sphere are more transparent",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item')).some(el => parseFloat(getComputedStyle(el).opacity) < 0.7)\""
+        },
+        {
+          "description": "Items at front are fully opaque",
+          "agent_browser_test": "agent-browser eval \"Array.from(document.querySelectorAll('.stack-sphere-item')).some(el => parseFloat(getComputedStyle(el).opacity) > 0.9)\""
+        },
+        {
+          "description": "Depth effect updates during rotation",
+          "agent_browser_test": "agent-browser wait 2000 && agent-browser screenshot depth-effect.png"
+        }
+      ],
+      "passes": false
     }
   ],
   "research_summary": {
@@ -523,6 +664,22 @@
         "https://motion.dev/",
         "https://auto-animate.formkit.com/",
         "https://github.com/react-spring/react-spring/issues/786"
+      ]
+    },
+    "drag_interaction": {
+      "key_insight": "Track mouse delta, map deltaX to rotateY and deltaY to rotateX. Use requestAnimationFrame for 60fps. Add velocity-based inertia on release.",
+      "links": [
+        "https://armandocanals.com/posts/CSS-transform-rotating-a-3D-object-perspective-based-on-mouse-position.html",
+        "https://codepen.io/Chokcoco/pen/mdpGXjj",
+        "https://codepen.io/agelber/pen/ARgyEz",
+        "https://www.cssscript.com/3d-interactive-sphere-photo-gallery/"
+      ]
+    },
+    "depth_effects": {
+      "key_insight": "Map Z position to opacity [0.3-1.0] and scale [0.7-1.0] for natural depth perception without gimmicks",
+      "links": [
+        "https://www.cssscript.com/3d-rotating-sphere-tags-cloud/",
+        "https://www.cssscript.com/animated-sphere-tag-cloud/"
       ]
     }
   },

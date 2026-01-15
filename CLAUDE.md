@@ -31,14 +31,14 @@ Tailwind CSS with custom config. Key custom color: `klein: "#002FA7"`.
 
 ### Z-Index (defined in `tailwind.config.ts`)
 
-| Layer | z-value | Usage |
-|-------|---------|-------|
-| Default | 0 | Body, StackCloud sidebar |
-| Content | 10 | Projects container |
-| Transitions | 19-22 | Project item animations |
-| View transition | 40 | Header group (Chrome) |
-| Sticky | 50 | Header, contact dropdown |
-| Safari override | 60 | Header (Safari only) |
+| Layer           | z-value | Usage                    |
+| --------------- | ------- | ------------------------ |
+| Default         | 0       | Body, StackCloud sidebar |
+| Content         | 10      | Projects container       |
+| Transitions     | 19-22   | Project item animations  |
+| View transition | 40      | Header group (Chrome)    |
+| Sticky          | 50      | Header, contact dropdown |
+| Safari override | 60      | Header (Safari only)     |
 
 **Never use arbitrary z-index values.**
 
