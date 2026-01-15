@@ -1,3 +1,40 @@
+/**
+ * Global Styles - terwiel.io Portfolio
+ *
+ * ## Performance Strategy (PERF-002)
+ *
+ * All animations are optimized for 60fps on mobile devices:
+ *
+ * 1. **GPU-Accelerated Properties Only**
+ *    - `transform` (translate, scale, rotate) - GPU composited
+ *    - `opacity` - GPU composited
+ *    - Avoid: width, height, top, left, margin, padding (trigger layout)
+ *
+ * 2. **will-change Usage**
+ *    - Applied only to elements that animate frequently
+ *    - Removed via `will-change: auto` when `prefers-reduced-motion: reduce`
+ *    - Prevents excessive GPU memory usage
+ *
+ * 3. **translate3d for GPU Layer Creation**
+ *    - `.stack-item` uses `translate3d(0, 0, 0)` to force GPU layer
+ *    - Ensures smooth scale animations via compositor
+ *
+ * 4. **Reduced Motion Support**
+ *    - All animations have `@media (prefers-reduced-motion: reduce)` fallback
+ *    - Transitions set to `none`, will-change to `auto`
+ *    - Respects WCAG 2.2 SC 2.3.3 (Animation from Interactions)
+ *
+ * 5. **Animation Durations**
+ *    - Enter animations: 300ms (smooth but not slow)
+ *    - Exit animations: 200ms (snappy response)
+ *    - Hover transitions: 200ms (responsive feel)
+ *    - Easing: cubic-bezier for spring-like motion
+ *
+ * @see PERF-002 in PRD.md for acceptance criteria
+ * @see VIZ-004 for stack item animation requirements
+ * @see PROJ-002 for project list animation requirements
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

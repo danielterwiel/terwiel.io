@@ -13,6 +13,27 @@ import { Icon } from "~/components/icon";
 import { SearchInputWrapper } from "~/components/search-input-wrapper";
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 
+/**
+ * HeaderContent - Main header component with responsive search and navigation
+ *
+ * ## Performance Optimizations (PERF-002)
+ *
+ * ### Scroll Event Handling
+ * - Uses `requestAnimationFrame` throttling to limit scroll callbacks to ~60fps
+ * - Passive scroll listeners (`{ passive: true }`) for better scroll performance
+ * - Early returns to avoid unnecessary state updates
+ *
+ * ### State Management
+ * - Refs used for synchronous access in event handlers (avoids stale closure issues)
+ * - Minimal state updates during scroll (only when header visibility changes)
+ *
+ * ### Animation Performance
+ * - CSS `transition-transform` for header show/hide (GPU-accelerated)
+ * - `duration-300` (300ms) transitions for smooth UX
+ * - Opacity transitions instead of display:none for smoother search toggle
+ *
+ * @see PERF-002 in PRD.md for acceptance criteria
+ */
 const HeaderContent = () => {
   const searchParams = useSearchParams();
   const hasSearchQuery = !!searchParams.get("query");
@@ -107,7 +128,7 @@ const HeaderContent = () => {
       }
     };
 
-    window.addEventListener("scroll", scrollListener);
+    window.addEventListener("scroll", scrollListener, { passive: true });
     return () => window.removeEventListener("scroll", scrollListener);
   }, [hasSearchQuery, showSearchInput]);
 
@@ -268,7 +289,7 @@ const HeaderContent = () => {
 
     // Delay adding scroll listener to ignore scroll events from opening the search
     const timeoutId = setTimeout(() => {
-      window.addEventListener("scroll", handleScrollClose);
+      window.addEventListener("scroll", handleScrollClose, { passive: true });
     }, 500); // Increased delay to 500ms to account for keyboard appearing and scrolling
 
     return () => {

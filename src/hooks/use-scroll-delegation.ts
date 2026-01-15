@@ -18,10 +18,23 @@ function isSafariMac(): boolean {
 
 /**
  * Delegates wheel scroll events from the StackCloud area to the window/viewport
- * On desktop (md breakpoint), captures wheel events on the StackCloud side
- * and scrolls the viewport instead, which scrolls the Projects container
  *
- * Special handling for Safari: Due to Safari's momentum scrolling and preventDefault() limitations,
+ * On desktop (md breakpoint), captures wheel events on the StackCloud side
+ * and scrolls the viewport instead, which scrolls the Projects container.
+ *
+ * ## Performance Considerations (PERF-002)
+ *
+ * ### Passive Listeners
+ * - Resize listener uses `{ passive: true }` for better performance
+ * - Wheel listener uses `{ passive: false }` because it needs `preventDefault()`
+ *
+ * ### Event Handler Efficiency
+ * - Early returns when not on desktop or when target is missing
+ * - `getBoundingClientRect()` called once per event (not cached to handle resize)
+ * - Uses `window.scrollBy({ behavior: 'auto' })` for immediate scroll (no animation)
+ *
+ * ### Safari Handling
+ * Due to Safari's momentum scrolling and preventDefault() limitations,
  * we detect Safari and apply scroll delegation from the entire viewport in Safari.
  * Other browsers apply the standard delegated scroll approach.
  *
@@ -29,6 +42,8 @@ function isSafariMac(): boolean {
  * preventDefault() calls. Browser console will show warnings about non-passive scroll listeners,
  * but this is necessary for the dual-layout design to work correctly. The preventDefault() calls
  * are performant because they're only executed on specific conditions (Safari or outside Projects area).
+ *
+ * @see PERF-002 in PRD.md for runtime performance requirements
  */
 export function useScrollDelegation(targetRef: React.RefObject<HTMLElement>) {
   const isDesktop = useRef(false);
@@ -41,7 +56,7 @@ export function useScrollDelegation(targetRef: React.RefObject<HTMLElement>) {
 
     checkDesktop();
     isSafariRef.current = isSafariMac();
-    window.addEventListener("resize", checkDesktop);
+    window.addEventListener("resize", checkDesktop, { passive: true });
 
     const handleWheel = (e: WheelEvent) => {
       if (!isDesktop.current || !targetRef.current) return;
