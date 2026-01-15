@@ -140,7 +140,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Verify no horizontal overflow with 'overflow-x' check"
   ],
   "dependencies": ["SETUP-003"],
-  "passes": false
+  "passes": true
 }
 ```
 
