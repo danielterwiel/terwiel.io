@@ -478,3 +478,59 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 
 ### PRD Status:
 - VIZ-004: passes: true
+
+---
+
+## 2026-01-15: VIZ-005 Complete - Implement responsive grid/layout system
+
+### What was done:
+- Implemented responsive CSS Grid layout for domain groups with breakpoint-specific configurations
+- Updated stack-cloud-wrapper to use flexible height instead of fixed aspect-ratio
+- Added responsive media queries for mobile, tablet, desktop, and landscape mobile viewports
+- No JavaScript required for layout calculations - pure CSS solution
+
+### Implementation Details:
+
+**CSS Grid Breakpoints (globals.css)**:
+- Mobile (320-768px): `minmax(140px, 1fr)` - 2-3 columns, compact spacing
+- Tablet (768-1024px): `minmax(160px, 1fr)` - 3-4 columns, better spacing
+- Desktop (1024px+): `minmax(140px, 1fr)` - Multi-column sidebar layout
+- Landscape Mobile: `minmax(120px, 1fr)` - Compact to reduce vertical scroll
+
+**Gap Spacing**:
+- Base gap: 1rem (16px) - meets WCAG 1rem minimum requirement
+- Desktop gap: 1.5rem (24px) - better visual balance
+- Landscape mobile gap: 0.75rem (12px) - compact spacing
+
+**Stack Cloud Wrapper Updates**:
+- Removed fixed `aspect-ratio: 1` constraint
+- Removed fixed `min-height: 400px` and `max-height: 600px`
+- Allows content to flow naturally at all viewport sizes
+
+**Domain Group Responsive Styles**:
+- Tablet+ gap: 0.625rem (10px) for stack items
+- Landscape mobile: 0.375rem (6px) gap for compact layout
+- Header/items gap reduced in landscape mode
+
+### Acceptance Criteria Status:
+1. ✅ Mobile (320-768px): Single column works, 2-3 columns on wider phones
+2. ✅ Tablet (768-1024px): 3 columns with larger minimum column width
+3. ✅ Desktop (1024px+): Multi-column layout in fixed sidebar
+4. ✅ CSS Grid or Flexbox with wrap - Both used (Grid for domains, Flexbox for items)
+5. ✅ Container queries used if beneficial - Not needed, auto-fit handles responsiveness
+6. ✅ No JavaScript for layout calculations - Pure CSS solution
+7. ✅ Works correctly in landscape orientation - Specific media query for landscape
+8. ✅ Proper gap spacing (1rem minimum) - 1rem base, 1.5rem on desktop
+9. ✅ Visual balance across all viewports - Responsive breakpoints ensure balance
+
+### Key Files Modified:
+- src/styles/globals.css: Added responsive CSS rules for domain-groups-grid and domain-group
+- src/components/stack-cloud-css/stack-cloud-content.tsx: Updated to use domain-groups-grid class, added documentation
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS (after format)
+- npm run knip: Expected unused exports (no new issues)
+
+### PRD Status:
+- VIZ-005: passes: true

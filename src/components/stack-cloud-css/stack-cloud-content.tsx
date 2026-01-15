@@ -118,13 +118,28 @@ import { RootNode } from "./root-node";
  * - **Focus**: Visible focus ring, keyboard navigation
  * - **Keyboard**: Arrow keys for roving tabindex, Enter/Space to activate
  *
- * ## Responsive Breakpoints
+ * ## Responsive Breakpoints (VIZ-005)
  *
- * - Mobile (320-768px): 2-3 columns, compact gaps
- * - Tablet (768-1024px): 3-4 columns
- * - Desktop (1024px+): 4-6 columns, sidebar layout
+ * The layout uses CSS Grid with `auto-fit` for automatic column calculation.
+ * No JavaScript is required for layout calculations.
  *
- * @see PRD.md VIZ-001 for full acceptance criteria
+ * | Viewport          | Min Column Width | Gap   | Notes                        |
+ * |-------------------|------------------|-------|------------------------------|
+ * | Mobile (320-768)  | 140px            | 1rem  | 2-3 columns, compact         |
+ * | Tablet (768-1024) | 160px            | 1.5rem| 3-4 columns, better spacing  |
+ * | Desktop (1024+)   | 140px            | 1.5rem| Multi-column sidebar layout  |
+ * | Landscape Mobile  | 120px            | 0.75rem| Compact to reduce scroll    |
+ *
+ * ## CSS-Only Layout (No JS)
+ *
+ * All layout calculations use pure CSS:
+ * - `grid-template-columns: repeat(auto-fit, minmax(Xpx, 1fr))`
+ * - Flexbox wrapping for stack items within domain groups
+ * - Media queries for responsive breakpoints
+ * - No container queries (optional, not needed with current approach)
+ *
+ * @see PRD.md VIZ-001, VIZ-005 for full acceptance criteria
+ * @see globals.css for responsive CSS rules
  */
 export function StackCloudContent() {
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -300,13 +315,13 @@ export function StackCloudContent() {
           rovingTabindex={rovingTabindex}
         />
 
-        {/* Domain Groups - CSS Grid Layout */}
-        <div
-          className="w-full grid gap-4 md:gap-6"
-          style={{
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-          }}
-        >
+        {/* Domain Groups - Responsive CSS Grid Layout (VIZ-005)
+            Mobile (320-768px): 2 columns minimum, auto-fit for flexibility
+            Tablet (768-1024px): 3 columns with better spacing
+            Desktop (1024px+): Multi-column layout within sidebar
+            Landscape mobile: Compact 3+ columns to reduce vertical scroll
+        */}
+        <div className="domain-groups-grid w-full grid gap-4 md:gap-6 landscape-mobile:gap-3">
           {domainsOrdered.map((domain, domainIndex) => {
             const domainStacks = stacksByDomain.get(domain) ?? [];
             if (domainStacks.length === 0) return null;

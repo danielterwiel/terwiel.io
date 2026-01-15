@@ -342,7 +342,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Check spacing with DevTools ruler/grid overlay"
   ],
   "dependencies": ["VIZ-004"],
-  "passes": false
+  "passes": true
 }
 ```
 

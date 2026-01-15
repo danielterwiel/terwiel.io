@@ -247,13 +247,99 @@
     }
   }
 
-  /* StackCloud Component Styles */
+  /* StackCloud Component Styles - VIZ-005 Responsive Layout */
   .stack-cloud-wrapper {
     width: 100%;
-    aspect-ratio: 1;
-    min-height: 400px;
-    max-height: 600px;
     position: relative;
+  }
+
+  /* Mobile (320-768px): Compact layout, no fixed aspect-ratio */
+  @media (max-width: 767px) {
+    .stack-cloud-wrapper {
+      min-height: auto;
+      max-height: none;
+    }
+  }
+
+  /* Tablet and Desktop (768px+): Flexible height based on content */
+  @media (min-width: 768px) {
+    .stack-cloud-wrapper {
+      min-height: auto;
+      max-height: none;
+    }
+  }
+
+  /* Landscape mobile: Extra compact spacing */
+  @media (max-width: 1024px) and (max-height: 500px) and (
+      orientation: landscape
+    ) {
+    .stack-cloud-wrapper {
+      min-height: auto;
+      max-height: none;
+    }
+  }
+
+  /* Domain Groups Grid - VIZ-005 Responsive Layout
+   * Uses CSS Grid with auto-fit for responsive columns
+   * No JavaScript needed for layout calculations
+   */
+  .domain-groups-grid {
+    /* Mobile (320-768px): 2 columns minimum, scales up naturally
+     * minmax(140px, 1fr) ensures columns don't get too narrow
+     * auto-fit allows columns to fill available space
+     */
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+
+  /* Tablet (768-1024px): 3 columns with better spacing */
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .domain-groups-grid {
+      /* Slightly larger minimum for tablet readability */
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+  }
+
+  /* Desktop (1024px+): Multi-column sidebar layout */
+  @media (min-width: 1024px) {
+    .domain-groups-grid {
+      /* Allow more columns on wider screens */
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+  }
+
+  /* Landscape mobile: 3+ columns to reduce vertical scroll */
+  @media (max-width: 1024px) and (max-height: 500px) and (
+      orientation: landscape
+    ) {
+    .domain-groups-grid {
+      /* Smaller minimum to fit more columns */
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+  }
+
+  /* Domain Group Responsive Styles - VIZ-005 */
+  .domain-group {
+    /* Base: 8px gap (0.5rem) for stack items - fits more items on mobile */
+  }
+
+  /* Tablet and Desktop: Slightly larger gap for better visual balance */
+  @media (min-width: 768px) {
+    .domain-group ul {
+      gap: 0.625rem; /* 10px - balanced spacing */
+    }
+  }
+
+  /* Landscape mobile: Compact gap to fit more items */
+  @media (max-width: 1024px) and (max-height: 500px) and (
+      orientation: landscape
+    ) {
+    .domain-group {
+      gap: 0.25rem; /* Reduce gap between header and items */
+    }
+
+    .domain-group ul {
+      gap: 0.375rem; /* 6px - compact spacing */
+    }
   }
 
   /* Stack Item Animations - VIZ-004 */
