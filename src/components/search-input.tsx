@@ -101,6 +101,25 @@ const SearchInputContent = React.forwardRef<
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       triggerSearchImmediately(query);
+    } else if (event.key === "Escape") {
+      // Escape key clears input and blurs
+      if (query) {
+        // If there's a query, clear it first
+        debouncedSetSearchParamsRef.current?.cancel();
+        setQuery("");
+        const url = pathname;
+        startTransition(() => {
+          router.push(url, { scroll: false });
+        });
+      } else {
+        // If already empty, blur the input and trigger onCloseEmpty
+        const input =
+          "current" in inputRef
+            ? inputRef.current
+            : (inputRef as HTMLInputElement);
+        input?.blur();
+        onCloseEmpty?.();
+      }
     }
   };
 
@@ -213,15 +232,21 @@ const SearchInputContent = React.forwardRef<
                         }
                       }
                 }
-                type="input"
+                type="search"
+                inputMode="search"
+                enterKeyHint="search"
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 placeholder="Search - e.g. Rust, 2022, Logistics"
+                aria-label="Search projects by technology, year, or industry"
                 value={query}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
                 tabIndex={isFocused || query ? 0 : -1}
-                className="w-full border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"
+                className="min-h-[44px] w-full border-0 bg-transparent py-3 px-10 text-slate-900 placeholder:text-slate-500 focus:outline-none"
               />
             </Form.Control>
             <Icon.Search
@@ -237,12 +262,10 @@ const SearchInputContent = React.forwardRef<
               type="reset"
               onClick={clear}
               tabIndex={isFocused || query ? 0 : -1}
-              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-2.5 text-slate-400 transition-colors duration-300 hover-hover:text-klein focus-visible:text-klein focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2"
+              aria-label={query ? "Clear search input" : "Close search"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-sm p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 transition-colors duration-300 hover-hover:text-klein focus-visible:text-klein focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-klein focus-visible:ring-offset-2"
             >
               <Icon.X aria-hidden="true" focusable="false" />
-              <span className="sr-only">
-                {query ? "Clear search input" : "Close search"}
-              </span>
             </button>
           </search>
         </div>

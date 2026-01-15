@@ -468,7 +468,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Test on mobile device keyboard"
   ],
   "dependencies": ["PROJ-003"],
-  "passes": false
+  "passes": true
 }
 ```
 

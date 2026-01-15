@@ -722,3 +722,60 @@ approach (PRD Architecture Decision: Option A - CSS Grid with Static Positions).
 ### PRD Status:
 - PROJ-003: passes: true
 
+---
+
+## 2026-01-15: SEARCH-001 Complete - Enhance search input component
+
+### What was done:
+- Enhanced search input with proper Escape key handling (clears input, then blurs/closes)
+- Changed input type from "input" to "search" for proper mobile keyboard
+- Added inputMode="search" and enterKeyHint="search" for mobile optimization
+- Added autoComplete="off", autoCorrect="off", spellCheck="false" for search UX
+- Added aria-label to input: "Search projects by technology, year, or industry"
+- Added min-h-[44px] to input for WCAG 2.2 touch target compliance
+- Enhanced clear button with aria-label and 44x44px touch target (min-w-[44px] min-h-[44px])
+- Removed redundant sr-only span since aria-label now provides accessible name
+
+### Implementation Details:
+
+**Escape Key Handling (search-input.tsx:104-123)**:
+- First Escape press: Clears query if present (uses router.push to create history entry)
+- Second Escape press: Blurs input and triggers onCloseEmpty callback
+- This matches user expectations for search input behavior
+
+**Mobile Keyboard Optimization**:
+- `type="search"`: Shows search keyboard with "Search" action button
+- `inputMode="search"`: Hints to mobile browsers for search-optimized keyboard
+- `enterKeyHint="search"`: Labels the Enter key as "Search" on mobile
+
+**Touch Target Compliance**:
+- Input: `min-h-[44px]` ensures 44px minimum height (WCAG 2.2 SC 2.5.8)
+- Clear button: `min-w-[44px] min-h-[44px]` with flex centering
+
+**Accessibility Improvements**:
+- Input has `aria-label` describing its purpose for screen readers
+- Clear button has dynamic `aria-label` based on state (clear vs close)
+- All interactive elements meet 44x44px touch target requirement
+
+### Acceptance Criteria Status:
+1. ✅ Search input visible on mobile and desktop - print:hidden class
+2. ✅ Placeholder text helpful - "Search - e.g. Rust, 2022, Logistics"
+3. ✅ Debounced input (1s) uses router.push() - Line 57-60
+4. ✅ Enter key triggers immediate search - handleKeyDown Enter branch
+5. ✅ Clear button (X icon) works correctly - clear function
+6. ✅ Focus management - useImperativeHandle exposes focus/blur/select
+7. ✅ Keyboard navigation (Tab, Escape) - NEW Escape handling added
+8. ✅ Accessible labels (aria-label) - NEW aria-labels on input and button
+9. ✅ Mobile keyboard type='search' - NEW type="search" + inputMode
+10. ✅ Touch-friendly (44x44px) - NEW min-h-[44px] on input and button
+
+### Key Files Modified:
+- src/components/search-input.tsx: All enhancements applied
+
+### Verification:
+- npm run typecheck: PASS
+- npm run lint: PASS
+
+### PRD Status:
+- SEARCH-001: passes: true
+
