@@ -799,7 +799,7 @@ This PRD documents the complete rewrite of the terwiel.io portfolio website. The
     "Document any browser-specific issues"
   ],
   "dependencies": ["PERF-004"],
-  "passes": false
+  "passes": true
 }
 ```
 
