@@ -529,7 +529,7 @@
           "agent_browser_test": "agent-browser screenshot icon-sizing.png"
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "HOVER_002",

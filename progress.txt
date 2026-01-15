@@ -293,3 +293,37 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Centering works across all item sizes (flexbox centering is size-agnostic)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - BUG_002 Complete
+
+**Task:** Fix icon sizing relative to container size
+
+**Root cause:**
+69 of the SVG icons don't have a `viewBox` attribute. Without viewBox, SVGs don't scale their content when width/height attributes are changed - the internal paths stay at 24x24 even when the viewport is larger.
+
+**What was done:**
+1. Changed icon sizing to use CSS `transform: scale()` instead of width/height
+2. Set base icon size to 24px (matching SVG native size)
+3. Calculate scale factor based on container size: `iconScale = (itemSize * 0.7) / 24`
+4. Applied scale transform to icon component
+
+**Files modified:**
+- `src/components/stack-sphere/stack-sphere-item.tsx` - Changed from `iconSize` width/height to `iconScale` transform
+
+**Key changes:**
+- Previous: `<IconComponent width={iconSize} height={iconSize} />` where iconSize varied from 25-84px
+- Now: `<IconComponent width={24} height={24} style={{ transform: scale(${iconScale}) }} />` where iconScale varies from ~1.05 to ~3.5
+
+**Why this approach:**
+- CSS transform: scale() works regardless of SVG viewBox presence
+- Avoids modifying 69 SVG files
+- GPU-accelerated, no layout thrashing
+- Added transform to transition for smooth hover effects
+
+**Acceptance criteria met:**
+- Icons scale with container size (different scale transforms produce different visual sizes)
+- Icons maintain aspect ratio at all sizes (scale is uniform x/y)
+
+**Status:** PASSES

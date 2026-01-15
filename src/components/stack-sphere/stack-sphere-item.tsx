@@ -73,7 +73,10 @@ const StackSphereItemComponent = forwardRef<
 
   // Calculate item size based on sizeFactor (rounded to prevent hydration mismatch)
   const itemSize = round(baseRadius * sizeFactor * 2);
-  const iconSize = round(itemSize * 0.7);
+  // Base icon size - will be scaled proportionally via CSS transform
+  // This avoids SVG viewBox issues where icons without viewBox don't scale with width/height
+  const baseIconSize = 24;
+  const iconScale = round((itemSize * 0.7) / baseIconSize);
 
   // Determine state for styling
   const state = selected ? "selected" : highlighted ? "highlighted" : "default";
@@ -190,17 +193,20 @@ const StackSphereItemComponent = forwardRef<
         )}
       </svg>
 
-      {/* Icon - centered via flexbox on parent */}
+      {/* Icon - centered via flexbox on parent, scaled via CSS transform */}
       {IconComponent && (
         <IconComponent
-          width={iconSize}
-          height={iconSize}
+          width={baseIconSize}
+          height={baseIconSize}
           style={{
             color: finalIconColor,
             opacity: iconStyle.opacity,
+            // Scale icon proportionally to container size
+            // Using transform avoids SVG viewBox issues
+            transform: `scale(${iconScale})`,
             transition:
               transitionDuration > 0
-                ? `color ${transitionDuration}ms ease-in-out`
+                ? `color ${transitionDuration}ms ease-in-out, transform ${transitionDuration}ms ease-in-out`
                 : "none",
           }}
         />
