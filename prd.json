@@ -445,7 +445,7 @@
           "agent_browser_test": null
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "TEST_001",
@@ -614,6 +614,95 @@
         {
           "description": "Depth effect updates during rotation",
           "agent_browser_test": "agent-browser wait 2000 && agent-browser screenshot depth-effect.png"
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_003",
+      "category": "Performance",
+      "priority": 25,
+      "description": "Replace Radix UI barrel imports with tree-shakeable imports.",
+      "context": "Using `import * as X from '@radix-ui/react-*'` imports entire module. Use named imports or add to next.config.js optimizePackageImports.",
+      "files_to_fix": [
+        "src/components/contact-dropdown.tsx:3 - import * as DropdownMenu",
+        "src/components/contact-dialog.tsx:4 - import * as Form",
+        "src/components/search-input.tsx:3 - import * as Form"
+      ],
+      "fix_approach": "Either use named imports `import { Root, Trigger, Content } from '@radix-ui/react-dropdown-menu'` or add '@radix-ui/react-dropdown-menu' and '@radix-ui/react-form' to next.config.js experimental.optimizePackageImports array.",
+      "acceptance_criteria": [
+        {
+          "description": "No namespace imports for @radix-ui packages",
+          "agent_browser_test": null
+        },
+        {
+          "description": "npm run build succeeds",
+          "agent_browser_test": null
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_004",
+      "category": "Performance",
+      "priority": 26,
+      "description": "Memoize dynamic RegExp creation in components.",
+      "context": "RegExp objects created on every render cause memory churn. Wrap dynamic RegExp in useMemo or hoist static patterns outside component.",
+      "files_to_fix": [
+        "src/components/highlighted.tsx:12-15 - new RegExp inside component, use useMemo",
+        "src/components/highlighted.tsx:35-38 - second RegExp in split, reuse memoized pattern",
+        "src/components/badge.tsx:45 - hexToRgb helper with regex inside component, hoist outside"
+      ],
+      "fix_approach": "For highlighted.tsx: `const pattern = useMemo(() => new RegExp(...), [escapedQuery])`. For badge.tsx: move hexToRgb and its HEX_COLOR_REGEX constant outside the component.",
+      "acceptance_criteria": [
+        {
+          "description": "No RegExp creation inside render path without memoization",
+          "agent_browser_test": null
+        },
+        {
+          "description": "Component behavior unchanged",
+          "agent_browser_test": null
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_005",
+      "category": "Performance",
+      "priority": 27,
+      "description": "Replace .sort() with .toSorted() to prevent array mutation.",
+      "context": "Array.sort() mutates original array which can cause React state bugs. Use .toSorted() for immutable sorting.",
+      "files_to_fix": [
+        "src/utils/extract-stacks.ts:77 - stacks.sort() -> stacks.toSorted()",
+        "src/utils/merge-date-ranges.ts:22 - .sort() -> .toSorted()",
+        "src/utils/stack-cloud/calculate-stack-size.ts:117 - .sort() -> .toSorted()"
+      ],
+      "acceptance_criteria": [
+        {
+          "description": "No .sort() calls on arrays that could be React state",
+          "agent_browser_test": null
+        },
+        {
+          "description": "npm run build succeeds",
+          "agent_browser_test": null
+        }
+      ],
+      "passes": false
+    },
+    {
+      "id": "PERF_006",
+      "category": "Performance",
+      "priority": 28,
+      "description": "Use Set for O(1) membership checks instead of .includes().",
+      "context": "Array.includes() is O(n) per check. Convert to Set for O(1) lookup when checking membership repeatedly.",
+      "files_to_fix": [
+        "src/utils/filter-projects.ts:6,65 - PROJECT_KEY_DISALLOWED.includes(key) called in .filter() loop"
+      ],
+      "fix_approach": "Change `const PROJECT_KEY_DISALLOWED = ['stack']` to `const PROJECT_KEY_DISALLOWED = new Set(['stack'])` and use `.has(key)` instead of `.includes(key)`.",
+      "acceptance_criteria": [
+        {
+          "description": "Membership checks use Set.has() not Array.includes()",
+          "agent_browser_test": null
         }
       ],
       "passes": false

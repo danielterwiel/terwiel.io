@@ -1,7 +1,5 @@
 export type {
   DateRange,
-  DomainAngleRange,
-  DomainExperience,
   DomainExperienceSimple,
   ExperienceDuration,
   MergedExperience,
@@ -10,5 +8,4 @@ export type {
 } from "./experience";
 export type { IconName, StackName } from "./icon";
 export type { BadgeProps, Domain, Project, StackItem } from "./project";
-export type { Dimensions, SimulationNode } from "./simulation";
 export type { Stack } from "./stack";

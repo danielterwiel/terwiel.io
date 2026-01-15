@@ -166,3 +166,74 @@
 - Experience ticker animates on change (via ExperienceTicker)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - CLEANUP_001 Complete
+
+**Task:** Remove D3 dependency and old StackCloud files
+
+**What was done:**
+1. Deleted old StackCloud component files (stack-cloud.tsx, stack-cloud-content.tsx, stack-cloud-loader.tsx, stack-node.tsx, root-node.tsx, root-node-chart.tsx, root-node-experience.tsx, index.tsx)
+2. Deleted D3-dependent hook (use-stack-simulation.ts)
+3. Deleted D3-dependent utilities (10 files in utils/stack-cloud/)
+4. Deleted D3-related constants (stack-cloud-physics.ts)
+5. Deleted D3-dependent types (SimulationNode from simulation.ts)
+6. Removed d3 and @types/d3 from package.json
+7. Ran npm install to update lockfile (removed 87 packages)
+8. Cleaned up newly unused files found by knip (10 additional files)
+9. Removed unused type exports and functions
+
+**Files deleted:**
+Components:
+- `src/components/stack-cloud/stack-cloud.tsx`
+- `src/components/stack-cloud/stack-cloud-content.tsx`
+- `src/components/stack-cloud/stack-cloud-loader.tsx`
+- `src/components/stack-cloud/stack-node.tsx`
+- `src/components/stack-cloud/root-node.tsx`
+- `src/components/stack-cloud/root-node-chart.tsx`
+- `src/components/stack-cloud/root-node-experience.tsx`
+- `src/components/stack-cloud/index.tsx`
+
+Hooks:
+- `src/hooks/use-stack-simulation.ts`
+- `src/hooks/use-dimensions.ts`
+
+Utils:
+- `src/utils/stack-cloud/adaptive-physics.ts`
+- `src/utils/stack-cloud/boundary-force.ts`
+- `src/utils/stack-cloud/calculate-domain-angles.ts`
+- `src/utils/stack-cloud/convert-arc-angle.ts`
+- `src/utils/stack-cloud/create-forces.ts`
+- `src/utils/stack-cloud/distribute-nodes-in-segment.ts`
+- `src/utils/stack-cloud/mass-dampen-force.ts`
+- `src/utils/stack-cloud/performance-utils.ts`
+- `src/utils/stack-cloud/root-exclusion-force.ts`
+- `src/utils/stack-cloud/seed-position.ts`
+- `src/utils/stack-cloud/calculate-base-radius.ts`
+- `src/utils/calculate-domain-size.ts`
+- `src/utils/experience-cache.ts`
+- `src/utils/get-initial-selection.ts`
+- `src/utils/hover-state-manager.ts`
+- `src/utils/matches-stack-name.ts`
+- `src/utils/math.ts`
+- `src/utils/stack-selection.ts`
+
+Constants:
+- `src/constants/stack-cloud-physics.ts`
+- `src/constants/stack-selection-scale.ts`
+
+Types:
+- `src/types/simulation.ts`
+
+**Files preserved (still used by stack-sphere):**
+- `src/components/stack-cloud/experience-ticker.tsx`
+- `src/utils/stack-cloud/calculate-stack-size.ts`
+- `src/utils/stack-cloud/selection-index.ts`
+
+**Acceptance criteria met:**
+- D3 not in package.json (removed d3 and @types/d3)
+- npm run build succeeds without D3
+- Bundle size reduced (removed 87 packages)
+
+**Status:** PASSES

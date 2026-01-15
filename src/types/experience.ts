@@ -1,5 +1,3 @@
-import type { Domain } from "./project";
-
 export type DateRange = {
   from: string;
   to: string;
@@ -23,12 +21,6 @@ export type DomainExperienceSimple = {
   months: number;
 };
 
-export type DomainExperience = {
-  domain: Domain;
-  totalMonths: number;
-  percentage: number;
-};
-
 export type TotalExperience = {
   totalMonths: number;
   years: number;
@@ -41,9 +33,3 @@ export type ExperienceDuration = {
   months: number;
   duration: string;
 };
-
-export interface DomainAngleRange {
-  startAngle: number;
-  endAngle: number;
-  midAngle: number;
-}
