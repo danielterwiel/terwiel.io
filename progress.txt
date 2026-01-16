@@ -113,3 +113,47 @@ at 30 nodes. Current implementation is acceptable - no action required.
 ### Notes
 - Pre-existing typecheck errors unchanged
 - Lint passes
+
+## 2026-01-16: inv-05 - forceCollide iterations and collision detection
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated COLLISION_ITERATIONS=12, COLLISION_STRENGTH=1.0, collision radius caching,
+and forceCollide performance characteristics for ~30 node simulation.
+
+### Findings
+
+1. **COLLISION_ITERATIONS=12 EXCESSIVE BUT HARMLESS**
+   - D3 default is 1 iteration
+   - D3 official collision example (200 nodes) uses 3 iterations
+   - NebulaGraph production optimization uses 2 iterations
+   - At ~30 nodes, 12 iterations is overkill but perf impact is negligible
+   - Cost is O(n) per iteration via quadtree; n=30 completes in microseconds
+
+2. **COLLISION_STRENGTH=1.0 CORRECT**
+   - This is the D3 default, provides maximum rigidity
+   - Combined with high iterations, prevents any node overlap
+   - Appropriate for mixed-size nodes requiring strict separation
+
+3. **Collision radius function CACHED**
+   - D3 caches radius accessor result during initialize()
+   - Re-cached when collide.initialize() called on scale factor changes
+   - NOT recalculated on every tick (contrary to initial concern)
+
+4. **Varying node sizes CORRECTLY HANDLED**
+   - radius = (d.radius * scaleFactor + collisionPadding)
+   - Properly accounts for base radius, selection scale, and adaptive padding
+
+### Recommendation
+Could reduce COLLISION_ITERATIONS from 12 to 3-4 for micro-optimization, but current
+value works well for mixed-size nodes without jitter. No action required.
+
+### References consulted
+- https://d3js.org/d3-force/collide
+- https://observablehq.com/@d3/collision-detection/2
+- https://www.nebula-graph.io/posts/d3-force-layout-optimization
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes

@@ -114,7 +114,15 @@
         "Verify COLLISION_STRENGTH=1.0 is optimal",
         "Search D3 docs for forceCollide performance with varying sizes"
       ],
-      "passes": false
+      "passes": true,
+      "findings": [
+        "COLLISION_ITERATIONS=12 EXCESSIVE BUT HARMLESS: D3 default is 1, official example (200 nodes) uses 3, NebulaGraph uses 2. At ~30 nodes, 12 iterations is overkill but perf impact is negligible",
+        "Iteration cost is O(n) per iteration via quadtree. With n=30, even 12 iterations completes in microseconds",
+        "COLLISION_STRENGTH=1.0 CORRECT: This is D3 default, provides maximum rigidity. Combined with high iterations, prevents any overlap",
+        "Collision radius function CACHED: D3 caches radius accessor result during initialize(). Re-cached when collide.initialize() called on scale factor changes",
+        "Varying node sizes CORRECTLY HANDLED: radius=(d.radius * scaleFactor + collisionPadding) properly accounts for size differences",
+        "RECOMMENDATION: Could reduce COLLISION_ITERATIONS from 12 to 3-4 for micro-optimization, but current value works well for mixed-size nodes without jitter. No action required."
+      ]
     },
     {
       "category": "investigation",
