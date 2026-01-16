@@ -42,8 +42,8 @@ export function useRovingTabindex<T extends { id: string }>(
   // Build index map for O(1) lookup instead of O(n) findIndex per item
   const indexMap = useMemo(() => {
     const map = new Map<string, number>();
-    for (let i = 0; i < items.length; i++) {
-      map.set(items[i].id, i);
+    for (const [i, item] of items.entries()) {
+      map.set(item.id, i);
     }
     return map;
   }, [items]);
