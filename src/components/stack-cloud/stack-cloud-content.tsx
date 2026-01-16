@@ -155,7 +155,8 @@ export function StackCloudContent() {
   }, [stacks, searchParams, selectionIndex]);
 
   // Custom hooks for dimensions and simulation
-  const { dimensions } = useDimensions(wrapperRef);
+  // Pass pre-computed stacks/sizeFactors to avoid redundant work on resize
+  const { dimensions } = useDimensions(wrapperRef, stacks, sizeFactors);
   const { nodesRef, isVisible, updateSimulation, updateNodeScaleFactors } =
     useStackSimulation({
       dimensions,
@@ -219,32 +220,18 @@ export function StackCloudContent() {
     [nodesRef],
   );
 
-  // Create memoized factory function for stack node ref callbacks
-  const createStackNodeRefCallback = useCallback(
-    (stackId: string) => (el: SVGGElement | null) => {
-      if (el) nodesRef.current.set(stackId, el);
-      else nodesRef.current.delete(stackId);
-    },
-    [nodesRef],
-  );
-
-  // Create memoized factory function for stack mouse enter callbacks
+  // PERF FIX: Memoize mouse enter callbacks as a Map to prevent recreation on every render
   // When hovering a stack, clear hoveredDomain to prevent domain-level highlighting
-  // This ensures only the specific hovered stack is highlighted, not all stacks in the domain
-  const createStackMouseEnterCallback = useCallback(
-    (stack: {
-      id: string;
-      name: string;
-      iconKey: string;
-      color: string;
-      domain: Domain;
-    }) =>
-      () => {
+  const mouseEnterCallbacks = useMemo(() => {
+    const callbacks = new Map<string, () => void>();
+    for (const stack of stacks) {
+      callbacks.set(stack.id, () => {
         setHoveredStack(stack);
         setHoveredDomain(null); // Clear domain hover when hovering a specific stack
-      },
-    [],
-  );
+      });
+    }
+    return callbacks;
+  }, [stacks]);
 
   // Create memoized mouse leave callback
   const handleStackMouseLeave = useCallback(() => {
@@ -294,6 +281,35 @@ export function StackCloudContent() {
     },
   });
 
+  // PERF FIX: Memoize focus callbacks as a Map to prevent recreation on every render
+  // Uses domainExperiences.length as offset to calculate globalIndex for each stack
+  // NOTE: Must be defined after rovingTabindex hook
+  const focusCallbacks = useMemo(() => {
+    const segmentCount = domainExperiences.length;
+    const callbacks = new Map<string, () => void>();
+    stacks.forEach((stack, index) => {
+      const globalIndex = segmentCount + index;
+      callbacks.set(stack.id, () => rovingTabindex.setActiveIndex(globalIndex));
+    });
+    return callbacks;
+  }, [stacks, domainExperiences.length, rovingTabindex]);
+
+  // PERF FIX: Combined nodeRef callbacks that handle both nodesRef and rovingTabindex registration
+  // This avoids creating an inline callback in the render loop
+  const combinedNodeRefCallbacks = useMemo(() => {
+    const callbacks = new Map<string, (el: SVGGElement | null) => void>();
+    for (const stack of stacks) {
+      callbacks.set(stack.id, (el: SVGGElement | null) => {
+        // Update D3 nodesRef
+        if (el) nodesRef.current.set(stack.id, el);
+        else nodesRef.current.delete(stack.id);
+        // Update roving tabindex item ref
+        rovingTabindex.registerItemRef(stack.id, el);
+      });
+    }
+    return callbacks;
+  }, [stacks, nodesRef, rovingTabindex]);
+
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
       {!dimensions ? null : (
@@ -332,10 +348,9 @@ export function StackCloudContent() {
             rovingTabindex={rovingTabindex}
           />
 
-          {stacks.map((stack, index) => {
-            // Use selection index for O(1) lookup instead of isStackSelected O(n)
-            // Use regular searchParams to show immediate visual feedback on clicks
-            // Check BOTH query and filter parameters for selection
+          {/* Pre-compute search params outside the loop for O(1) access per stack */}
+          {(() => {
+            // Hoist function calls outside .map() - O(1) total instead of O(n)
             const query = getSearchQuery(searchParams).toLowerCase();
             const filter = getSearchFilter(searchParams).toLowerCase();
             const querySelectedDomain = getSearchDomain(
@@ -347,61 +362,72 @@ export function StackCloudContent() {
               PROJECTS,
             ) as Domain | null;
 
-            const isInQueryDomain =
-              querySelectedDomain !== null &&
-              selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
-            const isDirectlyNamedByQuery = isExactParamMatch(
-              searchParams,
-              "query",
-              stack.name,
-            );
+            return stacks.map((stack) => {
+              // Use selection index for O(1) lookup instead of isStackSelected O(n)
+              // Use regular searchParams to show immediate visual feedback on clicks
+              // Check BOTH query and filter parameters for selection
+              const isInQueryDomain =
+                querySelectedDomain !== null &&
+                selectionIndex.isStackInDomain(stack.name, querySelectedDomain);
+              const isDirectlyNamedByQuery = isExactParamMatch(
+                searchParams,
+                "query",
+                stack.name,
+              );
 
-            const isInFilterDomain =
-              filterSelectedDomain !== null &&
-              selectionIndex.isStackInDomain(stack.name, filterSelectedDomain);
-            const isDirectlyNamedByFilter = isExactParamMatch(
-              searchParams,
-              "filter",
-              stack.name,
-            );
+              const isInFilterDomain =
+                filterSelectedDomain !== null &&
+                selectionIndex.isStackInDomain(
+                  stack.name,
+                  filterSelectedDomain,
+                );
+              const isDirectlyNamedByFilter = isExactParamMatch(
+                searchParams,
+                "filter",
+                stack.name,
+              );
 
-            const selected =
-              isInQueryDomain ||
-              isDirectlyNamedByQuery ||
-              isInFilterDomain ||
-              isDirectlyNamedByFilter;
+              const selected =
+                isInQueryDomain ||
+                isDirectlyNamedByQuery ||
+                isInFilterDomain ||
+                isDirectlyNamedByFilter;
 
-            const isDirectlyHovered = hoveredStack?.id === stack.id;
-            const highlighted =
-              isDirectlyHovered ||
-              (hoveredDomain !== null && stack.domain === hoveredDomain);
+              const isDirectlyHovered = hoveredStack?.id === stack.id;
+              const highlighted =
+                isDirectlyHovered ||
+                (hoveredDomain !== null && stack.domain === hoveredDomain);
 
-            // Use roving tabindex for keyboard navigation
-            const tabIndex = rovingTabindex.getTabIndex(stack.id);
+              // Use roving tabindex for keyboard navigation
+              const tabIndex = rovingTabindex.getTabIndex(stack.id);
 
-            // Calculate global index for roving tabindex (segments + this stack)
-            const globalIndex = domainExperiences.length + index;
+              // PERF FIX: Use memoized callbacks from Maps instead of inline functions
+              // This allows React.memo to properly skip re-renders when props haven't changed
+              // Note: These will always exist since stacks is the source for both Maps
+              const nodeRefCallback = combinedNodeRefCallbacks.get(
+                stack.id,
+              ) as (el: SVGGElement | null) => void;
+              const mouseEnterCallback = mouseEnterCallbacks.get(stack.id);
+              const focusCallback = focusCallbacks.get(stack.id);
 
-            return (
-              <StackNode
-                key={stack.id}
-                stack={stack}
-                dimensions={dimensions}
-                sizeFactors={sizeFactors}
-                selected={selected}
-                highlighted={highlighted}
-                isDirectlyHovered={isDirectlyHovered}
-                tabIndex={tabIndex}
-                nodeRef={(el) => {
-                  createStackNodeRefCallback(stack.id)(el);
-                  rovingTabindex.registerItemRef(stack.id, el);
-                }}
-                onMouseEnter={createStackMouseEnterCallback(stack)}
-                onMouseLeave={handleStackMouseLeave}
-                onFocus={() => rovingTabindex.setActiveIndex(globalIndex)}
-              />
-            );
-          })}
+              return (
+                <StackNode
+                  key={stack.id}
+                  stack={stack}
+                  dimensions={dimensions}
+                  sizeFactors={sizeFactors}
+                  selected={selected}
+                  highlighted={highlighted}
+                  isDirectlyHovered={isDirectlyHovered}
+                  tabIndex={tabIndex}
+                  nodeRef={nodeRefCallback}
+                  onMouseEnter={mouseEnterCallback}
+                  onMouseLeave={handleStackMouseLeave}
+                  onFocus={focusCallback}
+                />
+              );
+            });
+          })()}
         </svg>
       )}
     </div>

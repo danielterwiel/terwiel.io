@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * Hook for implementing the roving tabindex pattern (WAI-ARIA APG)
@@ -38,6 +38,15 @@ export function useRovingTabindex<T extends { id: string }>(
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const containerRef = useRef<HTMLElement | SVGSVGElement>(null);
   const itemRefs = useRef<Map<string, HTMLElement | SVGGElement>>(new Map());
+
+  // Build index map for O(1) lookup instead of O(n) findIndex per item
+  const indexMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const [i, item] of items.entries()) {
+      map.set(item.id, i);
+    }
+    return map;
+  }, [items]);
 
   // Track if focus is within the container
   const [isFocusWithin, setIsFocusWithin] = useState(false);
@@ -166,13 +175,13 @@ export function useRovingTabindex<T extends { id: string }>(
     [],
   );
 
-  // Get tabIndex for item
+  // Get tabIndex for item - O(1) via indexMap
   const getTabIndex = useCallback(
     (itemId: string) => {
-      const index = items.findIndex((item) => item.id === itemId);
+      const index = indexMap.get(itemId) ?? -1;
       return index === activeIndex ? 0 : -1;
     },
-    [activeIndex, items],
+    [activeIndex, indexMap],
   );
 
   // Handle container focus

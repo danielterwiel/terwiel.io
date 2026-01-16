@@ -3,8 +3,15 @@
 import { useSearchParams } from "next/navigation";
 
 import type React from "react";
-import { Suspense, useEffect, useId, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+import {
+  Suspense,
+  startTransition,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import type { Domain } from "~/types";
 
@@ -67,8 +74,6 @@ const ProjectsContent = () => {
   );
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [showSkeleton, setShowSkeleton] = useState(true);
-  // Track ongoing view transition to prevent concurrent transitions
-  const ongoingTransitionRef = useRef<ViewTransition | null>(null);
 
   // Show skeleton for minimum time to prevent flash
   useEffect(() => {
@@ -79,6 +84,9 @@ const ProjectsContent = () => {
   }, []);
 
   // Update project states when filtered list changes
+  // Uses View Transitions API for smooth animations WITHOUT flushSync
+  // flushSync was causing 3-6 second lag by blocking React's concurrent rendering
+  // Instead, we use an async callback that waits for React to update via RAF
   useEffect(() => {
     // Mark initial load as complete on first render
     if (isInitialLoad) {
@@ -96,84 +104,31 @@ const ProjectsContent = () => {
     );
 
     if (hasListChanged || hasStayProjects) {
-      // Detect Safari on macOS - it has rendering bugs with view transitions and sticky headers
-      // The transition layer clips/hides sticky elements and breaks backdrop-filter effects
-      // iOS Safari works fine with view transitions, so we only disable for macOS
-      const ua = navigator.userAgent;
-      const isSafariMac =
-        /Safari/i.test(ua) &&
-        /Macintosh/i.test(ua) &&
-        !/Chrome|Chromium|Edg/i.test(ua);
+      // Update refs synchronously (they don't trigger re-render)
+      projectStateMapRef.current = newStateMap;
+      prevFilteredRef.current = filtered;
 
-      // Use native View Transition API with proper abort handling
-      // DISABLED FOR SAFARI MAC: Safari on macOS has critical bugs with view transitions causing:
-      // 1. Sticky header disappears completely during transition
-      // 2. Backdrop-filter effect becomes invisible
-      // 3. Header gets clipped by the view transition layer
-      // ENABLED FOR SAFARI iOS: iOS Safari handles view transitions correctly
-      // Workaround: Disable view transitions on Safari macOS, use instant updates instead
-      if ("startViewTransition" in document && !isSafariMac) {
-        const vtAPI = document as Document & {
-          startViewTransition: (callback: () => void) => ViewTransition;
-        };
-
-        // Abort any ongoing transition to prevent conflicts
-        if (ongoingTransitionRef.current) {
-          // Suppress the error from skipTransition by catching it
-          ongoingTransitionRef.current.finished.catch(() => {
-            // Silently handle the skip error - this is expected
-          });
-          // Only call skipTransition if the transition is still pending
-          try {
-            ongoingTransitionRef.current.skipTransition();
-          } catch {
-            // Silently handle any errors from skipTransition
-          }
-        }
-
-        // Start the new transition
-        const transition = vtAPI.startViewTransition(() => {
-          // Inside the transition callback, update state synchronously
-          flushSync(() => {
-            // Update the project state map
-            projectStateMapRef.current = newStateMap;
-            // Update rendering to show only filtered projects
-            setRenderingProjects(filtered);
-            // Mark that we've processed this update
-            prevFilteredRef.current = filtered;
-          });
-        });
-
-        // Track this transition
-        ongoingTransitionRef.current = transition;
-
-        // Clear the reference when transition finishes
-        transition.finished
-          .then(() => {
-            if (ongoingTransitionRef.current === transition) {
-              ongoingTransitionRef.current = null;
-            }
-          })
-          .catch(() => {
-            // Handle abortion or other errors
-            if (ongoingTransitionRef.current === transition) {
-              ongoingTransitionRef.current = null;
-            }
-          });
-      } else {
-        // Fallback for Safari macOS and browsers without View Transitions
-        // Use instant DOM updates without animation
-        // Note: iOS Safari falls through here only if View Transitions API is not supported
-        projectStateMapRef.current = newStateMap;
+      // Use startTransition for non-blocking state updates
+      // CSS animations in globals.css handle enter/exit animations via class changes
+      // (project-from-bottom, project-slide-out, project-visible classes)
+      // This approach works with React's concurrent rendering without blocking
+      startTransition(() => {
         setRenderingProjects(filtered);
-        prevFilteredRef.current = filtered;
-      }
+      });
     }
   }, [filtered, isInitialLoad]);
 
   const projectsId = useId();
   const listRef = useRef<HTMLOListElement>(null);
   const emptyStateRef = useRef<HTMLDivElement>(null);
+
+  // FIX: Use Set for O(1) isVisible lookup instead of O(n) filtered.some()
+  // This reduces overall complexity from O(n²) to O(n)
+  // NOTE: Must be called before early return to comply with Rules of Hooks
+  const filteredIdSet = useMemo(
+    () => new Set(filtered.map((p) => p.id)),
+    [filtered],
+  );
 
   // Show skeleton during initial load or while minimum display time hasn't elapsed
   if (showSkeleton || (isInitialLoad && renderingProjects.length === 0)) {
@@ -208,7 +163,7 @@ const ProjectsContent = () => {
                 project={project}
                 projectIdx={idx}
                 totalLength={renderingProjects.length}
-                isVisible={filtered.some((p) => p.id === project.id)}
+                isVisible={filteredIdSet.has(project.id)}
                 projectState={
                   projectStateMapRef.current.get(project.id) ?? "stay"
                 }

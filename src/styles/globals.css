@@ -849,6 +849,12 @@
 
     /* Allow animations to overflow smoothly */
     overflow: visible;
+
+    /* CSS transitions for enter/exit animations without View Transitions API */
+    /* This works with React's concurrent rendering (startTransition) */
+    transition:
+      opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   /* Projects are visible by default during View Transitions */

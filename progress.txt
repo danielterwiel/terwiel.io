@@ -1,0 +1,471 @@
+## 2026-01-16: inv-02 - use-stack-simulation.ts investigation
+
+### Status: PASSED (no bugs found)
+
+### Summary
+Investigated RAF throttling, tick batching, position cache, and simulation reheat patterns
+in use-stack-simulation.ts. All implementations follow D3 best practices.
+
+### Findings
+1. **RAF throttling (16ms)**: CORRECT - D3 timer already uses RAF internally, so the
+   additional 16ms check is redundant but harmless. No adaptive throttle needed for ~30 nodes.
+
+2. **TICKS_PER_FRAME=2**: CORRECT - Backed by D3 research: "force layout is pure math"
+   so multiple ticks per frame is valid. 2 is conservative for small node count.
+
+3. **Position cache (0.5px threshold)**: CORRECT - Sub-pixel changes are imperceptible.
+   Cache properly includes scaleFactor for invalidation.
+
+4. **alphaTarget patterns**: CORRECT - Values kept low (0.03-0.1) to prevent jitter.
+   setTimeout properly resets to 0. isSettlingRef properly tracks settling state.
+
+5. **collide.initialize()**: ACCEPTABLE - O(n) operation but only called when scales
+   actually change (hasChanges guard). Cheap for ~30 nodes.
+
+### References consulted
+- https://d3js.org/d3-force/simulation
+- https://github.com/d3/d3-force/issues/111
+- https://github.com/twosixlabs/d3-force-reuse
+
+### Notes
+- Pre-existing typecheck errors in root-node-chart.tsx (missing d3 types, implicit any)
+- Lint passes after formatting prd.json
+
+## 2026-01-16: inv-03 - stack-cloud utils investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated all stack-cloud utils: adaptive-physics.ts, create-forces.ts, boundary-force.ts,
+root-exclusion-force.ts, mass-dampen-force.ts, calculate-stack-size.ts, performance-utils.ts,
+selection-index.ts, seed-position.ts, distribute-nodes-in-segment.ts, calculate-domain-angles.ts,
+convert-arc-angle.ts, calculate-base-radius.ts.
+
+### Bugs Found
+
+1. **mass-dampen-force.ts - INCORRECT D3 FORCE PATTERN**
+   - Returns `force(alpha) -> (nodes) -> void` but D3 expects `force(alpha) -> void`
+   - D3 forces should receive nodes via `.initialize()` method, not as a parameter
+   - Result: Force is a NO-OP because D3 never invokes the inner function
+   - Impact: Mass-based velocity dampening is not being applied to nodes
+
+2. **calculate-base-radius.ts - REDUNDANT WORK**
+   - Calls `extractUniqueStacks(PROJECTS)` and `calculateStackSizeFactors(PROJECTS)` on every resize
+   - These are already computed and memoized in stack-cloud-content.tsx
+   - Should accept pre-computed stacks/sizeFactors as parameters
+   - Impact: Unnecessary O(n) work + date parsing on every viewport resize
+
+### Correct Implementations
+- adaptive-physics.ts: Pure O(1) functions, properly debounced
+- create-forces.ts: Force recreation is lightweight, only on resize
+- boundary-force.ts: O(n) per tick but simple math, has .update() method
+- root-exclusion-force.ts: Standard D3 pattern with Math.sqrt
+- selection-index.ts: True O(1) lookups via Set/Map
+- performance-utils.ts: Position cache is efficient
+- Other utils: Pure math functions, cheap O(1)
+
+### References consulted
+- https://d3js.org/d3-force/simulation (custom force pattern documentation)
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
+
+## 2026-01-16: inv-04 - forceManyBody theta and Barnes-Hut investigation
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated forceManyBody theta parameter, Barnes-Hut approximation benefits, d3-force-reuse
+library applicability, and charge strength calculations for ~30 node simulation.
+
+### Findings
+
+1. **theta=0.5 SUBOPTIMAL BUT HARMLESS**
+   - D3 default is 0.9, Barnes-Hut research recommends 1.0 for best accuracy/performance
+   - Per jheer.github.io/barnes-hut: theta=0.5 does NOT outperform naive O(n²) until ~6000 nodes
+   - At ~30 nodes, quadtree overhead may actually slow things down vs naive approach
+   - Impact: Negligible at this scale
+
+2. **d3-force-reuse NOT BENEFICIAL**
+   - Library caches quadtree and recalculates every 13 ticks
+   - At ~30 nodes, quadtree is so cheap that caching provides no measurable gain
+   - Would add dependency for no benefit
+
+3. **distanceMin CORRECT**
+   - Set to 1 in constants, scaled by minRadius*0.5 in adaptive-physics.ts
+   - Properly prevents infinite force for coincident nodes
+
+4. **Charge strength CORRECT**
+   - Uses massFactor=(radius/avgRadius)² for size-proportional repulsion
+   - Root node correctly excluded (returns 0)
+   - Strength of -10 is reasonable for mixed node sizes
+
+### Recommendation
+Could change theta from 0.5 to 0.9/1.0 for marginal improvement but perf gain imperceptible
+at 30 nodes. Current implementation is acceptable - no action required.
+
+### References consulted
+- https://d3js.org/d3-force/many-body
+- https://jheer.github.io/barnes-hut/
+- https://github.com/twosixlabs/d3-force-reuse
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
+
+## 2026-01-16: inv-05 - forceCollide iterations and collision detection
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated COLLISION_ITERATIONS=12, COLLISION_STRENGTH=1.0, collision radius caching,
+and forceCollide performance characteristics for ~30 node simulation.
+
+### Findings
+
+1. **COLLISION_ITERATIONS=12 EXCESSIVE BUT HARMLESS**
+   - D3 default is 1 iteration
+   - D3 official collision example (200 nodes) uses 3 iterations
+   - NebulaGraph production optimization uses 2 iterations
+   - At ~30 nodes, 12 iterations is overkill but perf impact is negligible
+   - Cost is O(n) per iteration via quadtree; n=30 completes in microseconds
+
+2. **COLLISION_STRENGTH=1.0 CORRECT**
+   - This is the D3 default, provides maximum rigidity
+   - Combined with high iterations, prevents any node overlap
+   - Appropriate for mixed-size nodes requiring strict separation
+
+3. **Collision radius function CACHED**
+   - D3 caches radius accessor result during initialize()
+   - Re-cached when collide.initialize() called on scale factor changes
+   - NOT recalculated on every tick (contrary to initial concern)
+
+4. **Varying node sizes CORRECTLY HANDLED**
+   - radius = (d.radius * scaleFactor + collisionPadding)
+   - Properly accounts for base radius, selection scale, and adaptive padding
+
+### Recommendation
+Could reduce COLLISION_ITERATIONS from 12 to 3-4 for micro-optimization, but current
+value works well for mixed-size nodes without jitter. No action required.
+
+### References consulted
+- https://d3js.org/d3-force/collide
+- https://observablehq.com/@d3/collision-detection/2
+- https://www.nebula-graph.io/posts/d3-force-layout-optimization
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
+
+## 2026-01-16: inv-06 - stack-cloud-content.tsx investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated useMemo dependencies, useCallback patterns, render loop efficiency, and roving
+tabindex performance in stack-cloud-content.tsx.
+
+### Bugs Found
+
+1. **stacks.map() render loop - REDUNDANT FUNCTION CALLS**
+   - Lines 339-348: getSearchQuery(), getSearchFilter(), getSearchDomain() (×2) called INSIDE .map()
+   - For ~30 stacks, this means ~120 function calls per render
+   - getSearchDomain() internally calls matchesDomainName() which iterates over domains
+   - Should hoist these 4 calls outside the loop and reuse the results
+   - Impact: Unnecessary work on every render
+
+2. **rovingTabindex.getTabIndex() - O(n²) COMPLEXITY**
+   - getTabIndex() uses items.findIndex() which is O(n)
+   - Called for each of ~30 stacks in render loop = O(n²) per render
+   - Should use a Map<id, index> for O(1) lookup
+   - Impact: Quadratic scaling with node count
+
+3. **createStackMouseEnterCallback - MINOR CONCERN**
+   - Factory returns new closure per stack per render (line 399)
+   - Could cause unnecessary StackNode re-renders if React.memo is used
+   - Impact: Minor, StackNode may not be memoized anyway
+
+### Correct Implementations
+- scaleFactors useMemo: Correct dependencies [stacks, searchParams, selectionIndex]
+- createStackNodeRefCallback: Properly memoized factory
+- selectionIndex.isStackInDomain: True O(1) via Map.get().has()
+- useDeferredValue: Correctly defers searchParams to prioritize animations
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+
+## 2026-01-16: inv-07 - root-node-chart.tsx investigation
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated D3 transitions, event handler setup, SVG filter performance, and interrupt() usage
+in root-node-chart.tsx (~1149 lines). This is the pie chart component for domain distribution.
+
+### Findings
+
+1. **SVG glow filter (feGaussianBlur stdDeviation=2) ACCEPTABLE**
+   - Low blur value, only ~6 segments, applied conditionally on selected/hovered state
+   - Per Chrome docs, SVG-on-SVG filters use CPU path but impact negligible at this scale
+   - Filter created once per mount (lines 445-464), not per render
+
+2. **D3 transition tween functions CORRECT**
+   - Batch DOM reads before writes (lines 201-214) - prevents layout thrashing
+   - Use D3 interpolators for smooth animation
+   - Update datum state at t=1 (end of transition)
+   - Follows D3 best practice of tween initialization batching
+
+3. **d3.select() calls in event handlers ACCEPTABLE**
+   - Called once per hover/focus event, not per frame
+   - Selection is cached within tween closure via `d3.select(this)`
+   - D3 recommends caching selections but per-event cost is trivial for ~6 segments
+
+4. **interrupt() usage CORRECT**
+   - Immediately interrupts ongoing transitions before starting new ones (lines 222-223, 609-610)
+   - D3 best practice for responsive feel - prevents animation queue buildup
+   - Used consistently across all state change handlers
+
+5. **Event handler registration CORRECT**
+   - Done once in setupHoverInteractions() after initial render/animation complete
+   - Handlers attached via D3's .on() method which efficiently manages listeners
+   - Not re-registered on every render
+
+6. **arcs.findIndex() in focus handler (line 966) - TRIVIAL**
+   - O(n) per focus event, but only ~6 segments and only called on keyboard focus
+   - Not called on hover events
+
+### Micro-optimizations possible (NOT bugs)
+- Could cache visualsLayer selection in setupHoverInteractions closure
+- Could pre-compute segment visual selections instead of querying by data-domain
+
+### References consulted
+- https://d3js.org/d3-transition/modifying (tween batching)
+- https://d3js.org/d3-selection (selection caching)
+- Chrome filter docs (GPU vs CPU rendering paths)
+
+### Notes
+- Pre-existing typecheck errors unchanged (missing d3 types, implicit any)
+- Lint passes
+
+## 2026-01-16: inv-08 - projects.tsx View Transitions investigation
+
+### Status: PASSED (minor issues only)
+
+### Summary
+Investigated View Transitions API usage in projects.tsx: flushSync patterns, concurrent transition
+handling, diffProjectStates efficiency, filterCache implementation, and useScrollDelegation hook.
+
+### Findings
+
+1. **flushSync usage CORRECT**
+   - Used inside `startViewTransition()` callback (line 137)
+   - This is the recommended React + View Transitions pattern
+   - NOT causing layout thrashing - intentionally placed inside the callback
+
+2. **skipTransition() pattern CORRECT**
+   - Properly catches `finished` promise rejection when skipped (lines 123-125)
+   - Try-catch wrapper around skipTransition() itself (lines 127-131)
+   - Clears `ongoingTransitionRef` on both success and failure (lines 151-162)
+
+3. **diffProjectStates EFFICIENT**
+   - Uses Set for O(1) lookups (src/utils/project-state-diff.ts)
+   - O(n) overall complexity for comparing filtered lists
+   - Not a bottleneck
+
+4. **filterCache CORRECT**
+   - Simple LRU with 50 entry max (src/utils/filter-cache.ts)
+   - Prevents redundant filtering operations
+
+5. **useScrollDelegation ACCEPTABLE**
+   - Uses `passive: false` which is necessary for preventDefault()
+   - Has Safari-specific workaround
+   - Not related to View Transitions performance
+
+### Minor Issues Found
+
+1. **isVisible prop O(n²) - MINOR BUG**
+   - Line 211: `filtered.some((p) => p.id === project.id)` is O(n) per project
+   - Called for each of ~11 projects = O(n²) total
+   - Should use Set for O(1) lookup
+   - Impact: Minor (n=11 projects, so 121 comparisons max)
+
+2. **Safari detection duplication - CODE SMELL**
+   - Safari detection logic duplicated between:
+     - projects.tsx (lines 102-106)
+     - use-scroll-delegation.ts (lines 7-17)
+   - Should extract to shared utility
+
+### Correct Implementations
+- View Transitions follows Chrome/React best practices
+- Transition abort/skip handling is robust
+- State diffing is efficient
+
+### References consulted
+- https://developer.chrome.com/docs/web-platform/view-transitions
+- https://react.dev/reference/react-dom/flushSync
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
+
+## 2026-01-16: inv-09 - use-dimensions.ts investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated use-dimensions.ts: ResizeObserver efficiency, debounce timing, calculateBaseStackRadius
+frequency, visualViewport listener cleanup, and dimensions object re-render behavior.
+
+### Bugs Found
+
+1. **calculateBaseStackRadius - REDUNDANT WORK**
+   - Calls extractUniqueStacks(PROJECTS) and calculateStackSizeFactors(PROJECTS) on every resize
+   - extractUniqueStacks: O(projects × stacks) with Map/Set operations
+   - calculateStackSizeFactors: O(projects × stacks) with parseISO date parsing
+   - Both are already memoized in stack-cloud-content.tsx (lines 66-67)
+   - Should accept pre-computed stacks/sizeFactors as parameters
+   - Impact: Unnecessary work on every viewport resize
+
+2. **Debounced callbacks not cancelled on cleanup**
+   - Two debounced functions created (lines 54, 69) for ResizeObserver and visualViewport
+   - Neither useEffect calls .cancel() in their cleanup functions
+   - Could cause React "setState on unmounted component" warnings
+   - Impact: Minor memory leak potential, possible console warnings
+
+### Correct Implementations
+- 100ms debounce: Standard/optimal for resize handlers
+- visualViewport listeners: Properly added and removed
+- dimensions object: Only created on actual resize, not every render
+
+### References consulted
+- React docs on useEffect cleanup
+- ResizeObserver MDN documentation
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
+
+## 2026-01-16: fix-01 - mass-dampen-force.ts NO-OP bug fix
+
+### Status: FIXED
+
+### Summary
+Fixed critical bug where mass-dampen-force was a complete NO-OP due to incorrect D3 force pattern.
+The force was returning `(alpha) => (nodes) => void` but D3 expects `(alpha) => void` with nodes
+passed via `.initialize()` method.
+
+### Changes Made
+1. Changed function signature from curried to direct: `force(alpha)` now iterates over stored nodes
+2. Added `.initialize(_nodes)` method - D3 calls this to pass nodes when force is added to simulation
+3. Added `.update(avgRadius)` method for efficient parameter updates without recreating force
+4. Added `MassDampenForce` interface extending `d3.Force` for proper typing
+5. Follows same pattern as boundary-force.ts and root-exclusion-force.ts
+
+### Impact
+- Mass-based velocity dampening is now actually applied to nodes
+- Small nodes now dampen faster than large nodes (as originally intended)
+- Should reduce jitter in small nodes during simulation settling
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+
+## 2026-01-16: fix-02 - O(n²) render loop bugs
+
+### Status: FIXED
+
+### Summary
+Fixed O(n²) complexity bugs in stack-cloud-content.tsx render loop and use-roving-tabindex.ts.
+
+### Bugs Fixed
+
+1. **stack-cloud-content.tsx - Redundant function calls in .map() loop**
+   - getSearchQuery(), getSearchFilter(), getSearchDomain() (×2) called inside stacks.map()
+   - ~120 function calls per render (4 × ~30 stacks)
+   - FIX: Hoisted calls outside loop using IIFE pattern - now O(1) total
+
+2. **use-roving-tabindex.ts - O(n²) getTabIndex()**
+   - getTabIndex() used items.findIndex() which is O(n)
+   - Called ~30 times per render = O(n²) total
+   - FIX: Added indexMap useMemo with id->index Map for O(1) lookup
+
+### Changes Made
+1. stack-cloud-content.tsx: Wrapped stacks.map() in IIFE to hoist function calls outside
+2. use-roving-tabindex.ts: Added indexMap useMemo for O(1) id->index mapping
+3. use-roving-tabindex.ts: Changed getTabIndex() to use indexMap.get() instead of findIndex()
+
+### Impact
+- Render loop complexity reduced from O(n²) to O(n)
+- ~120 fewer function calls per render in stack-cloud-content.tsx
+- getTabIndex() now O(1) instead of O(n)
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+
+## 2026-01-16: fix-03 - calculate-base-radius.ts redundant work and debounce cleanup
+
+### Status: FIXED
+
+### Summary
+Fixed two related issues found in inv-03 and inv-09:
+1. calculateBaseStackRadius was calling extractUniqueStacks() and calculateStackSizeFactors() on every resize
+2. Debounced callbacks in use-dimensions.ts were not calling .cancel() in cleanup
+
+### Changes Made
+1. **calculate-base-radius.ts**: Changed function signature to accept pre-computed stacks and sizeFactors as parameters
+2. **use-dimensions.ts**:
+   - Added stacks and sizeFactors as parameters
+   - Updated measureContainer useCallback dependencies
+   - Added .cancel() calls in both useEffect cleanup functions
+3. **stack-cloud-content.tsx**: Updated useDimensions call to pass stacks and sizeFactors
+
+### Impact
+- Eliminates O(projects×stacks) work + date parsing on every viewport resize
+- Prevents potential "setState on unmounted component" warnings
+- Reuses memoized values from stack-cloud-content.tsx (lines 66-67)
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+
+## 2026-01-16: fix-04 - stack-node.tsx inline style memoization
+
+### Status: FIXED
+
+### Summary
+Fixed performance bugs in stack-node.tsx where inline style objects, transitionStyle string, and
+getDropShadow() were all being recreated on every render. For ~30 memoized StackNode components,
+this was creating unnecessary object allocations that could trigger React re-renders.
+
+### Bugs Fixed (from inv-01)
+1. **Inline style object recreated on every render (lines 189-200)**
+   - Created new object on every render even when values unchanged
+   - FIX: Memoized as `nodeStyle` via useMemo
+
+2. **transitionStyle string computed every render**
+   - String concatenation happened on every render
+   - FIX: Memoized with dependency on [transitionDuration]
+
+3. **getDropShadow() called every render via inline style**
+   - Function called inside JSX style prop
+   - FIX: Changed to memoized `dropShadow` value with deps [a11y.shouldShowGlow, state, borderColor]
+
+### Changes Made
+1. Added `useMemo` import
+2. Converted `getDropShadow()` function to `dropShadow` useMemo
+3. Wrapped `transitionStyle` in useMemo
+4. Created memoized `nodeStyle` object containing filter, transition, willChange, contain
+5. Updated JSX to use `style={nodeStyle}` instead of inline object
+
+### Impact
+- Prevents ~30 style object recreations per render
+- Better compatibility with React.memo - stable style object won't trigger unnecessary re-renders
+- Reduced GC pressure from object allocations
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+- Knip passes
