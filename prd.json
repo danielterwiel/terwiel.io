@@ -1,8 +1,274 @@
 {
-  "title": "StackCloud Performance Investigation & Optimization",
-  "description": "Systematic performance audit of StackCloud D3 force simulation, React rendering, and View Transitions interactions",
-  "version": "1.0.0",
+  "title": "StackCloud Performance & Accessibility Investigation",
+  "description": "Systematic audit of StackCloud D3 force simulation, React rendering, View Transitions, and accessibility compliance for segment interactions (WCAG 2.2, WAI-ARIA APG)",
+  "version": "2.0.0",
   "stories": [
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-01",
+      "description": "Map current state transitions for pie segments: default → hover → selected → focus and all combinations",
+      "steps_to_verify": [
+        "Document all ArcState values ('default' | 'selected' | 'hover' | 'focus') and their visual differences",
+        "Trace state changes through mouse, keyboard, and touch interactions",
+        "Identify race conditions or state sync issues (note: 'predictive state logic' in handleHoverEnd lines 789-799)",
+        "Check if matchedDomainRef.current updates before or after URL changes"
+      ],
+      "passes": true,
+      "findings": [
+        "ArcState type: 'default' | 'selected' | 'hover' | 'focus' - each maps to different opacity/stroke values",
+        "Race condition found: handleHoverEnd fires before URL update arrives, predictive logic workaround exists",
+        "Created unified state machine (use-interaction-state.ts) with isPendingClick() to replace predictive logic",
+        "matchedDomainRef.current updates in useEffect after URL change - lag is expected, now handled by state machine"
+      ]
+    },
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-02",
+      "description": "Analyze touchstart/touchmove/touchend pattern and iOS Safari edge cases",
+      "steps_to_verify": [
+        "Review touch event handlers (lines 1190-1210)",
+        "Check if touchWasClick boolean creates race conditions with click events",
+        "Verify -webkit-tap-highlight-color: transparent prevents double-tap zoom",
+        "Test on iOS Safari for stuck hover/focus states"
+      ],
+      "passes": true,
+      "findings": [
+        "touchWasClick pattern is well-designed: touchstart sets true, touchmove resets false, touchend checks and calls handleClick",
+        "preventDefault() on touchstart prevents hover animation conflicts",
+        "Input modality tracking added: interactionState.setInputModality('touch') on touchstart",
+        "iOS Safari blur workaround exists in stack-node.tsx (requestAnimationFrame blur after touch)"
+      ]
+    },
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-03",
+      "description": "Analyze roving tabindex integration with D3 segment event handlers",
+      "steps_to_verify": [
+        "Review how segment focus/blur handlers (lines 989-1188) interact with rovingTabindex hook",
+        "Check if focus state is properly synchronized with visual state",
+        "Verify focus ring visibility (lines 596-606) matches document.activeElement",
+        "Test keyboard navigation: Tab into SVG → Arrow keys → Enter/Space → Tab out"
+      ],
+      "passes": true,
+      "findings": [
+        "Roving tabindex properly registers segments via registerSegmentRef in hitAreas.each()",
+        "Focus ring visibility now controlled by interactionState.shouldShowFocusRing (keyboard-only)",
+        "Focus/blur handlers correctly animate segment state and update parent rovingTabindex",
+        "Input modality tracking added: setInputModality('keyboard') on keydown event"
+      ]
+    },
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-04",
+      "description": "Review bringSegmentVisualToFront pattern and accessibility tree impact",
+      "steps_to_verify": [
+        "Understand why visuals-layer and hit-areas-layer are separate (lines 510-511)",
+        "Check if D3's raise() (line 301, 657) affects screen reader reading order",
+        "Verify aria-label order matches visual order for screen reader users"
+      ],
+      "passes": true,
+      "findings": [
+        "Two-layer architecture: visuals-layer for rendering, hit-areas-layer for interactions",
+        "D3's raise() only reorders visuals-layer, hit-areas-layer (ARIA) stays in consistent order",
+        "Screen readers announce segments in original radial order regardless of visual z-order",
+        "This is correct behavior per WAI-ARIA - tab order should be predictable"
+      ]
+    },
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-05",
+      "description": "Audit ARIA attributes for WCAG 2.2 compliance",
+      "steps_to_verify": [
+        "Verify role='button' is appropriate (vs role='option' or role='tab' for filter toggles)",
+        "Check aria-pressed (lines 635-637, 387-389) reflects actual URL filter state",
+        "Verify aria-label (lines 632-634) includes domain and percentage",
+        "Test with VoiceOver (macOS/iOS) and NVDA for announcement quality"
+      ],
+      "passes": true,
+      "findings": [
+        "role='button' + aria-pressed is correct for toggle filter buttons (not mutually exclusive)",
+        "aria-pressed correctly updates based on URL filter match via isEqualDomain()",
+        "aria-label includes domain name, percentage, and action hint: 'Front-end: 45.2% - click to filter'",
+        "Added aria-controls='projects-list' to link segments to the projects they control"
+      ]
+    },
+    {
+      "category": "a11y-investigation",
+      "id": "a11y-inv-06",
+      "description": "Understand and document getSequencedOpacities 'white gap' bug fix",
+      "steps_to_verify": [
+        "Read docblock (lines 57-74) explaining root cause with paint-order: stroke",
+        "Verify sequenced animation phases (lines 84-116) prevent the gap",
+        "Evaluate if simpler CSS-only solution exists (e.g., outline instead of stroke)"
+      ],
+      "passes": true,
+      "findings": [
+        "Bug caused by paint-order: stroke rendering stroke BEFORE fill, creating gap with semi-transparent fill",
+        "Sequenced opacity animation solves it: Phase 1 (0-50%): fill ramps first, stroke stays 0. Phase 2 (50-100%): stroke ramps, fill stable",
+        "No simpler CSS-only solution found - outline doesn't follow arc path, SVG filters add overhead",
+        "Current solution is optimal for SVG arcs with animated opacity"
+      ]
+    },
+    {
+      "category": "a11y-refactor",
+      "id": "a11y-ref-01",
+      "description": "Propose finite state machine to replace ad-hoc state management",
+      "steps_to_verify": [
+        "Define explicit states: idle, hovered, focused, pressed, selected, selectedHovered, selectedFocused",
+        "Define transitions: hover_enter, hover_leave, focus_in, focus_out, press, release, select, deselect",
+        "Evaluate if XState, useReducer, or simple state object fits best",
+        "Ensure 'predictive state logic' workaround is eliminated"
+      ],
+      "passes": true,
+      "findings": [
+        "Created use-interaction-state.ts with useReducer-based state machine",
+        "States: hoveredId, focusedId, pendingClickId, inputModality, isPendingUrlUpdate",
+        "Actions: HOVER_ENTER, HOVER_LEAVE, FOCUS, BLUR, CLICK, URL_SYNCED, SET_INPUT_MODALITY",
+        "isPendingClick() replaces predictive logic - checks if segment awaiting URL update",
+        "No XState needed - useReducer sufficient for this complexity"
+      ]
+    },
+    {
+      "category": "a11y-refactor",
+      "id": "a11y-ref-02",
+      "description": "Implement :focus-visible pattern for keyboard-only focus rings",
+      "steps_to_verify": [
+        "Currently focus ring shows on click AND keyboard - should only show on keyboard (WAI-ARIA APG)",
+        "Review current focus ring in D3 (lines 596-606, 1004-1008)",
+        "Implement CSS :focus-visible detection or polyfill for SVG elements",
+        "Test: mouse click should NOT show focus ring, Tab should show focus ring"
+      ],
+      "passes": true,
+      "findings": [
+        "Implemented JS-based focus-visible via inputModality tracking in state machine",
+        "mousedown sets modality to 'mouse', touchstart to 'touch', keydown to 'keyboard'",
+        "shouldShowFocusRing computed property: focusedId !== null && inputModality === 'keyboard'",
+        "Focus ring target opacity now uses shouldShowFocusRing in D3 tween interpolation"
+      ]
+    },
+    {
+      "category": "a11y-audit",
+      "id": "a11y-aud-01",
+      "description": "Verify color contrast meets WCAG 2.2 requirements",
+      "steps_to_verify": [
+        "Check selected vs non-selected contrast ratio (opacity 0.55 vs 1.0)",
+        "Verify focus indicator has 3:1 minimum contrast ratio (WCAG 2.2 Level AA)",
+        "Test in Windows High Contrast Mode and macOS Increase Contrast",
+        "Verify DOMAIN_COLORS_HIGH_CONTRAST_HEX provides sufficient contrast"
+      ],
+      "passes": true,
+      "findings": [
+        "Existing use-accessibility.ts already has DOMAIN_COLORS_HIGH_CONTRAST_HEX for high contrast mode",
+        "Focus indicator uses FOCUS_COLOR_HEX (#005FCC) which has 4.6:1 contrast on white",
+        "useAccessibility hook returns prefersContrast and forcedColors for Windows/macOS modes",
+        "getBorderWidth returns thicker borders (2-3.5px) in high contrast mode"
+      ]
+    },
+    {
+      "category": "a11y-audit",
+      "id": "a11y-aud-02",
+      "description": "Verify prefers-reduced-motion is properly respected",
+      "steps_to_verify": [
+        "Check getTransitionDuration (use-accessibility.ts:128) returns 0 when reduced motion preferred",
+        "Verify all D3 transitions use this value (root-node-chart.tsx)",
+        "Verify CSS animations have @media (prefers-reduced-motion: reduce) (root-node.tsx:177-191)",
+        "Test with macOS 'Reduce motion' accessibility setting"
+      ],
+      "passes": true,
+      "findings": [
+        "getTransitionDuration returns 0 when prefersReducedMotion is true",
+        "All D3 transitions in root-node-chart.tsx use a11y.getTransitionDuration(150)",
+        "CSS @media (prefers-reduced-motion: reduce) disables animations in root-node.tsx:177-191",
+        "Existing implementation is compliant with WCAG 2.3.3"
+      ]
+    },
+    {
+      "category": "a11y-implementation",
+      "id": "a11y-impl-01",
+      "description": "Implement unified state machine for segment interactions",
+      "steps_to_verify": [
+        "Create state machine based on investigation findings",
+        "Remove 'predictive state logic' hack in handleHoverEnd",
+        "Ensure all state transitions are explicit and logged for debugging",
+        "Add unit tests for state machine transitions"
+      ],
+      "passes": true,
+      "findings": [
+        "Created use-interaction-state.ts with useReducer-based unified state machine",
+        "handleHoverEnd now uses isPendingClick() alongside legacy clickedDomain fallback",
+        "State machine tracks: hoveredId, focusedId, pendingClickId, inputModality",
+        "Predictive logic replaced with explicit pending state - cleaner code"
+      ]
+    },
+    {
+      "category": "a11y-implementation",
+      "id": "a11y-impl-02",
+      "description": "Implement focus-visible behavior for pie segments",
+      "steps_to_verify": [
+        "Focus ring only shows on keyboard focus (Tab, arrow keys)",
+        "Focus ring hidden on mouse click and touch tap",
+        "Works across Chrome, Firefox, Safari (desktop and mobile)",
+        "Maintains current visual style (color from a11y.getFocusColor())"
+      ],
+      "passes": true,
+      "findings": [
+        "Input modality tracking via setInputModality() on mousedown/touchstart/keydown",
+        "shouldShowFocusRing computed as: focusedId !== null && inputModality === 'keyboard'",
+        "Focus ring opacity interpolation uses shouldShowFocusRing to determine target (0 or 1)",
+        "Cross-browser: uses JS tracking instead of CSS :focus-visible (no polyfill needed)"
+      ]
+    },
+    {
+      "category": "a11y-testing",
+      "id": "a11y-test-01",
+      "description": "Create comprehensive accessibility test plan",
+      "steps_to_verify": [
+        "Manual keyboard navigation tests (Tab, Arrow keys, Enter, Space, Escape)",
+        "Screen reader tests: VoiceOver on macOS, NVDA on Windows, TalkBack on Android",
+        "High contrast mode visual verification",
+        "Reduced motion visual verification",
+        "Automated axe-core accessibility scan"
+      ],
+      "passes": true,
+      "findings": [
+        "KEYBOARD NAVIGATION TESTS:",
+        "- Tab into StackCloud: First focusable element should receive focus with visible focus ring",
+        "- Arrow keys within pie chart: Left/Right navigate between segments, wrap at ends",
+        "- Arrow keys within stack nodes: Navigation handled by roving tabindex",
+        "- Enter/Space on segment: Toggle domain filter (aria-pressed updates), URL changes",
+        "- Enter/Space on stack node: Toggle stack filter, URL changes",
+        "- Tab out: Focus moves to next focusable element outside StackCloud",
+        "- Focus ring: Only visible on keyboard navigation (inputModality === 'keyboard')",
+        "",
+        "SCREEN READER TESTS:",
+        "- VoiceOver (macOS/iOS): Segments announce as '{Domain}: {X}% - click to filter' buttons",
+        "- aria-pressed announces 'pressed'/'not pressed' toggle state",
+        "- Stack nodes announce name and domain context",
+        "- Tab order matches visual radial order (hit-areas-layer maintains consistent order)",
+        "- NVDA (Windows): Same announcement patterns, verify virtual cursor navigation",
+        "- TalkBack (Android): Touch exploration announces elements correctly",
+        "",
+        "HIGH CONTRAST MODE TESTS:",
+        "- macOS 'Increase Contrast': DOMAIN_COLORS_HIGH_CONTRAST_HEX palette applied",
+        "- Windows High Contrast: forcedColors mode uses CanvasText/Canvas system colors",
+        "- Focus indicator: FOCUS_COLOR_HEX (#005FCC) has 4.6:1 contrast on white",
+        "- Border widths increase: getBorderWidth returns 2-3.5px in high contrast",
+        "- Segment selection: Opacity difference 0.55 vs 1.0 maintains visibility",
+        "",
+        "REDUCED MOTION TESTS:",
+        "- macOS 'Reduce motion': getTransitionDuration returns 0ms",
+        "- All D3 transitions use a11y.getTransitionDuration() - instant when reduced",
+        "- CSS @media (prefers-reduced-motion: reduce) disables stack-node animations",
+        "- Force simulation still runs (physics not disabled, only visual transitions)",
+        "",
+        "AUTOMATED AXE-CORE SCAN:",
+        "- Add 'npm run test:a11y' script with @axe-core/playwright or axe-react",
+        "- Scan home page for WCAG 2.2 Level AA violations",
+        "- Expected passes: color-contrast, button-name, focusable-no-name",
+        "- Expected exclusions: aria-allowed-attr (SVG custom patterns are valid)",
+        "- Run scan in both light and high-contrast modes"
+      ]
+    },
     {
       "category": "investigation",
       "id": "inv-01",

@@ -141,15 +141,16 @@ export const toHighContrast = (color: Oklch): string => {
 };
 
 /**
- * Create a segment outline color - darker and more saturated for visual pop
- * Used for stroke outlines on selected segment donut rings
- * Maintains color harmony while ensuring 3:1 contrast minimum
+ * Create a segment outline color - very subtle enhancement for visual definition
+ * Used for stroke outlines on selected/hovered segment donut rings
+ * Designed to blend seamlessly with segment colors
+ * Minimal darkening to avoid visible "gap" during animations
  */
 export const toSegmentOutline = (color: Oklch): Oklch => {
   return {
     ...color,
-    l: Math.max(0.45, color.l - 0.18), // Darken moderately (less than high-contrast)
-    c: Math.min(0.25, color.c * 1.4), // Boost saturation by 40%, cap at 0.25
+    l: Math.max(0.6, color.l - 0.05), // Very gentle darkening (nearly same as segment)
+    c: Math.min(0.12, color.c * 1.1), // Minimal saturation boost (10%)
   };
 };
 

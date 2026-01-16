@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
+import type { UseInteractionStateReturn } from "~/hooks/use-interaction-state";
+
 import { KLEIN_BLUE } from "~/constants/colors";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
@@ -30,6 +32,7 @@ interface RootNodeProps {
     getTabIndex: (itemId: string) => number;
     setActiveIndex: (index: number) => void;
   };
+  interactionState?: UseInteractionStateReturn;
 }
 
 interface PieSegmentData {
@@ -53,6 +56,7 @@ const RootNodeComponent = (props: RootNodeProps) => {
     hoveredStack,
     isActiveHover,
     rovingTabindex,
+    interactionState,
   } = props;
   const searchParams = useSearchParams();
   const [hoveredDomain, setHoveredDomain] = useState<Domain | null>(null);
@@ -130,6 +134,7 @@ const RootNodeComponent = (props: RootNodeProps) => {
         registerSegmentRef={rovingTabindex?.registerItemRef}
         getSegmentTabIndex={rovingTabindex?.getTabIndex}
         onSegmentFocus={rovingTabindex?.setActiveIndex}
+        interactionState={interactionState}
       />
 
       {/* Border circle */}
