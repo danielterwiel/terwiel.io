@@ -428,3 +428,33 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Depth effect visible during rotation (opacity applied via inline style)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-15 - PERF_003 Complete
+
+**Task:** Replace Radix UI barrel imports with tree-shakeable imports
+
+**What was done:**
+1. Added `@radix-ui/react-dropdown-menu` and `@radix-ui/react-form` to Next.js `experimental.optimizePackageImports` array
+2. This approach enables tree-shaking without changing component import syntax
+
+**Files modified:**
+- `next.config.mjs` - Added optimizePackageImports array with Radix packages
+
+**Why this approach:**
+- Next.js `optimizePackageImports` handles tree-shaking automatically at build time
+- No need to refactor existing `import * as X` syntax in components
+- Cleaner than converting to named imports across multiple files
+- Build-time optimization with zero runtime cost
+
+**Files preserved (unchanged):**
+- `src/components/contact-dropdown.tsx` - Still uses `import * as DropdownMenu`
+- `src/components/contact-dialog.tsx` - Still uses `import * as Form`
+- `src/components/search-input.tsx` - Still uses `import * as Form`
+
+**Acceptance criteria met:**
+- Radix UI packages configured for tree-shaking via optimizePackageImports
+- npm run build succeeds
+
+**Status:** PASSES

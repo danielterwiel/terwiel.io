@@ -8,6 +8,10 @@ await import("./src/env.mjs");
 const config = {
   experimental: {
     viewTransition: true,
+    optimizePackageImports: [
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-form",
+    ],
   },
   /**
    * @param {import('webpack').Configuration} config
