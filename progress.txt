@@ -516,3 +516,28 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - npm run build succeeds (lint and type checks pass)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-16 - PERF_006 Complete
+
+**Task:** Use Set for O(1) membership checks instead of .includes()
+
+**What was done:**
+1. Changed PROJECT_KEY_DISALLOWED from array to Set
+2. Changed .includes(key) to .has(key)
+
+**Files modified:**
+- `src/utils/filter-projects.ts:6` - Changed `const PROJECT_KEY_DISALLOWED = ["stack"]` to `new Set(["stack"])`
+- `src/utils/filter-projects.ts:65` - Changed `.includes(key)` to `.has(key)`
+
+**Why Set over Array:**
+- `Array.includes()` is O(n) - scans entire array for each check
+- `Set.has()` is O(1) - constant time hash lookup
+- Called inside `.filter()` loop, so O(n) per project key per project
+- With Set, membership check is instant regardless of disallowed list size
+
+**Acceptance criteria met:**
+- Membership checks use Set.has() not Array.includes()
+
+**Status:** PASSES

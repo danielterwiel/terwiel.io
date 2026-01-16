@@ -3,7 +3,7 @@ import type { Domain, Project } from "~/types";
 import type { SelectionIndex } from "./stack-cloud/selection-index";
 import { projectHasDomain } from "./project-has-domain";
 
-const PROJECT_KEY_DISALLOWED = ["stack"];
+const PROJECT_KEY_DISALLOWED = new Set(["stack"]);
 
 /**
  * Check if a string contains a full word match (case-insensitive)
@@ -62,7 +62,7 @@ export function filterProjects(
     const restMatches = Object.entries(rest).filter(
       ([key, value]) =>
         hasFullWordMatch(value.toString(), query) &&
-        !PROJECT_KEY_DISALLOWED.includes(key),
+        !PROJECT_KEY_DISALLOWED.has(key),
     );
     return stackMatches.length > 0 || restMatches.length > 0;
   });

@@ -705,7 +705,7 @@
           "agent_browser_test": null
         }
       ],
-      "passes": false
+      "passes": true
     }
   ],
   "research_summary": {
