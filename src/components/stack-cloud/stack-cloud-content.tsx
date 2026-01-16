@@ -19,6 +19,7 @@ import { STACK_SELECTION_SCALE } from "~/constants/stack-selection-scale";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
 import { useDimensions } from "~/hooks/use-dimensions";
+import { useInteractionState } from "~/hooks/use-interaction-state";
 import { useRovingTabindex } from "~/hooks/use-roving-tabindex";
 import { useStackSimulation } from "~/hooks/use-stack-simulation";
 import { calculateDomainExperiences } from "~/utils/calculate-domain-size";
@@ -61,6 +62,23 @@ export function StackCloudContent() {
   const deferredSearchParams = useDeferredValue(searchParams);
 
   const a11y = useAccessibility();
+
+  // Unified interaction state for segments and stacks
+  // Tracks input modality (keyboard/mouse/touch) for focus-visible behavior
+  // and pending clicks to replace predictive state logic in root-node-chart
+  const interactionState = useInteractionState();
+
+  // Sync URL updates with interaction state to clear pending clicks
+  // This replaces the "predictive state logic" workaround
+  const previousFilterRef = useRef<string | null>(null);
+  useEffect(() => {
+    const currentFilter = searchParams.get("filter");
+    if (previousFilterRef.current !== currentFilter) {
+      previousFilterRef.current = currentFilter;
+      // URL has been updated, clear any pending click state
+      interactionState.urlSynced();
+    }
+  }, [searchParams, interactionState]);
 
   // Extract stacks and calculate size factors once
   const stacks = useMemo(() => extractUniqueStacks(PROJECTS), []);
@@ -346,6 +364,7 @@ export function StackCloudContent() {
             hoveredStack={hoveredStack}
             isActiveHover={isActiveHover}
             rovingTabindex={rovingTabindex}
+            interactionState={interactionState}
           />
 
           {/* Pre-compute search params outside the loop for O(1) access per stack */}

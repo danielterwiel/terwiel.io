@@ -5,6 +5,8 @@ import { useDeferredValue, useEffect, useRef, useTransition } from "react";
 
 import type { Domain } from "~/types";
 
+import type { UseInteractionStateReturn } from "~/hooks/use-interaction-state";
+
 import { DOMAIN_OUTLINE_HEX } from "~/constants/colors";
 import { PROJECTS } from "~/data/projects";
 import { useAccessibility } from "~/hooks/use-accessibility";
@@ -44,6 +46,8 @@ interface RootNodeChartProps {
   registerSegmentRef?: (id: string, element: SVGGElement | null) => void;
   getSegmentTabIndex?: (id: string) => number;
   onSegmentFocus?: (index: number) => void;
+  // Unified interaction state for focus-visible and pending click tracking
+  interactionState?: UseInteractionStateReturn;
 }
 
 /**
@@ -51,8 +55,70 @@ interface RootNodeChartProps {
  * Handles all d3 rendering and interactions for the domain distribution chart
  * Memoized to prevent unnecessary re-renders of expensive d3 operations
  */
-// Outline stroke width constant
-const STROKE_WIDTH = 2.5;
+// Outline stroke width constant - minimized to reduce visual gap during animations
+const STROKE_WIDTH = 1.5;
+
+/**
+ * Sequenced opacity animation for fill and stroke.
+ *
+ * ROOT CAUSE OF "WHITE GAP" BUG:
+ * With paint-order: stroke, the stroke is drawn FIRST, then fill on top.
+ * When fill opacity < 1.0, the stroke shows THROUGH the semi-transparent fill.
+ * This creates a visible "gap" effect during animations.
+ *
+ * SOLUTION: Sequence the animations so stroke is only visible when fill is opaque.
+ *
+ * For SELECTING (fill 0.55→1.0, stroke 0→1):
+ *   Phase 1 (t: 0→0.5): Fill ramps 0.55→1.0, stroke stays 0
+ *   Phase 2 (t: 0.5→1): Fill stays 1.0, stroke ramps 0→1
+ *
+ * For DESELECTING (fill 1.0→0.55, stroke 1→0):
+ *   Phase 1 (t: 0→0.5): Fill stays 1.0, stroke ramps 1→0
+ *   Phase 2 (t: 0.5→1): Fill ramps 1.0→0.55, stroke stays 0
+ */
+const getSequencedOpacities = (
+  t: number,
+  currentFillOpacity: number,
+  targetFillOpacity: number,
+  currentStrokeOpacity: number,
+  targetStrokeOpacity: number,
+): { fillOpacity: number; strokeOpacity: number } => {
+  const isSelecting = targetFillOpacity > currentFillOpacity;
+
+  if (isSelecting) {
+    // SELECTING: Fill first, then stroke
+    if (t < 0.5) {
+      // Phase 1: Fill goes to 1.0, stroke stays at current (should be 0)
+      const fillProgress = t / 0.5; // 0→1 over first half
+      return {
+        fillOpacity: currentFillOpacity + (1.0 - currentFillOpacity) * fillProgress,
+        strokeOpacity: currentStrokeOpacity,
+      };
+    }
+    // Phase 2: Fill stays at 1.0, stroke ramps to target
+    const strokeProgress = (t - 0.5) / 0.5; // 0→1 over second half
+    return {
+      fillOpacity: 1.0,
+      strokeOpacity: currentStrokeOpacity + (targetStrokeOpacity - currentStrokeOpacity) * strokeProgress,
+    };
+  }
+
+  // DESELECTING: Stroke first, then fill
+  if (t < 0.5) {
+    // Phase 1: Stroke goes to 0, fill stays at current (should be 1.0)
+    const strokeProgress = t / 0.5; // 0→1 over first half
+    return {
+      fillOpacity: currentFillOpacity,
+      strokeOpacity: currentStrokeOpacity + (0 - currentStrokeOpacity) * strokeProgress,
+    };
+  }
+  // Phase 2: Stroke stays at 0, fill ramps to target
+  const fillProgress = (t - 0.5) / 0.5; // 0→1 over second half
+  return {
+    fillOpacity: currentFillOpacity + (targetFillOpacity - currentFillOpacity) * fillProgress,
+    strokeOpacity: 0,
+  };
+};
 
 /**
  * Single source of truth for arc dimensions across all states
@@ -102,6 +168,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     registerSegmentRef,
     getSegmentTabIndex,
     onSegmentFocus,
+    interactionState,
   } = props;
   const router = useRouter();
   const pathname = usePathname();
@@ -135,6 +202,10 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
   // Store startTransition in ref so it can be accessed in useEffect
   const startTransitionRef = useRef(startTransition);
   startTransitionRef.current = startTransition;
+
+  // Store interactionState in ref for stable access in D3 event handlers
+  const interactionStateRef = useRef(interactionState);
+  interactionStateRef.current = interactionState;
 
   // Update visual states without re-rendering entire chart
   // Uses deferred value to avoid blocking urgent UI updates
@@ -238,14 +309,14 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         .filter((d) => isEqualDomain(matchedDomain, d.data.domain))
         .raise();
 
-      // Update paths with transition using tween for synchronized radius and stroke
-      // With paint-order: stroke, fill and stroke are on the SAME element
-      // This guarantees perfect synchronization - no gaps possible
+      // Update paths with transition using tween for synchronized radius, fill, and stroke
+      // CRITICAL: Both fill opacity and stroke opacity are controlled in tween to prevent
+      // the "white gap" bug where stroke shows through semi-transparent fill
       pathElements
         .transition()
         .duration(transitionDuration)
         .ease(d3.easeCubicInOut) // Smooth easing for synchronized transitions
-        .tween("arc-with-stroke", function (d) {
+        .tween("arc-with-opacity", function (d) {
           const datum = d as ArcDatumWithRadius;
           const isSelected = isEqualDomain(matchedDomain, datum.data.domain);
           const targetState: ArcState = isSelected ? "selected" : "default";
@@ -261,16 +332,22 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             datum.outerRadius ||
             getArcRadiusForState(pieRadius, datum.state || "default");
           const targetRadius = getArcRadiusForState(pieRadius, targetState);
-
           const radiusInterpolate = d3.interpolate(currentRadius, targetRadius);
 
-          // Target stroke color (instant, no interpolation)
-          const targetStrokeColor = isSelected
-            ? (DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
-              datum.data.color)
-            : "transparent";
+          // Get current opacities from DOM
+          const selection = d3.select(this);
+          const currentFillOpacity = parseFloat(
+            selection.attr("opacity") || "0.55",
+          );
+          const currentStrokeOpacity = parseFloat(
+            selection.attr("stroke-opacity") || "0",
+          );
 
-          // Return tween function that updates attributes on same frame
+          // Target opacities based on selection state
+          const targetFillOpacity = isSelected ? 1.0 : 0.55;
+          const targetStrokeOpacity = isSelected ? 1 : 0;
+
+          // Return tween function that updates all attributes on same frame
           return (t: number) => {
             // Update datum properties
             datum.outerRadius = radiusInterpolate(t);
@@ -280,13 +357,22 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               datum.state = targetState;
             }
 
-            // Calculate new path ONCE
+            // Calculate new path
             const newPath = arc(datum) ?? "";
 
-            // Apply updates to DOM - fill, stroke, and path all on same element
-            const selection = d3.select(this);
+            // Get sequenced opacities - ensures fill is opaque before stroke appears
+            const { fillOpacity, strokeOpacity } = getSequencedOpacities(
+              t,
+              currentFillOpacity,
+              targetFillOpacity,
+              currentStrokeOpacity,
+              targetStrokeOpacity,
+            );
+
+            // Apply all updates to DOM atomically
             selection.attr("d", newPath);
-            selection.attr("stroke", targetStrokeColor);
+            selection.attr("opacity", fillOpacity);
+            selection.attr("stroke-opacity", strokeOpacity);
 
             // Update focus ring path to match
             if (focusRingNode) {
@@ -294,9 +380,6 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             }
           };
         })
-        .attr("opacity", (d) =>
-          isEqualDomain(matchedDomain, d.data.domain) ? "1.0" : "0.55",
-        )
         .style("filter", (d) =>
           isEqualDomain(matchedDomain, d.data.domain)
             ? `url(#${glowFilterIdRef.current})`
@@ -479,6 +562,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
     // Create pie segment with fill AND stroke on same element using paint-order
     // paint-order: stroke renders stroke first, then fill covers inner half
     // This guarantees perfect synchronization during animations - no gaps possible
+    // Stroke is always set to domain color; visibility controlled via stroke-opacity
+    // This allows smooth fade-in/out of outlines during hover/select animations
     visibleSegments
       .append("path")
       .attr("fill", (d) => d.data.color)
@@ -495,12 +580,14 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       .attr("pointer-events", "none")
       .attr("d", arc) // Arc generator reads state from datum
       // Stroke on same element - paint-order ensures outer stroke effect
-      .attr("stroke", (d) => {
-        const isSelected = isEqualDomain(matchedDomain, d.data.domain);
-        return isSelected
-          ? (DOMAIN_OUTLINE_HEX[d.data.domain as Domain] ?? d.data.color)
-          : "transparent";
-      })
+      // Always set stroke color, use stroke-opacity for visibility (enables smooth transitions)
+      .attr(
+        "stroke",
+        (d) => DOMAIN_OUTLINE_HEX[d.data.domain as Domain] ?? d.data.color,
+      )
+      .attr("stroke-opacity", (d) =>
+        isEqualDomain(matchedDomain, d.data.domain) ? 1 : 0,
+      )
       .attr("stroke-width", STROKE_WIDTH)
       .attr("stroke-linecap", "round")
       .attr("stroke-linejoin", "round")
@@ -556,7 +643,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
       })
       .attr("aria-pressed", (d) => {
         return isEqualDomain(matchedDomain, d.data.domain) ? "true" : "false";
-      });
+      })
+      // Link to the projects list for screen reader context
+      .attr("aria-controls", "projects-list");
 
     const setupHoverInteractions = () => {
       const transitionDuration = a11y.getTransitionDuration(150);
@@ -610,7 +699,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         focusRing.interrupt();
 
         // Animate to hover state - fill and stroke are on same element with paint-order
-        const hoverOpacity = "0.8";
+        const targetFillOpacity = 0.8; // Hover state fill opacity
         const targetState: ArcState = "hover";
 
         // Pre-select focus ring element for update
@@ -619,11 +708,20 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         // Check if this element is currently focused
         const isFocused = document.activeElement === this;
 
+        // Get current opacities
+        const currentFillOpacity = parseFloat(
+          visiblePath.attr("opacity") || "0.55",
+        );
+        const currentStrokeOpacity = parseFloat(
+          visiblePath.attr("stroke-opacity") || "0",
+        );
+        const targetStrokeOpacity = 1; // Always show stroke on hover
+
         visiblePath
           .transition()
           .duration(transitionDuration)
           .ease(d3.easeCubicInOut)
-          .tween("arc-with-stroke", function (d) {
+          .tween("arc-with-opacity", function (d) {
             const datum = d as ArcDatumWithRadius;
 
             // Calculate radii
@@ -638,17 +736,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             );
 
             // If focused, ensure ring stays visible. If not, ensure it stays hidden.
-            // This fixes the race condition where mouseleave interrupts blur
-            const currentOpacity = parseFloat(
+            const currentRingOpacity = parseFloat(
               focusRing.style("opacity") || "0",
             );
-            const targetOpacity = isFocused ? 1 : 0;
-            const opacityInterpolate = d3.interpolate(
-              currentOpacity,
-              targetOpacity,
+            const targetRingOpacity = isFocused ? 1 : 0;
+            const ringOpacityInterpolate = d3.interpolate(
+              currentRingOpacity,
+              targetRingOpacity,
             );
 
-            // Return tween function that updates attributes on same frame
+            // Return tween function that updates all attributes on same frame
             return (t: number) => {
               // Update datum properties
               datum.outerRadius = radiusInterpolate(t);
@@ -661,25 +758,29 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               // Calculate new path
               const newPath = arc(datum) ?? "";
 
-              // Apply updates to DOM - fill, stroke, and path all on same element
+              // Get sequenced opacities - ensures fill reaches target before stroke appears
+              const { fillOpacity, strokeOpacity } = getSequencedOpacities(
+                t,
+                currentFillOpacity,
+                targetFillOpacity,
+                currentStrokeOpacity,
+                targetStrokeOpacity,
+              );
+
+              // Apply all updates to DOM atomically
               const selection = d3.select(this);
               selection.attr("d", newPath);
-              selection.attr(
-                "stroke",
-                DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
-                  datum.data.color,
-              );
+              selection.attr("opacity", fillOpacity);
+              selection.attr("stroke-opacity", strokeOpacity);
 
               // Update focus ring path to match
               if (focusRingNode) {
                 const ringSelection = d3.select(focusRingNode);
                 ringSelection.attr("d", newPath);
-                // Explicitly manage opacity during hover transition
-                ringSelection.style("opacity", opacityInterpolate(t));
+                ringSelection.style("opacity", ringOpacityInterpolate(t));
               }
             };
           })
-          .attr("opacity", hoverOpacity)
           .style("filter", `url(#${glowFilterId})`);
 
         // Notify parent component of domain hover
@@ -689,6 +790,9 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       const handleHoverEnd = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        // Derive index from arcs array to get segment ID for interaction state
+        const index = arcs.findIndex((arc) => arc.data.domain === datum.data.domain);
+        const segmentId = `segment-${index}`;
 
         // Check if this segment's domain is selected
         const isSelected = isEqualDomain(
@@ -697,14 +801,20 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         );
 
         // PREDICTIVE STATE LOGIC:
-        // If this domain was just clicked, we need to predict its next state
+        // If this segment was just clicked, we need to predict its next state
         // because the prop update hasn't arrived yet.
-        // - If it was selected, clicking it means we are DESELECTING -> target is default
-        // - If it was NOT selected, clicking it means we are SELECTING -> target is selected
+        // Primary: use unified interactionState for pending click detection
+        // Fallback: use clickedDomain for backwards compatibility
         let targetState: ArcState = isSelected ? "selected" : "default";
 
-        if (clickedDomain === datum.data.domain) {
+        const isPending =
+          interactionStateRef.current?.isPendingClick(segmentId) ||
+          clickedDomain === datum.data.domain;
+
+        if (isPending) {
           // Invert the current state for the prediction
+          // If selected, clicking deselects -> target is default
+          // If not selected, clicking selects -> target is selected
           targetState = isSelected ? "default" : "selected";
         }
 
@@ -733,19 +843,23 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         // Check if this element is currently focused
         const isFocused = document.activeElement === this;
 
-        // Target stroke color (instant)
-        // Use targetState to determine if we should show the stroke color
-        const targetStrokeColor =
-          targetState === "selected"
-            ? (DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
-              datum.data.color)
-            : "transparent";
+        // Get current opacities
+        const currentFillOpacity = parseFloat(
+          visiblePath.attr("opacity") || "0.8",
+        );
+        const currentStrokeOpacity = parseFloat(
+          visiblePath.attr("stroke-opacity") || "1",
+        );
+
+        // Target opacities based on predicted state
+        const targetFillOpacity = targetState === "selected" ? 1.0 : 0.55;
+        const targetStrokeOpacity = targetState === "selected" ? 1 : 0;
 
         visiblePath
           .transition()
           .duration(transitionDuration)
           .ease(d3.easeCubicInOut)
-          .tween("arc-with-stroke", function (d) {
+          .tween("arc-with-opacity", function (d) {
             const datum = d as ArcDatumWithRadius;
 
             // Calculate radii
@@ -760,17 +874,16 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
             );
 
             // If focused, ensure ring stays visible. If not, ensure it stays hidden.
-            // This fixes the race condition where mouseleave interrupts blur
-            const currentOpacity = parseFloat(
+            const currentRingOpacity = parseFloat(
               focusRing.style("opacity") || "0",
             );
-            const targetOpacity = isFocused ? 1 : 0;
-            const opacityInterpolate = d3.interpolate(
-              currentOpacity,
-              targetOpacity,
+            const targetRingOpacity = isFocused ? 1 : 0;
+            const ringOpacityInterpolate = d3.interpolate(
+              currentRingOpacity,
+              targetRingOpacity,
             );
 
-            // Return tween function that updates attributes on same frame
+            // Return tween function that updates all attributes on same frame
             return (t: number) => {
               // Update datum properties
               datum.outerRadius = radiusInterpolate(t);
@@ -783,21 +896,29 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               // Calculate new path
               const newPath = arc(datum) ?? "";
 
-              // Apply updates to DOM - fill, stroke, and path all on same element
+              // Get sequenced opacities - ensures proper ordering
+              const { fillOpacity, strokeOpacity } = getSequencedOpacities(
+                t,
+                currentFillOpacity,
+                targetFillOpacity,
+                currentStrokeOpacity,
+                targetStrokeOpacity,
+              );
+
+              // Apply all updates to DOM atomically
               const selection = d3.select(this);
               selection.attr("d", newPath);
-              selection.attr("stroke", targetStrokeColor);
+              selection.attr("opacity", fillOpacity);
+              selection.attr("stroke-opacity", strokeOpacity);
 
               // Update focus ring path to match
               if (focusRingNode) {
                 const ringSelection = d3.select(focusRingNode);
                 ringSelection.attr("d", newPath);
-                // Explicitly manage opacity during hover transition
-                ringSelection.style("opacity", opacityInterpolate(t));
+                ringSelection.style("opacity", ringOpacityInterpolate(t));
               }
             };
           })
-          .attr("opacity", targetState === "selected" ? "1.0" : "0.55")
           .style(
             "filter",
             targetState === "selected" ? `url(#${glowFilterId})` : "none",
@@ -812,13 +933,20 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
       const handleClick = function (this: SVGPathElement) {
         const datum = d3.select(this).datum() as d3.PieArcDatum<PieSegmentData>;
+        // Derive index from arcs array to get segment ID for interaction state
+        const index = arcs.findIndex((arc) => arc.data.domain === datum.data.domain);
+        const segmentId = `segment-${index}`;
 
         // Check if this click is selecting or deselecting
         const isCurrentlySelected =
           currentSearchFilterRef.current === datum.data.domain;
         const isDeselecting = isCurrentlySelected;
 
-        // Mark this domain as clicked to prevent handleHoverEnd from interfering
+        // Mark this segment as pending click via unified state machine
+        // This replaces the predictive state logic workaround
+        interactionStateRef.current?.click(segmentId);
+
+        // Fallback: also set clickedDomain for backwards compatibility
         clickedDomain = datum.data.domain;
 
         // Signal to parent that chart state is changing to skip the next URL effect
@@ -856,6 +984,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
         });
 
         // Clear the click tracking after 300ms (well after click/mouseleave cycle is done)
+        // Note: interactionState.pendingClickId is cleared via urlSynced() in parent component
         if (clearClickedDomainTimeout) {
           clearTimeout(clearClickedDomainTimeout);
         }
@@ -913,11 +1042,23 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           const targetState: ArcState = "focus";
           const focusRingNode = focusRing.node();
 
+          // Get current opacities
+          const currentFillOpacity = parseFloat(
+            visiblePath.attr("opacity") || "0.55",
+          );
+          const currentStrokeOpacity = parseFloat(
+            visiblePath.attr("stroke-opacity") || "0",
+          );
+
+          // Target opacities for focus state (similar to hover)
+          const targetFillOpacity = 0.8;
+          const targetStrokeOpacity = 1;
+
           visiblePath
             .transition()
             .duration(transitionDuration)
             .ease(d3.easeCubicInOut)
-            .tween("arc-focus", function (d) {
+            .tween("arc-with-opacity", function (d) {
               const arcDatum = d as ArcDatumWithRadius;
 
               const currentRadius =
@@ -930,8 +1071,18 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
                 targetRadius,
               );
 
-              // Interpolate focus ring opacity from 0 to 1
-              const opacityInterpolate = d3.interpolate(0, 1);
+              // Interpolate focus ring opacity
+              // Only show focus ring on keyboard focus (focus-visible behavior)
+              const shouldShowRing =
+                interactionStateRef.current?.shouldShowFocusRing ?? true;
+              const targetRingOpacity = shouldShowRing ? 1 : 0;
+              const currentRingOpacity = parseFloat(
+                focusRing.style("opacity") || "0",
+              );
+              const ringOpacityInterpolate = d3.interpolate(
+                currentRingOpacity,
+                targetRingOpacity,
+              );
 
               return (t: number) => {
                 arcDatum.outerRadius = radiusInterpolate(t);
@@ -942,24 +1093,29 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
                 const newPath = arc(arcDatum) ?? "";
 
-                // Update main segment path and stroke
+                // Get sequenced opacities - ensures fill reaches target before stroke appears
+                const { fillOpacity, strokeOpacity } = getSequencedOpacities(
+                  t,
+                  currentFillOpacity,
+                  targetFillOpacity,
+                  currentStrokeOpacity,
+                  targetStrokeOpacity,
+                );
+
+                // Apply all updates to DOM atomically
                 const selection = d3.select(this);
                 selection.attr("d", newPath);
-                selection.attr(
-                  "stroke",
-                  DOMAIN_OUTLINE_HEX[arcDatum.data.domain as Domain] ??
-                    arcDatum.data.color,
-                );
+                selection.attr("opacity", fillOpacity);
+                selection.attr("stroke-opacity", strokeOpacity);
 
                 // Update focus ring path AND opacity together
                 if (focusRingNode) {
                   const ringSelection = d3.select(focusRingNode);
                   ringSelection.attr("d", newPath);
-                  ringSelection.style("opacity", opacityInterpolate(t));
+                  ringSelection.style("opacity", ringOpacityInterpolate(t));
                 }
               };
             })
-            .attr("opacity", "0.8")
             .style("filter", `url(#${glowFilterId})`);
 
           // Update parent's roving tabindex to track this segment's focus
@@ -1001,10 +1157,15 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           const targetState: ArcState = isSelected ? "selected" : "default";
           const focusRingNode = focusRing.node();
 
-          const targetStrokeColor = isSelected
-            ? (DOMAIN_OUTLINE_HEX[datum.data.domain as Domain] ??
-              datum.data.color)
-            : "transparent";
+          // Get current opacities for sequenced animation
+          const currentFillOpacity = parseFloat(
+            visiblePath.attr("opacity") || "1",
+          );
+          const currentStrokeOpacity = parseFloat(
+            visiblePath.attr("stroke-opacity") || "1",
+          );
+          const targetFillOpacity = isSelected ? 1.0 : 0.55;
+          const targetStrokeOpacity = isSelected ? 1 : 0;
 
           visiblePath
             .transition()
@@ -1024,7 +1185,7 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
               );
 
               // Interpolate focus ring opacity from 1 to 0
-              const opacityInterpolate = d3.interpolate(1, 0);
+              const focusRingOpacityInterpolate = d3.interpolate(1, 0);
 
               return (t: number) => {
                 arcDatum.outerRadius = radiusInterpolate(t);
@@ -1035,24 +1196,39 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
 
                 const newPath = arc(arcDatum) ?? "";
 
-                // Update main segment path and stroke
+                // Get sequenced opacities - ensures stroke only visible when fill is opaque
+                const { fillOpacity, strokeOpacity } = getSequencedOpacities(
+                  t,
+                  currentFillOpacity,
+                  targetFillOpacity,
+                  currentStrokeOpacity,
+                  targetStrokeOpacity,
+                );
+
+                // Update main segment path and opacities
                 const selection = d3.select(this);
                 selection.attr("d", newPath);
-                selection.attr("stroke", targetStrokeColor);
+                selection.attr("opacity", fillOpacity);
+                selection.attr("stroke-opacity", strokeOpacity);
 
                 // Update focus ring path AND opacity together
                 if (focusRingNode) {
                   const ringSelection = d3.select(focusRingNode);
                   ringSelection.attr("d", newPath);
-                  ringSelection.style("opacity", opacityInterpolate(t));
+                  ringSelection.style("opacity", focusRingOpacityInterpolate(t));
                 }
               };
             })
-            .attr("opacity", isSelected ? "1.0" : "0.55")
             .style("filter", isSelected ? `url(#${glowFilterId})` : "none");
+        })
+        // Track input modality for focus-visible behavior
+        .on("mousedown", () => {
+          interactionStateRef.current?.setInputModality("mouse");
         })
         // Touch events for iOS
         .on("touchstart", (event: TouchEvent) => {
+          // Track input modality for focus-visible behavior
+          interactionStateRef.current?.setInputModality("touch");
           // Mark this as a potential click
           touchWasClick = true;
           // Don't trigger hover animation on touch - wait to see if it's a click or scroll
@@ -1081,6 +1257,8 @@ const RootNodeChartComponent = (props: RootNodeChartProps) => {
           handleClick.call(this);
         })
         .on("keydown", function (event: KeyboardEvent) {
+          // Track keyboard input modality for focus-visible behavior
+          interactionStateRef.current?.setInputModality("keyboard");
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             handleClick.call(this);

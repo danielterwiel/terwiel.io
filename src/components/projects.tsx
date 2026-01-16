@@ -137,7 +137,18 @@ const ProjectsContent = () => {
 
   return (
     // biome-ignore lint/correctness/useUniqueElementIds: Projects section is rendered only once
-    <article className="prose max-w-none" id="projects">
+    <article className="prose max-w-none" id="projects-list" aria-label="Projects">
+      {/* Live region for screen reader announcements when filtering changes */}
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {activeSearchTerm
+          ? `Showing ${filtered.length} project${filtered.length !== 1 ? "s" : ""} matching "${activeSearchTerm}"`
+          : `Showing all ${PROJECTS.length} projects`}
+      </div>
       <h2 id={projectsId} className="mb-6 text-2xl font-bold md:text-center">
         Projects
       </h2>
