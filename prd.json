@@ -66,7 +66,19 @@
         "Check if any utils do expensive work that should be memoized",
         "Search for D3 custom force performance patterns"
       ],
-      "passes": false
+      "passes": false,
+      "findings": [
+        "adaptive-physics.ts CORRECT: All functions pure, O(1) or O(n), only called on init/resize (debounced)",
+        "create-forces.ts ACCEPTABLE: updateSimulationForces recreates forceX/forceY/charge, but D3 forces are lightweight. Only on resize (100ms debounce)",
+        "boundary-force.ts CORRECT: O(n) per tick but simple arithmetic. Has .update() for in-place updates",
+        "root-exclusion-force.ts CORRECT: Math.sqrt per node per tick is standard D3 pattern. Has .update() method",
+        "BUG: mass-dampen-force.ts INCORRECT PATTERN - Returns force(alpha)->(nodes)->void but D3 expects force(alpha)->void with nodes via .initialize(). Force is NO-OP",
+        "calculate-stack-size.ts ACCEPTABLE: parseISO per project but memoized via useMemo in stack-cloud-content.tsx",
+        "BUG: calculate-base-radius.ts REDUNDANT WORK - Calls extractUniqueStacks() and calculateStackSizeFactors() on every resize. Already memoized upstream",
+        "selection-index.ts CORRECT: O(1) lookups via Set.has() and Map.get(). buildSelectionIndex O(n) but once",
+        "performance-utils.ts CORRECT: Position cache with 0.5px threshold is efficient",
+        "seed-position.ts, distribute-nodes-in-segment.ts, calculate-domain-angles.ts, convert-arc-angle.ts: All CORRECT - pure O(1) math"
+      ]
     },
     {
       "category": "investigation",

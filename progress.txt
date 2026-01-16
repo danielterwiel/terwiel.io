@@ -30,3 +30,43 @@ in use-stack-simulation.ts. All implementations follow D3 best practices.
 ### Notes
 - Pre-existing typecheck errors in root-node-chart.tsx (missing d3 types, implicit any)
 - Lint passes after formatting prd.json
+
+## 2026-01-16: inv-03 - stack-cloud utils investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated all stack-cloud utils: adaptive-physics.ts, create-forces.ts, boundary-force.ts,
+root-exclusion-force.ts, mass-dampen-force.ts, calculate-stack-size.ts, performance-utils.ts,
+selection-index.ts, seed-position.ts, distribute-nodes-in-segment.ts, calculate-domain-angles.ts,
+convert-arc-angle.ts, calculate-base-radius.ts.
+
+### Bugs Found
+
+1. **mass-dampen-force.ts - INCORRECT D3 FORCE PATTERN**
+   - Returns `force(alpha) -> (nodes) -> void` but D3 expects `force(alpha) -> void`
+   - D3 forces should receive nodes via `.initialize()` method, not as a parameter
+   - Result: Force is a NO-OP because D3 never invokes the inner function
+   - Impact: Mass-based velocity dampening is not being applied to nodes
+
+2. **calculate-base-radius.ts - REDUNDANT WORK**
+   - Calls `extractUniqueStacks(PROJECTS)` and `calculateStackSizeFactors(PROJECTS)` on every resize
+   - These are already computed and memoized in stack-cloud-content.tsx
+   - Should accept pre-computed stacks/sizeFactors as parameters
+   - Impact: Unnecessary O(n) work + date parsing on every viewport resize
+
+### Correct Implementations
+- adaptive-physics.ts: Pure O(1) functions, properly debounced
+- create-forces.ts: Force recreation is lightweight, only on resize
+- boundary-force.ts: O(n) per tick but simple math, has .update() method
+- root-exclusion-force.ts: Standard D3 pattern with Math.sqrt
+- selection-index.ts: True O(1) lookups via Set/Map
+- performance-utils.ts: Position cache is efficient
+- Other utils: Pure math functions, cheap O(1)
+
+### References consulted
+- https://d3js.org/d3-force/simulation (custom force pattern documentation)
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
