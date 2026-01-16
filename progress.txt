@@ -248,3 +248,64 @@ in root-node-chart.tsx (~1149 lines). This is the pie chart component for domain
 ### Notes
 - Pre-existing typecheck errors unchanged (missing d3 types, implicit any)
 - Lint passes
+
+## 2026-01-16: inv-08 - projects.tsx View Transitions investigation
+
+### Status: PASSED (minor issues only)
+
+### Summary
+Investigated View Transitions API usage in projects.tsx: flushSync patterns, concurrent transition
+handling, diffProjectStates efficiency, filterCache implementation, and useScrollDelegation hook.
+
+### Findings
+
+1. **flushSync usage CORRECT**
+   - Used inside `startViewTransition()` callback (line 137)
+   - This is the recommended React + View Transitions pattern
+   - NOT causing layout thrashing - intentionally placed inside the callback
+
+2. **skipTransition() pattern CORRECT**
+   - Properly catches `finished` promise rejection when skipped (lines 123-125)
+   - Try-catch wrapper around skipTransition() itself (lines 127-131)
+   - Clears `ongoingTransitionRef` on both success and failure (lines 151-162)
+
+3. **diffProjectStates EFFICIENT**
+   - Uses Set for O(1) lookups (src/utils/project-state-diff.ts)
+   - O(n) overall complexity for comparing filtered lists
+   - Not a bottleneck
+
+4. **filterCache CORRECT**
+   - Simple LRU with 50 entry max (src/utils/filter-cache.ts)
+   - Prevents redundant filtering operations
+
+5. **useScrollDelegation ACCEPTABLE**
+   - Uses `passive: false` which is necessary for preventDefault()
+   - Has Safari-specific workaround
+   - Not related to View Transitions performance
+
+### Minor Issues Found
+
+1. **isVisible prop O(n²) - MINOR BUG**
+   - Line 211: `filtered.some((p) => p.id === project.id)` is O(n) per project
+   - Called for each of ~11 projects = O(n²) total
+   - Should use Set for O(1) lookup
+   - Impact: Minor (n=11 projects, so 121 comparisons max)
+
+2. **Safari detection duplication - CODE SMELL**
+   - Safari detection logic duplicated between:
+     - projects.tsx (lines 102-106)
+     - use-scroll-delegation.ts (lines 7-17)
+   - Should extract to shared utility
+
+### Correct Implementations
+- View Transitions follows Chrome/React best practices
+- Transition abort/skip handling is robust
+- State diffing is efficient
+
+### References consulted
+- https://developer.chrome.com/docs/web-platform/view-transitions
+- https://react.dev/reference/react-dom/flushSync
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes
