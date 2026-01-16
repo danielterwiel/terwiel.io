@@ -309,3 +309,40 @@ handling, diffProjectStates efficiency, filterCache implementation, and useScrol
 ### Notes
 - Pre-existing typecheck errors unchanged
 - Lint passes
+
+## 2026-01-16: inv-09 - use-dimensions.ts investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated use-dimensions.ts: ResizeObserver efficiency, debounce timing, calculateBaseStackRadius
+frequency, visualViewport listener cleanup, and dimensions object re-render behavior.
+
+### Bugs Found
+
+1. **calculateBaseStackRadius - REDUNDANT WORK**
+   - Calls extractUniqueStacks(PROJECTS) and calculateStackSizeFactors(PROJECTS) on every resize
+   - extractUniqueStacks: O(projects × stacks) with Map/Set operations
+   - calculateStackSizeFactors: O(projects × stacks) with parseISO date parsing
+   - Both are already memoized in stack-cloud-content.tsx (lines 66-67)
+   - Should accept pre-computed stacks/sizeFactors as parameters
+   - Impact: Unnecessary work on every viewport resize
+
+2. **Debounced callbacks not cancelled on cleanup**
+   - Two debounced functions created (lines 54, 69) for ResizeObserver and visualViewport
+   - Neither useEffect calls .cancel() in their cleanup functions
+   - Could cause React "setState on unmounted component" warnings
+   - Impact: Minor memory leak potential, possible console warnings
+
+### Correct Implementations
+- 100ms debounce: Standard/optimal for resize handlers
+- visualViewport listeners: Properly added and removed
+- dimensions object: Only created on actual resize, not every render
+
+### References consulted
+- React docs on useEffect cleanup
+- ResizeObserver MDN documentation
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes

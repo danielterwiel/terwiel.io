@@ -210,7 +210,14 @@
         "Verify visualViewport listener cleanup",
         "Check if dimensions object causes unnecessary re-renders"
       ],
-      "passes": false
+      "passes": false,
+      "findings": [
+        "100ms debounce OPTIMAL: Standard for resize handlers. Not too fast (janky), not too slow (laggy)",
+        "BUG: calculateBaseStackRadius REDUNDANT WORK - Calls extractUniqueStacks(PROJECTS) and calculateStackSizeFactors(PROJECTS) on every resize. These involve O(projects×stacks) iterations + date parsing. Both already memoized in stack-cloud-content.tsx (lines 66-67)",
+        "visualViewport listener cleanup CORRECT: Properly removes both 'resize' and 'scroll' listeners",
+        "BUG: Debounced callbacks not cancelled on cleanup - Two debounced functions created (lines 54, 69) but neither calls .cancel() in cleanup. Could cause state updates after unmount",
+        "dimensions object CORRECT: New object created only on actual resize events, not every render"
+      ]
     },
     {
       "category": "investigation",
