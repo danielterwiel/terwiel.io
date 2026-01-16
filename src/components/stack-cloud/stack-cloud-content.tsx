@@ -220,32 +220,18 @@ export function StackCloudContent() {
     [nodesRef],
   );
 
-  // Create memoized factory function for stack node ref callbacks
-  const createStackNodeRefCallback = useCallback(
-    (stackId: string) => (el: SVGGElement | null) => {
-      if (el) nodesRef.current.set(stackId, el);
-      else nodesRef.current.delete(stackId);
-    },
-    [nodesRef],
-  );
-
-  // Create memoized factory function for stack mouse enter callbacks
+  // PERF FIX: Memoize mouse enter callbacks as a Map to prevent recreation on every render
   // When hovering a stack, clear hoveredDomain to prevent domain-level highlighting
-  // This ensures only the specific hovered stack is highlighted, not all stacks in the domain
-  const createStackMouseEnterCallback = useCallback(
-    (stack: {
-      id: string;
-      name: string;
-      iconKey: string;
-      color: string;
-      domain: Domain;
-    }) =>
-      () => {
+  const mouseEnterCallbacks = useMemo(() => {
+    const callbacks = new Map<string, () => void>();
+    for (const stack of stacks) {
+      callbacks.set(stack.id, () => {
         setHoveredStack(stack);
         setHoveredDomain(null); // Clear domain hover when hovering a specific stack
-      },
-    [],
-  );
+      });
+    }
+    return callbacks;
+  }, [stacks]);
 
   // Create memoized mouse leave callback
   const handleStackMouseLeave = useCallback(() => {
@@ -294,6 +280,35 @@ export function StackCloudContent() {
       }
     },
   });
+
+  // PERF FIX: Memoize focus callbacks as a Map to prevent recreation on every render
+  // Uses domainExperiences.length as offset to calculate globalIndex for each stack
+  // NOTE: Must be defined after rovingTabindex hook
+  const focusCallbacks = useMemo(() => {
+    const segmentCount = domainExperiences.length;
+    const callbacks = new Map<string, () => void>();
+    stacks.forEach((stack, index) => {
+      const globalIndex = segmentCount + index;
+      callbacks.set(stack.id, () => rovingTabindex.setActiveIndex(globalIndex));
+    });
+    return callbacks;
+  }, [stacks, domainExperiences.length, rovingTabindex]);
+
+  // PERF FIX: Combined nodeRef callbacks that handle both nodesRef and rovingTabindex registration
+  // This avoids creating an inline callback in the render loop
+  const combinedNodeRefCallbacks = useMemo(() => {
+    const callbacks = new Map<string, (el: SVGGElement | null) => void>();
+    for (const stack of stacks) {
+      callbacks.set(stack.id, (el: SVGGElement | null) => {
+        // Update D3 nodesRef
+        if (el) nodesRef.current.set(stack.id, el);
+        else nodesRef.current.delete(stack.id);
+        // Update roving tabindex item ref
+        rovingTabindex.registerItemRef(stack.id, el);
+      });
+    }
+    return callbacks;
+  }, [stacks, nodesRef, rovingTabindex]);
 
   return (
     <div ref={wrapperRef} className="stack-cloud-wrapper">
@@ -347,7 +362,7 @@ export function StackCloudContent() {
               PROJECTS,
             ) as Domain | null;
 
-            return stacks.map((stack, index) => {
+            return stacks.map((stack) => {
               // Use selection index for O(1) lookup instead of isStackSelected O(n)
               // Use regular searchParams to show immediate visual feedback on clicks
               // Check BOTH query and filter parameters for selection
@@ -386,8 +401,14 @@ export function StackCloudContent() {
               // Use roving tabindex for keyboard navigation
               const tabIndex = rovingTabindex.getTabIndex(stack.id);
 
-              // Calculate global index for roving tabindex (segments + this stack)
-              const globalIndex = domainExperiences.length + index;
+              // PERF FIX: Use memoized callbacks from Maps instead of inline functions
+              // This allows React.memo to properly skip re-renders when props haven't changed
+              // Note: These will always exist since stacks is the source for both Maps
+              const nodeRefCallback = combinedNodeRefCallbacks.get(
+                stack.id,
+              ) as (el: SVGGElement | null) => void;
+              const mouseEnterCallback = mouseEnterCallbacks.get(stack.id);
+              const focusCallback = focusCallbacks.get(stack.id);
 
               return (
                 <StackNode
@@ -399,13 +420,10 @@ export function StackCloudContent() {
                   highlighted={highlighted}
                   isDirectlyHovered={isDirectlyHovered}
                   tabIndex={tabIndex}
-                  nodeRef={(el) => {
-                    createStackNodeRefCallback(stack.id)(el);
-                    rovingTabindex.registerItemRef(stack.id, el);
-                  }}
-                  onMouseEnter={createStackMouseEnterCallback(stack)}
+                  nodeRef={nodeRefCallback}
+                  onMouseEnter={mouseEnterCallback}
                   onMouseLeave={handleStackMouseLeave}
-                  onFocus={() => rovingTabindex.setActiveIndex(globalIndex)}
+                  onFocus={focusCallback}
                 />
               );
             });

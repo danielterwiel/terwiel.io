@@ -7,7 +7,7 @@
   },
   "scripts": {
     "build": "next build --profile",
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "format": "biome format --write",

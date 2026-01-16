@@ -33,12 +33,20 @@ export const Project = ({
   const IconProject =
     Icon[project.icon as keyof typeof Icon] ?? Icon.QuestionMark;
 
-  const className =
-    `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""}`.trim();
+  // Build class name based on visibility and state
+  // CSS animations are defined in globals.css for project-from-top, project-slide-out, etc.
+  const stateClass =
+    projectState === "enter"
+      ? "project-from-bottom" // Entering items slide up from bottom
+      : projectState === "exit"
+        ? "project-slide-out project-from-bottom" // Exiting items slide down
+        : ""; // "stay" items just use project-visible
 
-  // Create unique transition name per project and state to satisfy View Transitions API uniqueness requirement
-  // The API requires each element with view-transition-name to have a unique name
-  const vtProjectName = `project-${project.id}-${projectState}`;
+  const className =
+    `relative break-inside-avoid-page pb-8 print:pt-8 project-item ${isVisible ? "project-visible" : ""} ${stateClass}`.trim();
+
+  // Create unique transition name per project for View Transitions API fallback
+  const vtProjectName = `project-${project.id}`;
 
   return (
     <li
