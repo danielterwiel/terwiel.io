@@ -137,7 +137,16 @@
         "Review useDeferredValue usage - is it helping or hurting?",
         "Analyze roving tabindex calculation per render"
       ],
-      "passes": false
+      "passes": false,
+      "findings": [
+        "scaleFactors useMemo CORRECT: dependencies [stacks, searchParams, selectionIndex], uses O(1) selectionIndex lookups",
+        "BUG: stacks.map() render loop (lines 339-404) calls getSearchQuery(), getSearchFilter(), getSearchDomain() INSIDE the loop - 4 function calls × 30 stacks = 120 calls/render that should be computed once outside",
+        "createStackNodeRefCallback CORRECT: Properly memoized factory function",
+        "createStackMouseEnterCallback CONCERN: Returns new closure per stack per render (line 399) - could cause unnecessary child re-renders if React.memo used",
+        "selectionIndex.isStackInDomain CORRECT: O(1) via Map.get().has()",
+        "useDeferredValue CORRECT: Properly defers searchParams to prioritize animations",
+        "BUG: rovingTabindex.getTabIndex() uses items.findIndex() which is O(n), called 30x per render = O(n²)"
+      ]
     },
     {
       "category": "investigation",

@@ -157,3 +157,41 @@ value works well for mixed-size nodes without jitter. No action required.
 ### Notes
 - Pre-existing typecheck errors unchanged
 - Lint passes
+
+## 2026-01-16: inv-06 - stack-cloud-content.tsx investigation
+
+### Status: BUGS FOUND
+
+### Summary
+Investigated useMemo dependencies, useCallback patterns, render loop efficiency, and roving
+tabindex performance in stack-cloud-content.tsx.
+
+### Bugs Found
+
+1. **stacks.map() render loop - REDUNDANT FUNCTION CALLS**
+   - Lines 339-348: getSearchQuery(), getSearchFilter(), getSearchDomain() (×2) called INSIDE .map()
+   - For ~30 stacks, this means ~120 function calls per render
+   - getSearchDomain() internally calls matchesDomainName() which iterates over domains
+   - Should hoist these 4 calls outside the loop and reuse the results
+   - Impact: Unnecessary work on every render
+
+2. **rovingTabindex.getTabIndex() - O(n²) COMPLEXITY**
+   - getTabIndex() uses items.findIndex() which is O(n)
+   - Called for each of ~30 stacks in render loop = O(n²) per render
+   - Should use a Map<id, index> for O(1) lookup
+   - Impact: Quadratic scaling with node count
+
+3. **createStackMouseEnterCallback - MINOR CONCERN**
+   - Factory returns new closure per stack per render (line 399)
+   - Could cause unnecessary StackNode re-renders if React.memo is used
+   - Impact: Minor, StackNode may not be memoized anyway
+
+### Correct Implementations
+- scaleFactors useMemo: Correct dependencies [stacks, searchParams, selectionIndex]
+- createStackNodeRefCallback: Properly memoized factory
+- selectionIndex.isStackInDomain: True O(1) via Map.get().has()
+- useDeferredValue: Correctly defers searchParams to prioritize animations
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
