@@ -195,3 +195,56 @@ tabindex performance in stack-cloud-content.tsx.
 ### Notes
 - Pre-existing typecheck errors unchanged (d3 types missing)
 - Lint passes
+
+## 2026-01-16: inv-07 - root-node-chart.tsx investigation
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated D3 transitions, event handler setup, SVG filter performance, and interrupt() usage
+in root-node-chart.tsx (~1149 lines). This is the pie chart component for domain distribution.
+
+### Findings
+
+1. **SVG glow filter (feGaussianBlur stdDeviation=2) ACCEPTABLE**
+   - Low blur value, only ~6 segments, applied conditionally on selected/hovered state
+   - Per Chrome docs, SVG-on-SVG filters use CPU path but impact negligible at this scale
+   - Filter created once per mount (lines 445-464), not per render
+
+2. **D3 transition tween functions CORRECT**
+   - Batch DOM reads before writes (lines 201-214) - prevents layout thrashing
+   - Use D3 interpolators for smooth animation
+   - Update datum state at t=1 (end of transition)
+   - Follows D3 best practice of tween initialization batching
+
+3. **d3.select() calls in event handlers ACCEPTABLE**
+   - Called once per hover/focus event, not per frame
+   - Selection is cached within tween closure via `d3.select(this)`
+   - D3 recommends caching selections but per-event cost is trivial for ~6 segments
+
+4. **interrupt() usage CORRECT**
+   - Immediately interrupts ongoing transitions before starting new ones (lines 222-223, 609-610)
+   - D3 best practice for responsive feel - prevents animation queue buildup
+   - Used consistently across all state change handlers
+
+5. **Event handler registration CORRECT**
+   - Done once in setupHoverInteractions() after initial render/animation complete
+   - Handlers attached via D3's .on() method which efficiently manages listeners
+   - Not re-registered on every render
+
+6. **arcs.findIndex() in focus handler (line 966) - TRIVIAL**
+   - O(n) per focus event, but only ~6 segments and only called on keyboard focus
+   - Not called on hover events
+
+### Micro-optimizations possible (NOT bugs)
+- Could cache visualsLayer selection in setupHoverInteractions closure
+- Could pre-compute segment visual selections instead of querying by data-domain
+
+### References consulted
+- https://d3js.org/d3-transition/modifying (tween batching)
+- https://d3js.org/d3-selection (selection caching)
+- Chrome filter docs (GPU vs CPU rendering paths)
+
+### Notes
+- Pre-existing typecheck errors unchanged (missing d3 types, implicit any)
+- Lint passes
