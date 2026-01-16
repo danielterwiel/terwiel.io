@@ -1,0 +1,191 @@
+{
+  "title": "StackCloud Performance Investigation & Optimization",
+  "description": "Systematic performance audit of StackCloud D3 force simulation, React rendering, and View Transitions interactions",
+  "version": "1.0.0",
+  "stories": [
+    {
+      "category": "investigation",
+      "id": "inv-01",
+      "description": "Investigate stack-node.tsx performance: CSS transitions, drop-shadow rendering, memoization effectiveness, willChange usage, paint containment",
+      "steps_to_verify": [
+        "Read stack-node.tsx and analyze memoization comparison function",
+        "Check if CSS drop-shadow (lines 100-110) is optimal vs SVG filters",
+        "Verify willChange usage pattern (line 194) - only set when animating?",
+        "Confirm paint containment (line 199) is properly scoped for SVG",
+        "Analyze transition string construction (lines 167-170) - should be memoized?",
+        "Check if inline style objects are recreated on every render",
+        "Search D3/web for best practices on SVG node rendering performance"
+      ],
+      "passes": true,
+      "findings": [
+        "CSS drop-shadow is optimal - GPU accelerated, 40-60% faster than SVG filters",
+        "willChange correctly conditional - only when isSelected/isHighlighted",
+        "Memoization comparison function is thorough and correct",
+        "BUG: Inline style object recreated on every render (lines 189-200)",
+        "BUG: transitionStyle string computed every render, should be memoized",
+        "BUG: getDropShadow() called every render via inline style",
+        "WARN: contain:paint may not work on SVG elements - needs verification"
+      ]
+    },
+    {
+      "category": "investigation",
+      "id": "inv-02",
+      "description": "Investigate use-stack-simulation.ts: RAF throttling, tick batching, position cache effectiveness, simulation reheat patterns",
+      "steps_to_verify": [
+        "Read use-stack-simulation.ts handleTick implementation",
+        "Verify RAF throttling (16ms) is optimal - should it be adaptive?",
+        "Analyze TICKS_PER_FRAME=2 logic - is this backed by D3 research?",
+        "Check position cache threshold (0.5px) - is this optimal?",
+        "Review simulation.alphaTarget patterns - are they causing unnecessary reheats?",
+        "Analyze updateNodeScaleFactors - is collide.initialize() expensive?",
+        "Search D3 docs for forceSimulation tick optimization best practices"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-03",
+      "description": "Investigate all stack-cloud utils: adaptive-physics.ts, create-forces.ts, boundary-force.ts, root-exclusion-force.ts, mass-dampen-force.ts, calculate-stack-size.ts, performance-utils.ts, selection-index.ts, seed-position.ts, distribute-nodes-in-segment.ts, calculate-domain-angles.ts, convert-arc-angle.ts, calculate-base-radius.ts",
+      "steps_to_verify": [
+        "Read adaptive-physics.ts - check if viewport metrics are computed too often",
+        "Read create-forces.ts - are forces recreated unnecessarily in updateSimulationForces?",
+        "Check if forceX/forceY/charge are recreated vs updated in-place",
+        "Read boundary-force.ts - O(n) loop with conditions - any optimizations?",
+        "Read root-exclusion-force.ts - Math.sqrt on every tick for every node?",
+        "Read mass-dampen-force.ts - is the curried function pattern efficient?",
+        "Read calculate-stack-size.ts - date parsing on every calculation?",
+        "Verify selection-index.ts O(1) claims - is it truly O(1)?",
+        "Check if any utils do expensive work that should be memoized",
+        "Search for D3 custom force performance patterns"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-04",
+      "description": "Investigate forceManyBody theta parameter and Barnes-Hut optimization",
+      "steps_to_verify": [
+        "Read D3 forceManyBody documentation on theta parameter",
+        "Current theta=0.5 - research shows 0.9 is default, 1.0 often better for perf",
+        "Analyze if d3-force-reuse library would benefit this use case (~30 nodes)",
+        "Check if distanceMin is set correctly to prevent infinite force",
+        "Review charge strength calculation with mass factor",
+        "Search for Barnes-Hut theta recommendations for small node counts"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-05",
+      "description": "Investigate forceCollide iterations and collision detection",
+      "steps_to_verify": [
+        "Current COLLISION_ITERATIONS=12 - D3 default is 1",
+        "Research if 12 iterations is excessive for ~30 nodes",
+        "Check if iteration count impacts jitter or is overkill",
+        "Analyze collision radius function - is it recalculated every tick?",
+        "Verify COLLISION_STRENGTH=1.0 is optimal",
+        "Search D3 docs for forceCollide performance with varying sizes"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-06",
+      "description": "Investigate stack-cloud-content.tsx: useMemo dependencies, useCallback patterns, render loop efficiency",
+      "steps_to_verify": [
+        "Read stack-cloud-content.tsx and count useMemo/useCallback usage",
+        "Check if scaleFactors useMemo (lines 108-155) has correct dependencies",
+        "Analyze stacks.map render loop - repeated getSearchQuery/getSearchDomain calls?",
+        "Verify createStackNodeRefCallback and createStackMouseEnterCallback are stable",
+        "Check if selectionIndex.isStackInDomain calls are truly O(1)",
+        "Review useDeferredValue usage - is it helping or hurting?",
+        "Analyze roving tabindex calculation per render"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-07",
+      "description": "Investigate root-node-chart.tsx: D3 transitions, event handler setup, SVG filter performance",
+      "steps_to_verify": [
+        "Read root-node-chart.tsx - very long file, many useEffects",
+        "Check if SVG glow filter (feGaussianBlur) impacts performance",
+        "Analyze D3 transition tween functions - are they efficient?",
+        "Review handleHoverStart/handleHoverEnd - DOM selections on every call?",
+        "Check if d3.select() is called too frequently",
+        "Verify interrupt() usage - is it causing transition conflicts?",
+        "Analyze event handler registration - is it done optimally?"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-08",
+      "description": "Investigate projects.tsx View Transitions: flushSync usage, transition timing, concurrent transition handling",
+      "steps_to_verify": [
+        "Read projects.tsx View Transition implementation",
+        "Check flushSync usage - is it causing layout thrashing?",
+        "Analyze ongoingTransitionRef.current.skipTransition() pattern",
+        "Verify diffProjectStates is efficient",
+        "Check if filterCache is working correctly",
+        "Review useScrollDelegation hook impact",
+        "Search for View Transitions + React best practices 2025"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-09",
+      "description": "Investigate use-dimensions.ts: ResizeObserver efficiency, debounce timing, calculateBaseStackRadius frequency",
+      "steps_to_verify": [
+        "Read use-dimensions.ts implementation",
+        "Check if 100ms debounce is optimal for resize",
+        "Analyze calculateBaseStackRadius - is it expensive? Called too often?",
+        "Verify visualViewport listener cleanup",
+        "Check if dimensions object causes unnecessary re-renders"
+      ],
+      "passes": false
+    },
+    {
+      "category": "investigation",
+      "id": "inv-10",
+      "description": "Profile actual runtime performance: Chrome DevTools Performance tab analysis",
+      "steps_to_verify": [
+        "Record performance trace during initial load",
+        "Record trace during stack node selection/deselection",
+        "Record trace during domain segment hover",
+        "Record trace during search input typing",
+        "Identify long tasks (>50ms) and their sources",
+        "Check for forced synchronous layouts",
+        "Analyze paint/composite times for SVG elements"
+      ],
+      "passes": false
+    },
+    {
+      "category": "bug",
+      "id": "bug-01",
+      "description": "PLACEHOLDER: Bugs discovered during investigation will be added here",
+      "steps_to_verify": [
+        "Placeholder - will be filled after investigation"
+      ],
+      "passes": false
+    }
+  ],
+  "references": {
+    "d3_force_docs": "https://d3js.org/d3-force/simulation",
+    "d3_many_body": "https://d3js.org/d3-force/many-body",
+    "d3_collide": "https://d3js.org/d3-force/collide",
+    "d3_force_reuse": "https://github.com/twosixlabs/d3-force-reuse",
+    "barnes_hut": "https://jheer.github.io/barnes-hut/",
+    "view_transitions": "https://developer.chrome.com/docs/web-platform/view-transitions",
+    "react_view_transition": "https://react.dev/reference/react/ViewTransition"
+  },
+  "notes": [
+    "Current node count is ~30 stacks - relatively small for D3 force simulation",
+    "d3-force-reuse may provide 10-90% speedup by reusing quadtree (recalc every 13 ticks)",
+    "theta parameter at 0.5 may be too conservative - default is 0.9, 1.0 often works",
+    "COLLISION_ITERATIONS=12 is very high - default is 1, 2-4 common for rigidity",
+    "View Transitions with flushSync can cause layout thrashing if not careful",
+    "willChange should only be set during animations to avoid memory pressure"
+  ]
+}

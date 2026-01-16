@@ -2,146 +2,73 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## Commands
 
-This is a personal portfolio website built using Next.js 15 with TypeScript, based on the T3 Stack template. The project is a resume/CV site for Daniël Terwiel with two layout modes: a full layout and a compact one-page print-friendly layout.
+- `npm run dev` - Start dev server (usually already running)
+- `npm run lint` - Biome linter
+- `npm run knip` - Find unused files/exports/dependencies
+- `npm run typecheck` - TypeScript type checking
 
-## Development Commands
+After changes: run `npm run knip` then `npm run lint`. Do not rebuild - dev server handles hot reload.
 
-- `npm run dev` - Start development server
-- `npm run build` - Build production version (includes profiling)
-- `npm run lint` - Run Biome linter
-- `npm run knip` - Check for unused files, exports, and dependencies
-- `npm start` - Start production server
-
-### Post-Change Workflow
-
-After making changes to the codebase, run the following commands to ensure code quality:
-
-1. `npm run knip` - Detect and remove unused files, exports, and dependencies
-2. `npm run lint` - Check for linting issues
-
-NOTE: do not rebuild the project. We got a dev server running.
-
-**Note on Knip**: Knip finds unused files, dependencies, and exports. Some reports may be false positives (e.g., Next.js conventions like `layout.tsx`, `page.tsx`, config files). Always verify before removing reported items. Common false positives include:
-
-- Next.js App Router files (layout.tsx, page.tsx, not-found.tsx)
-- Configuration files (next.config.mjs, tailwind.config.ts, postcss.config.cjs)
-- Type-only dependencies used in TypeScript files
-- Dependencies used in config files
+**Knip false positives**: Next.js conventions (`layout.tsx`, `page.tsx`, `not-found.tsx`), config files, type-only dependencies.
 
 ## Architecture
 
-### Layout System
+Portfolio site with D3-powered interactive "StackCloud" visualization.
 
-The application has a unique dual-layout architecture:
+### Layout
 
-1. **Full Layout** (`src/app/page.tsx:44-59`): Standard multi-section layout with Header, About, Experience, Contact, and Footer components
-2. **Compact Layout** (`src/app/page.tsx:26-40`): Single-page print-optimized layout using compact versions of all components (CompactHeader, CompactAbout, CompactExperience, CompactContact)
+Split-panel desktop layout (`src/app/page.tsx`):
+- Left: StackCloud (D3 force simulation) - fixed position
+- Right: Projects list (filterable) - scrollable
 
-The layout is controlled by a `LayoutToggle` component and state managed in the main page component with `useState`.
+Both panels linked via URL search params (`?q=` from SearchInput, `?filter=` from StackCloud clicks).
 
-### Component Structure
+### StackCloud System
 
-- **Regular components**: `src/components/header.tsx`, `src/components/about.tsx`, etc.
-- **Compact components**: `src/components/compact-*.tsx` - specialized versions optimized for single-page printing
-- **Utility components**: `src/components/icon.tsx`, `src/components/profile-picture.tsx`, etc.
+D3 force-directed graph showing tech stack experience. Key files:
+- `src/components/stack-cloud/stack-cloud.tsx` - Dynamic loader wrapper (d3 is 290kB)
+- `src/components/stack-cloud/stack-cloud-content.tsx` - Main visualization
+- `src/hooks/use-stack-simulation.ts` - D3 simulation logic
+- `src/utils/stack-cloud/*.ts` - Physics, positioning, forces
 
-### Styling
+Nodes sized by experience years (calculated from project date ranges in `src/data/projects.ts`). Grouped into domain segments (Front-end, Back-end, DevOps, Design, etc.).
 
-- Uses Tailwind CSS with custom configuration in `tailwind.config.ts`
-- Typography plugin enabled for prose styling
-- Custom color: `klein: "#002FA7"` (International Klein Blue)
-- Print-specific classes throughout for optimized printing
-- Global styles in `src/styles/globals.css`
+### Data Flow
 
-### Year
+1. `src/data/stack.ts` - Stack definitions (name → domain + icon)
+2. `src/data/projects.ts` - Projects with stack arrays and date ranges
+3. Experience calculated at runtime via `src/utils/calculate-*.ts`
+4. Filtering via `src/utils/filter-projects.ts` with cache (`src/utils/filter-cache.ts`)
 
-The year is 2025. Use this year for your web searches when applicable. Do not use 2024 for web searches unless I say so.
+### View Transitions
 
-### Testing
+Projects list uses View Transitions API for filtering animations.
+- Safari macOS: Disabled (rendering bugs with sticky header)
+- Safari iOS/Chrome: Enabled
+- CSS in `src/styles/globals.css` handles transition pseudo-elements
 
-I manually test my components. No need to rebuild or run the dev server. Just fix type and lint errors at the end of each prompt response.
+### Z-Index (defined in `tailwind.config.ts`)
 
-### Path Aliases
+- `z-0`: Default
+- `z-10`: Projects
+- `z-19-22`: View transitions
+- `z-40`: Header transition group (Chrome)
+- `z-50`: Sticky header
+- `z-60`: Safari header override
 
-- `~/*` maps to `./src/*` (configured in `tsconfig.json`)
+Never use arbitrary z-index values.
 
-### SVG Handling
+## Conventions
 
-Custom webpack configuration in `next.config.mjs` to handle SVG imports as React components using `@svgr/webpack`. SVGs can be imported as components or as URLs using the `?url` query parameter.
+- Path alias: `~/` → `src/`
+- SVGs: Imported as React components via `@svgr/webpack`
+- Colors: OKLCH format, Klein Blue (`#002FA7`) as brand color
+- Types: Centralized in `src/types/index.ts`
+- Imports: Biome organizes - packages first, then React, then local (`~/`), then types
 
-### Environment Variables
+## Plan Mode
 
-Uses `@t3-oss/env-nextjs` for type-safe environment validation in `src/env.mjs`. Currently minimal setup with only NODE_ENV validation.
-
-### Next.js 15 Compatibility Notes
-
-This project has been updated to Next.js 15 with the following changes:
-
-- Components using `useSearchParams()` are wrapped in Suspense boundaries to support static generation
-- The HighlightedText, HighlightedIcon, SearchInput, and Projects components have been refactored to use Suspense
-- The project builds and runs successfully with Next.js 15 while maintaining backward compatibility
-
-### TypeScript Configuration
-
-- Strict TypeScript settings enabled
-- Path aliases configured
-- Includes Next.js plugin for enhanced TypeScript support
-
-### ESLint Configuration
-
-- Based on Next.js recommended config
-- TypeScript rules with type-checking enabled
-- Custom rules for consistent imports and unused variables
-- Inline type imports preferred
-
-## Key Dependencies
-
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS 3.x with Typography plugin
-- **Forms**: Formspree v3 for contact form handling
-- **UI Components**: Radix UI for accessible components (Collapsible, Form)
-- **Icons**: Custom SVG handling with @svgr/webpack
-- **Validation**: Zod 3.x for schema validation
-- **Environment**: @t3-oss/env-nextjs for env var management
-- **Date handling**: date-fns 2.x
-
-## Z-Index Hierarchy
-
-**IMPORTANT**: All z-index values are defined in `tailwind.config.ts` and should be used consistently. Do not use arbitrary z-index values.
-
-### Z-Index Scale (Tailwind):
-- `z-0`: Default layer (body, containers, StackCloud sidebar)
-- `z-10`: Main content (Projects container)
-- `z-20`: View transitions for projects (project items: 19-22)
-  - `z-19`: Project fade-out items
-  - `z-20`: Exiting project items
-  - `z-21`: Entering project items
-  - `z-22`: Staying/visible project items
-- `z-40`: View transition group for header (Chrome only, below sticky header)
-- `z-50`: Sticky elements (Header, contact dropdown)
-- `z-60`: Safari-specific header override (only on Safari, overrides z-50 to stay above view transitions)
-- `z-100`: Emergency layer (use only for critical edge cases)
-
-### Key Rules:
-1. Header (sticky): Always `z-50` in HTML, with Safari override to `z-60` in CSS
-2. Contact dropdown: `z-50` (same as header, inside portal)
-3. Project items during transitions: `z-19` to `z-22` range
-4. View transition pseudo-elements: `z-40` (below header)
-5. Never use arbitrary z-index values like `z-9999` or `z-100000`
-
-### Safari Specific:
-- Safari disables view transitions for the header (`view-transition-name: glass-header`) due to clipping bug
-- On Safari, header z-index is boosted to `z-60` to stay above project animations
-- Chrome continues to use view transitions with header at `z-40` group level
-
-## Development Notes
-
-- The site is designed with print optimization in mind - many classes include print-specific variants
-- Component architecture separates regular and compact versions for different layout modes
-- Uses Inter font from Google Fonts
-- Includes favicon and proper metadata setup
-- Built for Vercel deployment (includes .vercel directory)
-- View transitions API is used for smooth project list filtering animations
-- Safari requires special handling for view transitions due to rendering bugs with sticky positioned elements
+- Make the plan extremely concise. Sacrifice grammar for the sake of concision.
+- At the end of each plan, give me a list of unresolved questions to answer, if any.
