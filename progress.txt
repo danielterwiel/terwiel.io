@@ -1,0 +1,32 @@
+## 2026-01-16: inv-02 - use-stack-simulation.ts investigation
+
+### Status: PASSED (no bugs found)
+
+### Summary
+Investigated RAF throttling, tick batching, position cache, and simulation reheat patterns
+in use-stack-simulation.ts. All implementations follow D3 best practices.
+
+### Findings
+1. **RAF throttling (16ms)**: CORRECT - D3 timer already uses RAF internally, so the
+   additional 16ms check is redundant but harmless. No adaptive throttle needed for ~30 nodes.
+
+2. **TICKS_PER_FRAME=2**: CORRECT - Backed by D3 research: "force layout is pure math"
+   so multiple ticks per frame is valid. 2 is conservative for small node count.
+
+3. **Position cache (0.5px threshold)**: CORRECT - Sub-pixel changes are imperceptible.
+   Cache properly includes scaleFactor for invalidation.
+
+4. **alphaTarget patterns**: CORRECT - Values kept low (0.03-0.1) to prevent jitter.
+   setTimeout properly resets to 0. isSettlingRef properly tracks settling state.
+
+5. **collide.initialize()**: ACCEPTABLE - O(n) operation but only called when scales
+   actually change (hasChanges guard). Cheap for ~30 nodes.
+
+### References consulted
+- https://d3js.org/d3-force/simulation
+- https://github.com/d3/d3-force/issues/111
+- https://github.com/twosixlabs/d3-force-reuse
+
+### Notes
+- Pre-existing typecheck errors in root-node-chart.tsx (missing d3 types, implicit any)
+- Lint passes after formatting prd.json
