@@ -11,7 +11,7 @@ export function mergeDateRanges(ranges: DateRange[]): MergedExperience {
     return { totalMonths: 0, years: 0, months: 0 };
   }
 
-  // Parse and sort ranges by start date
+  // Parse and sort ranges by start date (toSorted for immutability)
   const parsedRanges = ranges
     .map((range) => ({
       from: parseISO(range.from),
@@ -19,7 +19,7 @@ export function mergeDateRanges(ranges: DateRange[]): MergedExperience {
         range.to === "present" ? new Date().toISOString() : range.to,
       ),
     }))
-    .sort((a, b) => a.from.getTime() - b.from.getTime());
+    .toSorted((a, b) => a.from.getTime() - b.from.getTime());
 
   // Merge overlapping ranges
   const merged: Array<{ from: Date; to: Date }> = [];

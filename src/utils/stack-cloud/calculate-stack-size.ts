@@ -113,8 +113,10 @@ export function calculateStackSizeFactors(
     Math.max(...stacks.map((s) => s.lastUsed.getTime())),
   );
 
-  // Calculate median experience months (baseline)
-  const monthsArray = stacks.map((s) => s.totalMonths).sort((a, b) => a - b);
+  // Calculate median experience months (baseline, toSorted for immutability)
+  const monthsArray = stacks
+    .map((s) => s.totalMonths)
+    .toSorted((a, b) => a - b);
   const medianMonths = median(monthsArray);
 
   // Avoid division by zero

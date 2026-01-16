@@ -73,6 +73,6 @@ export function extractUniqueStacks(projects: Project[]): Stack[] {
 
   const stacks = Array.from(stackMap.values());
 
-  // Sort alphabetically by name
-  return stacks.sort((a, b) => a.name.localeCompare(b.name));
+  // Sort alphabetically by name (toSorted for immutability)
+  return stacks.toSorted((a, b) => a.name.localeCompare(b.name));
 }

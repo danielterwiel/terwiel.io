@@ -488,3 +488,31 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - Component behavior unchanged (verified via lint and type checks)
 
 **Status:** PASSES
+
+---
+
+### 2026-01-16 - PERF_005 Complete
+
+**Task:** Replace .sort() with .toSorted() to prevent array mutation
+
+**What was done:**
+1. Replaced .sort() with .toSorted() in three files
+2. Updated tsconfig.json lib from ES2022 to ES2023 to support toSorted()
+
+**Files modified:**
+- `src/utils/extract-stacks.ts:77` - Changed `stacks.sort()` to `stacks.toSorted()`
+- `src/utils/merge-date-ranges.ts:22` - Changed `.sort()` to `.toSorted()` in map chain
+- `src/utils/stack-cloud/calculate-stack-size.ts:117-119` - Changed `.sort()` to `.toSorted()` in map chain
+- `tsconfig.json:16` - Changed lib from ES2022 to ES2023
+
+**Why toSorted() over sort():**
+- `Array.sort()` mutates the original array in place
+- `Array.toSorted()` (ES2023) returns a new sorted array, leaving original unchanged
+- Prevents potential React state bugs where sorted arrays are used as dependencies
+- More predictable behavior in functional programming patterns
+
+**Acceptance criteria met:**
+- No .sort() calls on arrays that could be React state
+- npm run build succeeds (lint and type checks pass)
+
+**Status:** PASSES
