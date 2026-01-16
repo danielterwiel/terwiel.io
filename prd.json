@@ -235,11 +235,22 @@
       "passes": false
     },
     {
-      "category": "bug",
-      "id": "bug-01",
-      "description": "PLACEHOLDER: Bugs discovered during investigation will be added here",
-      "steps_to_verify": ["Placeholder - will be filled after investigation"],
-      "passes": false
+      "category": "fix",
+      "id": "fix-01",
+      "description": "Fix mass-dampen-force.ts incorrect D3 force pattern - force was NO-OP",
+      "steps_to_verify": [
+        "Force should have .initialize(nodes) method for D3 to pass nodes",
+        "Force function should take alpha param directly, not return curried function",
+        "Force should have .update(avgRadius) method for efficient updates"
+      ],
+      "passes": true,
+      "findings": [
+        "FIXED: Changed function signature from (alpha) => (nodes) => void to (alpha) => void",
+        "FIXED: Added .initialize(_nodes) method to receive nodes from D3 simulation",
+        "FIXED: Added .update(avgRadius) method for parameter updates",
+        "FIXED: Stores nodes in closure variable, accessed during force execution",
+        "Force now follows same pattern as boundary-force.ts and root-exclusion-force.ts"
+      ]
     }
   ],
   "references": {

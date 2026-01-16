@@ -346,3 +346,28 @@ frequency, visualViewport listener cleanup, and dimensions object re-render beha
 ### Notes
 - Pre-existing typecheck errors unchanged
 - Lint passes
+
+## 2026-01-16: fix-01 - mass-dampen-force.ts NO-OP bug fix
+
+### Status: FIXED
+
+### Summary
+Fixed critical bug where mass-dampen-force was a complete NO-OP due to incorrect D3 force pattern.
+The force was returning `(alpha) => (nodes) => void` but D3 expects `(alpha) => void` with nodes
+passed via `.initialize()` method.
+
+### Changes Made
+1. Changed function signature from curried to direct: `force(alpha)` now iterates over stored nodes
+2. Added `.initialize(_nodes)` method - D3 calls this to pass nodes when force is added to simulation
+3. Added `.update(avgRadius)` method for efficient parameter updates without recreating force
+4. Added `MassDampenForce` interface extending `d3.Force` for proper typing
+5. Follows same pattern as boundary-force.ts and root-exclusion-force.ts
+
+### Impact
+- Mass-based velocity dampening is now actually applied to nodes
+- Small nodes now dampen faster than large nodes (as originally intended)
+- Should reduce jitter in small nodes during simulation settling
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
