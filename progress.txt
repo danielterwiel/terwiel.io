@@ -404,3 +404,29 @@ Fixed O(n²) complexity bugs in stack-cloud-content.tsx render loop and use-rovi
 ### Notes
 - Pre-existing typecheck errors unchanged (d3 types missing)
 - Lint passes
+
+## 2026-01-16: fix-03 - calculate-base-radius.ts redundant work and debounce cleanup
+
+### Status: FIXED
+
+### Summary
+Fixed two related issues found in inv-03 and inv-09:
+1. calculateBaseStackRadius was calling extractUniqueStacks() and calculateStackSizeFactors() on every resize
+2. Debounced callbacks in use-dimensions.ts were not calling .cancel() in cleanup
+
+### Changes Made
+1. **calculate-base-radius.ts**: Changed function signature to accept pre-computed stacks and sizeFactors as parameters
+2. **use-dimensions.ts**:
+   - Added stacks and sizeFactors as parameters
+   - Updated measureContainer useCallback dependencies
+   - Added .cancel() calls in both useEffect cleanup functions
+3. **stack-cloud-content.tsx**: Updated useDimensions call to pass stacks and sizeFactors
+
+### Impact
+- Eliminates O(projects×stacks) work + date parsing on every viewport resize
+- Prevents potential "setState on unmounted component" warnings
+- Reuses memoized values from stack-cloud-content.tsx (lines 66-67)
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes

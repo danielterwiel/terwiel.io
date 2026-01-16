@@ -1,6 +1,4 @@
-import { PROJECTS } from "~/data/projects";
-import { extractUniqueStacks } from "~/utils/extract-stacks";
-import { calculateStackSizeFactors } from "./calculate-stack-size";
+import type { Stack } from "~/types";
 
 /**
  * Calculate optimal base stack radius for force simulation
@@ -20,17 +18,17 @@ import { calculateStackSizeFactors } from "./calculate-stack-size";
  * @param viewportWidth - SVG viewport width in pixels
  * @param viewportHeight - SVG viewport height in pixels
  * @param rootRadius - Root node radius (for exclusion zone calculation)
+ * @param stacks - Pre-computed unique stacks (avoids redundant extraction)
+ * @param sizeFactors - Pre-computed size factors (avoids redundant date parsing)
  * @returns Optimal base radius for stack nodes
  */
 export function calculateBaseStackRadius(
   viewportWidth: number,
   viewportHeight: number,
   rootRadius: number,
+  stacks: Stack[],
+  sizeFactors: Map<string, number>,
 ): number {
-  // Get stack data
-  const stacks = extractUniqueStacks(PROJECTS);
-  const sizeFactors = calculateStackSizeFactors(PROJECTS);
-
   // Edge case: no stacks
   if (stacks.length === 0) return 30;
 

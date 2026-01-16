@@ -66,15 +66,15 @@
         "Check if any utils do expensive work that should be memoized",
         "Search for D3 custom force performance patterns"
       ],
-      "passes": false,
+      "passes": true,
       "findings": [
         "adaptive-physics.ts CORRECT: All functions pure, O(1) or O(n), only called on init/resize (debounced)",
         "create-forces.ts ACCEPTABLE: updateSimulationForces recreates forceX/forceY/charge, but D3 forces are lightweight. Only on resize (100ms debounce)",
         "boundary-force.ts CORRECT: O(n) per tick but simple arithmetic. Has .update() for in-place updates",
         "root-exclusion-force.ts CORRECT: Math.sqrt per node per tick is standard D3 pattern. Has .update() method",
-        "BUG: mass-dampen-force.ts INCORRECT PATTERN - Returns force(alpha)->(nodes)->void but D3 expects force(alpha)->void with nodes via .initialize(). Force is NO-OP",
+        "FIXED: mass-dampen-force.ts - incorrect D3 pattern fixed in fix-01",
         "calculate-stack-size.ts ACCEPTABLE: parseISO per project but memoized via useMemo in stack-cloud-content.tsx",
-        "BUG: calculate-base-radius.ts REDUNDANT WORK - Calls extractUniqueStacks() and calculateStackSizeFactors() on every resize. Already memoized upstream",
+        "FIXED: calculate-base-radius.ts - redundant work fixed in fix-03, now accepts pre-computed params",
         "selection-index.ts CORRECT: O(1) lookups via Set.has() and Map.get(). buildSelectionIndex O(n) but once",
         "performance-utils.ts CORRECT: Position cache with 0.5px threshold is efficient",
         "seed-position.ts, distribute-nodes-in-segment.ts, calculate-domain-angles.ts, convert-arc-angle.ts: All CORRECT - pure O(1) math"
@@ -137,15 +137,15 @@
         "Review useDeferredValue usage - is it helping or hurting?",
         "Analyze roving tabindex calculation per render"
       ],
-      "passes": false,
+      "passes": true,
       "findings": [
         "scaleFactors useMemo CORRECT: dependencies [stacks, searchParams, selectionIndex], uses O(1) selectionIndex lookups",
-        "BUG: stacks.map() render loop (lines 339-404) calls getSearchQuery(), getSearchFilter(), getSearchDomain() INSIDE the loop - 4 function calls × 30 stacks = 120 calls/render that should be computed once outside",
+        "FIXED: stacks.map() render loop - function calls hoisted outside loop in fix-02",
         "createStackNodeRefCallback CORRECT: Properly memoized factory function",
         "createStackMouseEnterCallback CONCERN: Returns new closure per stack per render (line 399) - could cause unnecessary child re-renders if React.memo used",
         "selectionIndex.isStackInDomain CORRECT: O(1) via Map.get().has()",
         "useDeferredValue CORRECT: Properly defers searchParams to prioritize animations",
-        "BUG: rovingTabindex.getTabIndex() uses items.findIndex() which is O(n), called 30x per render = O(n²)"
+        "FIXED: rovingTabindex.getTabIndex() - now uses O(1) Map lookup, fixed in fix-02"
       ]
     },
     {
@@ -210,12 +210,12 @@
         "Verify visualViewport listener cleanup",
         "Check if dimensions object causes unnecessary re-renders"
       ],
-      "passes": false,
+      "passes": true,
       "findings": [
         "100ms debounce OPTIMAL: Standard for resize handlers. Not too fast (janky), not too slow (laggy)",
-        "BUG: calculateBaseStackRadius REDUNDANT WORK - Calls extractUniqueStacks(PROJECTS) and calculateStackSizeFactors(PROJECTS) on every resize. These involve O(projects×stacks) iterations + date parsing. Both already memoized in stack-cloud-content.tsx (lines 66-67)",
+        "FIXED: calculateBaseStackRadius - redundant work fixed in fix-03, now accepts pre-computed stacks/sizeFactors",
         "visualViewport listener cleanup CORRECT: Properly removes both 'resize' and 'scroll' listeners",
-        "BUG: Debounced callbacks not cancelled on cleanup - Two debounced functions created (lines 54, 69) but neither calls .cancel() in cleanup. Could cause state updates after unmount",
+        "FIXED: Debounced callbacks now call .cancel() in cleanup - fixed in fix-03",
         "dimensions object CORRECT: New object created only on actual resize events, not every render"
       ]
     },
@@ -266,6 +266,23 @@
         "FIXED: Added indexMap useMemo to use-roving-tabindex.ts for O(1) id->index lookup",
         "FIXED: getTabIndex() now uses indexMap.get() instead of items.findIndex() - O(1) instead of O(n)",
         "Overall complexity reduced from O(n²) to O(n) per render"
+      ]
+    },
+    {
+      "category": "fix",
+      "id": "fix-03",
+      "description": "Fix calculate-base-radius.ts redundant work and use-dimensions.ts debounce cleanup",
+      "steps_to_verify": [
+        "calculateBaseStackRadius should accept pre-computed stacks/sizeFactors as parameters",
+        "useDimensions should pass stacks/sizeFactors from upstream memoized values",
+        "Debounced callbacks should call .cancel() in cleanup to prevent state updates after unmount"
+      ],
+      "passes": true,
+      "findings": [
+        "FIXED: calculateBaseStackRadius now accepts stacks and sizeFactors as parameters instead of recomputing",
+        "FIXED: useDimensions now takes stacks and sizeFactors as parameters, passed from stack-cloud-content.tsx",
+        "FIXED: Both debounced callbacks (ResizeObserver and visualViewport) now call .cancel() in cleanup",
+        "Eliminates O(projects×stacks) work + date parsing on every viewport resize"
       ]
     }
   ],

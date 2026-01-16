@@ -155,7 +155,8 @@ export function StackCloudContent() {
   }, [stacks, searchParams, selectionIndex]);
 
   // Custom hooks for dimensions and simulation
-  const { dimensions } = useDimensions(wrapperRef);
+  // Pass pre-computed stacks/sizeFactors to avoid redundant work on resize
+  const { dimensions } = useDimensions(wrapperRef, stacks, sizeFactors);
   const { nodesRef, isVisible, updateSimulation, updateNodeScaleFactors } =
     useStackSimulation({
       dimensions,

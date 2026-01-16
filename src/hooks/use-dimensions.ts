@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
-import type { Dimensions } from "~/types/simulation";
+import type { Dimensions, Stack } from "~/types";
+
 import { STACK_CLOUD_BREAKPOINTS } from "~/constants/breakpoints";
 import { debounce } from "~/utils/debounce";
 import { calculateBaseStackRadius } from "~/utils/stack-cloud/calculate-base-radius";
@@ -8,9 +9,15 @@ import { calculateBaseStackRadius } from "~/utils/stack-cloud/calculate-base-rad
 /**
  * Hook to measure and track container dimensions
  * Handles ResizeObserver and VisualViewport changes (for iOS Safari)
+ *
+ * @param wrapperRef - Ref to the container element
+ * @param stacks - Pre-computed unique stacks (avoids redundant extraction on resize)
+ * @param sizeFactors - Pre-computed size factors (avoids redundant date parsing on resize)
  */
 export function useDimensions(
   wrapperRef: React.RefObject<HTMLDivElement | null>,
+  stacks: Stack[],
+  sizeFactors: Map<string, number>,
 ) {
   const [dimensions, setDimensions] = useState<Dimensions | null>(null);
 
@@ -25,10 +32,13 @@ export function useDimensions(
 
     // Calculate optimal base stack radius using circle packing algorithm
     // Accounts for: viewport area, node count, size factor distribution
+    // Uses pre-computed stacks/sizeFactors to avoid redundant work on resize
     const stackRadius = calculateBaseStackRadius(
       rect.width,
       rect.height,
       rootRadius,
+      stacks,
+      sizeFactors,
     );
 
     return {
@@ -39,7 +49,7 @@ export function useDimensions(
       rootRadius,
       stackRadius,
     };
-  }, [wrapperRef]);
+  }, [wrapperRef, stacks, sizeFactors]);
 
   // Initial measurement on mount
   useEffect(() => {
@@ -59,7 +69,10 @@ export function useDimensions(
     const resizeObserver = new ResizeObserver(debouncedResize);
     resizeObserver.observe(wrapperRef.current);
 
-    return () => resizeObserver.disconnect();
+    return () => {
+      debouncedResize.cancel();
+      resizeObserver.disconnect();
+    };
   }, [measureContainer, wrapperRef]);
 
   // VisualViewport listener for iOS Safari toolbar show/hide
@@ -81,6 +94,7 @@ export function useDimensions(
     );
 
     return () => {
+      handleVisualViewportChange.cancel();
       window.visualViewport?.removeEventListener(
         "resize",
         handleVisualViewportChange,
