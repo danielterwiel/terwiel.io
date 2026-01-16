@@ -371,3 +371,36 @@ passed via `.initialize()` method.
 ### Notes
 - Pre-existing typecheck errors unchanged (d3 types missing)
 - Lint passes
+
+## 2026-01-16: fix-02 - O(n²) render loop bugs
+
+### Status: FIXED
+
+### Summary
+Fixed O(n²) complexity bugs in stack-cloud-content.tsx render loop and use-roving-tabindex.ts.
+
+### Bugs Fixed
+
+1. **stack-cloud-content.tsx - Redundant function calls in .map() loop**
+   - getSearchQuery(), getSearchFilter(), getSearchDomain() (×2) called inside stacks.map()
+   - ~120 function calls per render (4 × ~30 stacks)
+   - FIX: Hoisted calls outside loop using IIFE pattern - now O(1) total
+
+2. **use-roving-tabindex.ts - O(n²) getTabIndex()**
+   - getTabIndex() used items.findIndex() which is O(n)
+   - Called ~30 times per render = O(n²) total
+   - FIX: Added indexMap useMemo with id->index Map for O(1) lookup
+
+### Changes Made
+1. stack-cloud-content.tsx: Wrapped stacks.map() in IIFE to hoist function calls outside
+2. use-roving-tabindex.ts: Added indexMap useMemo for O(1) id->index mapping
+3. use-roving-tabindex.ts: Changed getTabIndex() to use indexMap.get() instead of findIndex()
+
+### Impact
+- Render loop complexity reduced from O(n²) to O(n)
+- ~120 fewer function calls per render in stack-cloud-content.tsx
+- getTabIndex() now O(1) instead of O(n)
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes

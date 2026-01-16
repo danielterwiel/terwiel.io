@@ -251,6 +251,22 @@
         "FIXED: Stores nodes in closure variable, accessed during force execution",
         "Force now follows same pattern as boundary-force.ts and root-exclusion-force.ts"
       ]
+    },
+    {
+      "category": "fix",
+      "id": "fix-02",
+      "description": "Fix O(n²) render loop bugs in stack-cloud-content.tsx and use-roving-tabindex.ts",
+      "steps_to_verify": [
+        "Hoist getSearchQuery/getSearchFilter/getSearchDomain calls outside stacks.map() loop",
+        "Replace items.findIndex() with O(1) Map lookup in getTabIndex()"
+      ],
+      "passes": true,
+      "findings": [
+        "FIXED: Hoisted 4 function calls outside render loop using IIFE pattern - now O(1) per render instead of O(4n)",
+        "FIXED: Added indexMap useMemo to use-roving-tabindex.ts for O(1) id->index lookup",
+        "FIXED: getTabIndex() now uses indexMap.get() instead of items.findIndex() - O(1) instead of O(n)",
+        "Overall complexity reduced from O(n²) to O(n) per render"
+      ]
     }
   ],
   "references": {
