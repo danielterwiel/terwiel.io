@@ -469,3 +469,45 @@ this was creating unnecessary object allocations that could trigger React re-ren
 - Pre-existing typecheck errors unchanged (d3 types missing)
 - Lint passes
 - Knip passes
+
+## 2026-01-16: a11y-test-01 - Comprehensive accessibility test plan
+
+### Status: COMPLETED
+
+### Summary
+Created comprehensive accessibility test plan covering keyboard navigation, screen reader testing,
+high contrast mode, reduced motion, and automated axe-core scanning for WCAG 2.2 Level AA compliance.
+
+### Test Plan Created
+
+1. **Keyboard Navigation Tests**
+   - Tab into/out of StackCloud, focus ring visibility (keyboard-only via inputModality tracking)
+   - Arrow key navigation within pie chart segments (roving tabindex)
+   - Enter/Space activation toggles filters, updates aria-pressed and URL
+
+2. **Screen Reader Tests**
+   - VoiceOver (macOS/iOS): Segment announces as "{Domain}: {X}% - click to filter" button
+   - aria-pressed state announced correctly for toggle buttons
+   - Tab order matches radial visual order (hit-areas-layer is stable)
+   - NVDA (Windows) and TalkBack (Android) verification
+
+3. **High Contrast Mode Tests**
+   - macOS 'Increase Contrast': DOMAIN_COLORS_HIGH_CONTRAST_HEX palette
+   - Windows High Contrast: forcedColors mode uses CanvasText/Canvas
+   - FOCUS_COLOR_HEX (#005FCC) has 4.6:1 contrast ratio
+   - getBorderWidth returns thicker borders (2-3.5px) in high contrast mode
+
+4. **Reduced Motion Tests**
+   - getTransitionDuration returns 0ms when prefersReducedMotion
+   - CSS @media (prefers-reduced-motion: reduce) disables animations
+   - Force simulation physics continue (only visual transitions disabled)
+
+5. **Automated axe-core Scan**
+   - Recommended: Add npm run test:a11y script with @axe-core/playwright
+   - Scan for WCAG 2.2 Level AA violations
+   - Test both light and high-contrast modes
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Knip passes
+- Lint environment issue (biome binary not found for linux-arm64)
