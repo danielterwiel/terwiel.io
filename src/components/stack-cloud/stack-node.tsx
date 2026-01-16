@@ -1,6 +1,6 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { memo, useTransition } from "react";
+import { memo, useMemo, useTransition } from "react";
 
 import type { Dimensions, Domain } from "~/types";
 
@@ -97,7 +97,8 @@ const StackNodeComponent = (props: StackNodeProps) => {
   // Balanced glow: subtle for hover, moderate for selected (WCAG 2.2 multi-modal feedback)
   // OPTIMIZATION: Use lighter blur radius (2px/4px instead of 3px/6px) to reduce paint cost
   // Research shows 40-60% faster paint with reduced shadow blur radius
-  const getDropShadow = () => {
+  // Memoized to avoid recalculation on every render
+  const dropShadow = useMemo(() => {
     if (!a11y.shouldShowGlow || state === "default") return "none";
 
     const color = borderColor;
@@ -107,7 +108,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
     }
     // Moderate glow for selected (lighter shadow = faster paint)
     return `drop-shadow(0 0 4px ${color})`;
-  };
+  }, [a11y.shouldShowGlow, state, borderColor]);
 
   // Get icon-specific color for hover override
   const iconSpecificColor = getIconHexColor(stack.iconKey);
@@ -164,10 +165,33 @@ const StackNodeComponent = (props: StackNodeProps) => {
   // OPTIMIZATION: Refined easing curve and staggered timing for perceived smoothness
   // cubic-bezier(0.25, 1.65, 0.65, 1) gives more pronounced bounce with snappier feel
   // Stagger: filter/opacity transition (200ms) starts before transform (600ms) for depth perception
-  const transitionStyle =
-    transitionDuration > 0
-      ? `filter ${transitionDuration}ms ease-in-out, transform 600ms cubic-bezier(0.25, 1.65, 0.65, 1), opacity ${transitionDuration}ms ease-in-out`
-      : "none";
+  // Memoized to avoid string recreation on every render
+  const transitionStyle = useMemo(
+    () =>
+      transitionDuration > 0
+        ? `filter ${transitionDuration}ms ease-in-out, transform 600ms cubic-bezier(0.25, 1.65, 0.65, 1), opacity ${transitionDuration}ms ease-in-out`
+        : "none",
+    [transitionDuration],
+  );
+
+  // Memoize the style object to prevent recreation on every render
+  // This is critical for ~30 nodes that each create a style object
+  const nodeStyle = useMemo(
+    () => ({
+      filter: dropShadow,
+      transition: transitionStyle,
+      // Enable GPU acceleration for transform and filter
+      // Only hint willChange when actually animating to avoid memory pressure
+      willChange:
+        isSelected || isHighlighted ? ("transform, filter" as const) : "auto",
+      // OPTIMIZATION: Use CSS containment to reduce paint scope
+      // paint containment: browser only repaints this element and its children
+      // This prevents parent/sibling repaints when this node updates
+      // Note: Using paint only (not layout) for SVG safety - SVG coordinate system differs from CSS
+      contain: "paint" as const,
+    }),
+    [dropShadow, transitionStyle, isSelected, isHighlighted],
+  );
 
   return (
     // D3 sets position via attribute, scale via style.transform
@@ -186,18 +210,7 @@ const StackNodeComponent = (props: StackNodeProps) => {
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onFocus={onFocus}
-      style={{
-        filter: getDropShadow(),
-        transition: transitionStyle,
-        // Enable GPU acceleration for transform and filter
-        // Only hint willChange when actually animating to avoid memory pressure
-        willChange: isSelected || isHighlighted ? "transform, filter" : "auto",
-        // OPTIMIZATION: Use CSS containment to reduce paint scope
-        // paint containment: browser only repaints this element and its children
-        // This prevents parent/sibling repaints when this node updates
-        // Note: Using paint only (not layout) for SVG safety - SVG coordinate system differs from CSS
-        contain: "paint",
-      }}
+      style={nodeStyle}
     >
       {/* Main node circle */}
       <circle

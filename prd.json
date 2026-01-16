@@ -21,9 +21,9 @@
         "CSS drop-shadow is optimal - GPU accelerated, 40-60% faster than SVG filters",
         "willChange correctly conditional - only when isSelected/isHighlighted",
         "Memoization comparison function is thorough and correct",
-        "BUG: Inline style object recreated on every render (lines 189-200)",
-        "BUG: transitionStyle string computed every render, should be memoized",
-        "BUG: getDropShadow() called every render via inline style",
+        "FIXED: Inline style object recreated on every render - now memoized via useMemo (fix-04)",
+        "FIXED: transitionStyle string computed every render - now memoized (fix-04)",
+        "FIXED: getDropShadow() called every render - now memoized as dropShadow (fix-04)",
         "WARN: contain:paint may not work on SVG elements - needs verification"
       ]
     },
@@ -283,6 +283,23 @@
         "FIXED: useDimensions now takes stacks and sizeFactors as parameters, passed from stack-cloud-content.tsx",
         "FIXED: Both debounced callbacks (ResizeObserver and visualViewport) now call .cancel() in cleanup",
         "Eliminates O(projects×stacks) work + date parsing on every viewport resize"
+      ]
+    },
+    {
+      "category": "fix",
+      "id": "fix-04",
+      "description": "Fix stack-node.tsx inline style object recreation on every render",
+      "steps_to_verify": [
+        "Memoize getDropShadow() result to avoid recalculation on every render",
+        "Memoize transitionStyle string to avoid recreation on every render",
+        "Memoize the entire style object to prevent new object on every render"
+      ],
+      "passes": true,
+      "findings": [
+        "FIXED: dropShadow now useMemo with deps [a11y.shouldShowGlow, state, borderColor]",
+        "FIXED: transitionStyle now useMemo with deps [transitionDuration]",
+        "FIXED: nodeStyle object now useMemo with deps [dropShadow, transitionStyle, isSelected, isHighlighted]",
+        "Prevents ~30 style object recreations per render for memoized StackNode components"
       ]
     }
   ],

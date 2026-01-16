@@ -430,3 +430,42 @@ Fixed two related issues found in inv-03 and inv-09:
 ### Notes
 - Pre-existing typecheck errors unchanged (d3 types missing)
 - Lint passes
+
+## 2026-01-16: fix-04 - stack-node.tsx inline style memoization
+
+### Status: FIXED
+
+### Summary
+Fixed performance bugs in stack-node.tsx where inline style objects, transitionStyle string, and
+getDropShadow() were all being recreated on every render. For ~30 memoized StackNode components,
+this was creating unnecessary object allocations that could trigger React re-renders.
+
+### Bugs Fixed (from inv-01)
+1. **Inline style object recreated on every render (lines 189-200)**
+   - Created new object on every render even when values unchanged
+   - FIX: Memoized as `nodeStyle` via useMemo
+
+2. **transitionStyle string computed every render**
+   - String concatenation happened on every render
+   - FIX: Memoized with dependency on [transitionDuration]
+
+3. **getDropShadow() called every render via inline style**
+   - Function called inside JSX style prop
+   - FIX: Changed to memoized `dropShadow` value with deps [a11y.shouldShowGlow, state, borderColor]
+
+### Changes Made
+1. Added `useMemo` import
+2. Converted `getDropShadow()` function to `dropShadow` useMemo
+3. Wrapped `transitionStyle` in useMemo
+4. Created memoized `nodeStyle` object containing filter, transition, willChange, contain
+5. Updated JSX to use `style={nodeStyle}` instead of inline object
+
+### Impact
+- Prevents ~30 style object recreations per render
+- Better compatibility with React.memo - stable style object won't trigger unnecessary re-renders
+- Reduced GC pressure from object allocations
+
+### Notes
+- Pre-existing typecheck errors unchanged (d3 types missing)
+- Lint passes
+- Knip passes
