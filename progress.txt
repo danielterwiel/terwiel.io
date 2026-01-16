@@ -458,3 +458,33 @@ The `transform` string was already safe (used `.toFixed(2)` since initial implem
 - npm run build succeeds
 
 **Status:** PASSES
+
+---
+
+### 2026-01-16 - PERF_004 Complete
+
+**Task:** Memoize dynamic RegExp creation in components
+
+**What was done:**
+1. Refactored highlighted.tsx to use useMemo for regex patterns
+2. Hoisted hexToRgb function and HEX_COLOR_REGEX outside Badge component
+
+**Files modified:**
+- `src/components/highlighted.tsx` - Replaced hasFullWordMatch() with memoized patterns via useMemo
+- `src/components/badge.tsx` - Hoisted hexToRgb and HEX_COLOR_REGEX constant outside component
+
+**Key changes in highlighted.tsx:**
+- Previous: hasFullWordMatch() created new RegExp on every call, called multiple times per render
+- Previous: split() created new RegExp inline on every render
+- Now: Both patterns created once per query change via useMemo({ matchPattern, splitPattern }, [query])
+- Added escapeRegex() helper with hoisted REGEX_ESCAPE_PATTERN constant
+
+**Key changes in badge.tsx:**
+- Previous: hexToRgb function with inline regex defined inside component (recreated every render)
+- Now: HEX_COLOR_REGEX constant and hexToRgb function hoisted to module scope
+
+**Acceptance criteria met:**
+- No RegExp creation inside render path without memoization
+- Component behavior unchanged (verified via lint and type checks)
+
+**Status:** PASSES

@@ -15,6 +15,21 @@ import {
 import { getSearchFilter, toggleFilterParam } from "~/utils/search-params";
 import { isExactParamMatchAny } from "~/utils/search-params-match";
 
+/** Regex for parsing hex color values - hoisted for performance */
+const HEX_COLOR_REGEX = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i;
+
+/** Convert hex color to RGB object */
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  const result = HEX_COLOR_REGEX.exec(hex);
+  return result?.[1] && result[2] && result[3]
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 148, g: 163, b: 184 }; // slate-400 fallback
+}
+
 export const Badge = ({
   icon,
   name,
@@ -39,19 +54,6 @@ export const Badge = ({
   const colored =
     isAnimating || isMatched || isSelected || validatedIcon !== undefined;
   const hexColor = colored ? getIconHexColor(icon) : "#94A3B8";
-
-  // Convert hex to RGB for dynamic coloring
-  const hexToRgb = (hex: string) => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result?.[1] && result[2] && result[3]
-      ? {
-          r: parseInt(result[1], 16),
-          g: parseInt(result[2], 16),
-          b: parseInt(result[3], 16),
-        }
-      : { r: 148, g: 163, b: 184 }; // slate-400 fallback
-  };
-
   const rgb = hexToRgb(hexColor);
   const rgbString = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
 

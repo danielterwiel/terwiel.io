@@ -664,7 +664,7 @@
           "agent_browser_test": null
         }
       ],
-      "passes": false
+      "passes": true
     },
     {
       "id": "PERF_005",

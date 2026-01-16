@@ -1,49 +1,51 @@
 import { useSearchParams } from "next/navigation";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 
-/**
- * Check if a string contains a full word match (case-insensitive)
- * Word boundaries are defined by: whitespace, hyphens, dots, slashes, and punctuation
- */
-function hasFullWordMatch(text: string, query: string): boolean {
-  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
-  // Match the query with word boundaries: start/end of string, separators, or punctuation
-  const pattern = new RegExp(
-    `(^|[\\s\\-./,;:!?"'—–])(${escapedQuery})([\\s\\-./,;:!?"'—–]|$)`,
-    "i",
-  );
-  return pattern.test(text);
+/** Escape special regex characters in a string */
+const REGEX_ESCAPE_PATTERN = /[-/\\^$*+?.()|[\]{}]/g;
+function escapeRegex(str: string): string {
+  return str.replace(REGEX_ESCAPE_PATTERN, "\\$&");
 }
 
 const HighlightedTextContent = ({ children }: { children: string }) => {
   const searchParams = useSearchParams();
   const query = decodeURI(searchParams.get("query") ?? "").trim();
 
-  if (query === "") {
+  // Memoize regex patterns based on query to avoid recreation on each render
+  const { matchPattern, splitPattern } = useMemo(() => {
+    if (!query) return { matchPattern: null, splitPattern: null };
+    const escapedQuery = escapeRegex(query);
+    return {
+      matchPattern: new RegExp(
+        `(^|[\\s\\-./,;:!?"'—–])(${escapedQuery})([\\s\\-./,;:!?"'—–]|$)`,
+        "i",
+      ),
+      splitPattern: new RegExp(
+        `([\\s\\-./,;:!?"'—–]*${escapedQuery}[\\s\\-./,;:!?"'—–]*|[\\s\\-./,;:!?"'—–]+)`,
+        "gi",
+      ),
+    };
+  }, [query]);
+
+  if (!query || !matchPattern || !splitPattern) {
     return <>{children}</>;
   }
 
   // Only highlight if the query is a full word match in the text
-  if (!hasFullWordMatch(children, query)) {
+  if (!matchPattern.test(children)) {
     return <>{children}</>;
   }
 
-  const escapedQuery = query.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
   // Split by word boundaries, capturing leading/trailing punctuation separately
-  const parts = children.split(
-    new RegExp(
-      `([\\s\\-./,;:!?"'—–]*${escapedQuery}[\\s\\-./,;:!?"'—–]*|[\\s\\-./,;:!?"'—–]+)`,
-      "gi",
-    ),
-  );
+  const parts = children.split(splitPattern);
 
   return (
     <>
       {parts.map((part, index) => {
         const key = `${part}-${index}-${part.length}`;
         // Check if this part contains the query as a full word
-        if (hasFullWordMatch(part, query)) {
+        if (matchPattern.test(part)) {
           // Extract leading and trailing punctuation
           const leadingMatch = part.match(/^[\s.-/,;:!?"'—–]*/);
           const trailingMatch = part.match(/[\s.-/,;:!?"'—–]*$/);
