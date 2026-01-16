@@ -70,3 +70,46 @@ convert-arc-angle.ts, calculate-base-radius.ts.
 ### Notes
 - Pre-existing typecheck errors unchanged
 - Lint passes
+
+## 2026-01-16: inv-04 - forceManyBody theta and Barnes-Hut investigation
+
+### Status: PASSED (no actionable bugs)
+
+### Summary
+Investigated forceManyBody theta parameter, Barnes-Hut approximation benefits, d3-force-reuse
+library applicability, and charge strength calculations for ~30 node simulation.
+
+### Findings
+
+1. **theta=0.5 SUBOPTIMAL BUT HARMLESS**
+   - D3 default is 0.9, Barnes-Hut research recommends 1.0 for best accuracy/performance
+   - Per jheer.github.io/barnes-hut: theta=0.5 does NOT outperform naive O(n²) until ~6000 nodes
+   - At ~30 nodes, quadtree overhead may actually slow things down vs naive approach
+   - Impact: Negligible at this scale
+
+2. **d3-force-reuse NOT BENEFICIAL**
+   - Library caches quadtree and recalculates every 13 ticks
+   - At ~30 nodes, quadtree is so cheap that caching provides no measurable gain
+   - Would add dependency for no benefit
+
+3. **distanceMin CORRECT**
+   - Set to 1 in constants, scaled by minRadius*0.5 in adaptive-physics.ts
+   - Properly prevents infinite force for coincident nodes
+
+4. **Charge strength CORRECT**
+   - Uses massFactor=(radius/avgRadius)² for size-proportional repulsion
+   - Root node correctly excluded (returns 0)
+   - Strength of -10 is reasonable for mixed node sizes
+
+### Recommendation
+Could change theta from 0.5 to 0.9/1.0 for marginal improvement but perf gain imperceptible
+at 30 nodes. Current implementation is acceptable - no action required.
+
+### References consulted
+- https://d3js.org/d3-force/many-body
+- https://jheer.github.io/barnes-hut/
+- https://github.com/twosixlabs/d3-force-reuse
+
+### Notes
+- Pre-existing typecheck errors unchanged
+- Lint passes

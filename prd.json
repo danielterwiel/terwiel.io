@@ -92,7 +92,15 @@
         "Review charge strength calculation with mass factor",
         "Search for Barnes-Hut theta recommendations for small node counts"
       ],
-      "passes": false
+      "passes": true,
+      "findings": [
+        "theta=0.5 SUBOPTIMAL BUT HARMLESS: D3 default is 0.9, research recommends 1.0 for best accuracy/perf balance. Per Barnes-Hut research, theta=0.5 does NOT outperform naive O(n²) until ~6000 nodes",
+        "FOR ~30 NODES: Barnes-Hut provides NO benefit. Quadtree overhead may actually slow things down. Current theta=0.5 has more overhead than naive but impact is negligible at this scale",
+        "d3-force-reuse NOT BENEFICIAL: Library caches quadtree and recalcs every 13 ticks. At ~30 nodes, quadtree is so cheap that caching provides no gain",
+        "distanceMin CORRECT: Set to 1, scaled by minRadius*0.5 in adaptive-physics.ts to prevent infinite force for coincident nodes",
+        "charge strength CORRECT: Uses massFactor=(radius/avgRadius)² for size-proportional repulsion. Root node correctly excluded (returns 0)",
+        "RECOMMENDATION: Could change theta from 0.5 to 0.9 (D3 default) or 1.0 but perf gain is imperceptible at 30 nodes. No action needed."
+      ]
     },
     {
       "category": "investigation",
